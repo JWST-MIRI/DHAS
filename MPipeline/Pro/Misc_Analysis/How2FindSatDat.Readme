@@ -1,0 +1,41 @@
+How to Run Sat_search.pro that finds from LVL1 data , second to last frame
+how many pixels above 50000 there are. If the number of pixels that hit
+this limit is over 5 % of the data it is printed to the screen and log 
+file. 
+
+1. Directory running code:
+/home/users/miri/SatLog
+
+2. Name/Location of IDL routine
+
+sat_search.pro
+/home/users/miri/DHAS_SW/MIRI_DHAS-5.0.6/MPipeline/Pro/Misc_Analysis
+
+3. directory where LVL data is
+/disks/galaxy1/users/miri_arc1/data/FM_Archive/LVL1
+
+from this directory type:
+ls */*.fits > /home/users/miri/SatLog/LVL1.list
+
+The LVL1.list contains the names of the files you want to run over.
+Create this list any way you want to - remove files you have already
+run over etc..
+
+
+Now go to 
+/home/users/miri/SatLog/LVL1.list
+Invoke idl
+
+type
+
+sat_search,'LVL1.list',dirin='/disks/galaxy1/users/miri_arc1/data/FM_Archive/LVL1'
+
+This program prints to the screen and to a log file all the cases where
+the second to last frame had 5 percent of the pixel > 50000
+
+
+Log file default name: saturated_data.log
+
+Both 5 and 50000 are hard coded into thee sat_search.pro file. Change them
+in program and recompile it desired.
+

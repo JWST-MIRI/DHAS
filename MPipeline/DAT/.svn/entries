@@ -1,0 +1,77 @@
+10
+
+dir
+4518
+https://aeon.stsci.edu/ssb/svn/jwst/trunk/DHAS/MIRI_DHAS/MPipeline/DAT
+https://aeon.stsci.edu/ssb/svn/jwst
+
+
+
+2017-03-21T23:27:20.101752Z
+4518
+morrison
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+560b4ebf-6bc0-4cc5-b8e0-b136f69d22d4
+
+src_gen
+dir
+
+lib
+dir
+
+src_mc
+dir
+
+src_ms
+dir
+
+src_mrs
+dir
+
+Makefile
+file
+
+
+
+
+2014-02-10T21:56:20.061050Z
+672c0c9158732f769ac266c568410224
+2010-06-29T19:50:08.090032Z
+72
+stsci_chanley
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1335
+

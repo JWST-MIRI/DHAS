@@ -1,0 +1,62 @@
+
+wcube={wcubei, $
+        mode                : 0,$ ; Mode = 0, Fast, Mode= 1, Slow, Mode = 2 Fast Short mode. 
+	filename            : ' ' ,$
+	dircal              : ' ' ,$
+	d2cfile             : ' ' ,$
+	sci_filename        : ' ' ,$ 
+	dirsci              : ' ' ,$ 
+	sca_id              : 0,$
+	channel             : 0,$
+	subchannel          : 0,$
+	start_wavelength    : 0.0,$
+	end_wavelength      : 0.0,$
+	istart_wavelength   : 0,$
+	iend_wavelength     : 0,$
+	naxis1              : 0,$
+	naxis2         	    : 0,$
+	naxis3              : 0,$
+	crpix1              : 0.0d0,$
+	crpix2              : 0.0d0,$
+	crpix3              : 0.0d0,$
+	crval1              : 0.0d0,$
+	crval2              : 0.0d0,$
+	crval3              : 0.0d0,$
+	cdelt1              : 0.0d0,$
+	cdelt2              : 0.0d0,$
+	cdelt3              : 0.0d0,$
+	x1                  : 0,$
+	x2                  : 0,$
+	y1                  : 0,$
+	y2                  : 0,$
+        pcubedata           : ptr_new(),$   ;pointer to cube
+	pwavelength         : ptr_new(),$   ; pointer to wavelength axis values
+	pbeta               : ptr_new(),$   ; pointer to beta axis values
+	palpha              : ptr_new()}    ; pointer to alpha axis values
+
+
+;***********************************************************************
+; calibration data
+
+wcalibration_data = { wcalibration_datai,$
+	xrange     :   intarr(4,2),$
+	filename    : ' ' ,$
+	palpha      : ptr_new(),$
+	pwavelength : ptr_new(),$
+	psliceno    : ptr_new(),$
+	px          : ptr_new(),$
+	py          : ptr_new()} 
+
+
+;***********************************************************************
+; calibration data
+
+wslope_data = { wslope_datai,$
+	filename    : ' ' ,$
+	naxis1      : 0,$
+	naxis2      : 0,$
+	naxis3      : 0,$
+	subarray    : 0,$
+	pslope      : ptr_new()}
+	
+

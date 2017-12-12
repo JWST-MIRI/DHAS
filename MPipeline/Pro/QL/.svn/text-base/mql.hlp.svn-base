@@ -1,0 +1,94 @@
+If the "Analyze" button is pushed from the ql main window a new window pops up
+that allows the user to 
+
+	A. View in a single a window a science image frame, its associated reference 
+image and the resulting slope image (if the miri_sloper program was run). In order 
+to fit all these images on 1 window the images are binned. The default binning is
+a 4 X 4 binning. This binning is set in the preferences file. 
+
+From this window the user can query certain pixel values, change the stretch of
+the display, view statistical information for each image, view a zoomed image
+of either the science data, reference data or slope data, plot histograms, row
+or column slices of the images.
+	 
+	B. Analyze by Amplifier: 
+		1. Plot a selected frame and split the image into data from each
+of the 5 amplifiers. From this window the user can display pixel values (in
+the 258 X 1024 amplifier reference frame)  zoom, display basic statistics,
+plot a histogram, column or row slice plots for each of the amplifier images. 
+	 
+		2. Plot the data from the 5 amplifiers on the same plot in readout
+order. This window allows the user to select which amplifiers to plot and to change
+the range of the plots. 
+
+
+
+Definition of relevant code:
+
+MAIN WIDGET: 
+	mql_display_images.pro : display the science image, zoom image, 
+reference image, and slope image
+
+PIXEl INFORMATION:
+	The user can click on the image and seperate window will pop up to
+display the data values associated with this pixel for all the frames in the
+integration, as well as, the reference data  values. The use can then query different
+pixel values either by selecting difference pixel from this "Pixel Information"
+window or by clicking on a new pixel any of the images. 
+	If the user wishes to turn off the window popping up each time a pixel is
+clicked on then the button on the upper left hand side of the window :
+"Display Pixel Values" can turn this function off.  
+
+
+STATISTICAL INFORMATION:
+	By clicking on the "Statistics" button above each image a new window will
+pop up giving basic statistcal information on the image. 
+
+PLOT OPTIONS:
+	By clicking on the "Plot Options"  button the user can display a histogram
+of each image or a column or row slice of the data at the selected pixel location.
+
+CHANGE OF SCALE:
+	The user can change the stretch of the display of the images by changing
+the minimum and maximum display range in the windows next to "Default Scale" . To
+return to the "Default Scale" click on the  "User Set Scale" button. Which used
+to be called "Default Scale" button.
+
+INSPECT IMAGES:
+	The user can display the image a full image (no binning) mode by clicking 
+on the "Inspect Image" button.
+
+
+CHANGE IMAGE DISPLAYED:
+	The frame number and integration number can be change by clikcing on 
+the "Change Image Displayed" button.
+
+BINNING OF IMAGE:
+	The images are by default displayed with a 4 x 4 binning. Besides clicking
+on the "Inspect Image" button the user can display the images with out binning,
+but with a scroll window by clicking on the "Binned Image" button on the left
+side of the screen. 
+
+ANALYZE BY AMPLIFIER:
+	The use to display the images by grouping the data into which amplifier it
+is associated with by clicking on the "Analyze Amplifer" button on the top
+of the menu bar. Two options are given: "Display Raw Image by Amplifier" and
+"Plot amplifier data in read out order". But clicking on either of these windows
+a seperate window will pop up.  
+	a. "Display Raw Image by Amplifier" displays the 5 amplifier images. A
+number of options exist to analyze these images:
+		1. "Get Statistics" gives the basic statistics of each amplifier image.
+		2. "Change Image Displayed" allows the user to select a different 
+		frame or integration to display.
+		3. "Zoom" allows the user to zoom the, with the center of the zoom 
+		image to be the location of the cursor.
+		4. "Plot Options" : allows the user to plot a histograom of the image
+		values, or a column or row slice through the current cursor location
+		5. "Display Pixel Values" by default by clicking on any image the 
+		pixel values (in the amplifier reference frame 258 X 1024) will be 
+	 	displayed. To turn this function off click on this button.
+
+	b. "Plot amplifier data in read out order" : will plot on the same graph the
+data for each amplifier in a different color. There are options to plot only select
+amplifiers or to change the range of the graph. 
+
