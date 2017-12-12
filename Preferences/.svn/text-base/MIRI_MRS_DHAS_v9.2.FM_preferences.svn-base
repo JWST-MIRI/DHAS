@@ -1,0 +1,14 @@
+VER: 9.2
+CHANGE: location (directory) for science images                           = .
+CHANGE: location (directory) for engineering telemetry data               = .
+CHANGE: location (directory) for output Cube                              = .
+CHANGE:: output directory for postscript images                           = .
+CUBE: File containing default cube pixel dimensions                       = MRS_Cube_Dim_FM00001.txt
+CUBE: Default Binning of Wavelength dimension                             = 3
+CUBE: Default Binning of Alpha dimension                                  = 3
+CUBE: Ch 1,2 D2C calibration version (xx.yy.zz), ex: MIRI_FM_MIRIFUSHORT_12SHORT_DISORTION_xx.yy.zz.fits  = 06.04.00
+CUBE: Ch 3,4 D2C calibration version (xx.yy.zz), ex: MIRI_FM_MIRIFULONG_34SHORT_DISTORTION_xx.yy.zz.fits  = 06.04.00
+
+
+
+

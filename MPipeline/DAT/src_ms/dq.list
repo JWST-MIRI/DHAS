@@ -1,0 +1,11 @@
+bit     meaning			
+0	Unstable		1
+1       non science data	2
+2 	low quality 		4
+3 	partial data		8
+4 	error unreliable	16
+5 	bad solution       	32
+10	dead			1024
+11 	hot			2048
+12 	noisy			4096
+ 

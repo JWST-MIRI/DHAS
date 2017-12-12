@@ -1,0 +1,47 @@
+VER             = 8.3				  : Version of Preferences file
+SCIDIR          = . 			    	  : Input directory  for Raw science data
+LVL2DIR         = . 			    	  : Output  directory for  Reduced (LVL2 & LVL3)  data
+TELDIR          = .			    	  : Input directory for telemetry data        
+PSDIR	        = .			    	  : Output directory for postscript images              
+CALIM_RAL1	= MIRI_CDP_MIRIMAGE_RAL1.list     : Names of calibration files to use for Imager RAL1 setting                    
+CALIM_JPL1	= MIRI_CDP_MIRIMAGE_JPL1.list     : Names of calibration files to use for Imager JPL1 setting                   
+CALLW_RAL1	= MIRI_CDP_MIRIFULONG_RAL1.list   : Names of calibration files to use for LW RAL1 setting                   
+CALLW_JPL1	= MIRI_CDP_MIRIFULONG_JPL1.list   : Names of calibration files to use for LW JPL1 setting                   
+CALSW_RAL1	= MIRI_CDP_MIRIFUSHORT_RAL1.list  : Names of calibration files to use for SW RAL1 setting                   
+CALSW_JPL1	= MIRI_CDP_MIRIFUSHORT_JPL1.list  : Names of calibration files to use for SW JPL1 setting                   
+CALJPL_RUN3	= MIRI_CDP_JPL_RUN3.list          : Names of calibrations files for for JPL data                    
+FIT_A	        = 2 			 	  : Frame number to start slope fit
+FIT_N	        = 1 			  	  : Number of frames before last frame to end fit on 
+HIGH_SAT        = 58000			  	  :  High Saturation Value                             
+FRAME_LIMIT     = 40                      	  : frame limit, if #frames/int > limit -> process rows at a time 
+ROW_LIMIT       = 128			  	  : If in subset mode then # of rows to read in and process 
+APPLY_BAD_PIX   = 1                       	  : Apply Bad pixel mask (0=no, 1=yes)
+APPLY_RESET     = 0	                  	  : Apply reset correction(0=no, 1=yes)
+APPLY_LASTFRAME = 0	                  	  : Apply last frame correction(0=no, 1=yes)
+APPLY_DARK      = 0                       	  : Apply dark subtraction (0=no, 1=yes)
+APPLY_LIN       = 0                       	  : Apply linearity Correction (0=no, 1=yes)
+APPLY_REF_OUT	= 0	       	      	  	  : Apply Reference output correction (0=no correction, 1= apply correction) 
+APPLY_REF_PIX   = 0 			  	  : Apply reference pixel correction (0: no correction, options,1,2,3,5,6)
+REF_PIX_DELTA   = 64			  	  : If ref pixel correction,2, # of even/odd rows on either side
+WRITE_REF_OUT   = 0 			  	  : Write Reference Output Slope Image (0: no, 1: yes)
+WRITE_REF_COR   = 0 			  	  : Write Reference Corrected data (0: no, 1: yes) if using ref pixels
+WRITE_ID        = 0  			  	  : Write Pixel ID fits file (0:no, 1:yes)
+WRITE_LIN_COR   = 0 			  	  : Write Linearity Corrected data file (0:no, 1:yes) if APPLY_LIN is 1
+WRITE_DARK_COR  = 0 			  	  : Write Mean Dark Corrected data file (0:no, 1:yes) if APPLY_DARK_COR is 1 1
+WRITE_RESET_COR = 0 			  	  : Write Reset Corrected data file (0:no, 1:yes) if APPLY_RESET is
+CR_STD          = 8.0 			      	  : # of Std. Dev. for Cosmic Ray/noise ID
+CR_NFRAMES      = 1 			  	  : # of Frames to reject after cosmic ray/noise jump
+CR_NFRAMES2     = 0 			  	  : # of Frames to reject after cosmic ray/noise jump(Frames<11)  
+CR_NOISE_LEVEL  = 50 			  	  : Noise Level for Cosmic Ray detection  (in DN)
+CR_MAX          = 20  			  	  : Maximum number of iterations for cosmic ray/noise id
+CR_MIN_GOOD     = 4 			  	  : Cosmic ray reject min number of good differences
+CR_SLOPE_STD    = 5.0 			  	  : # of Std. Dev. for CR Slope Segment Rejection
+READ_NOISE      = 25.0			  	  : Readnoise per read (electrons)
+GAIN 	        = 5.5   		  	  : Gain e/DN
+METHOD_UNCER    = 1 			  	  : Method of Using Uncertainties in slope and error plane
+WRITE_CR_ID     = 0 			  	  : Write Cosmic Ray identification text file (0:no, 1:yes) 
+QL_USE_BADPIXEL = 0 			  	  : Use Bad Pixel file in Quicklook
+QL_FIRST_INT    = 1   			  	  : Default Integration # to read in first (if large dataset)
+QL_FIRST_FRAME  = 1 			  	  : Default Frame # to plot
+QL_NFRAME_READ  = 101 			  	  : Default on limit of images to read in
+QL_PIXELS_TRACK = MIRI_DHAS_Tracking_Pixels_6_22_2011.txt: File which contains the pixels to track (in cal dir)      

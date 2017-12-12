@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ssb/svn/jwst/!svn/ver/4518/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include
+END
+miri_preference.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_preference.h
+END
+miri_control.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_control.h
+END
+miri_pixel.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_pixel.h
+END
+miri_dark.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/ssb/svn/jwst/!svn/ver/3035/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_dark.h
+END
+miri_lin.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/ssb/svn/jwst/!svn/ver/3094/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_lin.h
+END
+miri_reset.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_reset.h
+END
+miri_data_info.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_data_info.h
+END
+miri_sloper.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_sloper.h
+END
+miri_refcorrection.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/ssb/svn/jwst/!svn/ver/3930/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_refcorrection.h
+END
+miri_CDP.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/ssb/svn/jwst/!svn/ver/4678/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/src_ms/include/miri_CDP.h
+END

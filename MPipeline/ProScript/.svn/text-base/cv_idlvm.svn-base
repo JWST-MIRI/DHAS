@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Default location and name for saveset. User can change
+# saveset name, but not default location yet. 
+#IDL_SAVESET_BASE=/home/morrison/MIRI_DHAS-4.5.1/MPipeline/ProScript/
+IDL_SAVESET_BASE=./
+IDL_SAVESET_DEFAULT=run_cv_vm.sav
+
+case "$#" in 
+ 0) # using defaults 
+    IDL_SAVESET=$IDL_SAVESET_BASE$IDL_SAVESET_DEFAULT
+    ;;
+
+   
+ *) echo "Unkown CL options. Usage: "
+    echo "    "
+    echo " To run the ql tool interactively you can just type " 
+    echo " cv_idlvm "
+    exit 0
+    ;;
+
+esac
+
+echo "Running VM with SaveSet $IDL_SAVESET"
+
+# Run the virtual machine, assumed .sav file. 
+idl -vm=$IDL_SAVESET
+
+exit 0

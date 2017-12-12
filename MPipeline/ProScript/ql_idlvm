@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Default location and name for saveset. User can change
+# saveset name, but not default location yet. 
+#IDL_SAVESET_BASE=/usr/local/DHAS/MPipeline/ProScript/
+#IDL_SAVESET_BASE=/export/sci_cap/DHAS/MPipeline/ProScript/
+IDL_SAVESET_BASE=./
+IDL_SAVESET_DEFAULT=run_ql_vm.sav
+
+case "$#" in 
+ 0) # using defaults 
+    IDL_SAVESET=$IDL_SAVESET_BASE$IDL_SAVESET_DEFAULT
+    ;;
+ 1) # using user defined save set in def. location 
+    IDL_SAVESET=$IDL_SAVESET_BASE$1
+    ;;
+
+   
+ *) echo "Unkown CL options. Usage: "
+    echo "    "
+    echo " To run the ql tool interactively you can just type " 
+    echo " ql_idlvm "
+
+    echo " If you are supplying a fits file then you must provide the type of data "
+    echo "  ql_idlvm <type of data> <filename> <dir location> <Display> <Slope> "
+    echo "         <type of data> is 0 for science FITS files and 1 for telemetry FITS files"
+    echo "         <filename> is the FITS file "
+    echo "         <directory location> is an optional parameter and is the location of the FITS file"
+    echo "         <find slope> with a vaule of any integer means to run the miri_sloper program on the filename" 
+    exit 0
+    ;;
+
+esac
+
+echo "Running VM with SaveSet $IDL_SAVESET"
+
+# Run the virtual machine, assumed .sav file. 
+idl -vm=$IDL_SAVESET
+
+exit 0

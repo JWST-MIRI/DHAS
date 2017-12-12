@@ -1,0 +1,5 @@
+If the "View Telemetry" button is pushed from the main ql window a window pops
+up for the user to select a telemetry file. After selecting a telemetry file 
+a telemetry window pops up which plot up to 4 selected telemetry values on the 
+same plot for the entire exposure. From this telemetry window the user can select 
+the ranges of the values to plot and print the plots to a postscript file. 

@@ -1,0 +1,1332 @@
+qldata={datai, $
+        colstart            : 1,$ 
+        rowstart            : 1,$
+	colstop             : 1,$
+	rowstop             : 1,$
+        subarray            : 0,$
+        mode                : 0,$ ; Mode = 0, Fast, Mode= 1, Slow, Mode = 2 Fast Short mode. 
+	coadd               : 0,$
+	nints               : 0,$ ; number of integrations in exposure 
+	nramps              : 0,$ ; number of ramps/ integration
+	nslopes             : 0,$
+	detector            : " ",$
+	origin              : " ",$
+	detector_code       : 0,$ ; IM = 0, LW  = 1, SW = 2, JPL = 3
+	num_frames          : 0,$ ; actual number of frames reading in (set by control.read_limt)
+	naxis1              : 0,$
+	naxis2              : 0,$
+	naxis3              : 0,$
+	bzero               : 0L,$
+        image_xsize         : 0,$ ;size of image in x direction 
+        image_ysize         : 0,$ ; size of image in y direction
+        refcorrected_xsize  : 0,$ ;size of reference corrected image in x direction 
+        refcorrected_ysize  : 0,$ ;size of reference corrected image in y direction
+        id_xsize            : 0,$ ;size of frame id image in x direction 
+        id_ysize            : 0,$ ;size of frame id image in y direction
+        lc_xsize            : 0,$ ;size of linearity correction image in x direction 
+        lc_ysize            : 0,$ ;size of linearity correction image in y direction
+        mdc_xsize           : 0,$ ;size of mean dark correction image in x direction 
+        mdc_ysize           : 0,$ ;size of mean dark correction image in y direction
+        reset_xsize         : 0,$ ;size of reset correction image in x direction 
+        reset_ysize         : 0,$ ;size of reset correction image in y direction
+        rscd_xsize          : 0,$ ;size of rscd correction image in x direction 
+        rscd_ysize         : 0,$ ;size of rscd dark correction image in y direction
+        lastframe_xsize     : 0,$ ;size of last frame correction image in x direction 
+        lastframe_ysize     : 0,$ ;size of last frame correction image in y direction
+        ref_xsize           : 0,$ ;size of ref image in x direction 
+        ref_ysize           : 0,$ ; size of ref image in y direction
+        slope_xsize         : 0,$ ; size of slope image x direction
+        slope_ysize         : 0,$ ; size of slope image y direction
+	slope_zsize         : 6,$
+        cal_xsize           : 0,$ ; size of cal image x direction
+        cal_ysize           : 0,$ ; size of cal image x direction
+	cal_zsize           : 3,$
+        sloperef_xsize      : 0,$ ; size of slope image x direction
+        sloperef_ysize      : 0,$ ; size of slope image y direction
+        sloperef_zsize      : 0,$ ; size of slope image y direction
+        read_all            : 1,$ ; read in all the data or integration by integration
+        slope_exist         : 1,$ ; flag set slope_images does exist
+	raw_exist           : 1,$
+        cal_exist           : 1,$ ; flag set slope_images does exist
+        sloperef_exist      : 1,$ ; flag set slope_images does exist
+        ref_exist           : 1,$ ; flag set reference image exist
+	viewtext            : ptr_new(),$ 
+	viewwin             : ptr_new(),$
+	rhead               : ptr_new(),$ ; primary science image header
+	rview               : 0L, $, header widget text
+	rwin                : 0L, $, header widget window
+        pimagedata          : ptr_new(),$ ;pointer to image cube         
+        prefdata            : ptr_new(),$ ;pointer to ref image cube         
+        preduced            : ptr_new(),$ ; pointer to slope data for mql_display
+        reduced_stat        : fltarr(11,12),$ ; slope statistics (mean,st dev,min,max):
+        pslopedata          : ptr_new(),$ ; pointer to slope data for msql_display
+        slope_stat          : fltarr(11,12),$ ; slope statistics (mean,st dev,min,max):
+        pslopedata_all      : ptr_new(),$  ; pointer to slope data
+        pcaldata            : ptr_new(),$ ; pointer to slope data
+        cal_stat            : fltarr(11,6),$ ; cal statistics (mean,st dev,min,max):
+        pcaldata_all      : ptr_new()}  ; pointer to slope data
+
+qlbadpixel={badpixeli, $
+	file_exist      : 0,$
+	file            : '',$
+	readin          : 0,$
+;	px               : ptr_new(),$
+;	py               : ptr_new(),$
+	pmask            : ptr_new(),$
+	num             : 0L}
+
+; _______________________________________________________________________
+qlvheader= {vheadi,$
+		phead		: ptr_new(),$
+	        num             : 0,$
+		viewtxt         : 0L,$
+		viewwin 	:0L}
+
+; _______________________________________________________________________
+; structure for ref pixel data (4 border pixels on left and right of each frame)
+; used in first look tool - this structure does not hold the reference border pixels in memory
+
+qlrefpixel={refpixeli, $
+	readin	                        : 0,$
+	pMean 	    		        : ptr_new(),$
+	pMedian  		        : ptr_new(),$
+	pMeanEvenOdd    	        : ptr_new(),$
+	pMedianEvenOdd    		: ptr_new(),$
+	pMean_SRO 	    		: ptr_new(),$
+	pMedian_SRO  		        : ptr_new(),$
+	pMeanEvenOdd_SRO    	        : ptr_new(),$
+	pMedianEvenOdd_SRO    		: ptr_new(),$
+	pSlope     		        : ptr_new(),$
+	pYintercept			: ptr_new(),$
+	pSlope_SRO     		        : ptr_new(),$
+	pYintercept_SRO			: ptr_new()}
+
+qlrefpixel_data = {refpixel_datai,$
+		prefpixelL	                 : ptr_new(),$
+		prefpixelL2	                 : ptr_new(),$
+		prefpixelR      	         : ptr_new(),$
+	        pstatL                           : ptr_new(),$
+	        pstatR                           : ptr_new(),$
+	        pstatL2                          : ptr_new(),$
+	        pstat                            : ptr_new(),$
+	        prange                           : ptr_new(),$
+	        pstat2                           : ptr_new(),$
+	        prange2                          : ptr_new()}
+
+;***********************************************************************
+; pixel look tool structure
+qlpl = {pli,$
+	apply_bad               : 0,$
+	frametitle_label        : ' ',$
+	graphID			: 0L,$
+	graphID1		: 0L,$
+	xwindowsize             : 0,$
+	ywindowsize             : 0,$
+	uwindowsize             : 0,$
+	draw_window_id  	: 0,$
+	SlopeViewButton         : 0,$
+	slopeLabel	        : 0L,$
+	OverPlotSlopeLabel      : 0L,$
+	OverPlotSlopeBase       : 0L,$
+	slope_param             : lonarr(6),$
+        default_range          	: intarr(2,2),$ ;
+	graph_range             : fltarr(2,2),$
+	rangeID                 : lonarr(2,2),$
+	recomputeID             : lonarr(2),$
+	IrangeID                : lonarr(2),$
+	int_range               : intarr(2),$
+	xpixel_label            : lonarr(5),$
+	ypixel_label            : lonarr(5),$
+	channel_label           : lonarr(5),$
+	info_label1             : lonarr(5),$
+	info_label2             : lonarr(5),$
+	info_label3             : lonarr(5),$
+	info_label4             : lonarr(5),$
+	info_label5             : lonarr(5),$
+	info_label6             : lonarr(5),$
+	info_label7             : lonarr(5),$
+	info_label8             : lonarr(5),$
+	AButton                 : lonarr(2),$
+	BButton                 : lonarr(7),$
+	delta_rowID             : 0L,$
+	delta_row_even_odd      : 0,$
+	deltarow_evenodd_flag   : 0,$
+	evenoddID               : 0L,$
+	refpixel_option         : 0,$
+	use_bad_pixel_file      : 0,$
+	bad_file                : ' ',$
+	use_psm_file            : ' ',$
+	use_psm			: 0,$
+	use_rscd		: 0,$
+	use_rscd_file           : ' ',$
+	use_lin 		: 0,$
+	use_lin_file            : ' ',$
+	use_dark                : 0,$
+	use_dark_file           : ' ',$
+	start_fit               : 0,$
+	end_fit                 : 0,$
+	high_sat                : 0.0,$
+	slope_unit              : 0,$
+	frame_time              : 0.0,$
+	gain                    : 0.0,$
+	start_fitID             : 0L,$
+	end_fitID               : 0L,$
+	corrections_made        : 0,$
+	slope_exists            : 0,$
+	refslope_exists         : 0,$
+	randomstart             : 0,$
+	overplot_pixel_int      : 0,$
+	overplot_slope          : 0,$
+	overplot_mdc            : 0,$
+	overplot_reset          : 0,$
+	overplot_rscd           : 0,$
+	overplot_lastframe      : 0,$
+	overplot_lc             : 0,$
+	overplot_frame          : 0,$
+	overplot_refcorrect     : 0,$
+	overplot_ids            : 0,$
+	overplot_lfit_frame     : 0,$
+	overplot_lfit_refcorrect : 0,$
+	overplot_lfit_lc        : 0,$
+	plot_lc_result          : 0,$
+	plotRlcID                : lonarr(2),$
+	overplotSlopeID         : lonarr(2),$
+	overplotFrameID         : lonarr(2),$
+	overplotRefID           : lonarr(2),$
+	overplotcrID            : lonarr(2),$
+	overplotmdcID           : lonarr(2),$
+	overplotresetID         : lonarr(2),$
+	overplotrscdID         : lonarr(2),$
+	overplotlastframeID     : lonarr(2),$
+	overplotlcID            : lonarr(2),$
+	overplotLFFID           : lonarr(2),$
+	overplotLFRID           : lonarr(2),$
+	overplotLFLID           : lonarr(2),$
+	read_setB               : 0,$
+	set                     : 0,$
+        group                   : 0,$
+	setbutton               : lonarr(4),$
+	nonebutton		: 0L,$
+	allbutton		: 0L,$
+	onvalue			: intarr(5),$
+	refvalue		: intarr(5),$
+	onButton		: lonarr(5),$
+	offButton		: lonarr(5),$
+	refButton		: lonarr(5),$
+	draw_box_id             : lonarr(5),$
+	draw_box_idro           : lonarr(5),$
+	draw_box_idrp           : lonarr(5),$
+	draw_box_idreject       : lonarr(5),$
+	draw_box_ids           : lonarr(5),$
+	fwn_nsample             : 0,$
+	fwn_frame               : intarr(2),$
+	fwn_result              : fltarr(6),$
+	fwn_num                 : lonarr(6),$
+	fwn_stdev               : fltarr(6),$
+	pfwn_data               : ptr_new(),$
+	fwn_plot                : 0,$
+	fwn_options             : strarr(2),$
+	fwn_integration         : 0,$
+	fwn_nsampleID           : 0L,$
+	fwn_FrameAID            : 0L,$
+	fwn_FrameBID            : 0L,$
+	fwn_IntID               : 0L,$
+	PIxwindowsize           : 0,$
+	PIywindowsize           : 0,$,
+	PIuwindowsize           : 0,$
+	PIintegrationNO         : 0,$
+	PIhex                   : 0}
+
+
+;***********************************************************************
+; basic image structure
+
+qlimage={imagei, $
+	 uwindowsize         : 0,$
+	 xwindowsize         : 0,$
+	 ywindowsize         : 0,$
+         graph_range         : fltarr(3,2),$
+	 default_scale_graph : intarr(3),$  ; scaling min and max display ranges 
+         image_recomputeID   : lonarr(3),$  ; button controlling Default scale or User Set Scale
+         draw_window_id      : intarr(4),$  ; widget id of window
+         pixmapID            : intarr(3),$  ; pixel map id of window
+         graphID             : lonarr(4),$
+	 plot_base           : lonarr(3),$ ; location of 4 plots that can change size
+	 srange_base         : lonarr(3),$ ; scale range location for 4 plots that can change size
+         infoID00            : 0,$
+         infoID22            : 0,$
+         graphID11           : 0,$
+         graphID12           : 0,$
+         graphID21           : 0,$
+         graphID22           : 0,$
+         xplot_size          : 1,$
+         yplot_size          : 1,$
+         binfactor           : 1.0,$ ; scale for science image and  slope image
+         scale_zoom          : 1.0,$ ; scale for zoom image
+         scale_inspect       : 1.0,$
+         slabelID            : lonarr(3) ,$  ; Stat label (only 3 graphs have statistics)
+         mlabelID            : lonarr(3),$ ; min and max label (only 3 graphs have min,max)
+         rlabelID            : lonarr(3,2) ,$; ; range label (only 3 graphs have ranges)- user input 
+         graph_label         : lonarr(3),$ ; title label for  images 	
+         zoom_label          : lonarr(6),$; label on the zoom X 
+	 bindisplay          : strarr(2),$
+         pixeldisplay        : strarr(2),$
+	 autopixelupdate     : 1,$
+	 median_labelID      : 0,$
+	 frame_label         : 0L,$
+	 integration_label   : 0L,$
+         current_graph       : 0,$
+         integrationNO       : 0,$
+         rampNO              : 0,$
+         graphno             : intarr(1),$
+         x_pos               : 0.0,$ ; starts at 0
+         y_pos               : 0.0,$ ; starts at 0
+	 pix_label           : lonarr(2),$
+	 xpixel_typeLabel    : strarr(2),$
+	 xpixel_typeID       : 0L,$
+	 apply_bad           : 0,$
+	 BadButton           : lonarr(2),$
+	 zoom_window         : 0,$
+	 x_zoom              : 0.0,$
+	 y_zoom              : 0.0,$
+	 x_zoom_start        : 0.0,$
+	 y_zoom_start        : 0.0,$
+	 x_zoom_end          : 0.0,$
+	 y_zoom_end          : 0.0,$
+	 x_zoom_pos          : 0.0,$
+	 y_zoom_pos          : 0.0,$
+	 x_zoom_plotpt       : 0.0,$
+	 y_zoom_plotpt       : 0.0,$
+	 x_zoom_start_noref  : 0.0,$
+	 x_zoom_end_noref    : 0.0,$
+	 ixstart_zoom        : 0.0,$
+	 iystart_zoom        : 0.0,$
+	 xstart_zoom         : 0.0,$
+	 ystart_zoom         : 0.0,$
+	 zoom_xplot_size     : 0,$
+	 zoom_yplot_size     : 0,$
+	 zoom_stat           : fltarr(9),$
+	 zoom_range          : fltarr(2),$
+	 pzoomdata           : ptr_new(),$ ;pointer to zoom data         	
+         signal              : 0.0,$
+	 graph_mpixel        : 0,$
+	 int_range           : intarr(2),$
+         IrangeID            : lonarr(2),$
+	 stat                : fltarr(9),$
+	 range               : fltarr(2),$
+	 pstat               : ptr_new(),$
+	 prange              : ptr_new(),$
+	 pixeldata           : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 ref_pixeldata       : ptr_new(),$ ;pointer all the data for 1 pixel
+	 pslope_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 prefcorrected_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 pid_pixeldata       : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 pmdc_pixeldata      : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 preset_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 prscd_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 plastframe_pixeldata      : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 plc_pixeldata       : ptr_new(),$ ;pointer all the data for 1 pixel         	
+       	 ramp_mmlabel        : lonarr(2,2),$ ; plot label for ramp plot 
+         ramp_range          : lonarr(2,2),$ ; plot range for the ramp plot, 
+         ramp_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
+	 ramp_x_label        : 0L,$
+	 ramp_y_label        : 0L,$
+         pix_statID          : lonarr(10),$
+         pix_statLabel       : strarr(10),$
+         pix_statFormat      : strarr(10) ,$
+         pix_statID2         : lonarr(4),$
+         pix_statLabel2      : strarr(4),$
+         pix_statFormat2     : strarr(4) ,$
+	 overplotSlopeID     : lonarr(2),$
+	 overplotRefID       : lonarr(2),$
+	 overplotCRID        : lonarr(2),$
+	 overplotLCID        : lonarr(2),$
+	 overplotMDCID       : lonarr(2),$
+	 overplotresetID     : lonarr(2),$
+	 overplotrscdID     : lonarr(2),$
+	 overplotlastframeID : lonarr(2),$
+	 overplotLCZID       : lonarr(2),$
+	 plotRLCID           : lonarr(2),$
+	 overplotRefCorrectedID  : lonarr(2),$
+	 overplot_slope      : 0,$
+	 overplot_cr         : 0,$
+	 overplot_mdc        : 0,$
+	 overplot_reset      : 0,$
+	 overplot_rscd      : 0,$
+	 overplot_lastframe  : 0,$
+	 overplot_lc         : 0,$
+	 plot_lc_results     : 0,$
+	 overplot_reference_corrected      : 0,$
+	 overplot_pixel_int  : 0,$
+	 frame_time          : 0.0,$
+	 start_fit           : 0,$
+	 end_fit             : 0,$
+	 overplot_ref        : 0,$
+	 optionMenu          : lonarr(3),$ (plot options) 
+         default_scale_ramp  : intarr(2)} ; scaling min and max display ranges 
+
+
+
+
+
+qllincor={lincori, $
+       	 diff_mmlabel        : lonarr(2,2),$ ; plot label for frame difference plot 
+         diff_range          : lonarr(2,2),$ ; plot range for the frame difference plot, 
+         diff_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
+	 diff_x_label        : 0L,$
+	 diff_y_label        : 0L,$
+       	 plot_mmlabel        : lonarr(2,2),$ ; plot label for frame difference plot 
+         plot_range          : fltarr(2,2),$ ; plot range for the frame difference plot, 
+         plot_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
+	 uwindowsize         : 0,$
+	 xwindowsize         : 0,$
+	 ywindowsize         : 0,$
+	 xvalue              : 0,$
+	 yvalue              : 0,$
+	 xs                  : ' ',$
+	 ys                  : ' ',$
+	 frame_time          : 0.0,$
+	 IrangeID            : lonarr(2),$
+	 int_range           : intarr(2),$	 
+	 OverPlotID          : 0,$
+	 graphID1            : 0,$
+	 graphID2            : 0,$
+	 integration         : 0,$
+	 draw_window_id1     : 0L,$
+	 draw_window_id2     : 0L,$
+	 overplot_pixel_int  : 0,$
+	 default_scale_diff  : lonarr(2),$
+	 default_scale_plot  : lonarr(2),$
+	 pslopedata          : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 plcdata             : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	 piddata             : ptr_new()} ;pointer all the data for 1 pixel         	
+
+	 
+	 
+
+
+qlimage_pixel = {image_pixeli,$
+	         file_ids_exist      : 0,$
+	         file_lc_exist      : 0,$
+	         file_mdc_exist      : 0,$
+	         file_reset_exist      : 0,$
+	         file_rscd_exist      : 0,$
+	         file_lastframe_exist      : 0,$
+	         file_refcorrection_exist: 0,$
+	         nints               : 0,$
+	         nslopes             : 0,$
+	         filename            : ' ',$
+	         coadd               : 0,$
+	         slope_exist         : 0,$
+	         nframes             : 0,$
+	         start_fit           : 0,$
+	         end_fit             : 0,$
+	         integrationNo       : 0,$
+		 hex                 : 0,$
+        	 nramplabels         : 0,$
+ 		 xvalue 	     : 0,$ ; starts at 0
+		 yvalue              : 0,$ ; starts at 0
+	         slope               : 0.0,$
+	         uncertainty         : 0.0,$
+	         quality_flag        : 0,$
+                 zeropt              : 0.0,$
+	         ngood               : 0,$
+	         nframesat           : 0.0,$
+	         ngoodseg            : 0,$    
+	         pix_label           : lonarr(2),$
+         	 pix_statLabelID     : lonarr(6),$
+	         pixeldata           : ptr_new(),$
+	         ref_pixeldata       : ptr_new(),$
+	         refcorrected_pixeldata       : ptr_new(),$
+	         id_pixeldata        : ptr_new(),$	
+	         mdc_pixeldata        : ptr_new(),$	
+	         reset_pixeldata        : ptr_new(),$	
+	         rscd_pixeldata        : ptr_new(),$	
+	         lastframe_pixeldata        : ptr_new(),$	
+	         lc_pixeldata        : ptr_new(),$	
+		 xpixel_typeLabel    : strarr(2),$
+	         xpixel_typeID       : 0L}	
+
+
+;***********************************************************************
+qlgeneric_window = {generic_windowi,$
+		xwindowsize           : 0,$	
+		ywindowsize           : 0,$,		
+		uwindowsize           : 0,$
+	        status                : 0}
+
+;***********************************************************************
+qlsingle_image= { single_imagei,$
+	        uwindowsize         : 0,$
+	        xwindowsize         : 0,$
+	        ywindowsize         : 0,$
+		filename            : ' ' ,$
+		type                : 0,$ ; 0 = raw, 1 = slope
+	        colstart	            : 1,$
+        	rowstart            : 1,$
+        	subarray            : 0,$
+		nints               : 0,$ ; number of integrations in exposure 
+		nramps              : 0,$ ; number of ramps/ integration
+	        plane           : 0,$
+	    	xsize           : 0.0,$
+	    	ysize           : 0.0,$
+	        ref_exist       : 0,$
+	        ref_xsize       : 0.0,$
+	        ref_ysize       : 0.0,$
+	    	iramp           : 0.0,$
+	    	jintegration    : 0.0,$
+		ptimedata       : ptr_new(),$
+	    	ptimedata2      : ptr_new(),$
+	    	ptime           : ptr_new(),$
+	    	ptimeflag       : ptr_new(),$
+	    	pdata           : ptr_new(),$
+                prefdata        : ptr_new(),$
+	    	pbadpixel       : ptr_new(),$
+	    	psubdata        : ptr_new(),$
+;	        psubbadpixel    : ptr_new(),$
+	    	psubdata_noref  : ptr_new(),$
+		mean            : 0.0,$
+	    	median          : 0.0,$
+	    	stdev           : 0.0,$
+	        stdev_mean      : 0.0,$
+	    	min             : 0.0,$
+	    	max             : 0.0,$
+	    	range_min       : 0.0,$
+	    	range_max       : 0.0,$
+	    	skew            : 0.0,$
+	    	ngood           : 0L,$
+	    	nbad            : 0L,$
+                pixelunits      : 0,$
+	    	ximage_range    : intarr(2),$
+	    	yimage_range    : intarr(2),$
+		sd_mean         : 0.0,$
+	    	sd_median       : 0.0,$
+	    	sd_stdev        : 0.0,$
+	    	sd_min          : 0.0,$
+	    	sd_max          : 0.0,$
+	    	sd_range_min    : 0.0,$
+	    	sd_range_max    : 0.0,$
+	    	sd_stdev_mean   : 0.0,$
+	    	sd_skew         : 0.0,$
+	    	sd_ngood        : 0L,$
+	    	sd_nbad         : 0L,$
+	    	sd_ximage_range : intarr(2),$
+	    	sd_yimage_range : intarr(2)}
+
+
+;***********************************************************************
+qlslope = {slopei,                $
+	   uwindowsize         : 0,$	
+	   xwindowsize         : 0,$
+	   ywindowsize         : 0,$
+	   plane               : intarr(6),$
+	   plane_window        : intarr(6),$
+	   plane_cal            : 0,$  
+	   frame_time          : 0.0,$
+	   start_fit           : 0,$
+	   end_fit             : 0,$
+	  id_flags             : intarr(6),$
+	  integrationNO        : 0,$
+	  binfactor            : 0.0,$
+	  scale_zoom           : 0.0,$
+	  scale_inspect        : 0,$
+          current_graph       : 0,$
+	  xplot_size           : 0,$
+	  yplot_size           : 0,$
+          graph_label          : lonarr(3),$ ; title label for  images 	
+          zoom_label           : lonarr(6),$; label on the zoom X 
+ 	  bindisplay           : strarr(2),$
+	  optionMenu           : lonarr(3),$ (plot options) 	
+	  xpixel_typeLabel    : strarr(2),$
+	  xpixel_typeID       : 0L,$
+          x_pos                : 0.0,$
+          y_pos                : 0.0,$
+	  pix_label           : lonarr(2),$
+          graphID11            : 0,$
+          graphID12            : 0,$
+          graphID13            : 0,$
+          graphID21            : 0,$
+          graphID22            : 0,$
+          default_scale_graph  : intarr(3,1),$
+          graph_range          : fltarr(3,2),$
+          integration_label    : 0L,$ ; Button to allow flipping through integrations
+          slabelID             : lonarr(3),$ 
+          rlabelID             : lonarr(3,2),$ 
+          mlabelID             : lonarr(3),$ 
+          image_recomputeID    : lonarr(3),$
+	  zoom_integrationNO  : 0,$
+	  zoom_window         : 0,$
+	  x_zoom              : 0.0,$
+	  y_zoom              : 0.0,$
+	  x_zoom_start        : 0.0,$
+	  y_zoom_start        : 0.0,$
+	  x_zoom_end          : 0.0,$
+	  y_zoom_end          : 0.0,$
+	  x_zoom_pos          : 0.0,$
+	  y_zoom_pos          : 0.0,$
+	  x_zoom_plotpt       : 0.0,$
+	  y_zoom_plotpt       : 0.0,$
+	  ixstart_zoom        : 0.0,$
+	  iystart_zoom        : 0.0,$
+	  xstart_zoom         : 0.0,$
+	  ystart_zoom         : 0.0,$
+	  zoom_xplot_size     : 0,$
+	  zoom_yplot_size     : 0,$
+	  zoom_stat           : fltarr(9),$
+	  zoom_range          : fltarr(2),$
+	  pzoomdata           : ptr_new(),$ ;pointer to zoom data         	
+          int_range           : intarr(2),$
+          IrangeID            : lonarr(2),$
+	  pixeldata           : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	  ref_pixeldata       : ptr_new(),$ ;pointer all the data for 1 pixel         	
+	  pslope_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel
+	  prefcorrected_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel         		
+	  pid_pixeldata       : ptr_new(),$
+	  plc_pixeldata       : ptr_new(),$
+	  pmdc_pixeldata      : ptr_new(),$ ;pointer all the data for 1 pixel         		         
+	  preset_pixeldata      : ptr_new(),$ ;pointer all the data for 1 pixel         		         
+	  prscd_pixeldata      : ptr_new(),$ ;pointer all the data for 1 pixel         		         
+	  plastframe_pixeldata      : ptr_new(),$ ;pointer all the data for 1 pixel         		         
+          ramp_mmlabel        : lonarr(2,2),$ ; plot label for ramp plot 
+          ramp_range          : lonarr(2,2),$ ; plot range for the ramp plot, 
+          ramp_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
+          default_scale_ramp  : intarr(2),$
+	  slope_final         : 0.0,$
+	  overplot_reference_corrected      : 0,$	
+	  overplotRefCorrectedID  : lonarr(2),$
+	  overplot_cr         : 0,$	
+	  overplotCRID        : lonarr(2),$
+	  overplot_mdc         : 0,$	
+	  overplotMDCID        : lonarr(2),$
+	  overplot_reset         : 0,$	
+	  overplot_rscd         : 0,$	
+	  overplotresetID        : lonarr(2),$
+	  overplotrscdID        : lonarr(2),$
+	  overplot_lastframe         : 0,$	
+	  overplotlastframeID        : lonarr(2),$
+	  overplot_lc         : 0,$	
+	  overplotLCID        : lonarr(2),$
+	  overplotLCZID        : lonarr(2),$
+	  overplot_fit        : 0,$
+	  overplotSlopeID     : lonarr(2),$
+          pixeldisplay        : strarr(2),$
+	  autopixelupdate     : 1,$
+	  updatingID          : 0L,$
+	  overplot_pixel_int  : 0,$
+	  slope_mmlabel       : lonarr(2,2),$
+	  slope_recomputeID   : lonarr(2),$
+	  slope_range         : fltarr(2,2),$
+          default_scale_slope : intarr(2),$
+	  median_labelID       : 0,$
+	  histo_binlabel       : 0L,$
+	  histo_binnum         : 0,$
+          histo_mmlabel        : lonarr(2,2),$ ; plot label for ramp plot 
+          histo_range          : lonarr(2,2),$ ; plot range for the ramp plot, 
+          histo_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
+          default_scale_histo  : intarr(2),$ ; scaling min and max display ranges 
+          graphID              : lonarr(5),$
+          draw_window_id       : intarr(5),$
+          pixmapID             : intarr(3),$
+	  srange_base          : lonarr(3),$
+	  plot_base            : lonarr(3),$
+          default_scale_cslice : intarr(2),$
+          cslice_recomputeID   : lonarr(2),$
+          cslice_range         : fltarr(2,2),$
+          cslice_mmlabel       : lonarr(2,2),$  
+          default_scale_rslice : intarr(2),$
+          rslice_recomputeID   : lonarr(2),$
+          rslice_range         : fltarr(2,2),$
+          rslice_mmlabel       : lonarr(2,2),$
+          col_label            : lonarr(1),$
+          row_label            : lonarr(1),$
+          showline_col         : 0L,$
+          showline_col_label   : 0L,$
+          showline_row         : 0L,$
+          showline_row_label   : 0L,$
+          pix_statID           : lonarr(9),$
+          pix_statLabel        : strarr(9),$
+          pix_statFormat       : strarr(9),$
+          pix_statID2          : lonarr(4),$
+          pix_statID3          : 0L,$
+          pix_statLabel2       : strarr(4),$
+          pix_statFormat2      : strarr(4) }
+
+;***********************************************************************
+qlinspect = {inspecti,$
+	    draw_window_id      : 0L,$  ; widget id of window
+	    integrationNO       : 0,$
+	    start_fit           : 0,$
+	    end_fit             : 0,$
+	    frameNO             : 0,$
+	    xwindowsize         : 0,$
+	    ywindowsize         : 0,$
+	    uwindowsize         : 0,$
+	    xplotsize           : 0,$
+	    yplotsize           : 0,$
+	    zbutton             : lonarr(6),$
+            pixmapID            : 0L,$  ; pixel map id of window
+	    integration_label   : 0L,$
+	    frame_label         : 0L,$
+	    limit_lowID         : 0L,$
+	    limit_highID        : 0L,$
+	    limit_low           : 0.0,$
+	    limit_high          : 0.0,$
+	    limit_high_default  : 0,$
+	    limit_low_default   : 0,$
+	    limit_low_num       : 0L,$
+	    limit_high_num       : 0L,$
+	    low_foundID         : 0,$
+	    high_foundID        : 0,$
+	    graphID             : 0,$
+            graph_range         : fltarr(2),$	
+	    default_scale_graph : 0,$  ; scaling min and max display ranges 
+            image_recomputeID   : 0L,$  ; button controlling Default scale or User Set Scale
+	    iLabelID            : 0L,$
+	    fLabelID            : 0L,$	
+            slabelID            : lonarr(10) ,$  ; Stat label 
+            sname               : strarr(10) ,$  ; Stat label 
+	    zlabelID            : 0L,$
+	    zlabel1             : 0L,$
+	    zslabelID           : lonarr(10),$
+            rlabelID            : lonarr(2) ,$; ; range label- user input 
+            x_pos               : 0.0,$
+            y_pos               : 0.0,$
+	    plane               : 0,$
+	    xposful             : 0,$
+	    yposful             : 0,$
+	    pix_label           : lonarr(2),$	
+	    pix_statID          : lonarr(10),$
+	    pix_statLabel       : strarr(10),$
+	    pix_statFormat      : strarr(10),$
+	    pix_statID2         : lonarr(4),$
+	    pix_statLabel2      : strarr(4),$
+	    pix_statFormat2     : strarr(4),$
+	    xsize               : 0,$
+	    ysize               : 0,$
+	    xpixel_typeLabel    : strarr(2),$
+	    xpixel_typeID       : 0L,$
+	    set_zoom            : 1,$
+	    zoom                : 1.0,$
+	    zoom_x              : 1.0,$
+	    xstart_zoom         :0,$
+	    ystart_zoom         :0,$
+	    xend_zoom           :0,$
+	    yend_zoom           :0,$
+	    ixstart_zoom        :0,$
+	    iystart_zoom        :0,$
+	    stat                : fltarr(7),$
+	    range               : fltarr(2),$
+	    pdata               : ptr_new(),$ ; in ref case expanded data 
+	    pdataimage          : ptr_new(),$  ; in ref case actual data: 
+	                                       ;258 * 1024
+	    psubdata            : ptr_new(),$
+	    preduced            : ptr_new(),$ ; holds all the planes of the reduced data 
+	    pslopefit           : ptr_new(),$
+	    pcaldata            : ptr_new(),$
+	    plowx               : ptr_new(),$
+	    plowy               : ptr_new(),$
+	    phighx              : ptr_new(),$
+	    phighy              : ptr_new()}
+	
+;***********************************************************************
+; basic reference border pixel  image display  structure
+
+qlrefp={refpi, $
+	 ref_stat            : fltarr(2,7),$
+	 leftdataID            : lonarr(2),$
+	 leftPixelsID          : lonarr(3),$
+	 LeftPixelSetA        : 0,$
+	 LeftPixelSetB        : 0,$
+	 uwindowsize         : 0,$
+	 xwindowsize         : 0,$
+	 ywindowsize         : 0,$
+         graph_range         : fltarr(2,2),$
+	 default_scale_graph : intarr(2),$  ; scaling min and max display ranges 
+         image_recomputeID   : lonarr(2),$  ; button controlling Default scale or User Set Scale
+         rlabelID            : lonarr(2,2),$; ; range label (only 2 graphs have ranges)- user input 
+	 mlabelID            : lonarr(2),$
+	 channelID           : 0L,$
+	 valueID             : 0L,$
+	 zboxID              : 0L,$
+	 draw_box            : 1,$
+         draw_window_id      : intarr(3),$  ; widget id of window
+         pixmapID            : intarr(2),$  ; pixel map id of window
+         graphID             : lonarr(3),$
+         graphID11           : 0,$
+         graphID12           : 0,$
+         graphID13           : 0,$
+         binfactorx          : 1.0,$  
+         binfactory          : 1.0,$  
+	 frame_label         : 0L,$
+	 integration_label   : 0L,$
+         pix_statID          : lonarr(5),$
+         pix_statLabel       : strarr(5),$
+         pix_statFormat      : strarr(5),$
+         integrationNO       : 0,$
+         rampNO              : 0,$
+         x_pos               : 0.0,$ ; starts at 0
+         y_pos               : 0.0,$ ; starts at 0
+	 row                 : 0,$
+	 pix_label           : lonarr(2),$
+	 row_label           : 0L,$
+	 clabelID            : lonarr(4),$
+         scale_zoom          : 1.0,$ ; scale for zoom image
+	 time_default_range  : intarr(2),$
+	 time_recomputeID    : lonarr(2),$
+	 trangeID            : lonarr(2,2),$
+	 time_range          : fltarr(2,2),$
+	 draw_box_right      : lonarr(4),$
+	 draw_box_left       : lonarr(4),$
+	 draw_box_left2      : lonarr(4),$
+	 allbutton           : 0L,$
+	 nonebutton          : 0L,$
+	 onButton            : lonarr(4),$
+	 offButton           : lonarr(4),$
+         onvalue             : intarr(4),$ 
+         offvalue            :  intarr(4),$
+	 overplotline        : 0,$
+	 overplotlineID      : lonarr(2),$
+	 evenoddbutton       : 0L,$
+	 evenbutton          : 0L,$
+	 oddbutton           : 0L,$
+	 leftbutton          : 0L,$
+	 rightbutton         : 0L,$
+         rightleftbutton     : 0L,$
+	 ploteven            : 0,$
+	 plotodd             : 0,$
+	 plotwhite           : 0,$
+	 plotleft            : 0,$
+	 plotright           : 0,$
+	 plotrightleft       : 0,$
+	 overplotwhiteID     : lonarr(2),$
+         graph_label         : lonarr(3),$
+	 zoom_start          : 0,$
+	 zoom_end            : 0,$
+	 zoom_stat           : fltarr(7),$
+	 zoom_range          : fltarr(2),$
+	 zoom_channel        : 0,$
+         zoom_xpixel         : 0,$
+	 zoom_ypixel         : 0,$
+	 pzoomdata           : ptr_new()} ;pointer to zoom data         	
+	
+
+
+;***********************************************************************
+qltelemetry = {tele,                 $
+	    	uwindowsize         : 0,$	
+	 	xwindowsize         : 0,$
+	 	ywindowsize         : 0,$
+	        uwindowsize_table   : 0,$	
+	 	xwindowsize_table   : 0,$
+	 	ywindowsize_table   : 0,$
+	       offset               : 0,$
+	       start_time           : 0.0d0,$
+	       nvalues   	    : intarr(6),$
+	       ntimes   	    : intarr(6),$
+	       nstring              : intarr(6),$
+	       maxlen               : intarr(6),$
+	       tname_num            : intarr(6),$
+	       file_exist           : intarr(6),$
+	       files                : strarr(6),$
+	       type                 : intarr(4),$
+	       housekeepingID       : lonarr(4),$
+	       linechoiceID         : lonarr(4),$
+	       n_poss_lines         : 0,$             ; 4 telemetry plots
+	       plot_ranges          : fltarr(5,2),$    ; fltarr((1+n_poss_lines)*2) 
+	       plot_mmlabel         : lonarr(5,2),$    ; lonarr((1+n_poss_lines)*2)
+	       meanstdID            : lonarr(4,2),$   ; lonarr(2,n_poss_lines)	       	       
+	       mmID                 : lonarr(4,2),$   ; lonarr(2,n_poss_lines)	       	       
+	       extralabelID         : lonarr(4),$
+	       nptsID               : lonarr(4),$
+	       recomputeID          : lonarr(5),$     ; lonarr(1+n_poss_lines)
+	       default_scale_graph  : intarr(5),$     ; intarr(1+n_poss_lines)j
+               draw_window_id       : intarr(5),$     ; intarr(1+n_poss_lines)
+	       line_vals            : intarr(4),$     ; intarr(n_poss_lines)
+	       linechoices          : strarr(1),$
+	       pintvalue            : ptr_new(),$
+               pkname               : ptr_new(),$
+	       pkdata               : ptr_new(),$
+	       pkdata_org           : ptr_new(),$
+	       px_vals              : ptr_new(),$
+	       pteltype             : ptr_new(),$
+	       ptelstring           : ptr_new(),$
+	       ptelstring_num       : ptr_new()}
+
+;***********************************************************************
+qlmirisloper = {ems,                 $
+	        coadd               : 0,$
+	        quickslope          : 0,$
+	        apply_rscd          : 0,$
+	        refpixel_option     : 0,$
+	        refpixel_flag       : 0,$
+	        refpixel_type       : 0,$
+	        UncertaintyMethod   : 0,$
+	        cosmic_ray_test     : 0,$
+	        gain                : 0.0,$
+	        read_noise          : 0.0,$
+	        flag_read_noise     : 0,$
+	        frametime           : 0.0,$
+		badpixel            : 0,$
+                lincor              : 0,$
+		sat_mask            : 0,$
+		reset_correction    : 0,$
+		rscd_correction    : 0,$
+		lastframe_correction    : 0,$
+		dark_correction     : 0,$
+	        bad_file            : ' ',$
+	        saturation_file     : ' ' ,$
+	        reset_correction_file  : ' ' ,$
+	        rscd_correction_file  : ' ' ,$
+	        lastframe_correction_file   : ' ' ,$
+	        dark_correction_file : ' ' ,$
+	        lincor_file         : ' ' ,$
+	        electrons_second    : 0,$   
+	        subset_size         : 0,$
+	        frame_limit         : 0,$
+	        end_fit             : 0,$
+	        start_fit           : 0,$
+	        highDN              : 0.0,$
+                delta_row_even_odd  : 0,$
+		write_refcorrection : 0,$
+	        filename            : '  ',$
+	        filebase            : '  ',$
+	        output_filename     : '  ',$
+	        flag_outputname      : 0,$
+	        dircal              : '  ',$
+	        dir                 : '  ',$
+	        dirout              : '  ',$
+	        do_diagnostic       : 0,$
+	        write_refcorrected_data : 0,$
+	        write_id_data       : 0,$
+	        write_lincor_data   : 0,$
+	        write_reset_corrected_data   : 0,$
+	        write_rscd_corrected_data   : 0,$
+	        write_lastframe_corrected_data   : 0,$
+	        write_dark_corrected_data   : 0,$
+	        uwindowsize         : 0,$
+	        xwindowsize         : 0,$
+	        ywindowsize         : 0,$
+	        flag_gain           : 0,$
+	        flag_frametime      : 0,$
+		flag_subset_size    : 0,$
+	        flag_frame_limit    : 0,$
+	        flag_dircal         : 0,$
+	        flag_badfile        : 0,$
+	        flag_satmask        : 0,$
+		flag_reset          : 0,$
+		flag_rscd          : 0,$
+		flag_dark           : 0,$
+		flag_lastframe      : 0,$
+	        flag_lincor         : 0,$
+	        flag_highDN         : 0,$
+	        flag_dirout         : 0,$
+	        flag_dir            : 0}
+	    
+
+
+qlmiricaler = {emc,                 $
+	        dark                : 0,$
+	        apply_dark          : 0,$
+	        apply_flat          : 0,$
+	        apply_fringe_flat   : 0,$
+	        dark_file           : ' ' ,$
+	        flat_file           : ' ' ,$
+	        fringe_file         : ' ',$
+                subchannel          : 0,$
+	        subchannel_flag     : 0,$
+	        filename            : '  ',$
+	        filebase            : '  ',$
+	        output_filename     : '  ',$
+	        flag_outputname      : 0,$
+	        dircal              : '  ',$
+	        dir                 : '  ',$
+	        dirout              : '  ',$
+	        uwindowsize         : 0,$
+	        xwindowsize         : 0,$
+	        ywindowsize         : 0,$
+	        flag_dircal         : 0,$
+	        flag_darkfile       : 0,$
+	        flag_flatfile       : 0,$
+	        flag_fringefile     : 0,$	
+	        flag_dirout         : 0,$
+	        flag_dir            : 0}
+	    
+
+
+;***********************************************************************
+qlcontrol={controli, $
+	frame_start     :         0,$
+	frame_end       :         0,$
+	miri_dir        :         ' ',$
+	pframe_list     : ptr_new(),$
+        frame_start_save  :         0,$	
+	frame_limit     :         0,$ ; miri_sloper parameter read in for default value
+	subset_size     :         0,$ ; miri_sloper parameter read in for default value
+	pref_filename   :       ' ',$
+	user_pref_file  :         0,$
+	print           :         0,$
+	print_type      :         ' ',$
+	wait            :         0,$
+	tracking_file   :        ' ',$
+	int_num 	:	  0,$
+	int_num_save 	:	  0,$
+	refpixel_option :         0,$
+	delta_row_even_odd :      0,$
+	start_fit       :         0,$
+	end_fit         :         0,$
+	x_scroll_window :         0,$
+	y_scroll_window :	  0,$
+	read_limit      :        20,$
+	read_limit_save :         0,$
+	display_pixel   :         0,$ 
+	added_dir       :         0,$
+	dircal          :       ' ',$
+	dir             :      	' ',$
+	dirout          :      	' ',$
+	dirps           :      	' ',$   
+	dirtel          :      	' ',$
+	cdp_im          :       ' ',$
+	cdp_sw          :       ' ',$
+	cdp_lw          :       ' ',$
+	cdp_jpl         :       ' ',$
+	highDN          :       0.0,$
+	gain            :       0.0,$
+	frametime       :       0.0,$
+	readnoise       :       0.0,$
+	UncertaintyMethod :        0,$
+	display_apply_bad       :        0,$
+	apply_bad       :        0,$
+	apply_reset       :        0,$
+	apply_rscd       :        0,$
+	apply_lastframe     :        0,$
+	apply_dark       :        0,$
+	apply_lin       :        0,$
+	apply_pixel_sat :        0,$
+	bad_file_used   :        ' ',$
+	bad_file        :       strarr(4),$
+	filename        :       ' ',$ 
+	filename_raw    :      	' ',$	
+        filename_slope  :      	' ',$
+	filename_refcorrection :  ' ',$
+	file_refcorrection_exist :  ' ',$
+	filename_ids    :       ' ',$
+	file_ids_exist  :       0,$
+	filename_LC     :       ' ',$
+	filename_MDC    :       ' ',$
+	filename_reset    :       ' ',$
+	filename_rscd    :       ' ',$
+	filename_lastframe    :       ' ',$
+	file_lc_exist   :       0,$
+	file_mdc_exist  :       0,$
+	file_reset_exist  :       0,$
+	file_rscd_exist  :       0,$
+	file_lastframe_exist  :       0,$
+        filename_log    :      	' ',$
+        log_unit        :      	0,$
+        filename_slope_refimage  :      	' ',$
+	filename_cal    :       ' ',$
+        filename_SCE1   :	' ',$
+      	filename_SCE2   :	' ',$
+	filename_SCE3   :       ' ',$
+	filename_SWP    :	' ',$
+	filename_DCE 	:	' ',$
+	filename_ICE 	:	' ',$
+	filename_tel 	:	' ',$
+	filename_telraw :	' ',$
+	filebase        :	' ',$
+	filebase_tel    :       ' ',$
+	filebase_telraw :       ' ',$
+	set_scidata     :        0,$
+	set_teldata     :        0}  ; teledata filename set    
+
+;***********************************************************************
+
+qlpixeltrack = { pixeltracki,$
+	px                  : ptr_new(),$
+	py 		   : ptr_new(),$
+	pch                : ptr_new(),$
+	pref                : ptr_new(),$
+	pdata 		   : ptr_new(),$
+	prefdata 	   : ptr_new(),$
+	pdataro            : ptr_new(),$ 
+	pdatarp            : ptr_new(),$
+	prefpL             : ptr_new(),$
+	prefpR             : ptr_new(),$
+	prefpCorrection    : ptr_new(),$
+	pSlopeCorrection   : ptr_new(),$
+	pYintCorrection    : ptr_new(),$
+	pslope             : ptr_new(),$
+	punc               : ptr_new(),$
+	pid                : ptr_new(),$
+	pzeropt            : ptr_new(),$
+	pnumgood           : ptr_new(),$
+	pfirstsat          : ptr_new(),$
+	pnseg              : ptr_new(),$
+	pcalramp           : ptr_new(),$
+	pstat 		   : ptr_new(),$
+	pstatro            : ptr_new(),$
+	pstatrp 	   : ptr_new(),$
+	pstatcalramp   	   : ptr_new(),$
+	prms               : ptr_new(),$
+	pmax2ptdiff        : ptr_new(),$
+	pimax2ptdiff       : ptr_new(),$
+	pstdev2ptdiff      : ptr_new(),$
+	pslope2ptdiff      : ptr_new(),$
+	prefcorrectdata    : ptr_new(),$
+	pmdcdata           : ptr_new(),$
+	presetdata         : ptr_new(),$
+	prscddata         : ptr_new(),$
+	plastframedata     : ptr_new(),$
+	plcdata            : ptr_new(),$
+	piddata            : ptr_new(),$
+	xsize_data         : 0,$
+	ysize_data         : 0,$
+	zsize_data         : 0,$      
+	num                : 4,$
+	num_group          : intarr(4)}
+;***********************************************************************
+compare={comparei, $
+	 uwindowsize         : 0,$
+	 xwindowsize         : 0,$
+	 ywindowsize         : 0,$
+         graphID11           : 0,$
+         graphID12           : 0,$
+         graphID13           : 0,$
+         graphID21           : 0,$
+         graphID22           : 0,$
+         graphID23           : 0,$
+	 compareoptions      : strarr(5),$
+	 integration_label   : lonarr(2),$
+	 frame_label         : lonarr(2),$
+	 total_ilabel        : lonarr(2),$
+	 total_flabel        : lonarr(2),$
+	 info_label          : lonarr(2),$
+	 current_graph       : 0,$
+	 compareID           : 0,$
+	 filename_title      : lonarr(2),$
+         slabelID            : lonarr(3,8) ,$  ; Stat label (only 3 graphs have statistics)
+	 sname               : strarr(10),$
+         rlabelID            : lonarr(3,2) ,$; ; range label (only 3 graphs have ranges)- user input 
+         mdlabelID           : lonarr(3) ,$  ; median label
+	 subarray            : 0,$
+	 compare_type        : 0,$
+	 image_xsize         : 0,$
+	 image_ysize         : 0,$
+	 binfactor           : 0.0,$
+	 xplot_size         : 0,$
+	 yplot_size         : 0,$
+	 apply_bad           : 0,$
+	 flag_badfile        : 0,$
+	 badfile             : ' ' ,$
+         graph_range         : fltarr(3,2),$
+	 default_scale_graph : intarr(3),$  ; scaling min and max display ranges 
+         image_recomputeID   : lonarr(3),$  ; button controlling Default scale or User Set Scale
+         draw_window_id      : intarr(6),$  ; widget id of window
+         pixmapID            : intarr(6),$  ; pixel map id of window
+         graphID             : lonarr(6),$
+	 histo_binlabel      : lonarr(3),$
+	 histo_binnum        : intarr(3),$
+         histo_xlabel        : lonarr(3,2),$ ; plot label 
+         histo_ylabel        : lonarr(3,2),$ ; plot label 
+         histo_xrange        : lonarr(3,2),$ ; plot range for the ramp plot, 
+         histo_yrange        : lonarr(3,2),$ ; plot range for the ramp plot, 
+         histo_recomputeID   : lonarr(3,2),$ ; button controlling Default scale or User Set Scale
+         default_scale_histo : intarr(3,2),$ ; scaling min and max display ranges 
+	 pix_statlabel       : strarr(3),$
+	 pix_statformat      : strarr(3),$
+         pix_statLabelID     : lonarr(3),$
+	 pix_label           : lonarr(2),$
+	 sizeMenu            : lonarr(3),$
+	 titlelabel          : 0,$
+         x_pos               : 0.0,$
+         y_pos               : 0.0}
+
+;***********************************************************************
+qloutput={outputi, $
+	historaw          : '   ',$
+	histozoom         : '   ',$
+	historef          : '   ',$
+	histoslope        : '   ',$
+	histounc          : '   ',$
+	colsliceraw       : '   ',$
+	colslicezoom      : '   ',$
+	colsliceref       : '   ',$
+	colsliceslope     : '   ',$
+	colsliceunc       : '   ',$
+	rowsliceraw       : '   ',$
+	rowslicezoom      : '   ',$
+	rowsliceref       : '   ',$
+	rowsliceslope     : '   ',$
+	rowsliceunc       : '   ',$
+	zoomimage         : '   ',$
+	slopeimage        : '   ',$	
+	frame_pixel       : '   ',$
+        rawimage          : '   ',$
+	timeorder         : '   ',$
+	inspect_rawimage  : '   ',$
+	inspect_slope     : '   ',$
+	inspect_slope2        : '   ',$
+	inspect_ref       : '   ',$
+	slope_win1        : '   ',$  
+	slope_zoomimage   : '   ',$
+	slope_win2        : '   ',$ 
+	slope_frame_pixel : '   ',$ 
+	slope_slope_pixel : '   ',$ 
+	referenceimage    : '   ',$
+	test_report       : '   ',$
+	channelhistoraw   : '   ',$
+	channelhistoslope : '   ',$
+	channelcslice     : '   ',$
+	channelcsliceslope : '   ',$
+	channelrslice     : '   ',$
+	channelrsliceslope : '   ',$
+	fowler_report     : '   ',$
+	firstlook         : '   ',$
+	pixellook         : '   ',$
+	channel           : '   ',$
+	SlopeChannel      : '   ',$
+	channel_stat      : '   ',$
+	refpixel_time     : '   ',$
+	fwn               : '   '}	
+
+;***********************************************************************
+qlTimeChannel = {TimeChanneli,$
+		frametitle_label : 0,$
+	        uwindowsize      : 0,$	
+	        xwindowsize      : 0,$	
+	        ywindowsize      : 0,$	
+		integrationNO    : 0,$
+         	frameNO	         : 0,$
+	        frame_label      : 0L,$
+	        integration_label: 0L,$
+         	graphID         : 0L,$
+         	draw_window_id  : 0L,$
+	        draw_box_id     : lonarr(5),$
+         	graph_range     : fltarr(2,2),$
+	        default_range   : intarr(2),$
+         	xplotsize       : 0,$
+         	yplotsize       : 0,$
+	        rangeID         : lonarr(2,2),$
+         	recomputeID     : lonarr(2),$
+         	allbutton       : 0L,$
+         	nonebutton      : 0L,$
+	        apply_bad       : 0,$
+	        BadButton       : lonarr(2),$
+	        plot_reference_corrected : 0,$
+	        overplotRefCorrectedID : lonarr(2),$
+         	onbutton        : lonarr(5),$
+         	offbutton       : lonarr(5),$
+         	onvalue         : intarr(5),$
+         	offvalue        : intarr(5),$
+	        refpixelID      : lonarr(2),$
+	        oddID           : lonarr(2),$
+	        colorbutton     : lonarr(5),$
+	        oddbutton       : lonarr(5),$
+	        draw_box_id_color : lonarr(5),$
+	        draw_box_id_odd : lonarr(5),$
+	        colorbutton_ref     : lonarr(5),$
+	        draw_box_id_color_ref : lonarr(5),$
+	        plot_refpixels  : 0,$
+	        plot_odd_diff   : 0,$
+	        plot_refpixel_color :0,$
+	        plot_refcorrected_color :0,$
+	        plot_odd_color  : 0,$
+	        RightLeftButton : lonarr(3),$
+	        LeftDataID      : lonarr(3),$
+	        LeftPixelSet    : 0,$
+	        plotright       : 0,$
+	        plotleft        : 0,$
+	        single_channel  : 0,$
+	        plot_emp        : 0,$
+	        empID           : lonarr(2),$
+	        left_box_id     : 0L,$
+	        left_box_id2     : 0L,$
+	        right_box_id    : 0L,$
+	        ploteven        : 0,$
+	        plotodd         : 0,$
+	        ebutton         : 0L,$
+	        obutton         : 0L,$
+                abutton         : 0L  }
+;***********************************************************************
+
+qlChannel = {Channeli,$
+	uwindowsize             : 0,$
+	xwindowsize             : 0,$
+	ywindowsize             : 0,$
+	recomputeID     	: lonarr(5),$
+        mlabelID        	: lonarr(5),$
+        slabelID        	: lonarr(5),$
+        rlabelID        	: lonarr(5,2),$
+        graphID         	: lonarr(5),$
+        pixmapID        	: lonarr(5),$
+        draw_window_id  	: lonarr(5),$
+        default_scale   	: intarr(5),$
+        graph_range     	: fltarr(5,2),$
+	zoom_labelID            : 0L,$
+        type            	: 0,$
+        xplotsize       	: 0,$
+        yplotsize       	: 0,$
+        frame_label      	: 0L,$
+        integration_label       : 0L,$
+	optionMenu      	: 0L,$
+	apply_bad               : 0,$
+	xpos            	: 0,$
+	ypos            	: 0,$
+	zoom            	: 0.0,$
+	scalechannel    	: 0,$
+	pixeldisplay    	: 0,$
+	ixstart_zoom    	: 0,$
+	iystart_zoom    	: 0,$	
+	xstart_zoom     	: 0,$
+	xend_zoom       	: 0,$
+	ystart_zoom     	: 0,$
+	yend_zoom       	: 0,$
+	xoffset         	: fltarr(2),$
+	yoffset         	: fltarr(2),$
+	xposfull        	: 0,$
+	yposfull        	: 0,$
+	pplot_image 	   : ptr_new()	}
+
+
+;***********************************************************************
+
+qlscript = {scripti,$
+	        go              : 0,$	
+		frame_display   : 0,$
+	        slope_display   : 0,$
+	        pixel_display   : 0,$
+	        make_report     : 0}
+
+qldq = {dqi,$
+	        Unusable           : 0,$	
+		Saturated         : 0,$
+	        CosmicRay         : 0,$
+	        NoiseSpike        : 0,$
+	        NoDark            : 0,$
+	        NoReset           : 0,$
+	        NoLastFrame       : 0,$
+	        NoLin             : 0,$
+	        OutLinRange       : 0,$
+	        NegCosmicRay      : 0,$
+		CorruptFrame      : 0,$
+		Reject_After_Noise : 0,$
+		Reject_After_CR   : 0,$
+		CR_Slope_Failure   : 0,$
+		CR_Seg_Min         : 0,$
+		Min_Frame_Failure  : 0,$
+	        SUnusable           : ' ' ,$	
+		SSaturated         : ' ' ,$
+	        SCosmicRay         : ' ' ,$
+	        SNoiseSpike        :  ' ',$
+	        SNoDark            : ' ' ,$
+	        SNoReset           : ' ' ,$
+	        SNoLastFrame       : ' ' ,$
+	        SNoLin             : ' ' ,$
+	        SOutLinRange       : ' ' ,$
+		SCorruptFrame      : ' ' ,$
+		SReject_After_Noise : ' ' ,$
+		SRefject_After_CR   : ' ' ,$
+		SCR_Slope_Failure   : ' ' ,$
+		SCR_Seg_Min         : ' ' ,$
+		SMin_Frame_Failure  : ' ',$
+	        SNegCosmicRay      : ' ' }
