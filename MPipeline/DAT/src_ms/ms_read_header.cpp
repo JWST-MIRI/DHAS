@@ -177,8 +177,15 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
 
   data_info.NInt = numINT;
 
-
+ status = 0; 
+  fits_read_key(data_info.raw_file_ptr, TINT, "FRMDIVSR", &data_info.FrameDiv, comment, &status); 
+  if(status != 0) data_info.FrameDiv = 1;
  
+  char rout[FLEN_VALUE];
+  status = 0; 
+  fits_read_key(data_info.raw_file_ptr, TSTRING, "READOUT", &rout, comment, &status); 
+  data_info.Readout = rout;
+
   char det[FLEN_VALUE];
   status = 0; 
   fits_read_key(data_info.raw_file_ptr, TSTRING, "DETECTOR", &det, comment, &status); 
@@ -261,7 +268,19 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
 
 
   // **********************************************************************
-  long itest = data_info.NInt * data_info.NRamps ;
+
+  // Check if mode is FASTGRPAVG
+
+  if(data_info.Readout == "FASTGRPAVG" && data_info.FrameDiv !=0){
+    data_info.NRamps = data_info.NRamps/data_info.FrameDiv;
+    cout << " This data is FASTGRPAVG, adjusted NGROUP to process data correctly" << endl;
+  }
+
+  // **********************************************************************
+
+
+
+    long itest = data_info.NInt * data_info.NRamps ;
 
   if(naxis3 > itest) {
     cout << " ************** WARNING ******************" << endl;
@@ -273,29 +292,28 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
     cout << " Only processing " << itest << " Frames " << endl;
     cout << " *****************************************" << endl;
   }
-  if(naxis3 < itest) {
-    int newINT = naxis3/data_info.NRamps;
+  //if(naxis3 < itest) {
+    //    int newINT = naxis3/data_info.NRamps;
 
-    cout << " ************** WARNING ******************" << endl;
-    cout << " The raw data file did not have all the data corresponding to NGROUPS and NINT" << endl;
-    //    cout << " NAXES3 <  NINTS * NGROUPS " << endl;
-    cout << " NAXES3 " << naxis3 << endl;
-    cout << " NINTS " << data_info.NInt << endl;
-    cout << " NGROUPS " << data_info.NRamps << endl;
-    data_info.NInt = (newINT)+1;
-    data_info.NRamps = naxis3;
+    // cout << " ************** WARNING ******************" << endl;
+    //cout << " The raw data file did not have all the data corresponding to NGROUPS and NINT" << endl;
+    //    cout << " NAXES3 " << naxis3 << endl;
+    //cout << " NINTS " << data_info.NInt << endl;
+    //cout << " NGROUPS " << data_info.NRamps << endl;
+    //data_info.NInt = (newINT)+1;
+    //data_info.NRamps = naxis3;
 
-    cout << " Setting NINT to " << data_info.NInt << endl;
+    //cout << " Setting NINT to " << data_info.NInt << endl;
 
-    cout << " Changed number of Frames/integration =  " << data_info.NRamps << endl;
-    if(data_info.NInt > 1) {
-      cout << " There is a missing frame from one of the integrations, but which one ? " << endl;
-      cout << " This program can not run on this data set, report this problem to Jane Morrison " << endl;
-      cout << "  morrison@as.arizona.edu" << endl;
-      exit(EXIT_FAILURE);
-    }
-    cout << " *****************************************" << endl;
-  }  
+    //cout << " Changed number of Frames/integration =  " << data_info.NRamps << endl;
+    //if(data_info.NInt > 1) {
+    //  cout << " There is a missing frame from one of the integrations, but which one ? " << endl;
+    // cout << " This program can not run on this data set, report this problem to Jane Morrison " << endl;
+    // cout << "  morrison@as.arizona.edu" << endl;
+    // exit(EXIT_FAILURE);
+    //}
+    //cout << " *****************************************" << endl;
+    //}  
   // **********************************************************************
 
   data_info.refimage_exist = 1;
