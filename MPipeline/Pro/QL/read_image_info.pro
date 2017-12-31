@@ -34,6 +34,12 @@ if(count eq 0) then nints = 1
 if(nints eq 0) then nints = 1
 
 
+framediv = 1
+framediv = fxpar(header_raw,'FRMDIVSR',count=count)
+if(framediv ne 1) then begin
+   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+   nframes = nframes/framediv
+endif
 
 colstart = fxpar(header_raw,'COLSTART',count = count)
 if(count eq 0) then colstart = 1

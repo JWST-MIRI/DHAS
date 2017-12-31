@@ -37,6 +37,13 @@ if(count eq 0) then nints = fxpar(header_raw,'NINT',count = count)
 if(count eq 0) then nints = 1
 if(nints eq 0) then nints = 1
 
+framediv = 1
+framediv = fxpar(header_raw,'FRMDIVSR',count=count)
+if(framediv ne 1) then begin
+   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+   nramps = nramps/framediv
+endif
+
 if(naxis1 eq 1290 and naxis2 eq 1024) then begin
     status = 1
     print = 'This data is in the old format, reference data is imbedded in the image' + $

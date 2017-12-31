@@ -8,6 +8,7 @@ qldata={datai, $
 	coadd               : 0,$
 	nints               : 0,$ ; number of integrations in exposure 
 	nramps              : 0,$ ; number of ramps/ integration
+	framediv            : 1,$ FRMDIVSR keyword. > 1 then FASTGRPAVG readout
 	nslopes             : 0,$
 	detector            : " ",$
 	origin              : " ",$

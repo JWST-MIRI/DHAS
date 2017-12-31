@@ -37,6 +37,14 @@ nints = fxpar(header,'NPINT',count = count)
 if(count eq 0) then nints = fxpar(header,'NINT',count = count)
 if(count eq 0) then nints = 1
 if(nints eq 0) then nints  = 1
+
+framediv = 1
+framediv = fxpar(header,'FRMDIVSR',count=count)
+if(framediv ne 1) then begin
+   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+   nramps = nramps/framediv
+endif
+
 colstart = fxpar(header,'COLSTART',count=count) ; for JPL data this value is not correct for values >1
                                 ; for this routine is does not matter
                                 ; what the exact value of colstart is
