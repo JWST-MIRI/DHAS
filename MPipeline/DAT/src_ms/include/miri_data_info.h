@@ -27,11 +27,14 @@ struct miri_data_info {
   int NRampsRead;           // number of actual ramps read  in 
                            // NRamps - (skip first reads + skip end reads) 
 
+  
   int NInt;
   int NReset;              // number of  resets 
   int ColStart;
   int RowStart;
 
+  int FrameDiv;
+  string Readout;
   string Detector;
   string detmode;          // checking for test patterns
   string Origin;

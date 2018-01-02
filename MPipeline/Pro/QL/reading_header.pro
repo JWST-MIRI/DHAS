@@ -70,10 +70,9 @@ if(naxis1 eq 1290 and naxis2 eq 1024) then begin
 endif
 
 info.data.nramps = fxpar(header_raw,'NGROUPS',count=count)
-
-;print,'nramps',info.data.nramps
 if(count eq 0) then info.data.nramps = fxpar(header_raw,'NGROUP',count = count)
 if(count eq 0) then info.data.nramps = naxis3
+
 info.data.nints = fxpar(header_raw,'NINTS',count = count)
 if(count eq 0) then begin
     info.data.nints = fxpar(header_raw,'NINT',count = count)
@@ -84,6 +83,13 @@ if(count eq 0) then begin
         info.data.nints = 1
         print,' **********************************'
     endif
+endif
+
+info.data.framediv = 1
+info.data.framediv = fxpar(header_raw,'FRMDIVSR',count=count)
+if(info.data.framediv ne 1) then begin
+   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+   info.data.nramps = info.data.nramps/info.data.framediv
 endif
 
 info.data.coadd = 0
@@ -224,10 +230,18 @@ info.data.colstart = colstart
 info.data.nramps = fxpar(header_slope,'NGROUPS',count=count)
 if(count eq 0) then info.data.nramps = fxpar(header_slope,'NGROUP',count = count)
 if(count eq 0) then info.data.nramps = 1
+
 info.data.nints = fxpar(header_slope,'NINTS',count = count)
 if(count eq 0) then info.data.nints = fxpar(header_slope,'NINT',count = count)
 if(count eq 0) then info.data.nints = 1
 if(info.data.nints eq 0) then info.data.nints = 1
+
+info.data.framediv = 1
+info.data.framediv = fxpar(header_slope,'FRMDIVSR',count=count)
+if(info.data.framediv ne 1) then begin
+   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+   info.data.nramps = info.data.nramps/info.data.framediv
+endif
 
 info.data.coadd = 0
 if(info.data.nramps eq 1 and info.data.nints gt 1) then begin

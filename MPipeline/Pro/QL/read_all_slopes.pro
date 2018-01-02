@@ -20,6 +20,13 @@ endif else begin
     nframe = fxpar(header_raw,'NPGROUP',count = count)
     if(count eq 0) then nframe = fxpar(header_raw,'NGROUPS',count = count)
 
+    framediv = 1
+    framediv = fxpar(header_raw,'FRMDIVSR',count=count)
+    if(framediv ne 1) then begin
+       print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+       nframe = nframe/framediv
+    endif
+
     nslopes = nint
     if(nframe eq 1 and nint gt 1) then nslopes = 1
 
@@ -29,7 +36,7 @@ endif else begin
 
     slopedata = fltarr(xsize,ysize,nslopes+1)
     for i =0, nslopes do begin 
-        fits_read,fcb,cube,header,exten_no = i 
+       fits_read,fcb,cube,header,exten_no = i 
         size_cube = size(cube)
         slopedata[*,*,i] = cube[*,*,0]
     endfor

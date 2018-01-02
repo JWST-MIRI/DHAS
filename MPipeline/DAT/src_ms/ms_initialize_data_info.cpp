@@ -53,7 +53,7 @@ void ms_initialize_data_info(miri_data_info &data_info)
 
   data_info.ColStart = 1;
   data_info.RowStart = 1;
-
+  data_info.FrameDiv = 1; 
 
   data_info.refimage_exist = 0;
   data_info.subarray_mode = 0;

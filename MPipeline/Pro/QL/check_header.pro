@@ -5,22 +5,22 @@ pro check_header,naxis3,nints, nramps
 
 itest = float(nints) * float(nramps) ;
 ;print,naxis3, itest,nints
-if(naxis3 lt itest) then begin ; not enough frames in the file
-    newINT = float(naxis3)/float(nramps)
-    nints = newINT+1;
-    print,' ************** WARNING ******************' 
-    print,' The raw data file did not have all the data corresponding to NGROUPS and NINT'
-    print,' NAXES3  ' , naxis3 
-    print,' NINTS   ',nints
-    print,' NGROUPS ', nramps 
+;if(naxis3 lt itest) then begin ; not enough frames in the file
+;    newINT = float(naxis3)/float(nramps)
+;    nints = newINT+1;
+;    print,' ************** WARNING ******************' 
+;    print,' The raw data file did not have all the data corresponding to NGROUPS and NINT'
+;    print,' NAXES3  ' , naxis3 
+;    print,' NINTS   ',nints
+;    print,' NGROUPS ', nramps 
 
-    print,' Setting NINTS to ', nints
-    print,' Setting NGroups to',naxis3
-    nramps = naxis3
-    
-        
-    print,' ********************** ******************' 
-endif
+;    print,' Setting NINTS to ', nints
+;    print,' Setting NGroups to',naxis3
+;    nramps = naxis3
+;    
+;        
+;    print,' ********************** ******************' 
+;endif
 
 
 if(naxis3 gt itest) then begin ; not enough frames in the file
@@ -31,9 +31,9 @@ if(naxis3 gt itest) then begin ; not enough frames in the file
     print,' NINTS   ',nints
     print,' NGROUPS ', nramps 
 
-    print,' Exiting'
+;    print,' Exiting'
 
     print,' ********************** ******************' 
-    stop
+;    stop
 endif
 end

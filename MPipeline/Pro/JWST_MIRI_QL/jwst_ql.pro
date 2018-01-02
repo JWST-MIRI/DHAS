@@ -100,8 +100,7 @@ edit_xwindowsize = 0 ; no structure exists for this widget
 edit_ywindowsize = 0
 
 ;_______________________________________________________________________
-
-version = "(v 0.0.1 August 11, 2017)"
+version = "(v 9.4.5 Dec 13, 2017)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -109,7 +108,7 @@ test = strmid(miri_dir,len-1,len-1)
 if(test ne '/') then miri_dir = miri_dir + '/'
 jwst_control.miri_dir = miri_dir
 
-jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v1.0.preferences'
+jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v9.4.preferences'
 
 print,'  Preferences file ',jwst_control.pref_filename
 
