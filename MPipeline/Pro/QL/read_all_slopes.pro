@@ -22,7 +22,7 @@ endif else begin
 
     framediv = 1
     framediv = fxpar(header_raw,'FRMDIVSR',count=count)
-    if(framediv ne 1) then begin
+    if(framediv ne 1 and count ne 0) then begin
        print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
        nframe = nframe/framediv
     endif
