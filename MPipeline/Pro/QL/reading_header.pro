@@ -87,8 +87,8 @@ endif
 
 info.data.framediv = 1
 info.data.framediv = fxpar(header_raw,'FRMDIVSR',count=count)
-if(info.data.framediv ne 1) then begin
-   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
+if(info.data.framediv ne 1 and count ne 0) then begin
+   print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool',info.data.framediv
    info.data.nramps = info.data.nramps/info.data.framediv
 endif
 
@@ -238,7 +238,7 @@ if(info.data.nints eq 0) then info.data.nints = 1
 
 info.data.framediv = 1
 info.data.framediv = fxpar(header_slope,'FRMDIVSR',count=count)
-if(info.data.framediv ne 1) then begin
+if(info.data.framediv ne 1 and count ne 0) then begin
    print,' FRMDIVSR is not 1, this is FASTGRPAVG data, adjusting NGroups for QL tool'
    info.data.nramps = info.data.nramps/info.data.framediv
 endif

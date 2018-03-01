@@ -50,8 +50,8 @@ widget_control,info.image.IrangeID[0],set_value=info.image.int_range[0]
 widget_control,info.image.IrangeID[1],set_value=info.image.int_range[1]
 num_int = info.image.int_range[1] - info.image.int_range[0] + 1
 
-if( ptr_valid(info.image.pixeldata) eq 0) then  begin
 
+if( ptr_valid(info.image.pixeldata) eq 0) then  begin
     mql_read_rampdata,xvalue,yvalue,pixeldata,info  
     if ptr_valid (info.image.pixeldata) then ptr_free,info.image.pixeldata
     info.image.pixeldata = ptr_new(pixeldata)    
@@ -86,11 +86,18 @@ endif
 
 
 if(info.image.overplot_cr eq 1) then begin
-    cr_data = (*info.image.pid_pixeldata)[ii:ij,*,0]
+   if( ptr_valid(info.image.pid_pixeldata) eq 0) then  begin
+      mql_read_id_data,xvalue,yvalue,info  
+   endif
+   cr_data = (*info.image.pid_pixeldata)[ii:ij,*,0]
+  
 endif
 
 if(info.image.overplot_lc eq 1) then begin
-    lc_data = (*info.image.plc_pixeldata)[ii:ij,*,0]
+   if(ptr_valid(info.image.plc_pixeldata) eq 0) then begin
+      mql_read_lc_data,xvalue,yvalue,info
+   endif  
+   lc_data = (*info.image.plc_pixeldata)[ii:ij,*,0]
 endif
 
 

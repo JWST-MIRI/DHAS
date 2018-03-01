@@ -70,6 +70,7 @@ pixeldata = fltarr(info.data.nints,info.data.nramps,1)
 x[0] = xvalue & y[0]  = yvalue
 get_id_pixeldata,info,1,x,y,pixeldata
 
+
 if(ptr_valid(info.image.pid_pixeldata)) then ptr_free, info.image.pid_pixeldata
 
 info.image.pid_pixeldata = ptr_new(pixeldata)
