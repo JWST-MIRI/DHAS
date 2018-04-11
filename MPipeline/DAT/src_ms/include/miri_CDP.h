@@ -110,41 +110,6 @@ class  miri_CDP {
   // RSCD
   inline void SetRSCDName(string list) {RSCDName= list;}
   inline string GetRSCDName()const {return RSCDName;}
-  inline void SetRSCDParameters(float t1_even, float p1_even, float p2_even, float zp_even,
-				float s_even, float cpt_even,
-				float t1_odd, float p1_odd, float p2_odd, float zp_odd,
-				float s_odd, float cpt_odd){
-    tau1_even = t1_even;
-    param1_even = p1_even;
-    param2_even = p2_even;
-    zeropt_even = zp_even;
-    slope_even = s_even;
-    crosspt_even = cpt_even;
-
-    tau1_odd = t1_odd;
-    param1_odd = p1_odd;
-    param2_odd = p2_odd;
-    zeropt_odd = zp_odd;
-    slope_odd = s_odd;
-    crosspt_odd = cpt_odd;
-
-
-  }
-
-  inline float GetTauEven() const {return tau1_even;}
-  inline float GetPar1Even() const {return param1_even;}
-  inline float GetPar2Even() const {return param2_even;}
-  inline float GetSlopeEven() const {return slope_even;}
-  inline float GetZPEven() const {return zeropt_even;}
-  inline float GetCrossPtEven() const {return crosspt_even;}
-
-
-  inline float GetTauOdd() const {return tau1_odd;}    
-  inline float GetPar1Odd() const {return param1_odd;}
-  inline float GetPar2Odd() const {return param2_odd;}
-  inline float GetSlopeOdd() const {return slope_odd;}
-  inline float GetZPOdd() const {return zeropt_odd;}
-  inline float GetCrossPtOdd() const {return crosspt_odd;}
 
 //_______________________________________________________________________
 // Pixel Saturation
@@ -271,22 +236,16 @@ class  miri_CDP {
   string PixelSatName;              // filename of pixel saturation mask 
 
   string RSCDName;
-  float tau1_even,param1_even,param2_even,zeropt_even,slope_even,crosspt_even;
-  float tau1_odd,param1_odd,param2_odd,zeropt_odd, slope_odd,crosspt_odd;
-
 
   string LastFrameName;
-
 
   vector<float> LastFrameCoeff_Even_A;
   vector<float> LastFrameCoeff_Even_B;
   vector<float> LastFrameCoeff_Odd_A;
   vector<float> LastFrameCoeff_Odd_B;
 
-
   string LinCorName;    // linearity correction filename 
   int lin_order;
-
 
   string DarkUse;
   int dark_use_nplanes;
@@ -318,10 +277,6 @@ class  miri_CDP {
   string ResetMaskSub128Name;
   string ResetSPrismName; 
   string ResetMaskSub64Name;
-
-
-
-
 
 };
 

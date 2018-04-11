@@ -137,14 +137,12 @@ void ms_RSCD_readtable(fitsfile *fptr, string name,const int num_elements, const
 #include <algorithm>
 #include "fitsio.h"
 #include "miri_CDP.h"
-#include "miri_rscd.h"
 #include "miri_data_info.h"
 #include "miri_sloper.h"
 
 int ms_read_RSCD_file(miri_data_info &data_info, 
 		      miri_control &control,
-		      miri_CDP &CDP,
-		      miri_rscd &RSCD)
+		      miri_CDP &CDP)
 {
   int status = 0;
 
@@ -155,6 +153,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
   if(control.flag_rscd_cor_file == 0){ // not set by the user
 	                       
     control.rscd_cor_file = CDP.GetRSCDName();
+
     RSCD_file =  control.calib_dir+ control.rscd_cor_file;   
   }
 
@@ -186,8 +185,8 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     status = 0;
     if(status !=0) { 
       cout << "Subarray rscd not found " << endl;
-      cout << " The Calibration directory co ldark subarray " << endl;
-      cout << " To continue you can remove -rd option " << endl;
+      cout << " The Calibration directory could be incorrect or you do not have the dark subarray " << endl;
+      cout << " To continue you can remove subtracting the dark with the -D option " << endl;
       exit(EXIT_FAILURE);
     }
   }// end searching over subarray
@@ -210,13 +209,10 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     status = fits_get_num_rows(fptr,&nrows,&status);
     status = fits_get_num_cols(fptr,&ncols,&status);
 
-    cout << "number of rows and cols in RSCD table" << nrows <<" " << ncols << endl;
+    //cout << "number of rows and cols in RSCD table" << nrows <<" " << ncols << endl;
 
-    string col_name[] = {"SUBARRAY","READPATT","ROWS","TAU",
-			 "ASCALE", "POW", "ILLUM_ZP","ILLUM_SLOPE","ILLUM2",
-			 "PARAM3","CROSSOPT","SAT_ZP","SAT_SLOPE","SAT_2","SAT_MZP",
-			 "SAT_ROWTERM","SAT_SCALE"};
-    int col_num[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    string col_name[] = {"SUBARRAY","READPATT","ROWS","TAU1","PAR1","PAR2","ZP","SLOPE","CROSSOPT"};
+    int col_num[] = {0,0,0,0,0,0,0,0,0};
 
     int num_elements = sizeof(col_name)/sizeof(col_name[0]);
 
@@ -247,7 +243,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
       for (int k = 0; k<num_elements;k++){
 	if(skeyname == col_name[k]){
 	  col_num[k] = i+1;
-	  cout << "found match " << keyname << " " << col_name[k]<< " " << "col = " <<  col_num[k] << " "   << k << endl;
+	  //cout << "found match " << keyname << " " << col_name[k]<< " " << "col = " <<  col_num[k] << " "   << k << endl;
 	}
       }
      
@@ -255,13 +251,47 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     }
 
 
+    string name_search = "TAU1";
+    vector<float> tau1(nrows);
+    status = 0; 
+    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,tau1,status);
+
+    
+    vector<float> par1(nrows);
+    name_search= "PAR1";
+    status = 0; 
+    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,par1,status);
+
+    vector<float> par2(nrows);
+    name_search= "PAR2";
+    status = 0; 
+    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,par2,status);
+
+    vector<float> zp(nrows);
+    name_search = "ZP";
+    status = 0; 
+    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,zp,status);
+
+    vector<float> slope(nrows);
+    name_search = "SLOPE";
+    status = 0; 
+    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,slope,status);
+
+    vector<float> cross(nrows);
+    name_search = "CROSSOPT";
+    status = 0; 
+    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,cross,status);
+
+
     vector<string> rowtype(nrows);
-    string name_search = "ROWS";    
+    name_search = "ROWS";
+    
     status = 0; 
     ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,rowtype,status);
 
     vector<string> readpatt_table(nrows);
-    name_search = "READPATT";    
+    name_search = "READPATT";
+    
     status = 0; 
     ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,readpatt_table,status);
 
@@ -271,77 +301,10 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     status = 0; 
     ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,subarray_table,status);
 
-    vector<float> tau(nrows);
-    name_search = "TAU";
-    status = 0; 
-    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,tau,status);
-
-    vector<float> ascale(nrows);
-    name_search= "ASCALE";
-    status = 0; 
-    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,ascale,status);
-    
-    vector<float> rpow(nrows);
-    name_search= "POW";
-    status = 0; 
-    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,rpow,status);
-
-    vector<float> illum_zp(nrows);
-    name_search= "ILLUM_ZP";
-    status = 0; 
-    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,illum_zp,status);
-
-    vector<float> illum_slope(nrows);
-    name_search= "ILLUM_SLOPE";
-    status = 0; 
-    ms_RSCD_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,illum_slope,status);
-
-    vector<float> illum2(nrows);
-    name_search = "ILLUM2";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,illum2,status);
-
-    vector<float> param3(nrows);
-    name_search = "PARAM3";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,param3,status);
-
-    vector<float> cross(nrows);
-    name_search = "CROSSOPT";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,cross,status);
-
-    vector<float> sat_zp(nrows);
-    name_search = "SAT_ZP";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_zp,status);
-
-    vector<float> sat_slope(nrows);
-    name_search = "SAT_SLOPE";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_slope,status);
-
-    vector<float> sat_2(nrows);
-    name_search = "SAT_2";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_2,status);
-    
-
-    vector<float> sat_mzp(nrows);
-    name_search = "SAT_MZP";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_mzp,status);
-
-    vector<float> sat_rowterm(nrows);
-    name_search = "SAT_ROWTERM";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_rowterm,status);
-
-    vector<float> sat_scale(nrows);
-    name_search = "SAT_SCALE";
-    status = 0; 
-    ms_RSCD_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_scale,status);
-
+    //for(int i = 0 ; i< tau1.size(); i++){
+    // cout << "" << readpatt_table[i] << " " << subarray_table[i] << " " << rowtype[i] << " " <<
+    // tau1[i] <<  " " << scale1[i] << " " << tau2[i] << " " << scale2[i] <<  endl;
+    //}
 
     fits_close_file(fptr,&status);
 
@@ -362,7 +325,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
 
     }
 
-    cout << " row that matches even " << ifound_even << endl;
+    //cout << " row that matches even " << ifound_even << endl;
 
     int ifound_odd = -1;      
     string odd = "ODD";
@@ -372,6 +335,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
       int ifound_read = -1;
       int ifound_row = -1;
 
+
       //compare subarray_table to subarray
       ifound_sub = subarray.compare(subarray_table[i]);
       ifound_read = readpatt.compare(readpatt_table[i]);
@@ -380,48 +344,21 @@ int ms_read_RSCD_file(miri_data_info &data_info,
 
     }
 
-
-    cout << " row that matches odd " << ifound_odd << endl;
+    //cout << " row that matches odd " << ifound_odd << endl;
 
     if(ifound_odd != -1 && ifound_even !=-1) {
+      CDP.SetRSCDParameters(tau1[ifound_even],par1[ifound_even],par2[ifound_even],zp[ifound_even],
+			    slope[ifound_even],cross[ifound_even],
+			    tau1[ifound_odd],par1[ifound_odd],par2[ifound_odd],zp[ifound_odd],
+			    slope[ifound_odd],cross[ifound_odd]);
 
+      cout << "RSCD parameters even : "<< tau1[ifound_even] << " " << par1[ifound_even]
+	   << " " << par2[ifound_even] << " " << zp[ifound_even] 
+	   << " " << slope[ifound_even] << " " << cross[ifound_even] << endl;
 
-      RSCD.SetParameters(data_info.NRamps,
-			 tau[ifound_even],ascale[ifound_even],rpow[ifound_even],
-			 illum_zp[ifound_even],illum_slope[ifound_even],illum2[ifound_even],
-			 param3[ifound_even],cross[ifound_even],
-			 tau[ifound_odd],ascale[ifound_odd],rpow[ifound_odd],
-			 illum_zp[ifound_odd],illum_slope[ifound_odd],illum2[ifound_odd],
-			 param3[ifound_odd],cross[ifound_odd]);
-
-      RSCD.SetSATParameters(data_info.NRamps,
-			    sat_zp[ifound_even],sat_slope[ifound_even],sat_2[ifound_even],
-			    sat_mzp[ifound_even],sat_rowterm[ifound_even],
-			    sat_scale[ifound_even],
-			    sat_zp[ifound_odd],sat_slope[ifound_odd],sat_2[ifound_odd],
-			    sat_mzp[ifound_odd],sat_rowterm[ifound_odd],
-			    sat_scale[ifound_odd]);
-
-      cout << "RSCD parameters even : "<< tau[ifound_even] << " " << ascale[ifound_even]
-	   << " " << rpow[ifound_even] << " " << illum_zp[ifound_even] 
-	   << " " << illum_slope[ifound_even] << " " << illum2[ifound_even] 
-	   << " " << param3[ifound_even] << " " << cross[ifound_even] << endl;
-
-
-      cout << "RSCD parameters odd : "<< tau[ifound_odd] << " " <<ascale[ifound_odd]
-	   << " " << rpow[ifound_odd] << " " << illum_zp[ifound_odd] 
-	   << " " << illum_slope[ifound_odd] << " " << illum2[ifound_odd] 
-	   << " " << param3[ifound_odd] << " " << cross[ifound_odd] << endl;
-
-      cout << "RSCD SAT parameters even : "<< sat_zp[ifound_even] << " " << sat_slope[ifound_even]
-	   << " " << sat_2[ifound_even] << " " << sat_mzp[ifound_even] 
-	   << " " << sat_rowterm[ifound_even] << " " << sat_scale[ifound_even] << endl;
-
-      cout << "RSCD SAT parameters odd : "<< sat_zp[ifound_odd] << " " << sat_slope[ifound_odd]
-	   << " " << sat_2[ifound_odd] << " " << sat_mzp[ifound_odd] 
-	   << " " << sat_rowterm[ifound_odd] << " " << sat_scale[ifound_odd] << endl;
-
-
+      cout << "RSCD parameters odd : "<< tau1[ifound_odd] << " " << par1[ifound_odd]
+	   << " " << par2[ifound_odd] << " " << zp[ifound_odd] 
+	   << " " << slope[ifound_odd] << " " << cross[ifound_odd] << endl;
 	   
     } else{
 

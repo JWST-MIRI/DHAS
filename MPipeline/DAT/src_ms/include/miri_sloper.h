@@ -12,6 +12,7 @@
 #include "miri_CDP.h"
 #include "miri_pixel.h"
 #include "miri_reset.h"
+#include "miri_rscd.h"
 
 // namespaces
 using namespace std;
@@ -91,9 +92,11 @@ extern void ms_read_process_data(const int iter,
 				 const int this_nrow,
 				 const int refimage,  // = 0 if science data, = 1 if ref output 
 				 vector<miri_reset> &reset,
+				 miri_rscd RSCD,
 				 vector<float> &lastframe,
 				 vector<float> &lastframe_corr,
 				 vector<float> lastframe_rscd,
+				 vector<float> lastframe_rscd_sat,
 				 vector<miri_dark> &dark,
 				 vector<miri_lin> &linearity,
 				 miri_control &control,
@@ -156,7 +159,8 @@ extern int ms_read_lastframe_file( miri_control &control,
 
 extern int ms_read_RSCD_file( miri_data_info &data_info,
 			      miri_control &control,
-			      miri_CDP &CDP);
+			      miri_CDP &CDP,
+			      miri_rscd &RSCD);
 
 extern void ms_read_refdata(const int,
 			    const int,

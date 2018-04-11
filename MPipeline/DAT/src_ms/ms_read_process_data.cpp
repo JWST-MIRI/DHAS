@@ -105,7 +105,7 @@
 #include "miri_constants.h"
 #include "miri_sloper.h"
 #include "miri_CDP.h"
-
+#include "miri_rscd.h"
 
 // converting 2-d  array to 1-d vector 
 void PixelXY_PixelIndex(const int,const int , const int ,long &);
@@ -115,10 +115,12 @@ void ms_read_process_data( const int iter,
 			   const int this_nrow,
 			   const int refimage,  // = 0 if science data, = 1 if ref output 
 			   vector<miri_reset> &reset,
-			   vector<float> &lastframe, // last frame of current integration to be used in last frame correction - updated as
-			                             // loop over rows
+			   miri_rscd RSCD,
+			   vector<float> &lastframe, // last frame of current integration to be used in last frame correction 
+			                             // updated as loop over rows
 			   vector<float> &lastframe_corr, // last frame corrected
 			   vector<float> lastframe_rscd, // last frame of last integration 
+			   vector<float> lastframe_rscd_sat, // last frame of last integration to use for saturating data 
 			   vector<miri_dark> &dark,
 			   vector<miri_lin> &linearity,
 			   miri_control &control,
@@ -197,6 +199,46 @@ void ms_read_process_data( const int iter,
       lastf_b_even.push_back(CDP.GetLastFrame_Beven(ic));
       lastf_b_odd.push_back(CDP.GetLastFrame_Bodd(ic));
     }
+  }
+  //***********************************************************************
+  // Set up parameters for RSCD correction
+  float rscd_b1_even =0.0;
+  float rscd_b1_odd=0.0;
+  float rscd_tau_even=0.0;
+  float rscd_tau_odd=0.0;
+  float rscd_pow_even=0.0;
+  float rscd_pow_odd=0.0;
+  float rscd_param3_even=0.0;
+  float rscd_param3_odd=0.0;
+  float rscd_crossopt_even=0.0;
+  float rscd_crossopt_odd=0.0;
+  float rscd_sat_slope_even=0.0;
+  float rscd_sat_slope_odd=0.0;
+  float rscd_sat_scale_even=0.0;
+  float rscd_sat_scale_odd=0.0;
+  float rscd_sat_mzp_even=0.0;
+  float rscd_sat_mzp_odd=0.0;
+
+  if(control.apply_rscd_cor ==1 ) {
+
+
+    RSCD.GetParams(rscd_tau_even,
+		   rscd_tau_odd,
+		   rscd_pow_even,
+		   rscd_pow_odd,
+		   rscd_param3_even,
+		   rscd_param3_odd,
+		   rscd_crossopt_even,
+		   rscd_crossopt_odd,
+		   rscd_b1_even,
+		   rscd_b1_odd,
+		   rscd_sat_slope_even,
+		   rscd_sat_slope_odd,
+		   rscd_sat_scale_even,
+		   rscd_sat_scale_odd,
+		   rscd_sat_mzp_even,
+		   rscd_sat_mzp_odd);
+
   }
   //***********************************************************************
       
@@ -326,7 +368,7 @@ void ms_read_process_data( const int iter,
 	// now start processing of data
       //_______________________________________________________________________
 
-	// Subtract Reset Correction 
+	// Subtract Reset Anomaly Correction 
 	if(control.apply_reset_cor ==1) { 
 	  vector<float> areset; 
 	  int nplanes = CDP.GetResetUseNPlanes();
@@ -392,37 +434,39 @@ void ms_read_process_data( const int iter,
 	  if(iter== 0) {
 	    pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
 	  } else { // interation = 2,3...
-
-	    float tau1 = CDP.GetTauEven();
-	    float par1 = CDP.GetPar1Even();
-	    float par2 = CDP.GetPar2Even();
-	    float rscd_slope = CDP.GetSlopeEven();
-	    float rscd_zpt = CDP.GetZPEven();
-	    float crosspt = CDP.GetCrossPtEven();
-	    if(is_even ==0) {
-	      
-	      tau1 = CDP.GetTauOdd();
-	      par1 = CDP.GetPar1Odd();
-	      par2 = CDP.GetPar2Odd();
-	      rscd_slope = CDP.GetSlopeOdd();
-	      rscd_zpt = CDP.GetZPOdd();
-	      crosspt = CDP.GetCrossPtOdd();
-	    }
-
 	    float lastint_lastframe= lastframe_rscd[pixel_index];
-	    //	    if(pixel_index == 174587) cout << " last frame to use for 180 170 " << lastint_lastframe << endl;
-
+	    float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
+	    float counts2 = lastint_lastframe - rscd_crossopt_even;
+	    float counts3 = lastint_lastframe_sat* rscd_sat_scale_even;
+	    float tau = rscd_tau_even;
+	    float rpow = rscd_pow_even;
+	    float param3 = rscd_param3_even;
+	    float b1 = rscd_b1_even;
+	    float a1_sat = rscd_sat_slope_even* counts3 + rscd_sat_mzp_even;
+	    
+	    if(is_even ==0) {
+	      counts2 = lastint_lastframe - rscd_crossopt_odd;
+	      counts3 = lastint_lastframe_sat* rscd_sat_scale_odd;
+	      tau = rscd_tau_odd;
+	      rpow = rscd_pow_odd;
+	      param3 = rscd_param3_odd;
+	      b1 = rscd_b1_odd;
+	      a1_sat = rscd_sat_slope_odd* counts3 + rscd_sat_mzp_odd;
+	    }
 
 	    pixel[ik].ApplyRSCD(control.write_output_rscd_correction,
 	    			data_info.frame_time_to_use,
 				control.n_reads_start_fit,
 				data_info.NRamps,
-	    			tau1,
-	    			par1,
-				par2,
-				rscd_slope,rscd_zpt,
-				crosspt,
-	    			lastint_lastframe);
+				read_num_first_saturated,
+	    			tau,
+				b1,
+	    			rpow,
+				param3,
+				counts2,
+				a1_sat,
+	    			lastint_lastframe,
+				lastint_lastframe_sat);
 	  }
 	}
     //-----------------------------------------------------------------------

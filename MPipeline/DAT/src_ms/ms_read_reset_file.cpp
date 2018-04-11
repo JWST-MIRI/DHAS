@@ -134,7 +134,7 @@ void ms_read_reset_file( const int integ,
 
 
   //***********************************************************************
-  //cout << " Reset size " << naxes1 << " " << naxes2 << " " << naxes3 << " " << naxes4 << endl;
+  //  cout << " Reset size " << naxes1 << " " << naxes2 << " " << naxes3 << " " << naxes4 << endl;
   status = 0;
   long fpixel[4] ;
   long lpixel[4];
@@ -194,6 +194,7 @@ void ms_read_reset_file( const int integ,
   //_______________________________________________________________________
   // read in the DQ for the reset - single plane (same for all integrations) 
 
+
   hdutype =0;
   status  = 0; 
 
@@ -228,6 +229,7 @@ void ms_read_reset_file( const int integ,
 		   fpixel2,lpixel2,
 		   inc2,0, 
 		   &idata[0], &anynul, &status);
+
 
   if(status != 0 ) {
     cout << " Problem reading DQ Plane from Reset   " << reset_file << " " << status << endl;

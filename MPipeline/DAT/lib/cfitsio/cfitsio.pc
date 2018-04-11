@@ -1,4 +1,4 @@
-prefix=/home/morrison/jwst/trunk/DHAS/MIRI_DHAS/MPipeline/DAT/lib/cfitsio
+prefix=/Users/morrison/git/DHAS/MPipeline/DAT/lib/cfitsio
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

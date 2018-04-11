@@ -95,9 +95,9 @@ void ms_initialize_control(miri_control &control)
   control.apply_lastframe_cor = 0;        // +/- l do (not do) last frame correction
   control.apply_rscd_cor = 0;             // +/- rd do (not do) RSCD correction
   control.apply_reset_cor = 0;            //  +/- r do( do not) apply reset anomaly correction
-  control.rscd_lastframe_corrected = 1;
-  control.rscd_lastframe_extrap = 0;
-  control.rscd_lastframe_absolute = 0;
+  control.rscd_lastframe_corrected = 0;
+  control.rscd_lastframe_extrap = 1;
+
 
   control.flag_apply_badpix = 0;
   control.flag_apply_lin_cor = 0;

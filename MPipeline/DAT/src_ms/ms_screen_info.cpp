@@ -144,7 +144,7 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     cout << " Applying RSCD  correction" << endl;
     if(control.rscd_lastframe_corrected ==1) cout << " RSCD correction uses the corrected last frame " << endl;
     if(control.rscd_lastframe_extrap ==1) cout << " RSCD correction uses extrapolated last frame " << endl;
-    if(control.rscd_lastframe_absolute ==1) cout << " RSCD correction uses uncorrected last frame " << endl;
+
   }
 
   if (control.apply_lastframe_cor==1)cout << " Applying Lastframe  correction" << endl;

@@ -91,7 +91,6 @@ struct miri_control {
   int apply_reset_cor;         // apply reset anomaly correction
   int rscd_lastframe_corrected; // use corrected last frame for rscd correction
   int rscd_lastframe_extrap;    // use extrapolated last frame for rscd correction
-  int rscd_lastframe_absolute;  // use absolute DN of last frame for rscd correction 
   int apply_lastframe_cor;         // apply lastframe correction 
   int subtract_dark; // = apply_dark_cor but can be turned off if input data nframes > dark nframes
                      // made this a seperate varible if running miri sloper from a list of file and

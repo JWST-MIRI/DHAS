@@ -223,14 +223,6 @@ void ms_update_control( miri_control &control,
 
   
 
-  if(control.apply_rscd_cor ==1  && control.apply_lastframe_cor == 0 && control.rscd_lastframe_extrap == 0){
-    control.rscd_lastframe_absolute =1;
-    control.rscd_lastframe_corrected =0;
-    control.rscd_lastframe_extrap = 0;
-    cout << " Apply RSCD  and  using the uncorrected last frame in the RSCD correction" << endl;
-  }
-
-  
 
   
 }
