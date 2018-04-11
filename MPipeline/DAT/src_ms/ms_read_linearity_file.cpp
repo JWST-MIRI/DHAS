@@ -173,6 +173,10 @@ int ms_read_linearity_file(miri_data_info &data_info,
       for (int iplanes = 0; iplanes < nplanes ; iplanes++) {
 	long ielement = iplanes*nelements + iy*data_info.ramp_naxes[0] + ix;
 	linearity[ik].SetCorrection(data[ielement]);
+	if(ix == 390 && iy == 793) {
+	  cout << "lin ref data " <<  iplanes << " " << data[ielement] << endl;
+	}
+
       }
       ik++;
 
