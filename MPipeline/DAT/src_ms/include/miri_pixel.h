@@ -74,13 +74,18 @@ class  miri_pixel {
 		 float frame_time,
 		 int StartFrame,
 		 int Nframes,
-		 float tau1,
-		 float par1,
-		 float par2,
-		 float rscd_slope,
-		 float rscd_zpt,
+		 int read_num_first_saturated,
+		 float tau,
+		 float ascale,
+		 float rpow,
+		 float param3,
 		 float crosspt,
-		 float lastframeDM);
+		 float a1_sat,
+		 //		 float satzp,float satslope, float sat2,
+		 //float satmzp, float sat_rowterm, float sat_scale,
+		 float lastframeDN,
+		 float lastframeDN_sat);
+
 
   vector<int> GetFlags(int &, int &);
   void SetPixel(int X, int Y, const int ColStart,int IREAD,int BADPIXEL);

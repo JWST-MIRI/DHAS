@@ -127,10 +127,9 @@ void miri_pixel::SetPixel(int X, int Y, const int ColStart,int  IREAD,int BADPIX
 
 //_______________________________________________________________________
 void miri_pixel::InitializeLinCorData(){
-  if(process_flag ==0){
-    float nan = strtod("NaN",NULL);
-
-  }
+  //  if(process_flag ==0){
+  // float nan = strtod("NaN",NULL);
+  // }
 
   for (unsigned int i = 0 ; i < raw_data.size() ; i++){
     lin_cor_data.push_back(raw_data[i]); // initialize 
@@ -565,14 +564,16 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 			   float frame_time,
 			   int frame_start,
 			   int nframes,
-			   float tau1,
-			   float par1,
-			   float par2,
-			   float rscd_slope,
-			   float rscd_zpt,
-			   float crosspt,
-			   float lastframeDN){
-						  
+			   int read_num_first_saturated,
+			   float tau,
+			   float b1,
+			   float rpow,
+			   float param3,
+			   float counts2, 
+			   float a1_sat,
+			   float lastframeDN,
+			   float lastframeDN_sat){
+			
 
   if(is_ref) { //Reference Pixel (no  correction determined)
     if(write_corrected_data==1) {
@@ -591,43 +592,70 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 
   }
 
+  int debug = 0;
+
+  if(pix_x == -11 && pix_y == 4) debug = 1;
+
   //-----------------------------------------------------------------------
-  float counts2 = lastframeDN - crosspt;
+  float factor2  = exp(counts2/param3); 
+
+  float a1 = 0.0;
+  a1 = b1 *(pow(counts2,rpow)) * 1.0/(factor2-1);
+  a1 = a1 *0.01;   // converting scale factor from % to decimal
+  a1_sat = a1_sat*0.01;
+  float a1_save = 0;  //just used for debugging 
+
+  if(read_num_first_saturated != -1) { // data is saturated
+    a1_save = a1;
+    a1 = a1_sat;
+  } // last frame is saturated
+
+
+  if(debug==1)  {
+    cout << " lastframeDN " << lastframeDN << endl;
+    cout << " lastframeDN SAT " << lastframeDN_sat << endl;
+    cout << " counts2 " << counts2 << endl;
+    cout << " b1 " << b1 << endl;
+    cout << " b2 " << rpow << endl;
+    cout << " b3 " << param3 << endl;
+    cout << " a1 " << a1 << endl;
+    cout << "second scale factor" << a1_sat << endl;
+    cout << " first sat frame " << read_num_first_saturated << endl;
+    cout << "first 3 ramp values" << raw_data[0] << " " << raw_data[1] << " " << raw_data[2] << endl;
+  }
+
+
   if(counts2 <= 0){
     // make no correction for this type of data
     quality_flag = quality_flag + NO_RSCD_CORRECTION ;
-  }
-  for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-    if(id_data[i] == 0){
-      float T = (i+1) + frame_start;
-      if(counts2 > 0){
-
-	float par3 = rscd_zpt + rscd_slope*nframes;
-	float factor2  = exp(counts2/par3); 
-	float scalefactor = par1 *(pow(counts2,par2)) * 1.0/(factor2-1);
-	scalefactor = scalefactor*0.01;
-	float tau = tau1 ;
+  } else {
+    
+    for (unsigned int i = 0 ; i < raw_data.size() ; i++){ // loop over the number of frames 
+      if(id_data[i] == 0){
+	float T = (i+1) + frame_start;
 	float eterm = exp(-T/tau);
-      
-	float corr =  lastframeDN * scalefactor*eterm;
+	float corr =  lastframeDN * a1*eterm;
+	
 	raw_data[i] = raw_data[i] +corr;
-	//	if(pix_x ==180 && pix_y == 170 && i < 20) cout << " RSCD correction " << pix_x << " " << pix_y << " " << i << " " <<  
-	//				   corr <<  " " << counts2 << " " << scalefactor << " " << eterm << " "  
-	//				      << lastframeDN << " " << raw_data[i] << endl;
+	if(debug == 1 && i < 20) {
+	  cout << " RSCD correction (x,y,frame,corr) " << pix_x << " " << pix_y << " " << i << " " <<  
+	    corr <<  " " << counts2 << " " << a1 << " " << eterm << " "  
+	       << lastframeDN << " "  << " " << raw_data[i] << endl;
+	  cout << "first correction " << lastframeDN*a1_save*eterm << endl;
+	  cout << "eterm" << eterm << " " << T << " " << tau << endl;
+	}
+
+      }// end loop over id_data[i] = 0 - making correction
+    
+      if(write_corrected_data){
+	rscd_cor_data[i] = raw_data[i];
+      } else {
+	if(write_corrected_data) rscd_cor_data[i] = strtod("NaN",NULL); //  
       }
-      
-
-
-      if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
-
-    } else {
-      if(write_corrected_data) rscd_cor_data[i] = strtod("NaN",NULL); //  
-      //cout << "id_data[i]" << id_data[i] << " " << rscd_cor_data[i] << endl; 
-    }
     
 
-  }// end loop over raw_data
-
+    }// end loop over raw_data.size: number of frames in integration
+  } //end loop over counts >0
 }
 //_______________________________________________________________________
 
@@ -1038,13 +1066,11 @@ void miri_pixel::CalculateSlope(int start_fit, float gain, int find_correlated, 
     
     vector<int>::iterator iter_id = id_data.begin();
     vector<float>::iterator iter_data = raw_data.begin();
-
+    if(debug ==1) cout << "pixel data for " << pix_x << " " << pix_y << endl;
 
     for (int k = seg_begin[i] ; k <= seg_end[i]; k++){
      if( id_data[k]  ==0) {
        float x  = float(k - seg_begin[i]);
-
-
 
        float tmp_s = 1.0/(raw_data_var[k]);
        s+= tmp_s;

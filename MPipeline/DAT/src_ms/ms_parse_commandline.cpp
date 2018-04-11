@@ -620,22 +620,14 @@ void ms_parse_commandline(int& argc,
       case 'c':
 	  control.rscd_lastframe_corrected = 1;
 	  control.rscd_lastframe_extrap = 0;
-	  control.rscd_lastframe_absolute = 0;
 	  control.apply_rscd_cor = 1;	  
 	  break;	
       case 'x':
 	control.rscd_lastframe_corrected = 0;
 	control.rscd_lastframe_extrap = 1;
-	  control.rscd_lastframe_absolute = 0;
 	control.apply_rscd_cor = 1;
 	break;
 
-      case 'a':
-	control.rscd_lastframe_corrected = 0;
-	control.rscd_lastframe_extrap = 0;
-	  control.rscd_lastframe_absolute = 1;
-	control.apply_rscd_cor = 1;
-	break;
       case 'd' :  // RSCD parameters 
 	if(plus) control.apply_rscd_cor = 1;
 	if(minus) control.apply_rscd_cor = 0;
