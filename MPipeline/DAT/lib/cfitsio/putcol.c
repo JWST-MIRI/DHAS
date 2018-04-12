@@ -855,7 +855,8 @@ int fits_iter_set_by_name(iteratorCol *col, /* I - iterator col structure */
 */
 {
     col->fptr = fptr;
-    strcpy(col->colname, colname);
+    strncpy(col->colname, colname,69);
+    col->colname[69]=0;
     col->colnum = 0;  /* set column number undefined since name is given */
     col->datatype = datatype;
     col->iotype = iotype;
@@ -894,7 +895,8 @@ int fits_iter_set_colname(iteratorCol *col, /* I - iterator col structure  */
   set iterator column parameter
 */
 {
-    strcpy(col->colname, colname);
+    strncpy(col->colname, colname,69);
+    col->colname[69]=0;
     col->colnum = 0;  /* set column number undefined since name is given */
     return(0);
 }
@@ -1106,11 +1108,11 @@ int ffiter(int n_cols,
 	    type != TLONGLONG )
         {
 	    if (type < 0) {
-	      sprintf(message,
+	      snprintf(message,FLEN_ERRMSG,
               "Variable length array not allowed for output column number %d (ffiter)",
                     jj + 1);
 	    } else {
-            sprintf(message,
+            snprintf(message,FLEN_ERRMSG,
                    "Illegal datatype for column number %d: %d  (ffiter)",
                     jj + 1, cols[jj].datatype);
 	    }
@@ -1131,7 +1133,7 @@ int ffiter(int n_cols,
         {
             if (jtype != IMAGE_HDU)
             {
-                sprintf(message,
+                snprintf(message,FLEN_ERRMSG,
                 "File %d not positioned to an image extension (ffiter)",
                     jj + 1);
                 return(*status = NOT_IMAGE);
@@ -1148,7 +1150,7 @@ int ffiter(int n_cols,
         {
             if (jtype == IMAGE_HDU)
             {
-                sprintf(message,
+                snprintf(message,FLEN_ERRMSG,
                 "File %d not positioned to a table extension (ffiter)",
                     jj + 1);
                 return(*status = NOT_TABLE);
@@ -1160,7 +1162,7 @@ int ffiter(int n_cols,
                 if (ffgcno(cols[jj].fptr, CASEINSEN, cols[jj].colname,
                            &cols[jj].colnum, status) )
                 {
-                    sprintf(message,
+                    snprintf(message,FLEN_ERRMSG,
                       "Column '%s' not found for column number %d  (ffiter)",
                        cols[jj].colname, jj + 1);
                     ffpmsg(message);
@@ -1172,7 +1174,7 @@ int ffiter(int n_cols,
             if (cols[jj].colnum < 1 || 
                 cols[jj].colnum > ((cols[jj].fptr)->Fptr)->tfield)
             {
-                sprintf(message,
+                snprintf(message,FLEN_ERRMSG,
                   "Column %d has illegal table position number: %d  (ffiter)",
                     jj + 1, cols[jj].colnum);
                 ffpmsg(message);
@@ -1341,7 +1343,7 @@ int ffiter(int n_cols,
 	       negative type code value. */
 
               if (cols[jj].iotype == OutputCol) {
- 	        sprintf(message,
+ 	        snprintf(message,FLEN_ERRMSG,
                 "Variable length array not allowed for output column number %d (ffiter)",
                     jj + 1);
                 ffpmsg(message);
@@ -1382,7 +1384,8 @@ int ffiter(int n_cols,
             cols[jj].repeat = 1;
 
             /* get the BLANK keyword value, if it exists */
-            if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+            if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+                || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
             {
                 tstatus = 0;
                 ffgkyj(cols[jj].fptr, "BLANK", &tnull, 0, &tstatus);
@@ -1410,7 +1413,8 @@ int ffiter(int n_cols,
             cols[jj].repeat = rept;
 
             /* get the TNULL keyword value, if it exists */
-            if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+            if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+                || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
             {
                 tstatus = 0;
                 if (hdutype == ASCII_TBL) /* TNULLn value is a string */
@@ -1470,7 +1474,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(char));
           col[jj].nullsize  = sizeof(char);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+              || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               tnull = minvalue(tnull, 255);
               tnull = maxvalue(tnull, 0);
@@ -1486,7 +1491,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(char));
           col[jj].nullsize  = sizeof(char);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+              || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               tnull = minvalue(tnull, 127);
               tnull = maxvalue(tnull, -128);
@@ -1502,7 +1508,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(short));
           col[jj].nullsize  = sizeof(short);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+              || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               tnull = minvalue(tnull, SHRT_MAX);
               tnull = maxvalue(tnull, SHRT_MIN);
@@ -1518,7 +1525,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(unsigned short));
           col[jj].nullsize  = sizeof(unsigned short);  /* bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               tnull = minvalue(tnull, (long) USHRT_MAX);
               tnull = maxvalue(tnull, 0);  /* don't allow negative value */
@@ -1534,7 +1542,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(sizeof(int), ntodo + 1);
           col[jj].nullsize  = sizeof(int);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               tnull = minvalue(tnull, INT_MAX);
               tnull = maxvalue(tnull, INT_MIN);
@@ -1550,7 +1559,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(unsigned int));
           col[jj].nullsize  = sizeof(unsigned int);  /* bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               tnull = minvalue(tnull, INT32_MAX);
               tnull = maxvalue(tnull, 0);
@@ -1558,7 +1568,7 @@ int ffiter(int n_cols,
           }
           else
           {
-              col[jj].null.intnull = UINT_MAX;  /* use maximum as null */
+              col[jj].null.uintnull = UINT_MAX;  /* use maximum as null */
           }
           break;
 
@@ -1566,7 +1576,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(long));
           col[jj].nullsize  = sizeof(long);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               col[jj].null.longnull = tnull;
           }
@@ -1580,7 +1591,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(unsigned long));
           col[jj].nullsize  = sizeof(unsigned long);  /* bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               if (tnull < 0)  /* can't use a negative null value */
                   col[jj].null.ulongnull = LONG_MAX;
@@ -1597,7 +1609,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(float));
           col[jj].nullsize  = sizeof(float);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               col[jj].null.floatnull = (float) tnull;
           }
@@ -1617,7 +1630,8 @@ int ffiter(int n_cols,
           cols[jj].array = calloc(ntodo + 1, sizeof(double));
           col[jj].nullsize  = sizeof(double);  /* number of bytes per value */
 
-          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG)
+          if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG
+               || abs(typecode) == TINT || abs(typecode) == TLONGLONG)
           {
               col[jj].null.doublenull = (double) tnull;
           }
@@ -1686,7 +1700,7 @@ int ffiter(int n_cols,
           col[jj].nullsize  = sizeof(LONGLONG);  /* number of bytes per value */
 
           if (abs(typecode) == TBYTE || abs(typecode) == TSHORT || abs(typecode) == TLONG ||
-	      abs(typecode) == TLONGLONG)
+	      abs(typecode) == TLONGLONG || abs(typecode) == TINT)
           {
               col[jj].null.longlongnull = tnull;
           }
@@ -1697,7 +1711,7 @@ int ffiter(int n_cols,
           break;
 
          default:
-          sprintf(message,
+          snprintf(message,FLEN_ERRMSG,
                   "Column %d datatype currently not supported: %d:  (ffiter)",
                    jj + 1, cols[jj].datatype);
           ffpmsg(message);

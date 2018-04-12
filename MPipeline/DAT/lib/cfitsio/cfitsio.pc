@@ -1,11 +1,11 @@
-prefix=/Users/morrison/git/DHAS/MPipeline/DAT/lib/cfitsio
+prefix=/home/morrison/MIRI_DHAS/MPipeline/DAT/lib/cfitsio
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: cfitsio
 Description: FITS File Subroutine Library
-Version: 3.39
-Libs: -L${libdir} -lcfitsio 
+Version: 3.44
+Libs: -L${libdir} -lcfitsio -L/home/morrison/anaconda3/lib -lcurl 
 Libs.private: -lm
 Cflags: -I${includedir}

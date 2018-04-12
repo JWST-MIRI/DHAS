@@ -554,6 +554,7 @@
 #define fits_insert_cols  fficls
 #define fits_delete_col   ffdcol
 #define fits_copy_col     ffcpcl
+#define fits_copy_cols    ffccls
 #define fits_copy_rows    ffcprw
 #define fits_modify_vector_len  ffmvec
 
@@ -592,5 +593,9 @@
 #define fits_copy_member        ffgmcp 
 #define fits_transfer_member    ffgmtf 
 #define fits_remove_member      ffgmrm
+
+#define fits_init_https         ffihtps
+#define fits_cleanup_https      ffchtps
+#define fits_verbose_https      ffvhtps
 
 #endif
