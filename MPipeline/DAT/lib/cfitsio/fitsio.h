@@ -34,10 +34,10 @@ SERVICES PROVIDED HEREUNDER."
 #ifndef _FITSIO_H
 #define _FITSIO_H
 
-#define CFITSIO_VERSION 3.39
-#define CFITSIO_MINOR 39
+#define CFITSIO_VERSION 3.44
+#define CFITSIO_MINOR 44
 #define CFITSIO_MAJOR 3
-#define CFITSIO_SONAME 5
+#define CFITSIO_SONAME 6
 
 /* the SONAME is incremented in a new release if the binary shared */
 /* library (on linux and Mac systems) is not backward compatible */
@@ -90,7 +90,7 @@ SERVICES PROVIDED HEREUNDER."
     || (defined(__MINGW32__) && defined(_OFF_T_DEFINED)) \
     || defined(_MIPS_SZLONG) || defined(__APPLE__) || defined(_AIX)
 #    define OFF_T off_t
-#elif defined(__BORLANDC__) || (_MSC_VER) && (_MSC_VER>= 1400)
+#elif defined(__BORLANDC__) || (defined(_MSC_VER) && (_MSC_VER>= 1400))
 #    define OFF_T long long
 #else
 #    define OFF_T long
@@ -1139,6 +1139,7 @@ int CFITS_API ffcdfl(fitsfile *fptr, int *status);
 int CFITS_API ffwrhdu(fitsfile *fptr, FILE *outstream, int *status);
 
 int CFITS_API ffrdef(fitsfile *fptr, int *status);
+int CFITS_API ffrhdu(fitsfile *fptr, int *hdutype, int *status);
 int CFITS_API ffhdef(fitsfile *fptr, int morekeys, int *status);
 int CFITS_API ffpthp(fitsfile *fptr, long theap, int *status);
  
@@ -1782,6 +1783,8 @@ int CFITS_API ffmvec(fitsfile *fptr, int colnum, LONGLONG newveclen, int *status
 int CFITS_API ffdcol(fitsfile *fptr, int numcol, int *status);
 int CFITS_API ffcpcl(fitsfile *infptr, fitsfile *outfptr, int incol, int outcol, 
            int create_col, int *status);
+int CFITS_API ffccls(fitsfile *infptr, fitsfile *outfptr, int incol, int outcol, 
+	   int ncols, int create_col, int *status);
 int CFITS_API ffcprw(fitsfile *infptr, fitsfile *outfptr, LONGLONG firstrow, 
            LONGLONG nrows, int *status);
 
@@ -1875,16 +1878,26 @@ int CFITS_API fits_copy_image_section(fitsfile *infptr, fitsfile *outfile,
 int CFITS_API fits_calc_binning(fitsfile *fptr, int naxis, char colname[4][FLEN_VALUE], 
     double *minin, double *maxin,  double *binsizein,
     char minname[4][FLEN_VALUE],  char maxname[4][FLEN_VALUE], 
-    char binname[4][FLEN_VALUE],  int *colnum,  long *haxes,  float *amin, 
-    float *amax, float *binsize,  int *status);
+    char binname[4][FLEN_VALUE],  int *colnum,  long *haxes,  
+    float *amin, float *amax, float *binsize,  int *status);
+int CFITS_API fits_calc_binningd(fitsfile *fptr, int naxis, char colname[4][FLEN_VALUE], 
+    double *minin, double *maxin,  double *binsizein,
+    char minname[4][FLEN_VALUE],  char maxname[4][FLEN_VALUE], 
+    char binname[4][FLEN_VALUE],  int *colnum,  long *haxes,  
+    double *amin, double *amax, double *binsize,  int *status);
 
 int CFITS_API fits_write_keys_histo(fitsfile *fptr,  fitsfile *histptr, 
       int naxis, int *colnum, int *status);  
 int CFITS_API fits_rebin_wcs( fitsfile *fptr, int naxis, float *amin,  float *binsize, 
       int *status);      
+int CFITS_API fits_rebin_wcsd( fitsfile *fptr, int naxis, double *amin,  double *binsize, 
+      int *status);      
 int CFITS_API fits_make_hist(fitsfile *fptr, fitsfile *histptr, int bitpix,int naxis,
      long *naxes,  int *colnum,  float *amin,  float *amax, float *binsize,
      float weight, int wtcolnum, int recip, char *selectrow, int *status);
+int CFITS_API fits_make_histd(fitsfile *fptr, fitsfile *histptr, int bitpix,int naxis,
+     long *naxes,  int *colnum,  double *amin,  double *amax, double *binsize,
+     double weight, int wtcolnum, int recip, char *selectrow, int *status);
 
 typedef struct
 {
@@ -1988,6 +2001,11 @@ int CFITS_API fits_hdecompress64(unsigned char *input, int smooth, LONGLONG *a, 
 
 int CFITS_API fits_compress_table  (fitsfile *infptr, fitsfile *outfptr, int *status);
 int CFITS_API fits_uncompress_table(fitsfile *infptr, fitsfile *outfptr, int *status);
+
+/* curl library wrapper routines (for https access) */
+int CFITS_API fits_init_https();
+int CFITS_API fits_cleanup_https();
+void CFITS_API fits_verbose_https(int flag);
 
 /*  The following exclusion if __CINT__ is defined is needed for ROOT */
 #ifndef __CINT__

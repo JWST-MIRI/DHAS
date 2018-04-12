@@ -196,7 +196,7 @@ int ffpky( fitsfile *fptr,     /* I - FITS file pointer        */
   Writes a keyword value with the datatype specified by the 2nd argument.
 */
 {
-    char errmsg[81];
+    char errmsg[FLEN_ERRMSG];
 
     if (*status > 0)           /* inherit input status value if > 0 */
         return(*status);
@@ -265,7 +265,7 @@ int ffpky( fitsfile *fptr,     /* I - FITS file pointer        */
     }
     else
     {
-        sprintf(errmsg, "Bad keyword datatype code: %d (ffpky)", datatype);
+        snprintf(errmsg, FLEN_ERRMSG,"Bad keyword datatype code: %d (ffpky)", datatype);
         ffpmsg(errmsg);
         *status = BAD_DATATYPE;
     }
@@ -314,8 +314,8 @@ int ffprec(fitsfile *fptr,     /* I - FITS file pointer        */
     if (keylength == 80) keylength = 8;
     
     /* test for the common commentary keywords which by definition have 8-char names */
-    if ( !strncasecmp( "COMMENT ", tcard, 8) || !strncasecmp( "HISTORY ", tcard, 8) ||
-         !strncasecmp( "        ", tcard, 8) || !strncasecmp( "CONTINUE", tcard, 8) )
+    if ( !fits_strncasecmp( "COMMENT ", tcard, 8) || !fits_strncasecmp( "HISTORY ", tcard, 8) ||
+         !fits_strncasecmp( "        ", tcard, 8) || !fits_strncasecmp( "CONTINUE", tcard, 8) )
 	 keylength = 8;
 
     for (ii=0; ii < keylength; ii++)       /* make sure keyword name is uppercase */
@@ -407,8 +407,10 @@ int ffpkls( fitsfile *fptr,     /* I - FITS file pointer        */
         return(*status);
 
     remain = maxvalue(strlen(value), 1); /* no. of chars to write (at least 1) */  
-    if (comm)  
+    if (comm) { 
        commlen = strlen(comm);
+       if (commlen > 47) commlen = 47;  /* only guarantee preserving the first 47 characters */
+    }
 
     /* count the number of single quote characters are in the string */
     tstring[0] = '\0';
@@ -503,15 +505,21 @@ int ffpkls( fitsfile *fptr,     /* I - FITS file pointer        */
            nchar = 68 - nquote;  /* max number of chars to write this time */
         }
 
-        /* make adjustment if necessary to allow reasonable room for a comment */
-		if ((remain + nquote + commlen + 3) > 68)  /* not enough room for whole comment? */
+        /* make adjustment if necessary to allow reasonable room for a comment on last CONTINUE card 
+	   only need to do this if 
+	     a) there is a comment string, and
+	     b) the remaining value string characters could all fit on the next CONTINUE card, and
+	     c) there is not enough room on the next CONTINUE card for both the remaining value
+	        characters, and at least 47 characters of the comment string.
+	*/
+	
+        if (commlen > 0 && remain + nquote < 69 && remain + nquote + commlen > 65) 
 	{
-	    if (remain + nquote > 18 && nquote < 18)  /* not enough room for a standard comment? */
-	    {
-	        nchar = 18 - nquote;  /* force continuation onto another card, so that */
+            if (nchar > 18) { /* only false if there are a rediculous number of quotes in the string */
+	        nchar = remain - 15;  /* force continuation onto another card, so that */
 		                      /* there is room for a comment up to 47 chara long */
                 nocomment = 1;  /* don't write the comment string this time */
-	    }
+            }
 	}
     }
     return(*status);
@@ -716,9 +724,19 @@ int ffpkyc( fitsfile *fptr,      /* I - FITS file pointer                   */
 
     strcpy(valstring, "(" );
     ffr2e(value[0], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+2 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkyc)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ", ");
     ffr2e(value[1], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+1 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkyc)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ")");
 
@@ -747,9 +765,19 @@ int ffpkym( fitsfile *fptr,      /* I - FITS file pointer                   */
 
     strcpy(valstring, "(" );
     ffd2e(value[0], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+2 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkym)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ", ");
     ffd2e(value[1], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+1 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkym)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ")");
 
@@ -778,9 +806,19 @@ int ffpkfc( fitsfile *fptr,      /* I - FITS file pointer                   */
 
     strcpy(valstring, "(" );
     ffr2f(value[0], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+2 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkfc)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ", ");
     ffr2f(value[1], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+1 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkfc)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ")");
 
@@ -809,9 +847,19 @@ int ffpkfm( fitsfile *fptr,      /* I - FITS file pointer                   */
 
     strcpy(valstring, "(" );
     ffd2f(value[0], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+2 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkfm)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ", ");
     ffd2f(value[1], decim, tmpstring, status); /* convert to string */
+    if (strlen(valstring)+strlen(tmpstring)+1 > FLEN_VALUE-1)
+    {
+       ffpmsg("Error converting complex to string (ffpkfm)");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, tmpstring);
     strcat(valstring, ")");
 
@@ -850,6 +898,11 @@ int ffpkyt( fitsfile *fptr,      /* I - FITS file pointer        */
     ffd2f(fraction, 16, fstring, status);  /* convert to 16 decimal string */
 
     cptr = strchr(fstring, '.');    /* find the decimal point */
+    if (strlen(valstring)+strlen(cptr) > FLEN_VALUE-1)
+    {
+       ffpmsg("converted numerical string too long");
+       return(*status=BAD_F2C);
+    }
     strcat(valstring, cptr);    /* append the fraction to the integer */
 
     ffmkky(keyname, valstring, comm, card, status);  /* construct the keyword*/
@@ -956,19 +1009,19 @@ int ffverifydate(int year,          /* I - year (0 - 9999)           */
 */
 {
     int ndays[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
-    char errmsg[81];
+    char errmsg[FLEN_ERRMSG];
     
 
     if (year < 0 || year > 9999)
     {
-       sprintf(errmsg, 
+       snprintf(errmsg, FLEN_ERRMSG,
        "input year value = %d is out of range 0 - 9999", year);
        ffpmsg(errmsg);
        return(*status = BAD_DATE);
     }
     else if (month < 1 || month > 12)
     {
-       sprintf(errmsg, 
+       snprintf(errmsg, FLEN_ERRMSG,
        "input month value = %d is out of range 1 - 12", month);
        ffpmsg(errmsg);
        return(*status = BAD_DATE);
@@ -977,7 +1030,7 @@ int ffverifydate(int year,          /* I - year (0 - 9999)           */
     if (ndays[month] == 31) {
         if (day < 1 || day > 31)
         {
-           sprintf(errmsg, 
+           snprintf(errmsg, FLEN_ERRMSG,
            "input day value = %d is out of range 1 - 31 for month %d", day, month);
            ffpmsg(errmsg);
            return(*status = BAD_DATE);
@@ -985,7 +1038,7 @@ int ffverifydate(int year,          /* I - year (0 - 9999)           */
     } else if (ndays[month] == 30) {
         if (day < 1 || day > 30)
         {
-           sprintf(errmsg, 
+           snprintf(errmsg, FLEN_ERRMSG,
            "input day value = %d is out of range 1 - 30 for month %d", day, month);
            ffpmsg(errmsg);
            return(*status = BAD_DATE);
@@ -1001,11 +1054,11 @@ int ffverifydate(int year,          /* I - year (0 - 9999)           */
 	        if ((year % 4 == 0 && year % 100 != 0 ) || year % 400 == 0)
 		   return (*status);
 		   
- 	        sprintf(errmsg, 
+ 	        snprintf(errmsg, FLEN_ERRMSG,
            "input day value = %d is out of range 1 - 28 for February %d (not leap year)", day, year);
                 ffpmsg(errmsg);
 	    } else {
-                sprintf(errmsg, 
+                snprintf(errmsg, FLEN_ERRMSG,
                 "input day value = %d is out of range 1 - 28 (or 29) for February", day);
                 ffpmsg(errmsg);
 	    }
@@ -1195,7 +1248,7 @@ int fftm2s(int year,          /* I - year (0 - 9999)           */
 */
 {
     int width;
-    char errmsg[81];
+    char errmsg[FLEN_ERRMSG];
 
     if (*status > 0)           /* inherit input status value if > 0 */
         return(*status);
@@ -1213,28 +1266,28 @@ int fftm2s(int year,          /* I - year (0 - 9999)           */
 
     if (hour < 0 || hour > 23)
     {
-       sprintf(errmsg, 
+       snprintf(errmsg, FLEN_ERRMSG,
        "input hour value is out of range 0 - 23: %d (fftm2s)", hour);
        ffpmsg(errmsg);
        return(*status = BAD_DATE);
     }
     else if (minute < 0 || minute > 59)
     {
-       sprintf(errmsg, 
+       snprintf(errmsg, FLEN_ERRMSG,
        "input minute value is out of range 0 - 59: %d (fftm2s)", minute);
        ffpmsg(errmsg);
        return(*status = BAD_DATE);
     }
     else if (second < 0. || second >= 61)
     {
-       sprintf(errmsg, 
+       snprintf(errmsg, FLEN_ERRMSG,
        "input second value is out of range 0 - 60.999: %f (fftm2s)", second);
        ffpmsg(errmsg);
        return(*status = BAD_DATE);
     }
     else if (decimals > 25)
     {
-       sprintf(errmsg, 
+       snprintf(errmsg, FLEN_ERRMSG,
        "input decimals value is out of range 0 - 25: %d (fftm2s)", decimals);
        ffpmsg(errmsg);
        return(*status = BAD_DATE);
@@ -1280,7 +1333,7 @@ int ffs2tm(char *datestr,     /* I - date string: "YYYY-MM-DD"    */
 */
 {
     int slen;
-    char errmsg[81];
+    char errmsg[FLEN_ERRMSG];
 
     if (*status > 0)           /* inherit input status value if > 0 */
         return(*status);
@@ -1390,7 +1443,7 @@ int ffs2tm(char *datestr,     /* I - date string: "YYYY-MM-DD"    */
     if (hour)
        if (*hour < 0 || *hour > 23)
        {
-          sprintf(errmsg, 
+          snprintf(errmsg,FLEN_ERRMSG, 
           "hour value is out of range 0 - 23: %d (ffs2tm)", *hour);
           ffpmsg(errmsg);
           return(*status = BAD_DATE);
@@ -1399,7 +1452,7 @@ int ffs2tm(char *datestr,     /* I - date string: "YYYY-MM-DD"    */
     if (minute)
        if (*minute < 0 || *minute > 59)
        {
-          sprintf(errmsg, 
+          snprintf(errmsg, FLEN_ERRMSG,
           "minute value is out of range 0 - 59: %d (ffs2tm)", *minute);
           ffpmsg(errmsg);
           return(*status = BAD_DATE);
@@ -1408,7 +1461,7 @@ int ffs2tm(char *datestr,     /* I - date string: "YYYY-MM-DD"    */
     if (second)
        if (*second < 0 || *second >= 61.)
        {
-          sprintf(errmsg, 
+          snprintf(errmsg, FLEN_ERRMSG,
           "second value is out of range 0 - 60.9999: %f (ffs2tm)", *second);
           ffpmsg(errmsg);
           return(*status = BAD_DATE);
@@ -1934,7 +1987,7 @@ int ffptdm( fitsfile *fptr, /* I - FITS file pointer                        */
 */
 {
     char keyname[FLEN_KEYWORD], tdimstr[FLEN_VALUE], comm[FLEN_COMMENT];
-    char value[80], message[81];
+    char value[80], message[FLEN_ERRMSG];
     int ii;
     long totalpix = 1, repeat;
     tcolumn *colptr;
@@ -1981,7 +2034,13 @@ int ffptdm( fitsfile *fptr, /* I - FITS file pointer                        */
             return(*status = BAD_TDIM);
         }
 
-        sprintf(value, "%ld", naxes[ii]);
+        snprintf(value, 80,"%ld", naxes[ii]);
+        /* This will either be followed by a ',' or ')'. */
+        if (strlen(tdimstr)+strlen(value)+1 > FLEN_VALUE-1)
+        {
+            ffpmsg("TDIM string too long (ffptdm)");
+            return(*status = BAD_TDIM);
+        }
         strcat(tdimstr, value);     /* append the axis size */
 
         totalpix *= naxes[ii];
@@ -2002,7 +2061,7 @@ int ffptdm( fitsfile *fptr, /* I - FITS file pointer                        */
 
       if (*status > 0 || repeat != totalpix)
       {
-        sprintf(message,
+        snprintf(message,FLEN_ERRMSG,
         "column vector length, %ld, does not equal TDIMn array size, %ld",
         (long) colptr->trepeat, totalpix);
         ffpmsg(message);
@@ -2078,8 +2137,13 @@ int ffptdmll( fitsfile *fptr, /* I - FITS file pointer                      */
         /* cast to double because the 64-bit int conversion character in */
         /* sprintf is platform dependent ( %lld, %ld, %I64d )            */
 
-        sprintf(value, "%.0f", (double) naxes[ii]);
-
+        snprintf(value, 80, "%.0f", (double) naxes[ii]);
+        
+        if (strlen(tdimstr)+strlen(value)+1 > FLEN_VALUE-1)
+        {
+            ffpmsg("TDIM string too long (ffptdmll)");
+            return(*status = BAD_TDIM);
+        }
         strcat(tdimstr, value);     /* append the axis size */
 
         totalpix *= naxes[ii];
@@ -2100,7 +2164,7 @@ int ffptdmll( fitsfile *fptr, /* I - FITS file pointer                      */
 
       if (*status > 0 || repeat != totalpix)
       {
-        sprintf(message,
+        snprintf(message,FLEN_ERRMSG,
         "column vector length, %.0f, does not equal TDIMn array size, %.0f",
         (double) (colptr->trepeat), (double) totalpix);
         ffpmsg(message);
@@ -2246,7 +2310,7 @@ int ffphprll( fitsfile *fptr, /* I - FITS file pointer                        */
         longbitpix != LONG_IMG && longbitpix != LONGLONG_IMG &&
         longbitpix != FLOAT_IMG && longbitpix != DOUBLE_IMG)
     {
-        sprintf(message,
+        snprintf(message,FLEN_ERRMSG,
         "Illegal value for BITPIX keyword: %d", bitpix);
         ffpmsg(message);
         return(*status = BAD_BITPIX);
@@ -2258,7 +2322,7 @@ int ffphprll( fitsfile *fptr, /* I - FITS file pointer                        */
 
     if (naxis < 0 || naxis > 999)
     {
-        sprintf(message,
+        snprintf(message,FLEN_ERRMSG,
         "Illegal value for NAXIS keyword: %d", naxis);
         ffpmsg(message);
         return(*status = BAD_NAXIS);
@@ -2272,13 +2336,13 @@ int ffphprll( fitsfile *fptr, /* I - FITS file pointer                        */
     {
         if (naxes[ii] < 0)
         {
-            sprintf(message,
+            snprintf(message,FLEN_ERRMSG,
             "Illegal negative value for NAXIS%d keyword: %.0f", ii + 1, (double) (naxes[ii]));
             ffpmsg(message);
             return(*status = BAD_NAXES);
         }
 
-        sprintf(&comm[20], "%d", ii + 1);
+        snprintf(&comm[20], FLEN_COMMENT-20,"%d", ii + 1);
         ffkeyn("NAXIS", ii + 1, name, status);
         ffpkyj(fptr, name, naxes[ii], comm, status);
     }
@@ -2444,7 +2508,7 @@ int ffphtb(fitsfile *fptr,  /* I - FITS file pointer                        */
     {
         if ( *(ttype[ii]) )  /* optional TTYPEn keyword */
         {
-          sprintf(comm, "label for field %3d", ii + 1);
+          snprintf(comm, FLEN_COMMENT,"label for field %3d", ii + 1);
           ffkeyn("TTYPE", ii + 1, name, status);
           ffpkys(fptr, name, ttype[ii], comm, status);
         }
@@ -2452,10 +2516,16 @@ int ffphtb(fitsfile *fptr,  /* I - FITS file pointer                        */
         if (tbcol[ii] < 1 || tbcol[ii] > rowlen)
            *status = BAD_TBCOL;
 
-        sprintf(comm, "beginning column of field %3d", ii + 1);
+        snprintf(comm, FLEN_COMMENT,"beginning column of field %3d", ii + 1);
         ffkeyn("TBCOL", ii + 1, name, status);
         ffpkyj(fptr, name, tbcol[ii], comm, status);
 
+        if (strlen(tform[ii]) > 29)
+        {
+          ffpmsg("Error: ASCII table TFORM code is too long (ffphtb)");
+          *status = BAD_TFORM;
+          break;
+        }
         strcpy(tfmt, tform[ii]);  /* required TFORMn keyword */
         ffupch(tfmt);
         ffkeyn("TFORM", ii + 1, name, status);
@@ -2541,7 +2611,8 @@ int ffphbn(fitsfile *fptr,  /* I - FITS file pointer                        */
             naxis1 += (repeat + 7) / 8;
         else if (datatype > 0)
             naxis1 += repeat * (datatype / 10);
-        else if (tform[ii][0] == 'P' || tform[ii][1] == 'P')
+        else if (tform[ii][0] == 'P' || tform[ii][1] == 'P'||
+                 tform[ii][0] == 'p' || tform[ii][1] == 'p')
            /* this is a 'P' variable length descriptor (neg. datatype) */
             naxis1 += 8;
         else
@@ -2568,11 +2639,17 @@ int ffphbn(fitsfile *fptr,  /* I - FITS file pointer                        */
     {
         if ( *(ttype[ii]) )  /* optional TTYPEn keyword */
         {
-          sprintf(comm, "label for field %3d", ii + 1);
+          snprintf(comm, FLEN_COMMENT,"label for field %3d", ii + 1);
           ffkeyn("TTYPE", ii + 1, name, status);
           ffpkys(fptr, name, ttype[ii], comm, status);
         }
 
+        if (strlen(tform[ii]) > 29)
+        {
+          ffpmsg("Error: BIN table TFORM code is too long (ffphbn)");
+          *status = BAD_TFORM;
+          break;
+        }
         strcpy(tfmt, tform[ii]);  /* required TFORMn keyword */
         ffupch(tfmt);
 
@@ -2745,7 +2822,7 @@ int ffphext(fitsfile *fptr,  /* I - FITS file pointer                       */
 
     if (naxis < 0 || naxis > 999)
     {
-        sprintf(message,
+        snprintf(message,FLEN_ERRMSG,
         "Illegal value for NAXIS keyword: %d", naxis);
         ffpmsg(message);
         return(*status = BAD_NAXIS);
@@ -2763,13 +2840,13 @@ int ffphext(fitsfile *fptr,  /* I - FITS file pointer                       */
     {
         if (naxes[ii] < 0)
         {
-            sprintf(message,
+            snprintf(message,FLEN_ERRMSG,
             "Illegal negative value for NAXIS%d keyword: %.0f", ii + 1, (double) (naxes[ii]));
             ffpmsg(message);
             return(*status = BAD_NAXES);
         }
 
-        sprintf(&comm[20], "%d", ii + 1);
+        snprintf(&comm[20], 61, "%d", ii + 1);
         ffkeyn("NAXIS", ii + 1, name, status);
         ffpkyj(fptr, name, naxes[ii], comm, status);
     }
@@ -2906,7 +2983,7 @@ int ffr2f(float fval,   /* I - value to be converted to a string */
         return(*status = BAD_DECIM);
     }
 
-    if (sprintf(cval, "%.*f", decim, fval) < 0)
+    if (snprintf(cval, FLEN_VALUE,"%.*f", decim, fval) < 0)
     {
         ffpmsg("Error in ffr2f converting float to string");
         *status = BAD_F2C;
@@ -2942,7 +3019,7 @@ int ffr2e(float fval,  /* I - value to be converted to a string */
 
     if (decim < 0)
     {   /* use G format if decim is negative */
-        if ( sprintf(cval, "%.*G", -decim, fval) < 0)
+        if ( snprintf(cval, FLEN_VALUE,"%.*G", -decim, fval) < 0)
         {
             ffpmsg("Error in ffr2e converting float to string");
             *status = BAD_F2C;
@@ -2953,7 +3030,7 @@ int ffr2e(float fval,  /* I - value to be converted to a string */
             if ( !strchr(cval, '.') && strchr(cval,'E') )
             {
                 /* reformat value with a decimal point and single zero */
-                if ( sprintf(cval, "%.1E", fval) < 0)
+                if ( snprintf(cval, FLEN_VALUE,"%.1E", fval) < 0)
                 {
                     ffpmsg("Error in ffr2e converting float to string");
                     *status = BAD_F2C;
@@ -2965,7 +3042,7 @@ int ffr2e(float fval,  /* I - value to be converted to a string */
     }
     else
     {
-        if ( sprintf(cval, "%.*E", decim, fval) < 0)
+        if ( snprintf(cval, FLEN_VALUE,"%.*E", decim, fval) < 0)
         {
             ffpmsg("Error in ffr2e converting float to string");
             *status = BAD_F2C;
@@ -2983,7 +3060,7 @@ int ffr2e(float fval,  /* I - value to be converted to a string */
             ffpmsg("Error in ffr2e: float value is a NaN or INDEF");
             *status = BAD_F2C;
         }
-        else if ( !strchr(cval, '.') && !strchr(cval,'E') )
+        else if ( !strchr(cval, '.') && !strchr(cval,'E') && strlen(cval) < FLEN_VALUE-1 )
         {
             /* add decimal point if necessary to distinquish from integer */
             strcat(cval, ".");
@@ -3014,7 +3091,7 @@ int ffd2f(double dval,  /* I - value to be converted to a string */
         return(*status = BAD_DECIM);
     }
 
-    if (sprintf(cval, "%.*f", decim, dval) < 0)
+    if (snprintf(cval, FLEN_VALUE,"%.*f", decim, dval) < 0)
     {
         ffpmsg("Error in ffd2f converting double to string");
         *status = BAD_F2C;
@@ -3050,7 +3127,7 @@ int ffd2e(double dval,  /* I - value to be converted to a string */
 
     if (decim < 0)
     {   /* use G format if decim is negative */
-        if ( sprintf(cval, "%.*G", -decim, dval) < 0)
+        if ( snprintf(cval, FLEN_VALUE,"%.*G", -decim, dval) < 0)
         {
             ffpmsg("Error in ffd2e converting float to string");
             *status = BAD_F2C;
@@ -3061,7 +3138,7 @@ int ffd2e(double dval,  /* I - value to be converted to a string */
             if ( !strchr(cval, '.') && strchr(cval,'E') )
             {
                 /* reformat value with a decimal point and single zero */
-                if ( sprintf(cval, "%.1E", dval) < 0)
+                if ( snprintf(cval, FLEN_VALUE,"%.1E", dval) < 0)
                 {
                     ffpmsg("Error in ffd2e converting float to string");
                     *status = BAD_F2C;
@@ -3073,7 +3150,7 @@ int ffd2e(double dval,  /* I - value to be converted to a string */
     }
     else
     {
-        if ( sprintf(cval, "%.*E", decim, dval) < 0)
+        if ( snprintf(cval, FLEN_VALUE,"%.*E", decim, dval) < 0)
         {
             ffpmsg("Error in ffd2e converting float to string");
             *status = BAD_F2C;
@@ -3091,7 +3168,7 @@ int ffd2e(double dval,  /* I - value to be converted to a string */
             ffpmsg("Error in ffd2e: double value is a NaN or INDEF");
             *status = BAD_F2C;
         }
-        else if ( !strchr(cval, '.') && !strchr(cval,'E') )
+        else if ( !strchr(cval, '.') && !strchr(cval,'E') && strlen(cval) < FLEN_VALUE-1)
         {
             /* add decimal point if necessary to distinquish from integer */
             strcat(cval, ".");
