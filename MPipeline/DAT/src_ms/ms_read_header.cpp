@@ -271,21 +271,28 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
 
   // Check if mode is FASTGRPAVG
 
-  if(data_info.Readout == "FASTGRPAVG" && data_info.FrameDiv !=0){
-    data_info.NRamps = data_info.NRamps/data_info.FrameDiv;
+  int test_ratio = data_info.FrameDiv/data_info.NFrame;
+  //cout << "test_ratio " << test_ratio << endl;
+  // if(data_info.Readout == "FASTGRPAVG" && data_info.FrameDiv !=0){
+  if(data_info.Readout == "FASTGRPAVG" && test_ratio  !=1){
     cout << " This data is FASTGRPAVG, adjusted NGROUP to process data correctly" << endl;
+    cout << " NGROUPS and FrameDiv values in header " <<data_info.NRamps << " "  << data_info.FrameDiv << endl;
+    data_info.NRamps = data_info.NRamps/data_info.FrameDiv;
+    cout << " NGroups has been modified internally in the program to: "<< data_info.NRamps << endl;
   }
+  if(data_info.FrameDiv !=1) cout << " FRMDIVSR keyword is non-standard " << data_info.FrameDiv << endl;
+  if(data_info.NFrame !=1) cout << " NFRAME keyword is non-standard " << data_info.NFrame << endl; 
 
   // **********************************************************************
 
 
 
-    long itest = data_info.NInt * data_info.NRamps ;
+  long itest = data_info.NInt * data_info.NRamps ;
 
   if(naxis3 > itest) {
     cout << " ************** WARNING ******************" << endl;
     cout << " NAXES3 > NINTS * NGROUPS " << endl;
-    cout << " NAXES 3 " << naxis3 << endl;
+    cout << " NAXES3 " << naxis3 << endl;
     cout << " NINTS " << data_info.NInt << endl;
     cout << " NGROUPS " << data_info.NRamps << endl;
 

@@ -594,7 +594,7 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 
   int debug = 0;
 
-  if(pix_x == -11 && pix_y == 4) debug = 1;
+  if(pix_x == -184 && pix_y == 169) debug = 1;
 
   //-----------------------------------------------------------------------
   float factor2  = exp(counts2/param3); 
@@ -635,15 +635,17 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 	float T = (i+1) + frame_start;
 	float eterm = exp(-T/tau);
 	float corr =  lastframeDN * a1*eterm;
+
+	if(debug == 1) {
+	  cout << " RSCD correction " << pix_x << " " << pix_y << " " << i << " " <<  
+	    corr <<  " " << counts2 << " "   << lastframeDN << " " << raw_data[i] << " " <<
+	    raw_data[i] + corr  << endl;
+
+
+	}
 	
 	raw_data[i] = raw_data[i] +corr;
-	if(debug == 1 && i < 20) {
-	  cout << " RSCD correction (x,y,frame,corr) " << pix_x << " " << pix_y << " " << i << " " <<  
-	    corr <<  " " << counts2 << " " << a1 << " " << eterm << " "  
-	       << lastframeDN << " "  << " " << raw_data[i] << endl;
-	  cout << "first correction " << lastframeDN*a1_save*eterm << endl;
-	  cout << "eterm" << eterm << " " << T << " " << tau << endl;
-	}
+
 
       }// end loop over id_data[i] = 0 - making correction
     
@@ -660,7 +662,7 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 //_______________________________________________________________________
 
 
-//_______________________________________________________________________
+//_______________________________________________________________________correct
 void miri_pixel::ApplyLastFrameCorrection(const int write_corrected_data,
 					  float data_row_below,
 					  int dq_row_below,
