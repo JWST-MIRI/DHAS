@@ -90,7 +90,7 @@ MAKE = make
 DIFLAGS = -Y./include
 
 #for linux
-LDFLAGS = -L../lib/cfitsio -lcfitsio  
+LDFLAGS = -L../lib/cfitsio -lcfitsio -lcurl  
 CCFLAGS = -O2 -funroll-loops -Iinclude -I../src_gen/include -I../lib/cfitsio -Wno-deprecated  -D_FILE_OFFSET_BITS=64 -DHAVE_LONGLONG=1 -D_LARGEFILE_SOURCE=1
 #for solaris
 #LDFLAGS = -L../lib/cfitsio -lcfitsio -lsocket -lnsl -L /usr/local/lib -R /usr/local/lib
