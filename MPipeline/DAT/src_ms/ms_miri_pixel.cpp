@@ -641,8 +641,8 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 	    corr <<  " " << counts2 << " "   << lastframeDN << " " << raw_data[i] << " " <<
 	    raw_data[i] + corr  << endl;
 
-
 	}
+	
 	
 	raw_data[i] = raw_data[i] +corr;
 
