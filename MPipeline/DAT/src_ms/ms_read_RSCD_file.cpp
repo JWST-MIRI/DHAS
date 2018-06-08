@@ -385,7 +385,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
 
     if(ifound_odd != -1 && ifound_even !=-1) {
 
-
+      
       RSCD.SetParameters(data_info.NRamps,
 			 tau[ifound_even],ascale[ifound_even],rpow[ifound_even],
 			 illum_zp[ifound_even],illum_slope[ifound_even],illum2[ifound_even],
@@ -394,6 +394,11 @@ int ms_read_RSCD_file(miri_data_info &data_info,
 			 illum_zp[ifound_odd],illum_slope[ifound_odd],illum2[ifound_odd],
 			 param3[ifound_odd],cross[ifound_odd]);
 
+      sat_rowterm[ifound_odd]= 0.0;
+      sat_rowterm[ifound_even]= 0.0;
+      sat_mzp[ifound_even] = 3.6;
+      sat_mzp[ifound_odd]=  3.0;
+		  
       RSCD.SetSATParameters(data_info.NRamps,
 			    sat_zp[ifound_even],sat_slope[ifound_even],sat_2[ifound_even],
 			    sat_mzp[ifound_even],sat_rowterm[ifound_even],

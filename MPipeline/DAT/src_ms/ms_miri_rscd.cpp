@@ -119,8 +119,13 @@ void miri_rscd::SetSATParameters(const int nframes,
     sat_final_slope_odd = sat_zp_odd + sat_slope_odd *nframes + 
       (sat_2_odd*nframes*nframes) + sat_rowterm_odd;
    
-    cout << " Sat 2 " << sat_2_even << " " << sat_2_odd << endl;
-    cout << " Sat scale " << sat_scale_even << " " << sat_scale_odd << endl;
+    cout << "sat parameters odd" << sat_zp_odd << " " << sat_slope_odd << " " <<
+      nframes << " " << sat_2_odd << " " << sat_rowterm_odd << endl;
+
+    cout << " sat final slope even,odd " << sat_final_slope_even << " " <<
+      sat_final_slope_odd << endl;
+
+
   }
 
 
