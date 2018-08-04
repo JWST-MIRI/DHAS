@@ -329,10 +329,10 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
       }
       if(use == 1){
 	fits_write_key(file_ptr, TINT, "USEINT", &use,
-		       " Used Integration in determining Average Slope in Primary", &status);
+		       " 1 = This int used in Average Slope in Primary", &status);
       } else {
 	fits_write_key(file_ptr, TINT, "USEINT", &use,
-		       "Did not use Integration in determining Average Slope in Primary", &status);
+		       " 0 = This int NOT used in Average Slope in Primary", &status);
       }
     }
     //_______________________________________________________________________
