@@ -145,11 +145,8 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
       fits_write_comment(file_ptr, "Reduced Data",&status);
       if(control.convert_to_electrons_per_second ==0) {
 	fits_write_comment(file_ptr, "plane 1: signal (DN/s)",&status);
-	if(control.janes_flag ==0) {
-	  fits_write_comment(file_ptr, "plane 2: uncertainty (DN/s)",&status);
-	}else{
-	  fits_write_comment(file_ptr, "plane 2: Standard Deviation of Fitted Values (DN/s)",&status);
-	}
+	fits_write_comment(file_ptr, "plane 2: uncertainty (DN/s)",&status);
+
       }else{
 	fits_write_comment(file_ptr, "plane 1: signal (e/s)",&status);
 	fits_write_comment(file_ptr, "plane 2: uncertainty (e/s)",&status);

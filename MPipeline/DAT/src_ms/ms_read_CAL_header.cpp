@@ -74,7 +74,7 @@ void ms_read_CAL_header(string CALfile, long &xsize, long &ysize,  long& zsize, 
     string Type = type;
 
 
-    cout << " Type of Calibration file: " << type << endl;
+    //    cout << " Type of Calibration file: " << type << endl;
     status = 0;
     fits_movabs_hdu(fptr,2,&hdutype,&status);
     if(status !=0 ) cout << "Could not move the SCI data in CAL file" << endl;
@@ -116,7 +116,7 @@ void ms_read_CAL_header(string CALfile, long &xsize, long &ysize,  long& zsize, 
       cout << " ms_read_CAL_header: Could not read the dimensions of the CAL Correction file " << endl;
       exit(EXIT_FAILURE);
     }
-    cout << "size of CAL file " << xsize << " " << ysize << " " << zsize << " " << isize <<  endl;
+    //cout << "size of CAL file " << xsize << " " << ysize << " " << zsize << " " << isize <<  endl;
 
     fits_close_file(fptr, &status);   // close the file
 }

@@ -57,7 +57,7 @@ void miri_search_CDP(string key,vector<string> keyname, vector<string> value,  i
 void miri_search_CDP(string key,vector<string> keyname, vector<string> value,  string& val, int &status);
 void miri_search_CDP(string key,vector<string> keyname, vector<string> value,  float& val, int &status);
 
-void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_info)
+void ms_get_CDP_names(miri_CDP &CDP, miri_control &control, miri_data_info &data_info)
 
 {
   char chr;
@@ -117,46 +117,63 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
 
 
   if(control.apply_badpix == 1) {
+
     miri_search_CDP("BAD",keyname,value,file,status);
-    if(status == 1){
-      cout << "Failure to parse BAD from CDP list of files" << endl;
-      cout << " check the Bad file name " << master_list << endl;
-      cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
-      exit(EXIT_FAILURE);
+    if(file == "NA" ) {
+      cout << " No Bad pixel mask file exist, turnning off using bad pixel mask" << endl;
+      control.apply_badpix = 0;
+    } else {
+
+      if(status == 1){
+	cout << "Failure to parse BAD from CDP list of files" << endl;
+	cout << " check the Bad file name " << master_list << endl;
+	cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
+	exit(EXIT_FAILURE);
+      }
+      CDP.SetBadPixelName(file);
     }
-    CDP.SetBadPixelName(file);
   }
 
 
   if(control.apply_lastframe_cor == 1) {
     miri_search_CDP("LASTFRAME",keyname,value,file,status);
-    if(status == 1){
-      cout << "Failure to parse LASTFRAME from CDP list of files" << endl;
-      cout << " check the LastFrame file name in ` " << master_list << endl;
-      cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
-      exit(EXIT_FAILURE);
+
+    if(file == "NA" ) {
+      cout << " No last frame correction file exist, turnning off step" << endl;
+      control.apply_lastframe_cor = 0;
+    } else {
+      if(status == 1){
+	cout << "Failure to parse LASTFRAME from CDP list of files" << endl;
+	cout << " check the LastFrame file name in ` " << master_list << endl;
+	cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
+	exit(EXIT_FAILURE);
+      }
+      CDP.SetLastFrameName(file);
+      cout << " Lastframe file = " << file << endl;
     }
-    CDP.SetLastFrameName(file);
-    cout << " Lastframe file = " << file << endl;
 
   }
 
   if(control.apply_pixel_saturation ==1) {
     file = "";
     miri_search_CDP("PIXELSAT",keyname,value,file,status);
-    if(status == 1){
-      cout << "Failure to parse PIXELSAT from CDP list of files" << endl;
-      cout << " check the pixel saturation file name " << master_list << endl;
-      cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
-      exit(EXIT_FAILURE);
+
+    if(file == "NA" ) {
+      cout << " No pixel saturation file exist, turnning off step" << endl;
+      control.apply_pixel_saturation = 0;
+    } else{
+      if(status == 1){
+	cout << "Failure to parse PIXELSAT from CDP list of files" << endl;
+	cout << " check the pixel saturation file name " << master_list << endl;
+	cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
+	exit(EXIT_FAILURE);
+      }
+      CDP.SetPixelSatName(file);
     }
-    CDP.SetPixelSatName(file);
   }
 
   if(control.apply_lin_cor ==1) {
-
     string LIN_COR = "NA";
-
     if(data_info.Detector == IM  ){
       LIN_COR = "LIN_COR";
       if(data_info.filter == "F2100W")  LIN_COR = "LIN_COR_F2100W";
@@ -179,32 +196,43 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
 
     miri_search_CDP(LIN_COR,keyname,value,file,status);      
 
-    if(status == 1) {
-      cout << "LIN_COR: " << LIN_COR << endl;
-      cout << "Detector" << data_info.Detector << endl;
-      cout << "DGAA" << data_info.DGAA << endl;
-      cout << "DGAB" << data_info.DGAB << endl;
-      cout << "Band" << data_info.Band << endl;
-      
-      cout << "Failure to parse LIN_COR  from CDP list of files" << endl;
-      cout << " check the linearity file name " << master_list << endl;
-      cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
-      exit(EXIT_FAILURE);
+    if(file == "NA" ) {
+      cout << " No linearity correction file exist, turnning off step" << endl;
+      control.apply_lin_cor= 0;
+    } else{
+      if(status == 1) {
+	cout << "LIN_COR: " << LIN_COR << endl;
+	cout << "Detector" << data_info.Detector << endl;
+	cout << "DGAA" << data_info.DGAA << endl;
+	cout << "DGAB" << data_info.DGAB << endl;
+	cout << "Band" << data_info.Band << endl;
+	
+	cout << "Failure to parse LIN_COR  from CDP list of files" << endl;
+	cout << " check the linearity file name " << master_list << endl;
+	cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
+	exit(EXIT_FAILURE);
+      }
+      CDP.SetLinCorName(file);
     }
-    CDP.SetLinCorName(file);
     
     }
 
   if(control.apply_rscd_cor == 1) {
     miri_search_CDP("RSCD",keyname,value,file,status);
-    if(status == 1) {
-      cout << "Failure to parse RSCD from CDP list of files" << endl;
-      cout << " check the RSCD file name " << master_list << endl;
-      cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
-      exit(EXIT_FAILURE);
+
+    if(file == "NA" ) {
+      cout << " No rscd correction file exist, turnning off step" << endl;
+      control.apply_rscd_cor = 0;
+    } else {
+      if(status == 1) {
+	cout << "Failure to parse RSCD from CDP list of files" << endl;
+	cout << " check the RSCD file name " << master_list << endl;
+	cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
+	exit(EXIT_FAILURE);
+      }
+      CDP.SetRSCDName(file);
+      //cout << " RSCD file name: " << file << endl;
     }
-    CDP.SetRSCDName(file);
-    //cout << " RSCD file name: " << file << endl;
   }
   //***********************************************************************
   // _______________________________________________________________________
@@ -213,21 +241,21 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
   // 
 
   if(control.apply_dark_cor == 1) {
-    miri_search_CDP("DARK_FAST",keyname,value,file,status);
 
+    miri_search_CDP("DARK_FAST",keyname,value,file,status);
     if(status == 1){
       cout << "Failure to parse DARK_FAST from CDP list files" << endl;
       cout << " check the Dark file name " << master_list << endl;
       cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
       exit(EXIT_FAILURE);
     }
-    CDP.SetDarkFastName(file);    
+    CDP.SetDarkFastName(file);
+    
   // _______________________________________________________________________
   // if in slow mode 
   // 
     if(data_info.Mode == 1 ) { 
       miri_search_CDP("DARK_SLOW",keyname,value,file,status);
-
       if(status == 1) {
 	cout << "Failure to parse DARK_SLOW from CDP list files" << endl;
 	cout << " check the Dark file name " << master_list << endl;
@@ -235,8 +263,22 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
 	exit(EXIT_FAILURE);
       }
       CDP.SetDarkSlowName(file);
+    }
+//_______________________________________________________________________
+// Run 8 SCA 106
+
+    if(data_info.Origin == "JPL"   && control.jpl_detector == "106") {
+	miri_search_CDP("DARK_MASK4QPM",keyname,value,file,status);
+
+	if(status ==  1) cout << "Failure to parse DARK_MASK4QPM from CDP list files" << endl;
+	CDP.SetDarkMask4QPMName(file);
+
+	miri_search_CDP("DARK_SUBLARGE",keyname,value,file,status);
+	if(status == 1) cout << "Failure to parse Dark_SUBLARGE from CDP list files" << endl;
+	cout << file << endl;
+	CDP.SetDarkSubLargeName(file);
+
     } 
-    
 //_______________________________________________________________________
 // Read in the subarray darks 
     status = 0;
@@ -278,7 +320,7 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
       if(status == 1) cout << "Failure to parse DARK_MASKSUB256 from CDP list files" << endl;
       CDP.SetDarkMaskSub256Name(file);
 
-      if(status ==1) {
+      if(status ==1 && control.apply_dark_cor == 1) {
 	cout << " check the Dark file name " << master_list << endl;
 	cout << " aborting program ... if the reference file can not be found do not use this calibration file" << endl;
 	exit(EXIT_FAILURE);
@@ -295,7 +337,7 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
 
   if(control.apply_reset_cor == 1) {
 
-
+    cout << " looking for reset"  << endl;
     miri_search_CDP("RESET_FAST",keyname,value,file,status);
     if(status == 1) cout << "Failure to parse RESET_FAST from CDP list files" << endl;
     CDP.SetResetFastName(file);    
@@ -306,7 +348,20 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
     if(data_info.Mode == 1 ) { 
       miri_search_CDP("RESET_SLOW",keyname,value,file,status);
       CDP.SetResetSlowName(file);
-      if(status == 1) cout << "Failure to parse RESET_SLOW from CDP list files" << endl;
+    } 
+
+  // _______________________________________________________________________
+  // JPL Run 8 and SCA106  
+  // 
+    if(data_info.Origin == "JPL"   && control.jpl_detector == "106") {
+	miri_search_CDP("RESET_MASK4QPM",keyname,value,file,status);
+	cout << file << endl;
+	CDP.SetResetMask4QPMName(file);
+	if(status == 1) cout << "Failure to parse RESET_MASK4QPM from CDP list files" << endl;
+
+	miri_search_CDP("RESET_SUBLARGE",keyname,value,file,status);
+	CDP.SetResetSubLargeName(file);
+	if(status == 1) cout << "Failure to parse RESET_SUBLARGE from CDP list files" << endl;
     } 
 //_______________________________________________________________________
 // Read in the subarray resets 
@@ -333,7 +388,6 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
       if(status == 1) cout << "Failure to parse RESET_MASKLYOT from CDP list files" << endl;
       CDP.SetResetMaskLYOTName(file);
 
-
       miri_search_CDP("RESET_SPRISM",keyname,value,file,status);
       if(status == 1) cout << "Failure to parse RESET_SPRISM from CDP list files" << endl;
       CDP.SetResetSPrismName(file);
@@ -349,10 +403,9 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control control, miri_data_info &data_
       miri_search_CDP("RESET_MASKSUB256",keyname,value,file,status);
       if(status == 1) cout << "Failure to parse RESET_MASKSUB256 from CDP list files" << endl;
       CDP.SetResetMaskSub256Name(file);
-
+        
     }
   }
-
 
 
 

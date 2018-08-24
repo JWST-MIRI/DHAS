@@ -55,6 +55,34 @@ int ms_determine_CAL_Subarray(const int flag,miri_data_info &data_info, miri_con
   int rowstart=0;
   // flag = 0 dark ; flag=1 reset 
   if (flag ==0) { 
+
+  //________________________________________________________________________________
+    if(control.jpl_run == "8" && control.jpl_detector == "106") {
+
+  // JPL Run 8 SCA106 MASK4QPM
+      if(data_info.raw_naxes[0] == 288){
+	string dc_filename= control.calib_dir+CDP.GetDarkMask4QPMName() ;
+
+	ms_read_CAL_header(dc_filename,xsize,ysize,zsize,isize,colstart,rowstart);
+	if(data_info.ColStart == colstart && data_info.RowStart == rowstart && 
+	   xsize == data_info.ramp_naxes[0] && ysize == data_info.ramp_naxes[1]) {  
+	  final_status = 0;
+	  CDP.SetDarkUseMask4QPM();
+	  return final_status; 
+	}
+      }
+  // JPL Run 8 SCA106 SUBLARGE
+      if(data_info.raw_naxes[0] == 352){
+	string dc_filename= control.calib_dir+ CDP.GetDarkSubLargeName(); 
+	ms_read_CAL_header(dc_filename,xsize,ysize,zsize,isize,colstart,rowstart);
+	if(data_info.ColStart == colstart && data_info.RowStart == rowstart && 
+	   xsize == data_info.ramp_naxes[0] && ysize == data_info.ramp_naxes[1]) {  
+	  final_status = 0;
+	  CDP.SetDarkUseSubLarge();
+	  return final_status; 
+	}
+      }
+    }
   //________________________________________________________________________________
   // Search Bright Sky
     string dark = CDP.GetDarkBrightSkyName();
@@ -155,6 +183,33 @@ int ms_determine_CAL_Subarray(const int flag,miri_data_info &data_info, miri_con
       // Search for reset file name
 
   if (flag ==1) { 
+  //________________________________________________________________________________
+    if(control.jpl_run == "8" && control.jpl_detector == "106") {
+
+  // JPL Run 8 SCA106 MASK4QPM
+      if(data_info.raw_naxes[0] == 288){
+	string dc_filename= control.calib_dir+CDP.GetResetMask4QPMName() ;
+
+	ms_read_CAL_header(dc_filename,xsize,ysize,zsize,isize,colstart,rowstart);
+	if(data_info.ColStart == colstart && data_info.RowStart == rowstart && 
+	   xsize == data_info.ramp_naxes[0] && ysize == data_info.ramp_naxes[1]) {  
+	  final_status = 0;
+	  CDP.SetResetUseMask4QPM();
+	  return final_status; 
+	}
+      }
+  // JPL Run 8 SCA106 SUBLARGE
+      if(data_info.raw_naxes[0] == 352){
+	string dc_filename= control.calib_dir+ CDP.GetResetSubLargeName(); 
+	ms_read_CAL_header(dc_filename,xsize,ysize,zsize,isize,colstart,rowstart);
+	if(data_info.ColStart == colstart && data_info.RowStart == rowstart && 
+	   xsize == data_info.ramp_naxes[0] && ysize == data_info.ramp_naxes[1]) {  
+	  final_status = 0;
+	  CDP.SetResetUseSubLarge();
+	  return final_status; 
+	}
+      }
+    }
   //________________________________________________________________________________
   // Search Bright Sky
     string reset = CDP.GetResetBrightSkyName(); string rc_filename= control.calib_dir+ reset;
