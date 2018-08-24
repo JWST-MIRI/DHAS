@@ -355,11 +355,11 @@ void ms_parse_commandline(int& argc,
 
     case 'j':
 	if ( argc <= 2   ) {
-	  cout << "parameter value not given after j" << endl;
-	  cout << " Run again and provide  number after j" << endl;
+	  cout << "parameter value not given after jdet" << endl;
+	  cout << " Run again and provide  number after jdet" << endl;
 	}
-	control.janes_value = atof(argv[2]);
-	control.janes_flag = 1;
+	control.jpl_detector = argv[2];
+	control.jpl_detector_flag = 1;
 	++argv;
 	--argc;
 	++argv;

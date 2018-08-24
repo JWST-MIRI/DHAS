@@ -210,7 +210,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     status = fits_get_num_rows(fptr,&nrows,&status);
     status = fits_get_num_cols(fptr,&ncols,&status);
 
-    cout << "number of rows and cols in RSCD table" << nrows <<" " << ncols << endl;
+    cout << "number of rows and cols in RSCD table " << nrows <<" " << ncols << endl;
 
     string col_name[] = {"SUBARRAY","READPATT","ROWS","TAU",
 			 "ASCALE", "POW", "ILLUM_ZP","ILLUM_SLOPE","ILLUM2",
@@ -247,7 +247,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
       for (int k = 0; k<num_elements;k++){
 	if(skeyname == col_name[k]){
 	  col_num[k] = i+1;
-	  cout << "found match " << keyname << " " << col_name[k]<< " " << "col = " <<  col_num[k] << " "   << k << endl;
+	  //	  cout << "found match " << keyname << " " << col_name[k]<< " " << "col = " <<  col_num[k] << " "   << k << endl;
 	}
       }
      
@@ -357,12 +357,9 @@ int ms_read_RSCD_file(miri_data_info &data_info,
       ifound_sub = subarray.compare(subarray_table[i]);
       ifound_read = readpatt.compare(readpatt_table[i]);
       ifound_row = even.compare(rowtype[i]);
-      
       if(ifound_sub == 0 && ifound_read ==0 && ifound_row == 0 ) ifound_even = i ;
-
     }
 
-    cout << " row that matches even " << ifound_even << endl;
 
     int ifound_odd = -1;      
     string odd = "ODD";
@@ -377,15 +374,10 @@ int ms_read_RSCD_file(miri_data_info &data_info,
       ifound_read = readpatt.compare(readpatt_table[i]);
       ifound_row = odd.compare(rowtype[i]);
       if(ifound_sub == 0 && ifound_read ==0 && ifound_row == 0 ) ifound_odd = i ;
-
     }
 
 
-    cout << " row that matches odd " << ifound_odd << endl;
-
     if(ifound_odd != -1 && ifound_even !=-1) {
-
-      
       RSCD.SetParameters(data_info.NRamps,
 			 tau[ifound_even],ascale[ifound_even],rpow[ifound_even],
 			 illum_zp[ifound_even],illum_slope[ifound_even],illum2[ifound_even],

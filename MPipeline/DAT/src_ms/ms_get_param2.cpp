@@ -171,7 +171,8 @@ int ms_get_param2(string param_filename,
   miri_search_keys("APPLY_RSCD",preference,preference.apply_rscd,status);
   if(status == 1) cout << "Failure to parse APPLY_RSCD from preferences file" << endl;
 
-  preference.apply_reset = 0;
+  miri_search_keys("APPLY_RESET",preference,preference.apply_reset,status);
+  if(status == 1) cout << "Failure to parse APPLY_RESET from preferences file" << endl;
 
   miri_search_keys("APPLY_LASTFRAME",preference,preference.apply_lastframe,status);
     if(status == 1) cout << "Failure to parse APPLY_LASTFRAME from preferences file" << endl;

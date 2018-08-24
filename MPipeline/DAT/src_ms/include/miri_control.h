@@ -44,6 +44,11 @@ struct miri_control {
   int flag_jpl_run;
   string jpl_run;
 
+
+  int jpl_detector_flag;  //  flag for Run 8 detector name 
+  string jpl_detector;  // value for Run 8 detector name (101 or 106)
+
+
   //int do_refoutput_option; // 1. Subtract output from
   //int flag_do_refoutput_option; 
   //int do_refoutput_options[2]; // options +ro1, +ro2
@@ -159,9 +164,6 @@ struct miri_control {
 
 
   int convert_to_electrons_per_second; // convert output from dn/s to e/s
-
-  int janes_flag;  // temp flag for various developer testing 
-  float janes_value;  // temp value for various developer testing 
 
 
   int write_detailed_cr;       // output detailed information on cosmic rays

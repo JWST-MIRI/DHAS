@@ -573,7 +573,7 @@ int main(int argc, char* argv[])
       //______________________________________________________________________
       // If applying rscd then determine the lastframe_rscd_sat- last frame using
       // the slope and zeropt to be used for the next integration
-      if(control.apply_rscd_cor) {
+      if(control.apply_rscd_cor && data_info.NInt > 1) {
 	long ik = 0; 
 	for (long i = 0; i< data_info.ramp_naxes[1] ; i++){
 	  for (long j = 0; j < data_info.ramp_naxes[0]; j++){

@@ -148,20 +148,32 @@ void ms_setup_processing(miri_control &control,
     int found = 0;
     if(data_info.Origin == "JPL"    ){
       if(control.flag_jpl_run ==0){
-	//	cout << " This is JPL test data. You must supply the Run #, -run 3, -run 4 , -run 5, -run 6, etc.." <<  endl;
-	//cout << " Run Again providing run number on command line" << endl;
-	//exit(EXIT_FAILURE);
-
 	cout << " This is JPL test data. You are using the default test run in the preferences file " << control.jpl_run <<   endl;
+	cout << " If you want a different run then use option -run #" << endl;
       }
-      //      if(control.flag_jpl_run ==1) preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run +".list";
-      preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run +".list";
 
-      int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
-      cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
-      data_info.ColStart = corrected_value;
-      found = 1;
-     
+      if(control.jpl_run == "8") {
+	if(control.jpl_detector_flag ==0) {
+	  cout << " This is JPL Run 8, you must also set which detector the data is from, use option -jdet 101,106,124 " << endl;
+	  cout << "  -jdet 101 is for FPM-101 data " << endl;
+	  cout << "  -jdet 106 is for SCA-106 data " << endl;
+	  cout << "  -jdet 124 is for SCA-124 data " << endl;
+	  exit(EXIT_FAILURE);
+	} else {
+	  preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run + "_D"+control.jpl_detector + ".list";
+	  cout << " Using " << preference.CDP_file;
+	  found = 1;
+	}
+
+      } else {
+	preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run +".list";	
+      
+	int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
+	cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
+	data_info.ColStart = corrected_value;
+	found = 1;
+	
+      }
     }
 
     string det_setting = "JPL3"; 
@@ -341,7 +353,6 @@ void ms_setup_processing(miri_control &control,
     status = 0;
     status = ms_read_badpixel_fits(badpix_filename,data_info,CDP,control.do_verbose);
 
-    //    cout << " Number of Bad Pixels read in: " <<   CDP.GetNumBadPixels() << endl;;
   }// end control.do_badpixel
   if (control.do_verbose == 10) cout << "finished bad pixel file read" << endl;
 
@@ -384,7 +395,7 @@ void ms_setup_processing(miri_control &control,
       dark_file= control.calib_dir+ dark_file;
     }   
 
-    cout << " Checking Dark Calibration file name " << dark_file << endl;
+    cout << " Dark Calibration file " << dark_file << endl;
     ifstream Dark_file(dark_file.c_str());
     if (!Dark_file) {
       cout << " Dark  Calibration file  does not exist" << dark_file << endl;
@@ -438,14 +449,11 @@ void ms_setup_processing(miri_control &control,
   // open file and determine # frames and integration correction file covers
   if(control.apply_reset_cor == 1) {
     if(control.flag_reset_cor_file ==1) { // user proved reset
-      //      string reset_file = control.reset_cor_file;
       CDP.SetResetUseUserSet(control.reset_cor_file);
     }
 
-    if(control.flag_reset_cor_file == 0){ // User did not provide a dark to use 
+    if(control.flag_reset_cor_file == 0){ // User did not provide a reset to use 
       // Reset to use is Fast mode
-      cout << data_info.Mode << "" << data_info.subarray_mode << endl;
-
       if(data_info.Mode == 0 && data_info.subarray_mode ==0 ) { CDP.SetResetUseFast();}
       // Reset to use is Slow  mode
       if( data_info.Mode == 1 && data_info.subarray_mode ==0) { CDP.SetResetUseSlow();}
@@ -468,7 +476,7 @@ void ms_setup_processing(miri_control &control,
 
 
     //string rc_filename= control.calib_dir+ CDP.GetResetUseName();
-    cout << "Reset file" << rc_filename;
+    cout << "Reset file" << rc_filename << endl;;
     long  xsize,ysize,zsize,isize;
     int colstart, rowstart;
     

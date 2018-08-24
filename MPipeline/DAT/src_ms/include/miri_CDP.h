@@ -62,10 +62,7 @@ class  miri_CDP {
   inline void SetResetUseUserSet(string file) {ResetUse = file;}
 
   inline void SetResetFastName(string list) {ResetFastName=list;}
-  inline void SetResetUseFast() {
-    ResetUse = ResetFastName;
-    cout << "ResetUse" << ResetUse <<endl;
-  }
+  inline void SetResetUseFast() {ResetUse = ResetFastName;}
 
   inline void SetResetSlowName(string list) {ResetSlowName=list;}
   inline void SetResetUseSlow() {ResetUse = ResetSlowName;}
@@ -105,6 +102,14 @@ class  miri_CDP {
   inline void SetResetSPrismName(string list) {ResetSPrismName=list;}
   inline void SetResetUseSPrism() {ResetUse = ResetSPrismName;}
   inline string GetResetSPrismName() {return ResetSPrismName;}
+
+  inline void SetResetMask4QPMName(string list) {ResetMask4QPMName=list;}
+  inline void SetResetUseMask4QPM() {ResetUse = ResetMask4QPMName;}
+  inline string GetResetMask4QPMName() {return ResetMask4QPMName;}
+
+  inline void SetResetSubLargeName(string list) {ResetSubLargeName=list;}
+  inline void SetResetUseSubLarge() {ResetUse = ResetSubLargeName;}
+  inline string GetResetSubLargeName() {return ResetSubLargeName;}
 
 //_______________________________________________________________________
   // RSCD
@@ -190,6 +195,14 @@ class  miri_CDP {
   inline void SetDarkUseSPrism() { DarkUse = DarkSPrismName;}
   inline string GetDarkSPrismName() {return DarkSPrismName;}
 
+  inline void SetDarkMask4QPMName(string list) {DarkMask4QPMName=list;}
+  inline void SetDarkUseMask4QPM() {DarkUse = DarkMask4QPMName;}
+  inline string GetDarkMask4QPMName() {return DarkMask4QPMName;}
+
+  inline void SetDarkSubLargeName(string list) {DarkSubLargeName=list;}
+  inline void SetDarkUseSubLarge() {DarkUse = DarkSubLargeName;}
+  inline string GetDarkSubLargeName() {return DarkSubLargeName;}
+
 //_______________________________________________________________________
 
 
@@ -261,6 +274,8 @@ class  miri_CDP {
   string DarkMaskSub128Name; 
   string DarkMaskSub64Name; 
   string DarkSPrismName; 
+  string DarkSubLargeName;
+  string DarkMask4QPMName;
 
   string  ResetUse;
   int max_reset_use_int;
@@ -277,6 +292,8 @@ class  miri_CDP {
   string ResetMaskSub128Name;
   string ResetSPrismName; 
   string ResetMaskSub64Name;
+  string ResetSubLargeName;
+  string ResetMask4QPMName;
 
 };
 

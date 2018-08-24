@@ -57,6 +57,10 @@ void ms_initialize_control(miri_control &control)
   control.flag_jpl_run = 0;
   control.jpl_run = '0';
 
+  control.jpl_detector_flag = 0;
+  control.jpl_detector = '0';
+
+
   control.frame_limit = 20; // 20 might be a good start 
   control.subset_nrow = 256; // 
 
@@ -116,8 +120,6 @@ void ms_initialize_control(miri_control &control)
   control.convert_to_electrons_per_second = 0;
 
 
-  control.janes_flag = 0;
-  control.janes_value = 0;
 
   // setup the defaults for parameter file values
   control.calib_dir = "";             // directory for calibration files - stores in preferences file

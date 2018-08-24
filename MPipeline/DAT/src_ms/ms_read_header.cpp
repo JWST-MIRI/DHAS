@@ -72,7 +72,7 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
 
   char comment[72];
   status = 0;
-  // get the size of teh data cube
+  // get the size of the data cube
   fits_read_key(data_info.raw_file_ptr, TLONG, "NAXIS1", &data_info.raw_naxes[0], comment, &status); 
   if(status !=0 ) cout << "ms_read_header:  Problem reading NAXIS1 " << endl;
   fits_read_key(data_info.raw_file_ptr, TLONG, "NAXIS2", &data_info.raw_naxes[1], comment, &status); 

@@ -34,7 +34,7 @@ extern void miri_check_fits(int status,
 			   char text[100]);
 
 
-extern void  ms_get_CDP_names(miri_CDP &CDP, miri_control control, 
+extern void  ms_get_CDP_names(miri_CDP &CDP, miri_control &control, 
 			      miri_data_info &);
 
 extern void ms_initialize_data_info(miri_data_info &);
