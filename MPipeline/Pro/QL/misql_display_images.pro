@@ -776,14 +776,12 @@ asize = size(sub_image)
 xsize = asize[1]
 
 
-    low_limit_value = info.inspect_slope.limit_low
+low_limit_value = info.inspect_slope.limit_low
 
-    high_limit_value = info.inspect_slope.limit_high
+high_limit_value = info.inspect_slope.limit_high
 
 index_low = where(sub_image lt low_limit_value,num_low)
 index_high = where(sub_image gt high_limit_value,num_high)
-
-
 
 info.inspect_slope.limit_low_num = num_low
 info.inspect_slope.limit_high_num = num_high

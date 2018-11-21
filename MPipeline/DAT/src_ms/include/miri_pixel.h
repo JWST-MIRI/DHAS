@@ -63,6 +63,12 @@ class  miri_pixel {
 			   int linflag,
 			    int lin_order,vector<float> lin);
 
+  void CorrectNonLinearityold(const int,
+			   const int, 
+			   const int, 
+			   int linflag,
+			    int lin_order,vector<float> lin);
+
 
   void SubtractDarkCorrection(const int,short,vector<float>);
   void SubtractResetCorrection(const int,short,vector<float>);

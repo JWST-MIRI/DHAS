@@ -676,13 +676,14 @@ if(num_low ge 1 or num_high ge 1) then begin
     save_color = info.col_table
 
     if(num_low ge 1) then begin 
-        yvalue = index_low/xsize
-        xvalue = index_low - (yvalue*xsize)
-        xvalue = xvalue + 0.5
-        yvalue = yvalue + 0.5
-        yvalue = yvalue*yzoom
-        xvalue = xvalue*xzoom
-        plots,xvalue,yvalue,color=1,psym=1,/device
+       color6
+       yvalue = index_low/xsize
+       xvalue = index_low - (yvalue*xsize)
+       xvalue = xvalue + 0.5
+       yvalue = yvalue + 0.5
+       yvalue = yvalue*yzoom
+       xvalue = xvalue*xzoom
+       plots,xvalue,yvalue,color=2,psym=1,/device
 
         if ptr_valid (info.inspect.plowx) then ptr_free,info.inspect.plowx
         info.inspect.plowx = ptr_new(xvalue)
@@ -694,6 +695,7 @@ if(num_low ge 1 or num_high ge 1) then begin
     endif
 
     if(num_high ge 1) then begin 
+       color6
         yvalue = index_high/xsize
         xvalue = index_high - (yvalue*xsize)
 
@@ -702,7 +704,7 @@ if(num_low ge 1 or num_high ge 1) then begin
         yvalue = yvalue*yzoom
         xvalue = xvalue*xzoom
 
-        plots,xvalue,yvalue,color=255,psym=1,/device
+        plots,xvalue,yvalue,color=4,psym=1,/device
         if ptr_valid (info.inspect.phighx) then ptr_free,info.inspect.phighx
         info.inspect.phighx = ptr_new(xvalue)
         xvalue = 0

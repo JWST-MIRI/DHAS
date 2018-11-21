@@ -46,11 +46,7 @@ endif
 
         mpl_display,info
     end
-
-
 ;run miri_sloper 
-
-
     (strmid(event_name,0,9) EQ 'CalQSlope') : begin
         info.control.set_scidata = 1
 	mql_setup_miri_sloper,info
@@ -64,7 +60,6 @@ endif
         reading_header,info,status,error_message	
         status = 0
         if(status eq 1) then return
-
 
         setup_frame_image_stepA,info
         info.image.x_pos =(info.data.image_xsize/info.image.binfactor)/2.0
@@ -266,15 +261,11 @@ endif
 ; Compare current frame to another frame 
     (strmid(event_name,0,8) EQ 'fcompare') : begin
 
-
         info.compare.uwindowsize = 0
         info.cinspect[*].uwindowsize = 1
         this_frame = event.value-1
-
         if(this_frame lt 0) then this_frame = 0
-        
         if(this_frame gt info.data.nramps-1  ) then this_frame = info.data.nramps-1
-
         info.compare_image[0].filename  = info.control.filename_raw
         info.compare_image[1].filename  = info.control.filename_raw
         info.compare_image[0].jintegration = info.image.integrationNO 
@@ -299,11 +290,8 @@ endif
         mql_test_report,info
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
     end
-
-
 ;_______________________________________________________________________
 ; print
-
     (strmid(event_name,0,5) EQ 'print') : begin
         if(strmid(event_name,6,1) eq 'R') then type = 0
         if(strmid(event_name,6,1) eq 'Z') then type = 1
@@ -322,9 +310,7 @@ endif
 
                 widget_control,info.image.overplotSlopeID[0],set_button = 0
                 widget_control,info.image.overplotSlopeID[1],set_button = 1
-;                return      
             endif else begin 
-            
                 info.image.overplot_slope = 1
                 widget_control,info.image.overplotSlopeID[1],set_button = 0
                 widget_control,info.image.overplotSlopeID[0],set_button = 1
@@ -400,12 +386,8 @@ endif
             widget_control,info.image.overplotLCID[0],set_button = 0
             widget_control,info.image.overplotLCID[1],set_button = 1
         endif
-
-
         mql_update_rampread,info
-        
     end
-
 ;_______________________________________________________________________
 ; Plot linearity corrected data Result
 
@@ -415,7 +397,6 @@ endif
             info.image.plot_lc_results = 1
             widget_control,info.image.plotRLCID[1],set_button = 0
             widget_control,info.image.plotRLCID[0],set_button = 1
-
         endif
 
         if(num eq 2) then begin
@@ -425,7 +406,6 @@ endif
             return
         endif
 
-
         if(info.data.coadd eq 1) then begin
             print,' This is coadded data - can not plot linearity corrected data'
             return
@@ -433,11 +413,7 @@ endif
 
         linearity_setup_pixel,info
         display_linearity_correction_results,info
-        
     end
-
-
-
 ;_______________________________________________________________________
 ; overplot mean dark  corrected data
 
@@ -460,9 +436,6 @@ endif
         mql_update_rampread,info
         
     end
-
-
-
 ;_______________________________________________________________________
 ; overplot reset corrected data
 
@@ -841,9 +814,7 @@ endif
             if(yvalue lt 1) then yvalue = 1
             
             if(yvalue gt ysize) then yvalue = ysize
-
             pixel_yvalue = float(yvalue)-1
-
 
             ; check what is in x box 
             widget_control,info.image.pix_label[0], get_value= xtemp
@@ -890,7 +861,6 @@ endif
             info.image.current_graph = graphno[i]
             mql_update_pixel_location,info  ; update pixel location on graph windows
         endfor
-
 
 ; read information on the new pixel 
         if(info.image.autopixelupdate eq 1)then begin
@@ -939,12 +909,7 @@ endif
         if(info.control.file_lastframe_exist eq 1)then begin
             mql_read_lastframe_data,pixel_xvalue,pixel_yvalue,info
         endif
-
-
          mql_update_rampread,info                     
-
-
-
 
 ; update the pixel in the zoom window
         
@@ -955,16 +920,11 @@ endif
         if(info.image.y_zoom ge ysize) then info.image.y_zoom = ysize - 1
          mql_update_zoom_image,info
 
-            
-
 ; If the Frame values for pixel window is open - destroy
         if(XRegistered ('mpixel')) then begin
             widget_control,info.RPixelInfo,/destroy
 
         endif
-
-
-
 
        if(XRegistered ('lcr')) then begin
            linearity_setup_pixel,info
@@ -977,7 +937,6 @@ endif
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
     end
 
-
 ;_______________________________________________________________________
 ; change range of image graphs
 ; if change range then also change the scale button to 'User Set
@@ -986,7 +945,6 @@ endif
     (strmid(event_name,0,2) EQ 'sr') : begin
         graph_num = fix(strmid(event_name,2,1))-1
         
-
         if(strmid(event_name,4,1) EQ 'b') then begin ; min
             info.image.graph_range[graph_num,0] = event.value
             widget_control,info.image.rlabelID[graph_num,1],get_value = temp
@@ -1073,9 +1031,6 @@ endif
         mql_update_rampread,info
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
     end
-
-
-
 ;_______________________________________________________________________
 ; Change Integration Range  For Ramp Plots
 ;_______________________________________________________________________
@@ -1115,7 +1070,6 @@ endif
             info.image.int_range[1] = info.data.nints
             info.image.overplot_pixel_int = 0
         endif            
-
 
 ; check if overplot integrations 
 
@@ -1158,8 +1112,11 @@ endif
            xvalue = event.x     ; starts at 0
            yvalue = event.y     ; starts at 0
 
-           if(xvalue ge 258) then xvalue = 257
-           if(yvalue ge 256) then yvalue = 255
+           xlimit = info.data.image_xsize/info.image.binfactor
+           ylimit = info.data.image_ysize/info.image.binfactor
+           if(xvalue ge xlimit) then xvalue = xlimit-1
+           if(yvalue ge ylimit) then yvalue = ylimit-1
+
 ; did not click on zoom image- so update the zoom image
            if(graphnum ne 2) then  begin 
                info.image.x_zoom = xvalue * info.image.binfactor
@@ -1178,8 +1135,6 @@ endif
 
 ; clicked on the zoom image - so update the pixel in the zoom image 
            if(graphnum eq 2) then  begin
-
-;;
                x = (xvalue)/info.image.scale_zoom
                y = (yvalue)/info.image.scale_zoom
                if(x ge info.data.image_xsize) then x = info.data.image_xsize-1
@@ -1187,7 +1142,6 @@ endif
                xvalue = x * info.image.scale_zoom
                yvalue = y * info.image.scale_zoom
 
-;;
                update = 1
 
                mql_update_zoom_pixel_location,xvalue,yvalue,update,info
@@ -1281,8 +1235,6 @@ endif
             mql_read_lastframe_data,xvalue,yvalue,info
         endif
 
-
-
         mql_update_rampread,info
 
            Widget_Control,ginfo.info.QuickLook,Set_UValue=info
@@ -1301,7 +1253,6 @@ endif
 ;_______________________________________________________________________
 
     (strmid(event_name,0,6) EQ 'option') : begin
-
         graphnum = fix(strmid(event_name,6,1))
         type = graphnum -1 
         slope_exist = info.data.slope_exist
@@ -1336,8 +1287,6 @@ endif
 
         widget_control,info.image.optionMenu[type],set_droplist_select=0
     end
-
-
     
 ;_______________________________________________________________________
 ; Change automatically reading pixels values and plotting ramp data
@@ -1355,13 +1304,9 @@ endif
 
     end
 ;_______________________________________________________________________
-
-
-    
 ;_______________________________________________________________________
 ;  Change the Zoom level for window 2
 ;_______________________________________________________________________
-
     (strmid(event_name,0,5) EQ 'zsize') : begin
         zsize = fix(strmid(event_name,5,1))
         if(zsize eq 1) then info.image.scale_zoom= 1.0
@@ -1465,8 +1410,6 @@ endif
 
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
 
-
-
         info.inspect_slope.zoom = 1
         info.inspect_slope.zoom_x = 1
         info.inspect_slope.x_pos =(info.data.slope_xsize)/2.0
@@ -1529,8 +1472,7 @@ endif
                 print,'Turning off Apply bad Pixel Mask'
             endif
         endif
-    
-; 
+
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
         mql_update_images,info
         mql_update_zoom_image,info
@@ -1589,9 +1531,6 @@ if(update_single_plots) then begin
     endif
 
 endif
-
-
-
 
 
 end

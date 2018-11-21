@@ -260,10 +260,10 @@ for k = 0,num_int-1 do begin
              oplot,xplot,yplot,psym = ptype[isp2],symsize = 0.8,color= info.blue
 
              if(marked[i]  eq  NOISE_FLAG) then $
-                oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.yellow
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
              
              if(marked[i]  eq  COSMICRAY) then $
-                oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.yellow
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
              if(marked[i]  eq  BAD_FRAME) then $
                 oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
@@ -282,11 +282,14 @@ for k = 0,num_int-1 do begin
          if(xnew[i] ge info.slope.start_fit and xnew[i] le info.slope.end_fit)then begin
              xplot = fltarr(1) & yplot = fltarr(1)
              xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
+
+             oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.green
+
                 if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                  oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
                 if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                  oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
                 if(marked[i]  eq  BAD_FRAME) then $
                   oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
@@ -306,12 +309,12 @@ for k = 0,num_int-1 do begin
              xplot = fltarr(1) & yplot = fltarr(1)
              xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
 
-             oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.green
+             oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.yellow
                 if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                  oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
                 if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                  oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
                 if(marked[i]  eq  BAD_FRAME) then $
                   oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
@@ -330,13 +333,13 @@ for k = 0,num_int-1 do begin
              xplot = fltarr(1) & yplot = fltarr(1)
              xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
 
-             oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.green
+             oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.blue
 
              if(marked[i]  eq  NOISE_FLAG) then $
-                oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
              if(marked[i]  eq  COSMICRAY) then $
-                oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
              if(marked[i]  eq  BAD_FRAME) then $
                 oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
@@ -354,13 +357,13 @@ for k = 0,num_int-1 do begin
              xplot = fltarr(1) & yplot = fltarr(1)
              xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
 
-             oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.green
+             oplot,xplot,yplot,psym = 2,symsize = 0.8,color= info.green
 
              if(marked[i]  eq  NOISE_FLAG) then $
-                oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
              if(marked[i]  eq  COSMICRAY) then $
-                oplot,xplot,yplot,psym = ptype[isp3],symsize = 0.8,color= info.yellow
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.yellow
 
              if(marked[i]  eq  BAD_FRAME) then $
                 oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow

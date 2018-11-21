@@ -39,7 +39,6 @@ ycenter = yvalue + 0.5
 box_coords1 = [xcenter,(xcenter+1), $
                ycenter,(ycenter+1)]
 
-
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
 end
@@ -965,7 +964,7 @@ info.image.overplotCRID = overplotCRID
 ;_______________________________________________________________________
 overplotresetID = lonarr(2)
 if(info.control.file_reset_exist eq 1)then begin 
-    mark = widget_label(info.image.infoID22,value = 'Over Plot Reset Corrected Data  (green +)',/sunken_frame,$
+    mark = widget_label(info.image.infoID22,value = 'Over Plot Reset Corrected Data  (Blue +)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.image.infoID22,/row,/nonexclusive)
@@ -985,7 +984,7 @@ info.image.overplotresetID = overplotresetID
 ;_______________________________________________________________________
 overplotrscdID = lonarr(2)
 if(info.control.file_rscd_exist eq 1)then begin 
-    mark = widget_label(info.image.infoID22,value = 'Over Plot RSCD Corrected Data  (green +)',/sunken_frame,$
+    mark = widget_label(info.image.infoID22,value = 'Over Plot RSCD Corrected Data  (green *)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.image.infoID22,/row,/nonexclusive)
@@ -1020,7 +1019,7 @@ info.image.overplotlastframeID = overplotlastframeID
 ;_______________________________________________________________________
 overplotMDCID = lonarr(2)
 if(info.control.file_mdc_exist eq 1)then begin 
-    mark = widget_label(info.image.infoID22,value = 'Over Plot Dark Corrected Data  (green boxes)',/sunken_frame,$
+    mark = widget_label(info.image.infoID22,value = 'Over Plot Dark Corrected Data  (yellow +)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.image.infoID22,/row,/nonexclusive)
@@ -1040,7 +1039,7 @@ overplotLCID = lonarr(2)
 plotRLCID = lonarr(2)
 info.image.plot_lc_results = 0
 if(info.control.file_lc_exist eq 1)then begin 
-    mark = widget_label(info.image.infoID22,value = 'Overplot Linearity Corrected Data (blue *)',/sunken_frame,$
+    mark = widget_label(info.image.infoID22,value = 'Overplot Linearity Corrected Data (green +)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.image.infoID22,/row,/nonexclusive)

@@ -115,10 +115,10 @@ int ms_read_linearity_file(miri_data_info &data_info,
 
   CDP.SetLinOrder(lin_order); 
 
-  if(lin_order < 2 || lin_order > 4) {
+  if(lin_order < 2 || lin_order > 5) {
     cout << " Linearity correction order not supported by this software" << endl;
     cout << " Order in given linearity correction file " << lin_order << endl;
-    cout << " Order allowed : 2, 3, and 4" << endl;
+    cout << " Order allowed : 2, 3, 4, 5" << endl;
     cout << " run again and provide a different linearity correction file (-Lf filename) or do not correct for non-linearity (-L)" << endl;
     exit(EXIT_FAILURE);
   }
@@ -173,9 +173,9 @@ int ms_read_linearity_file(miri_data_info &data_info,
       for (int iplanes = 0; iplanes < nplanes ; iplanes++) {
 	long ielement = iplanes*nelements + iy*data_info.ramp_naxes[0] + ix;
 	linearity[ik].SetCorrection(data[ielement]);
-	//		if(ix == 390 && iy == 793) {
-	// cout << "lin ref data " <<  iplanes << " " << data[ielement] << endl;
-	//}
+	if(ix+1 == -195 && iy+1 == 215) {
+	  cout << "lin ref data " <<  iplanes << " " << data[ielement] << endl;
+	}
 
       }
       ik++;
