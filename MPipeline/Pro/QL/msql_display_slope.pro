@@ -826,7 +826,7 @@ overplotmdcID = lonarr(2)
 
 if(info.control.file_mdc_exist eq 1)then begin 
     oinfo = widget_base(info.slope.graphID21,/row)
-    overplot = widget_label(oinfo,value = 'Overplot Mean Dark Corrected Data (green)',$
+    overplot = widget_label(oinfo,value = 'Overplot Mean Dark Corrected Data (yellow +)',$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(oinfo,/row,/nonexclusive)
@@ -844,7 +844,7 @@ info.slope.overplotmdcID = overplotmdcID
 overplotresetID = lonarr(2)
 if(info.control.file_reset_exist eq 1)then begin 
     oinfo = widget_base(info.slope.graphID21,/row)
-    overplot = widget_label(oinfo,value = 'Overplot Reset Corrected Data (green)',$
+    overplot = widget_label(oinfo,value = 'Overplot Reset Corrected Data (blue +)',$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(oinfo,/row,/nonexclusive)
@@ -861,7 +861,7 @@ info.slope.overplotresetID = overplotresetID
 overplotrscdID = lonarr(2)
 if(info.control.file_rscd_exist eq 1)then begin 
     oinfo = widget_base(info.slope.graphID21,/row)
-    overplot = widget_label(oinfo,value = 'Overplot RSCD Corrected Data (green)',$
+    overplot = widget_label(oinfo,value = 'Overplot RSCD Corrected Data (green * )',$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(oinfo,/row,/nonexclusive)
@@ -899,7 +899,7 @@ overplotlcID = lonarr(2)
 
 if(info.control.file_lc_exist eq 1)then begin 
     oinfo = widget_base(info.slope.graphID21,/row)
-    overplot = widget_label(oinfo,value = 'Overplot Linearity Corrected Data (green)',$
+    overplot = widget_label(oinfo,value = 'Overplot Linearity Corrected Data (green +)',$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(oinfo,/row,/nonexclusive)

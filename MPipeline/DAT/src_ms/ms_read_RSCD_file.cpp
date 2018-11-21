@@ -209,8 +209,9 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     int ncols=0;
     status = fits_get_num_rows(fptr,&nrows,&status);
     status = fits_get_num_cols(fptr,&ncols,&status);
+    cout << " Reading RSCD file" << RSCD_file << endl;
 
-    cout << "number of rows and cols in RSCD table " << nrows <<" " << ncols << endl;
+    //    cout << "number of rows and cols in RSCD table " << nrows <<" " << ncols << endl;
 
     string col_name[] = {"SUBARRAY","READPATT","ROWS","TAU",
 			 "ASCALE", "POW", "ILLUM_ZP","ILLUM_SLOPE","ILLUM2",

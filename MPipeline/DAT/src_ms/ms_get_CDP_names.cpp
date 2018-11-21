@@ -275,7 +275,6 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control &control, miri_data_info &data
 
 	miri_search_CDP("DARK_SUBLARGE",keyname,value,file,status);
 	if(status == 1) cout << "Failure to parse Dark_SUBLARGE from CDP list files" << endl;
-	cout << file << endl;
 	CDP.SetDarkSubLargeName(file);
 
     } 
@@ -337,7 +336,6 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control &control, miri_data_info &data
 
   if(control.apply_reset_cor == 1) {
 
-    cout << " looking for reset"  << endl;
     miri_search_CDP("RESET_FAST",keyname,value,file,status);
     if(status == 1) cout << "Failure to parse RESET_FAST from CDP list files" << endl;
     CDP.SetResetFastName(file);    
@@ -355,7 +353,6 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control &control, miri_data_info &data
   // 
     if(data_info.Origin == "JPL"   && control.jpl_detector == "106") {
 	miri_search_CDP("RESET_MASK4QPM",keyname,value,file,status);
-	cout << file << endl;
 	CDP.SetResetMask4QPMName(file);
 	if(status == 1) cout << "Failure to parse RESET_MASK4QPM from CDP list files" << endl;
 

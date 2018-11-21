@@ -1,8 +1,8 @@
 LIST	       = ThisFile		                          : list of Calibration Files to use for JPL Run 7
 BAD 	       = MIRI_JPL_MASK_04.02.00.fits	                  : Bad Pixelfile				          
-PIXELSAT       = MIRI_JPL_RUN8_FPM101_SATURATION_07.02.00.fits   : Pixel Saturation file 				  
-LIN_COR        = MIRI_JPL_RUN8_FPM101_JPL_LINEARITY_07.03.00.fits : Linearity Correction file  		
+PIXELSAT       = MIRI_JPL_RUN8_FPM101_SATURATION_MEDIAN_07.02.00.fits   : Pixel Saturation file 				  
+LIN_COR        = MIRI_JPL_RUN8_FPM101_JPL_LINEARITY_07.04.00.fits : Linearity Correction file  		
 RSCD           = MIRI_JPL_RUN7_RSCD_07.03.01.fits                 : Reset Switch Charge Decay Correction File 
 RESET_FAST     = MIRI_JPL_RUN8_FPM101_FAST_RESET_RESIDUAL_07.00.00.fits : Reset anomaly correction Fast Full
-DARK_FULL     =  MIRI_JPL_RUN8_FPM101_FAST_DARK_07.01.00.fits : Dark Fast Full
+DARK_FAST      = MIRI_JPL_RUN8_FPM101_FAST_DARK_07.01.00.fits : Dark Fast Full
 LASTFRAME      = NA      : LastFrame Correction

@@ -328,7 +328,7 @@ void miri_pixel::RejectAfterEvent(const int frame, const int FLAG, const int nre
         
 
 //_______________________________________________________________________
-void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
+void miri_pixel::CorrectNonLinearityold(const int write_corrected_data,
 				     const int apply_lin_offset,
 				     const int istart_fit,
 				     int linflag,
@@ -481,6 +481,81 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
 
 
 
+//_______________________________________________________________________
+void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
+				     const int apply_lin_offset,
+				     const int istart_fit,
+				     int linflag,
+				     int lin_order,vector<float> lin){
+
+
+
+  //-----------------------------------------------------------------------
+  if(is_ref) { //Reference Pixe (no  correction determined)
+
+    if(write_corrected_data==1) {
+      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+	lin_cor_data[i]= raw_data[i]; // initialize 
+      }
+    }
+    return;
+  } 
+
+  //-----------------------------------------------------------------------
+  if(linflag & CDP_DONOT_USE    ) { //  no linearity correction for pixel 
+
+    signal = strtod("NaN",NULL);
+    signal_unc = strtod("NaN",NULL);
+    zero_pt = strtod("NaN",NULL);
+    read_num_first_saturated = 0;
+    num_good_reads = 0; 
+
+    quality_flag = quality_flag + UNRELIABLE_LIN ;
+
+    if(write_corrected_data==1) { // pixel either is a bad pixel or has no non-linearity correction
+      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+	lin_cor_data[i] = (strtod("NaN",NULL)); //  
+      }
+    }
+
+    return;
+  }
+
+  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  float coorFactor = 1.0;  
+
+  for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+    if(id_data[i] == 0){ // for good data 
+
+      float data3 = raw_data[i]*raw_data[i] *raw_data[i];      
+
+      if(lin_order ==2) coorFactor =  lin[1] + (lin[2]*raw_data[i]);
+      if(lin_order ==3) coorFactor =  lin[1] + (lin[2]*raw_data[i])+  (lin[3]*raw_data[i]*raw_data[i]) ;
+      if(lin_order ==4) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i])  + (lin[4]*data3) ;
+      if(lin_order ==5) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i]) +  (lin[4]*data3) + (lin[5]*data3*raw_data[i]) ;
+
+      if(pix_x == -595 && pix_y == 215) {
+	cout << " found " << lin[1] << " " << lin[2] << " " << lin[3] << " " << raw_data[i] << " " << coorFactor << endl;
+      }
+      raw_data[i] = (raw_data[i]*coorFactor + lin[0]) ;
+      
+      if(pix_x == -595 && pix_y == 215) {
+	cout << " corrected " << raw_data[i] << endl;
+      }
+
+      if(write_corrected_data) lin_cor_data[i] = raw_data[i]; 
+	//_______________________________________________________________________
+    } else { // id_data[i] ne 0 - bad flag 
+      if(write_corrected_data) lin_cor_data[i] = strtod("NaN",NULL); //  
+    }
+  }// end loop over raw_data
+
+  if(linflag & CDP_NOLINEARITY)     quality_flag = quality_flag + UNRELIABLE_LIN ;
+
+}
+
+
+
 
 //_______________________________________________________________________
 
@@ -524,20 +599,23 @@ void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
   // Valid data to correct
   unsigned int dsize =  areset.size(); // planes of reset read in 
     for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-      if(id_data[i] == 0){
+      // Do not check id_data because we use the reset corrected
+      // data to derive the linearity correction - only step
+      // that we need all the data corrected. 
+      //      if(id_data[i] == 0){
 	float ycorr = 0;
 	if(i < dsize ) ycorr = areset[i];
 	if(i >= dsize) {
 	  ycorr = areset[dsize-1];
-
 	}
-	//float temp = raw_data[i];
-	raw_data[i] = raw_data[i] - ycorr;
-	//cout << "corrected" << i<< " " << temp << " " << raw_data[i] << " " << ycorr << endl;
-      } 
 
-      if(write_corrected_data) reset_cor_data[i] = raw_data[i];
-      //cout << reset_cor_data[i] << endl;
+	raw_data[i] = raw_data[i] - ycorr;
+
+	if(write_corrected_data) reset_cor_data[i] = raw_data[i];
+	//      } else {
+	//if(write_corrected_data) reset_cor_data[i] = strtod("NaN",NULL); //  
+	// }
+
     }// end loop over raw_data
     if(dq_flag & CDP_NORESET)     quality_flag = quality_flag + UNRELIABLE_RESET ;
 }
@@ -645,13 +723,9 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 	
 	
 	raw_data[i] = raw_data[i] +corr;
-
-
-      }// end loop over id_data[i] = 0 - making correction
     
-      if(write_corrected_data){
-	rscd_cor_data[i] = raw_data[i];
-      } else {
+	if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
+      } else {       // end loop over id_data[i] = 0 - making correction      
 	if(write_corrected_data) rscd_cor_data[i] = strtod("NaN",NULL); //  
       }
     
@@ -761,10 +835,10 @@ void miri_pixel::SubtractDarkCorrection(const int write_corrected_data,
 	if(i < dsize ) ycorr = adark[i];
 
 	raw_data[i] = raw_data[i] - ycorr;
-      } 
-
-      if(write_corrected_data) dark_cor_data[i] = raw_data[i]; 
-
+	if(write_corrected_data) dark_cor_data[i] = raw_data[i]; 
+      } else {
+	if(write_corrected_data) dark_cor_data[i] = strtod("NaN",NULL); 
+      }
     }// end loop over raw_data
     if(dq_flag & CDP_NODARK)     quality_flag = quality_flag + UNRELIABLE_DARK ;
 
