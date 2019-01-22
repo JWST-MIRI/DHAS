@@ -1,4 +1,3 @@
-
 ; the event manager for the ql.pro (main base widget)
 pro jwst_mql_event,event
 
@@ -21,12 +20,10 @@ if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
 endif
 ;    print,'event_name',event_name
     case 1 of
-
-        
 ;_______________________________________________________________________
 ; analyze the slope image
     (strmid(event_name,0,5) EQ 'LoadS') : begin
-        if(info.jwst_data.slope_exist eq 0) then begin 
+        if(info.jwst_control.file_slope_exist eq 0) then begin 
             ok = dialog_message(" A Slope Image Does not exist",/Information)
         endif else begin
             slopedata = *info.jwst_data.preduced
@@ -45,33 +42,30 @@ endif
     end
 
     (strmid(event_name,0,7) EQ 'sheader') : begin
-        if(not info.jwst_data.slope_exist) then begin
+        if(info.jwst_control.file_slope_exist eq 0 ) then begin
             ok = dialog_message(" No slope image exists",/Information)
         endif else begin
             j = info.jwst_image.IntegrationNO
-            jwst_display_header,info,j+1
+            jwst_display_header,info,1
         endelse
 
     end
 
     (strmid(event_name,0,7) EQ 'cheader') : begin
-        if(not info.jwst_data.cal_exist) then begin
+        if(info.jwst_control.file_cal_exist eq 0) then begin
             ok = dialog_message(" No calibration image exists",/Information)
         endif else begin
             j = info.jwst_image.IntegrationNO
-            jwst_display_header,info,info.jwst_data.nslopes+j+1
+            jwst_display_header,info,2
         endelse
 
     end
-;_______________________________________________________________________
-
 ;_______________________________________________________________________
 ;Subarray Geometry 
     (strmid(event_name,0,9) EQ 'sgeometry') : begin
 
         jwst_mql_plot_subarray_geo,info
     end
-
 ;_______________________________________________________________________
 ; Compare to another data file
     (strmid(event_name,0,7) EQ 'compare') : begin
@@ -116,13 +110,9 @@ endif
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
 	endelse
     end
-
-
-
 ;_______________________________________________________________________
 ; Compare current frame to another frame 
     (strmid(event_name,0,8) EQ 'fcompare') : begin
-
 
         info.jwst_compare.uwindowsize = 0
         info.jwst_cinspect[*].uwindowsize = 1
@@ -151,8 +141,6 @@ endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
-
-;_______________________________________________________________________
 ; print
 
     (strmid(event_name,0,5) EQ 'print') : begin
@@ -171,21 +159,19 @@ endif
             if(info.jwst_data.slope_zsize le 1) then begin
                 result = dialog_message(" Zero-pt plane does not exist in slope file, re-run miri_sloper",/info )
 
-                widget_control,info.jwst_image.overplotSlopeID[0],set_button = 0
-                widget_control,info.jwst_image.overplotSlopeID[1],set_button = 1
-;                return      
+                widget_control,info.jwst_image.overplotFitID[0],set_button = 0
+                widget_control,info.jwst_image.overplotFitID[1],set_button = 1
             endif else begin 
-            
-                info.jwst_image.overplot_slope = 1
-                widget_control,info.jwst_image.overplotSlopeID[1],set_button = 0
-                widget_control,info.jwst_image.overplotSlopeID[0],set_button = 1
+                info.jwst_image.overplot_fit = 1
+                widget_control,info.jwst_image.overplotFitID[1],set_button = 0
+                widget_control,info.jwst_image.overplotFitID[0],set_button = 1
             endelse
         endif
 
         if(num eq 2) then begin
-            info.jwst_image.overplot_slope= 0
-            widget_control,info.jwst_image.overplotSlopeID[0],set_button = 0
-            widget_control,info.jwst_image.overplotSlopeID[1],set_button = 1
+            info.jwst_image.overplot_fit= 0
+            widget_control,info.jwst_image.overplotFitID[0],set_button = 0
+            widget_control,info.jwst_image.overplotFitID[1],set_button = 1
         endif
         jwst_mql_update_rampread,info
     end
@@ -195,124 +181,57 @@ endif
     (strmid(event_name,0,7) eq 'overref') : begin
         num = fix(strmid(event_name,7,1))
         if(num eq 1) then begin
-            info.jwst_image.overplot_reference_corrected = 1
-            widget_control,info.jwst_image.overplotrefcorrectedID[1],set_button = 0
-            widget_control,info.jwst_image.overplotrefcorrectedID[0],set_button = 1
+            info.jwst_image.overplot_refpix = 1
+            widget_control,info.jwst_image.overplotrefpixID[1],set_button = 0
+            widget_control,info.jwst_image.overplotrefpixID[0],set_button = 1
 
         endif
 
         if(num eq 2) then begin
-            info.jwst_image.overplot_reference_corrected= 0
-            widget_control,info.jwst_image.overplotrefcorrectedID[0],set_button = 0
-            widget_control,info.jwst_image.overplotrefcorrectedID[1],set_button = 1
+            info.jwst_image.overplot_refpix= 0
+            widget_control,info.jwst_image.overplotrefpixID[0],set_button = 0
+            widget_control,info.jwst_image.overplotrefpixID[1],set_button = 1
         endif
 
         jwst_mql_update_rampread,info
     end
-;_______________________________________________________________________
-; overplot noise and cosmic rays
-
-    (strmid(event_name,0,6) eq 'overcr') : begin
-        num = fix(strmid(event_name,6,1))
-        if(num eq 1) then begin
-            info.jwst_image.overplot_cr = 1
-            widget_control,info.jwst_image.overplotcrID[1],set_button = 0
-            widget_control,info.jwst_image.overplotcrID[0],set_button = 1
-
-        endif
-
-        if(num eq 2) then begin
-            info.jwst_image.overplot_cr= 0
-            widget_control,info.jwst_image.overplotcrID[0],set_button = 0
-            widget_control,info.jwst_image.overplotcrID[1],set_button = 1
-        endif
-
-
-        jwst_mql_update_rampread,info
-        
-    end
-
-
-
 ;_______________________________________________________________________
 ; overplot linearity corrected data
 
     (strmid(event_name,0,6) eq 'overlc') : begin
         num = fix(strmid(event_name,6,1))
         if(num eq 1) then begin
-            info.jwst_image.overplot_lc = 1
-            widget_control,info.jwst_image.overplotLCID[1],set_button = 0
-            widget_control,info.jwst_image.overplotLCID[0],set_button = 1
-
+            info.jwst_image.overplot_lin = 1
+            widget_control,info.jwst_image.overplotlinID[1],set_button = 0
+            widget_control,info.jwst_image.overplotlinID[0],set_button = 1
         endif
 
         if(num eq 2) then begin
-            info.jwst_image.overplot_lc= 0
-            widget_control,info.jwst_image.overplotLCID[0],set_button = 0
-            widget_control,info.jwst_image.overplotLCID[1],set_button = 1
+            info.jwst_image.overplot_lin= 0
+            widget_control,info.jwst_image.overplotlinID[0],set_button = 0
+            widget_control,info.jwst_image.overplotlinID[1],set_button = 1
         endif
-
-
         jwst_mql_update_rampread,info
-        
     end
-
-;_______________________________________________________________________
-; Plot linearity corrected data Result
-
-    (strmid(event_name,0,7) eq 'plotrlc') : begin
-        num = fix(strmid(event_name,7,1))
-        if(num eq 1) then begin
-            info.jwst_image.plot_lc_results = 1
-            widget_control,info.jwst_image.plotRLCID[1],set_button = 0
-            widget_control,info.jwst_image.plotRLCID[0],set_button = 1
-
-        endif
-
-        if(num eq 2) then begin
-            info.jwst_image.plot_lc_results= 0
-            widget_control,info.jwst_image.plotRLCID[0],set_button = 0
-            widget_control,info.jwst_image.plotRLCID[1],set_button = 1
-            return
-        endif
-
-
-        if(info.jwst_data.coadd eq 1) then begin
-            print,' This is coadded data - can not plot linearity corrected data'
-            return
-        endif
-
-        linearity_setup_pixel,info
-        display_linearity_correction_results,info
-        
-    end
-
-
-
 ;_______________________________________________________________________
 ; overplot mean dark  corrected data
 
     (strmid(event_name,0,6) eq 'overmd') : begin
         num = fix(strmid(event_name,6,1))
         if(num eq 1) then begin
-            info.jwst_image.overplot_mdc = 1
-            widget_control,info.jwst_image.overplotMDCID[1],set_button = 0
-            widget_control,info.jwst_image.overplotMDCID[0],set_button = 1
+            info.jwst_image.overplot_dark = 1
+            widget_control,info.jwst_image.overplotdarkID[1],set_button = 0
+            widget_control,info.jwst_image.overplotdarkID[0],set_button = 1
 
         endif
 
         if(num eq 2) then begin
-            info.jwst_image.overplot_mdc= 0
-            widget_control,info.jwst_image.overplotMDCID[0],set_button = 0
-            widget_control,info.jwst_image.overplotMDCID[1],set_button = 1
+            info.jwst_image.overplot_dark= 0
+            widget_control,info.jwst_image.overplotdarkID[0],set_button = 0
+            widget_control,info.jwst_image.overplotdarkID[1],set_button = 1
         endif
-
-
         jwst_mql_update_rampread,info
-        
     end
-
-
 
 ;_______________________________________________________________________
 ; overplot reset corrected data
@@ -332,8 +251,6 @@ endif
         endif
         jwst_mql_update_rampread,info
     end
-
-
 ;_______________________________________________________________________
 ; overplot rscd corrected data
 
@@ -343,7 +260,6 @@ endif
             info.jwst_image.overplot_rscd = 1
             widget_control,info.jwst_image.overplotrscdID[1],set_button = 0
             widget_control,info.jwst_image.overplotrscdID[0],set_button = 1
-
         endif
         if(num eq 2) then begin
             info.jwst_image.overplot_rscd = 0
@@ -352,11 +268,8 @@ endif
         endif
         jwst_mql_update_rampread,info
     end
-
-
 ;_______________________________________________________________________
 ; overplot lastframe corrected data
-
     (strmid(event_name,0,13) eq 'overlastframe') : begin
         num = fix(strmid(event_name,13,1))
         if(num eq 1) then begin
@@ -372,11 +285,6 @@ endif
         endif
         jwst_mql_update_rampread,info
     end
-
-
-
-;_______________________________________________________________________
-
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
 
@@ -403,53 +311,41 @@ endif
 
 
         ; check and see if read in all frame values for pixel
-        ; if not then read in
-
-; pixel frame sdata
-        if (ptr_valid(info.jwst_image.pixeldata) eq 0) then begin ; has not been read in 
+; 
+        if (ptr_valid(info.jwst_image.ppixeldata) eq 0) then begin ; has not been read in 
             jwst_mql_read_rampdata,x,y,pixeldata,info  
-            info.jwst_image.pixeldata = ptr_new(pixeldata)
+            info.jwst_image.ppixeldata = ptr_new(ppixeldata)
         endif
 
-        pixeldata = (*info.jwst_image.pixeldata)
-        size_data = size(pixeldata)
-        if(size_data[0] eq 0) then return
-
-
-        if ptr_valid (info.jwst_image_pixel.pixeldata) then ptr_free,info.jwst_image_pixel.pixeldata
-        info.jwst_image_pixel.pixeldata = ptr_new(pixeldata)
+        pixeldata = (*info.jwst_image.ppixeldata)
+        if ptr_valid (info.jwst_image_pixel.ppixeldata) then ptr_free,info.jwst_image_pixel.ppixeldata
+        info.jwst_image_pixel.ppixeldata = ptr_new(pixeldata)
         pixeldata = 0
         
-; reference corrected data
-        refcorrected_data = pixeldata
-        refcorrected_data[*,*] = 0
-        id_data = refcorrected_data
-        lc_data = refcorrected_data
+
 ; fill in reference corrected data, if the file was written
-        if(info.jwst_control.file_refcorrection_exist eq 1 ) then begin 
-            if (ptr_valid(info.jwst_image.prefcorrected_pixeldata) eq 0) then begin ; has not been read in 
+        if(info.jwst_control.file_refpix_exist eq 1 ) then begin 
+            if (ptr_valid(info.jwst_image.prefpix_pixeldata) eq 0) then begin ; has not been read in 
                 jwst_mql_read_refcorrected_data,x,y,info
             endif
-            refcorrected_data = (*info.jwst_image.prefcorrected_pixeldata)
+            refcorrected_data = (*info.jwst_image.prefpix_pixeldata)
 
-            if ptr_valid (info.jwst_image_pixel.refcorrected_pixeldata) then $
-              ptr_free,info.jwst_image_pixel.refcorrected_pixeldata
-            info.jwst_image_pixel.refcorrected_pixeldata = ptr_new(refcorrected_data)        
+            if ptr_valid (info.jwst_image_pixel.prefpix_pixeldata) then $
+              ptr_free,info.jwst_image_pixel.prefpix_pixeldata
+            info.jwst_image_pixel.prefpix_pixeldata = ptr_new(refcorrected_data)        
             refcorrected_data = 0
         endif
 
 ; fill in the dark corrected data, if the file was written
-        if(info.jwst_control.file_mdc_exist eq 1) then begin
-            if (ptr_valid(info.jwst_image.pmdc_pixeldata) eq 0) then begin ; has not been read in 
+        if(info.jwst_control.file_dark_exist eq 1) then begin
+            if (ptr_valid(info.jwst_image.pdark_pixeldata) eq 0) then begin ; has not been read in 
                 jwst_mql_read_mdc_data,x,y,info
             endif
  
-            mdc_data = (*info.jwst_image.pmdc_pixeldata)
-
-            if ptr_valid (info.jwst_image_pixel.mdc_pixeldata) then $
-              ptr_free,info.jwst_image_pixel.mdc_pixeldata
-            info.jwst_image_pixel.mdc_pixeldata = ptr_new(mdc_data)
-            
+            mdc_data = (*info.jwst_image.pdark_pixeldata)
+            if ptr_valid (info.jwst_image_pixel.pdark_pixeldata) then $
+              ptr_free,info.jwst_image_pixel.pdark_pixeldata
+            info.jwst_image_pixel.pdark_pixeldata = ptr_new(mdc_data)
             mdc_data = 0
          endif
 
@@ -459,8 +355,8 @@ endif
                 jwst_mql_read_reset_data,x,y,info
             endif
             reset_data = (*info.jwst_image.preset_pixeldata)
-            if ptr_valid (info.jwst_image_pixel.reset_pixeldata) then $
-              ptr_free,info.jwst_image_pixel.reset_pixeldata
+            if ptr_valid (info.jwst_image_pixel.preset_pixeldata) then $
+              ptr_free,info.jwst_image_pixel.preset_pixeldata
             info.jwst_image_pixel.reset_pixeldata = ptr_new(reset_data)
             reset_data = 0
          endif
@@ -471,9 +367,9 @@ endif
                 jwst_mql_read_rscd_data,x,y,info
             endif
             rscd_data = (*info.jwst_image.prscd_pixeldata)
-            if ptr_valid (info.jwst_image_pixel.rscd_pixeldata) then $
-              ptr_free,info.jwst_image_pixel.rscd_pixeldata
-            info.jwst_image_pixel.rscd_pixeldata = ptr_new(rscd_data)
+            if ptr_valid (info.jwst_image_pixel.prscd_pixeldata) then $
+              ptr_free,info.jwst_image_pixel.prscd_pixeldata
+            info.jwst_image_pixel.prscd_pixeldata = ptr_new(rscd_data)
             rscd_data = 0
          endif
 
@@ -483,46 +379,28 @@ endif
                 jwst_mql_read_lastframe_data,x,y,info
             endif
             lastframe_data = (*info.jwst_image.plastframe_pixeldata)
-            if ptr_valid (info.jwst_image_pixel.lastframe_pixeldata) then $
-              ptr_free,info.jwst_image_pixel.lastframe_pixeldata
-            info.jwst_image_pixel.lastframe_pixeldata = ptr_new(lastframe_data)
+            if ptr_valid (info.jwst_image_pixel.plastframe_pixeldata) then $
+              ptr_free,info.jwst_image_pixel.plastframe_pixeldata
+            info.jwst_image_pixel.plastframe_pixeldata = ptr_new(lastframe_data)
             lastframe_data = 0
          endif
 
 ; fill in the linearity corrected data, if the file was written
-        if(info.jwst_control.file_lc_exist eq 1) then begin 
-            if (ptr_valid(info.jwst_image.plc_pixeldata) eq 0) then begin ; has not been read in 
+        if(info.jwst_control.file_linearity_exist eq 1) then begin 
+            if (ptr_valid(info.jwst_image.plin_pixeldata) eq 0) then begin ; has not been read in 
                 jwst_mql_read_lc_data,x,y,info
             endif
-            lc_data = (*info.jwst_image.plc_pixeldata)
+            lc_data = (*info.jwst_image.plin_pixeldata)
 
-            if ptr_valid (info.jwst_image_pixel.lc_pixeldata) then $
-              ptr_free,info.jwst_image_pixel.lc_pixeldata
-            info.jwst_image_pixel.lc_pixeldata = ptr_new(lc_data)        
+            if ptr_valid (info.jwst_image_pixel.plin_pixeldata) then $
+              ptr_free,info.jwst_image_pixel.plin_pixeldata
+            info.jwst_image_pixel.plin_pixeldata = ptr_new(lc_data)        
             lc_data = 0
             
         endif
 
-        
-
-        info.jwst_image_pixel.file_lc_exist  = info.jwst_control.file_lc_exist 
-        info.jwst_image_pixel.file_mdc_exist  = info.jwst_control.file_mdc_exist 
-        info.jwst_image_pixel.file_reset_exist  = info.jwst_control.file_reset_exist 
-        info.jwst_image_pixel.file_rscd_exist  = info.jwst_control.file_rscd_exist 
-        info.jwst_image_pixel.file_lastframe_exist  = info.jwst_control.file_lastframe_exist 
-        info.jwst_image_pixel.file_refcorrection_exist = info.jwst_control.file_refcorrection_exist 
-
-        info.jwst_image_pixel.start_fit = info.jwst_image.start_fit
-        info.jwst_image_pixel.end_fit = info.jwst_image.end_fit
-        info.jwst_image_pixel.nints = info.jwst_data.nints
         info.jwst_image_pixel.integrationNo = info.jwst_image.integrationNO
-        info.jwst_image_pixel.nframes = info.jwst_data.ngroups
-        info.jwst_image_pixel.coadd = info.jwst_data.coadd
-        info.jwst_image_pixel.nslopes = info.jwst_data.nslopes
-        info.jwst_image_pixel.slope_exist = info.jwst_data.slope_exist
-        print,info.jwst_data.nslopes
-        info.jwst_image_pixel.filename = info.jwst_control.filename_raw
-        if(info.jwst_image_pixel.slope_exist) then begin 
+        if(info.jwst_control.file_slope_exist) then begin 
             info.jwst_image_pixel.slope = (*info.jwst_data.preduced)[x,y,0]
             info.jwst_image_pixel.zeropt =  0
             info.jwst_image_pixel.error  =(*info.jwst_data.preduced)[x,y,2]
@@ -577,18 +455,14 @@ endif
 ;  Frame Button
     (strmid(event_name,0,4) EQ 'fram') : begin
 
-
 	if (strmid(event_name,4,1) EQ 'e') then begin 	
            this_value = event.value-1
            iramp = this_value
-
 	endif
 ; check if the <> buttons were used
         if (strmid(event_name,4,5) EQ '_move')then begin
-
             if(strmid(event_name,10,2) eq 'dn') then iramp = iramp -1
-            if(strmid(event_name,10,2) eq 'up') then iramp = iramp +1
-            
+            if(strmid(event_name,10,2) eq 'up') then iramp = iramp +1            
 	endif
 ; do some checks	wrap around
 
@@ -605,12 +479,10 @@ endif
 	jintegraion = temp
 	widget_control,info.jwst_image.integration_label,set_value = jintegration+1
 
-
 	jwst_mql_moveframe,jintegration,iramp,info
         jwst_mql_update_pixel_stat,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end	
-
 ;_______________________________________________________________________
 ; Select a different pixel 
 ;_______________________________________________________________________
@@ -624,10 +496,8 @@ endif
         xstart = xvalue
         ystart = yvalue
 
-
         pixel_xvalue = xvalue
         pixel_yvalue = yvalue
-
 ; ++++++++++++++++++++++++++++++
         if(strmid(event_name,4,1) eq 'x') then  begin
             xvalue = event.value ; event value - user input starts at 1 
@@ -652,8 +522,6 @@ endif
             if(yvalue gt ysize) then yvalue = ysize
 
             pixel_yvalue = float(yvalue)-1
-
-
             ; check what is in x box 
             widget_control,info.jwst_image.pix_label[0], get_value= xtemp
             xvalue = xtemp
@@ -666,7 +534,6 @@ endif
 ; check if the <> buttons were used
 
         if(strmid(event_name,4,4) eq 'move') then begin
-
             if(strmid(event_name,9,2) eq 'x1') then xvalue = xvalue - 1
             if(strmid(event_name,9,2) eq 'x2') then xvalue = xvalue + 1
             if(strmid(event_name,9,2) eq 'y1') then yvalue = yvalue - 1
@@ -682,11 +549,8 @@ endif
 
             widget_control,info.jwst_image.pix_label[0],set_value=pixel_xvalue+1
             widget_control,info.jwst_image.pix_label[1],set_value=pixel_yvalue+1
-
         endif
-
 ; ++++++++++++++++++++++++++++++
-
         info.jwst_image.x_pos = float(pixel_xvalue)/float(info.jwst_image.binfactor)
         info.jwst_image.y_pos = float(pixel_yvalue)/float(info.jwst_image.binfactor)
 
@@ -700,31 +564,29 @@ endif
             jwst_mql_update_pixel_location,info  ; update pixel location on graph windows
         endfor
 
-
 ; read information on the new pixel 
         if(info.jwst_image.autopixelupdate eq 1)then begin
             jwst_mql_read_rampdata,pixel_xvalue,pixel_yvalue,pixeldata,info  
 
-            if ptr_valid (info.jwst_image.pixeldata) then ptr_free,info.jwst_image.pixeldata
-            info.jwst_image.pixeldata = ptr_new(pixeldata)
+            if ptr_valid (info.jwst_image.ppixeldata) then ptr_free,info.jwst_image.ppixeldata
+            info.jwst_image.ppixeldata = ptr_new(pixeldata)
         endif
 
 ; read slope data for pixel
         jwst_mql_read_slopedata,pixel_xvalue,pixel_yvalue,info  
         
 ; read reference corrected data if file was created
-        if(info.jwst_control.file_refcorrection_exist eq 1)then $
-          jwst_mql_read_refcorrected_data,pixel_xvalue,pixel_yvalue,info
-
+        if(info.jwst_control.file_refpix_exist eq 1)then $
+          jwst_mql_read_refpix_data,pixel_xvalue,pixel_yvalue,info
 
 ; fill in the frame LC , if the file was written
-        if(info.jwst_control.file_lc_exist eq 1)then begin
-            jwst_mql_read_lc_data,pixel_xvalue,pixel_yvalue,info
+        if(info.jwst_control.file_linearity_exist eq 1)then begin
+            jwst_mql_read_lin_data,pixel_xvalue,pixel_yvalue,info
         endif
 
 ; fill in the frame MCD, if the file was written
-        if(info.jwst_control.file_mdc_exist eq 1)then begin
-            jwst_mql_read_mdc_data,pixel_xvalue,pixel_yvalue,info
+        if(info.jwst_control.file_dark_exist eq 1)then begin
+            jwst_mql_read_dark_data,pixel_xvalue,pixel_yvalue,info
         endif
 
          jwst_mql_update_rampread,info                     
@@ -744,14 +606,9 @@ endif
             jwst_mql_read_lastframe_data,pixel_xvalue,pixel_yvalue,info
         endif
 
-
          jwst_mql_update_rampread,info                     
 
-
-
-
-; update the pixel in the zoom window
-        
+; update the pixel in the zoom window        
         info.jwst_image.x_zoom = pixel_xvalue 
         info.jwst_image.y_zoom = pixel_yvalue 
         
@@ -759,24 +616,10 @@ endif
         if(info.jwst_image.y_zoom ge ysize) then info.jwst_image.y_zoom = ysize - 1
          jwst_mql_update_zoom_image,info
 
-            
-
 ; If the Frame values for pixel window is open - destroy
         if(XRegistered ('mpixel')) then begin
             widget_control,info.jwst_RPixelInfo,/destroy
-
         endif
-
-
-
-
-       if(XRegistered ('lcr')) then begin
-           linearity_setup_pixel,info
-           update_info,info
-           update_linearity_difference,info
-           update_linearity_result,info
-       endif
-
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
@@ -954,145 +797,130 @@ endif
 ;_______________________________________________________________________
 
    (strmid(event_name,0,8) EQ 'mqlpixel') : begin
-       if(event.type eq 1) then begin
-           graphnum = fix(strmid(event_name,8,1))
+      if(event.type eq 1) then begin
+         graphnum = fix(strmid(event_name,8,1))
 
-           if(graphnum ne 2) then info.jwst_image.graph_mpixel=graphnum 
+         if(graphnum ne 2) then info.jwst_image.graph_mpixel=graphnum 
 
-           xvalue = event.x     ; starts at 0
-           yvalue = event.y     ; starts at 0
+         xvalue = event.x       ; starts at 0
+         yvalue = event.y       ; starts at 0
 
-           if(xvalue ge 258) then xvalue = 257
-           if(yvalue ge 256) then yvalue = 255
+         if(xvalue ge 258) then xvalue = 257
+         if(yvalue ge 256) then yvalue = 255
 ; did not click on zoom image- so update the zoom image
-           if(graphnum ne 2) then  begin 
-               info.jwst_image.x_zoom = xvalue * info.jwst_image.binfactor
-               info.jwst_image.y_zoom = yvalue * info.jwst_image.binfactor
+         if(graphnum ne 2) then  begin 
+            info.jwst_image.x_zoom = xvalue * info.jwst_image.binfactor
+            info.jwst_image.y_zoom = yvalue * info.jwst_image.binfactor
 
-               if(info.jwst_image.x_zoom ge info.jwst_data.image_xsize) then $
-                 info.jwst_image.x_zoom = info.jwst_data.image_xsize-1
-               if(info.jwst_image.y_zoom ge info.jwst_data.image_ysize) then $
-                 info.jwst_image.y_zoom = info.jwst_data.image_ysize -1
-              jwst_mql_update_zoom_image,info
+            if(info.jwst_image.x_zoom ge info.jwst_data.image_xsize) then $
+               info.jwst_image.x_zoom = info.jwst_data.image_xsize-1
+            if(info.jwst_image.y_zoom ge info.jwst_data.image_ysize) then $
+               info.jwst_image.y_zoom = info.jwst_data.image_ysize -1
+            jwst_mql_update_zoom_image,info
 
-               info.jwst_image.x_pos = xvalue 
-               info.jwst_image.y_pos = yvalue
-           endif
-
+            info.jwst_image.x_pos = xvalue 
+            info.jwst_image.y_pos = yvalue
+         endif
 
 ; clicked on the zoom image - so update the pixel in the zoom image 
-           if(graphnum eq 2) then  begin
+         if(graphnum eq 2) then  begin
+            x = (xvalue)/info.jwst_image.scale_zoom
+            y = (yvalue)/info.jwst_image.scale_zoom
+            if(x ge info.jwst_data.image_xsize) then x = info.jwst_data.image_xsize-1
+            if(y ge info.jwst_data.image_ysize) then y = info.jwst_data.image_ysize-1
+            xvalue = x * info.jwst_image.scale_zoom
+            yvalue = y * info.jwst_image.scale_zoom
 
-;;
-               x = (xvalue)/info.jwst_image.scale_zoom
-               y = (yvalue)/info.jwst_image.scale_zoom
-               if(x ge info.jwst_data.image_xsize) then x = info.jwst_data.image_xsize-1
-               if(y ge info.jwst_data.image_ysize) then y = info.jwst_data.image_ysize-1
-               xvalue = x * info.jwst_image.scale_zoom
-               yvalue = y * info.jwst_image.scale_zoom
+            update = 1
 
-;;
-               update = 1
-
-               jwst_mql_update_zoom_pixel_location,xvalue,yvalue,update,info
+            jwst_mql_update_zoom_pixel_location,xvalue,yvalue,update,info
 
                ; redefine the center of the zoom image - if later
                ; want to zoom: x_zoom_pos & y_zoom_pos  
                
-               x = (xvalue)/info.jwst_image.scale_zoom
-               y = (yvalue)/info.jwst_image.scale_zoom
-               x = x + info.jwst_image.x_zoom_start - info.jwst_image.ixstart_zoom
-               y = y + info.jwst_image.y_zoom_start - info.jwst_image.iystart_zoom
+            x = (xvalue)/info.jwst_image.scale_zoom
+            y = (yvalue)/info.jwst_image.scale_zoom
+            x = x + info.jwst_image.x_zoom_start - info.jwst_image.ixstart_zoom
+            y = y + info.jwst_image.y_zoom_start - info.jwst_image.iystart_zoom
 
-               if(x gt info.jwst_data.image_xsize) then  x = info.jwst_data.image_xsize
-               if(y gt info.jwst_data.image_ysize) then y = info.jwst_data.image_ysize
+            if(x gt info.jwst_data.image_xsize) then  x = info.jwst_data.image_xsize
+            if(y gt info.jwst_data.image_ysize) then y = info.jwst_data.image_ysize
 
-               info.jwst_image.x_zoom_pos = x
-               info.jwst_image.y_zoom_pos = y
+            info.jwst_image.x_zoom_pos = x
+            info.jwst_image.y_zoom_pos = y
 
-               if(info.jwst_image.x_zoom_pos ge info.jwst_data.image_xsize) then $
+            if(info.jwst_image.x_zoom_pos ge info.jwst_data.image_xsize) then $
                info.jwst_image.x_zoom_pos = info.jwst_data.image_xsize
-               if(info.jwst_image.y_zoom_pos ge info.jwst_data.image_ysize) then $
-                 info.jwst_image.y_zoom_pos = info.jwst_data.image_ysize
+            if(info.jwst_image.y_zoom_pos ge info.jwst_data.image_ysize) then $
+               info.jwst_image.y_zoom_pos = info.jwst_data.image_ysize
 
-           endif
+         endif
 ; update the pixel locations in graphs 1, 3
-
-           graphno = [0,2]
-           for i = 0,1 do begin 
-               info.jwst_image.current_graph = graphno[i]
-               jwst_mql_update_pixel_location,info
-           endfor
-
+         graphno = [0,2]
+         for i = 0,1 do begin 
+            info.jwst_image.current_graph = graphno[i]
+            jwst_mql_update_pixel_location,info
+         endfor
+         
 ; update the pixel information on main window
-           jwst_mql_update_pixel_stat,info
-	   x = info.jwst_image.x_pos * info.jwst_image.binfactor	
-	   y = info.jwst_image.y_pos * info.jwst_image.binfactor	
-	   widget_control,info.jwst_image.pix_label[0],set_value = x+1
-	   widget_control,info.jwst_image.pix_label[1],set_value = y+1
+         jwst_mql_update_pixel_stat,info
+         x = info.jwst_image.x_pos * info.jwst_image.binfactor	
+         y = info.jwst_image.y_pos * info.jwst_image.binfactor	
+         widget_control,info.jwst_image.pix_label[0],set_value = x+1
+         widget_control,info.jwst_image.pix_label[1],set_value = y+1
 
 ; If the Frame values for pixel window is open - destroy
-           if(XRegistered ('mpixel')) then begin
-               widget_control,info.jwst_RPixelInfo,/destroy
-           endif
-
-; Draw a box around the pixel - showing the zoom window size 
-
-           if(info.jwst_image.graph_mpixel ne 2) then  begin ;
-               info.jwst_image.current_graph = info.jwst_image.graph_mpixel-1
-               jwst_mql_draw_zoom_box,info
-           endif
-
-; load individual ramp graph - based on x_pos, y_pos
-           xvalue = info.jwst_image.x_pos*info.jwst_image.binfactor
-           yvalue = info.jwst_image.y_pos*info.jwst_image.binfactor
-           if(info.jwst_image.autopixelupdate eq 1) then begin
-               jwst_mql_read_rampdata,xvalue,yvalue,pixeldata,info
-               if ptr_valid (info.jwst_image.pixeldata) then ptr_free,info.jwst_image.pixeldata
-               info.jwst_image.pixeldata = ptr_new(pixeldata)
-           endif
-
-           
-           jwst_mql_read_slopedata,xvalue,yvalue,info
-
-; read reference corrected data if file was created
-           if(info.jwst_control.file_refcorrection_exist eq 1) then $
-             jwst_mql_read_refcorrected_data,xvalue,yvalue,info
-
-; fill in the linearity corrected data, if the file was written
-        if(info.jwst_control.file_lc_exist eq 1) then begin
-            jwst_mql_read_lc_data,xvalue,yvalue,info
-        endif
-
-        if(info.jwst_control.file_mdc_exist eq 1) then begin
-            jwst_mql_read_mdc_data,xvalue,yvalue,info
+         if(XRegistered ('mpixel')) then begin
+            widget_control,info.jwst_RPixelInfo,/destroy
          endif
 
-        if(info.jwst_control.file_reset_exist eq 1) then begin
+; Draw a box around the pixel - showing the zoom window size 
+         if(info.jwst_image.graph_mpixel ne 2) then  begin ;
+            info.jwst_image.current_graph = info.jwst_image.graph_mpixel-1
+            jwst_mql_draw_zoom_box,info
+         endif
+
+; load individual ramp graph - based on x_pos, y_pos
+         xvalue = info.jwst_image.x_pos*info.jwst_image.binfactor
+         yvalue = info.jwst_image.y_pos*info.jwst_image.binfactor
+         if(info.jwst_image.autopixelupdate eq 1) then begin
+            jwst_mql_read_rampdata,xvalue,yvalue,pixeldata,info
+            if ptr_valid (info.jwst_image.ppixeldata) then ptr_free,info.jwst_image.ppixeldata
+            info.jwst_image.ppixeldata = ptr_new(pixeldata)
+         endif
+           
+         jwst_mql_read_slopedata,xvalue,yvalue,info
+
+; read reference corrected data if file was created
+
+         if(info.jwst_control.file_refpix_exist eq 1) then $
+            jwst_mql_read_refpix_data,xvalue,yvalue,info
+
+; fill in the linearity corrected data, if the file was written
+         if(info.jwst_control.file_linearity_exist eq 1) then begin
+            jwst_mql_read_lin_data,xvalue,yvalue,info
+         endif
+
+         if(info.jwst_control.file_dark_exist eq 1) then begin
+            jwst_mql_read_dark_data,xvalue,yvalue,info
+         endif
+
+         if(info.jwst_control.file_reset_exist eq 1) then begin
             jwst_mql_read_reset_data,xvalue,yvalue,info
          endif
 
-        if(info.jwst_control.file_rscd_exist eq 1) then begin
+         if(info.jwst_control.file_rscd_exist eq 1) then begin
             jwst_mql_read_rscd_data,xvalue,yvalue,info
          endif
 
-        if(info.jwst_control.file_lastframe_exist eq 1) then begin
+         if(info.jwst_control.file_lastframe_exist eq 1) then begin
             jwst_mql_read_lastframe_data,xvalue,yvalue,info
         endif
 
+         jwst_mql_update_rampread,info
 
-
-        jwst_mql_update_rampread,info
-
-           Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-       endif
-
-       if(XRegistered ('lcr')) then begin
-           linearity_setup_pixel,info
-           update_info,info
-           update_linearity_difference,info
-           update_linearity_result,info
-       endif
+         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+      endif
    end
    
 ;_______________________________________________________________________
@@ -1188,7 +1016,7 @@ endif
 
 ; inspect slope  image
     (strmid(event_name,0,9) EQ 'inspect_s') : begin
-        if(not info.jwst_data.slope_exist) then begin
+        if(info.jwst_control.file_slope_exist eq 0) then begin
             ok = dialog_message(" No slope image exists",/Information)
             return
         endif
@@ -1211,17 +1039,14 @@ endif
         all_data = 0
 
 
-        if(info.jwst_data.cal_exist) then begin 
+        if(info.jwst_control.file_cal_exist eq 1) then begin 
             cal = (*info.jwst_data.pcaldata)[*,*,0]
             if ptr_valid (info.jwst_inspect_slope.pcaldata) then ptr_free,info.jwst_inspect_slope.pcaldata
             info.jwst_inspect_slope.pcaldata = ptr_new(cal)
             cal = 0
         endif
 
-
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-
-
 
         info.jwst_inspect_slope.zoom = 1
         info.jwst_inspect_slope.zoom_x = 1
@@ -1239,17 +1064,12 @@ endif
         info.jwst_inspect_slope.limit_high = 70000.0
         info.jwst_inspect_slope.limit_low_num = 0
         info.jwst_inspect_slope.limit_high_num = 0
-        info.jwst_inspect_slope.start_fit = info.jwst_image.start_fit
-        info.jwst_inspect_slope.end_fit = info.jwst_image.end_fit
+
         info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
         info.jwst_inspect_slope.plane = 0
 	jwst_misql_display_images,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
-
-;_______________________________________________________________________
-
 
 ;_______________________________________________________________________
 

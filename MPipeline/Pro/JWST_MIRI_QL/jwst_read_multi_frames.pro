@@ -12,21 +12,20 @@ endif
 this_num_frames = info.jwst_data.ngroups
 
 image_cube = fltarr(this_integration,info.jwst_data.num_frames,info.jwst_data.image_xsize,info.jwst_data.image_ysize)
-image_stat = fltarr(this_integration,info.jwst_data.num_frames,9)
+image_stat = fltarr(this_integration,info.jwst_data.num_frames,6)
 image_range = fltarr(this_integration,info.jwst_data.num_frames,2)
 
 
 nvalid = long(1024) * long(1024)
 if(info.jwst_data.subarray eq 1) then nvalid= long(info.jwst_data.image_xsize) * long(info.jwst_data.image_ysize)
 
-
 ; read all set to true - so read in all the images
+print,'in jwst_read_multi_frames',info.jwst_data.read_all
 ;  _______________________________________________________________________
 if(info.jwst_data.read_all eq 1) then begin ; read all the data in
 
-;    print,'reading all the  images'
     fits_open,info.jwst_control.filename_raw,fcb
-    fits_read,fcb,cube_raw,header_raw
+    fits_read,fcb,cube_raw,header_raw,exten_no = 1
 
     ntot = info.jwst_data.nints * info.jwst_data.ngroups
     nupdate = 0
@@ -42,10 +41,9 @@ if(info.jwst_data.read_all eq 1) then begin ; read all the data in
             ir = 0
             j = iramp
             
-
             xsize = info.jwst_data.image_xsize
             ysize = info.jwst_data.image_ysize
-            image_cube[integ,iramp,*,*] = cube_raw[0:xsize-1,0:ysize-1,iramp,integ]
+            image_cube[integ,iramp,*,*] = cube_raw[*,*,iramp,integ]
 
             image_frame = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
             image_frame[*,*] = image_cube[integ,iramp,*,*]
@@ -57,22 +55,17 @@ if(info.jwst_data.read_all eq 1) then begin ; read all the data in
 
             image_frame = 0
 ;_______________________________________________________________________
-            get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-                           irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+            jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+                           irange_min,irange_max,image_median,stdev_mean
             image_stat[integ,j,0] = image_mean
             image_stat[integ,j,1] = stdev_pixel
             image_stat[integ,j,2] = image_min
             image_stat[integ,j,3] = image_max
             image_stat[integ,j,4] = image_median
             image_stat[integ,j,5] = stdev_mean
-            image_stat[integ,j,6] = skew
-            image_stat[integ,j,7] = ngood
-            image_stat[integ,j,8] = nvalid - ngood
-
 
             image_range[integ,j,0] = irange_min
             image_range[integ,j,1] = irange_max
-
             image_noref_data = 0      ; free memory
 
         endfor
@@ -86,73 +79,52 @@ fits_close,fcb
 if(info.jwst_data.read_all eq 0) then begin ; only read a portion of the data in
 
 ; frame start counts from 0
-    m = (info.jwst_control.int_num * info.jwst_data.ngroups) + info.jwst_control.frame_start
-
-
     print,'Reading integration #',info.jwst_control.int_num+1
     print,'Reading frame - to - ',info.jwst_control.frame_start+1, ' ' ,info.jwst_control.frame_end+1
 
-    ii = 0
     this_num_frames = info.jwst_control.frame_end - info.jwst_control.frame_start +1 
-    endtest = info.jwst_data.ngroups*(info.jwst_control.int_num+1)
 
+    ; read in data 
+    im_raw = readfits(info.jwst_control.filename_raw,exten_no=1)        
+    ; pull out what is needed - only 1 integration of frames: frame_start:frame_end
+    image_cube[0,*,*,*] = im_raw[*,*,info.jwst_control.frame_start:info.jwst_control.frame_end,$
+                                 info.jwst_control.int_num]
+    im_raw = 0 
+    ; work on stats for each frame 
+    for i = 0,this_num_frames-1 do begin
+       percent = (float(i)/float(info.jwst_control.read_limit) * 90)
+       progressBar -> Update,percent
 
-    for i = 0,this_num_frames-1 do begin 
-        if(m+ i lt endtest) then begin 
-
-        
-            percent = (float(i)/float(info.jwst_control.read_limit) * 90)
-            progressBar -> Update,percent
-
-            im_raw = readfits(info.jwst_control.filename_raw,nslice = m+i,/silent)        
-
-            xsize = info.jwst_data.image_xsize
-            ysize = info.jwst_data.image_ysize
-            image_cube[0,ii,*,*] = im_raw[0:xsize-1,0:ysize-1]
-
+       xsize = info.jwst_data.image_xsize
+       ysize = info.jwst_data.image_ysize
             
-            image_frame = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
-            image_frame[*,*] = image_cube[0,ii,*,*]
-            
+       image_frame = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
+       image_frame[*,*] = image_cube[0,i,*,*]
+       image_noref_data= image_frame[*,*]
+       if(info.jwst_data.subarray eq 0) then image_noref_data = image_frame[4:1027,*]
+       if(info.jwst_data.subarray ne 0 and  info.jwst_data.colstart eq 1) then $
+          image_noref_data= image_frame[4:*,*]
 
-            if(numbad gt 0) then image_frame[index_bad] = !values.F_NaN ; set bad pixels to NAN            
-
-            image_noref_data= image_frame[*,*]
-
-            
-            if(info.jwst_data.subarray eq 0) then image_noref_data = image_frame[4:1027,*]
-            if(info.jwst_data.subarray ne 0 and  info.jwst_data.colstart eq 1) then $
-              image_noref_data= image_frame[4:*,*]
-
-
-            image_frame = 0
-            
+       image_frame = 0
 ;_______________________________________________________________________
-            get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-                           irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
-            image_stat[0,i,0] = image_mean
-            image_stat[0,i,1] = stdev_pixel
-            image_stat[0,i,2] = image_min
-            image_stat[0,i,3] = image_max
-            image_stat[0,i,4] = image_median
-            image_stat[0,i,5] = stdev_mean
-            image_stat[0,i,6] = skew
-            image_stat[0,i,7] = ngood
-            image_stat[0,i,8] = nvalid - ngood
-            
+       jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+                      irange_min,irange_max,image_median,stdev_mean
+       image_stat[0,i,0] = image_mean
+       image_stat[0,i,1] = stdev_pixel
+       image_stat[0,i,2] = image_min
+       image_stat[0,i,3] = image_max
+       image_stat[0,i,4] = image_median
+       image_stat[0,i,5] = stdev_mean
 
-            image_range[0,i,0] = irange_min
-            image_range[0,i,1] = irange_max
-
-            image_noref_data = 0      ; free memory
-            ii = ii + 1
-            im_raw = 0
-        endif
+       image_range[0,i,0] = irange_min
+       image_range[0,i,1] = irange_max
+       
+       image_noref_data = 0          ; free memory
     endfor                   ; end looping over ramps
 endif
 ;_______________________________________________________________________
 if ptr_valid (info.jwst_data.pimagedata) then ptr_free,info.jwst_data.pimagedata
-info.jwst_data.pimagedata = ptr_new(image_cube)
+info.jwst_data.pimagedata= ptr_new(image_cube)
 image_cube = 0 ; free memory
 
 if ptr_valid (info.jwst_image.pstat) then ptr_free,info.jwst_image.pstat
@@ -165,14 +137,9 @@ image_range = 0 ; free memory
 
 
 ;_______________________________________________________________________
-;
-; stats on images, image_stat[mean,sigma,min,max]
-;                  image_range[min,max] starting values for min,max dsplay range
 
 percent = 99
 progressBar -> Update,percent
-
-
 ;_______________________________________________________________________
 
 progressBar -> Destroy

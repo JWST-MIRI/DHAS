@@ -39,8 +39,8 @@ if(subarray eq 0) then image_noref_data = frame_image3[4:1027,*]
 if(subarray eq 1 and colstart eq 1 ) then image_noref_data = frame_image3[4:*,*]
 
 
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,numgood
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 info.jwst_compare_image[ic].mean = image_mean
 info.jwst_compare_image[ic].median = image_median
@@ -99,8 +99,8 @@ image_noref_data = frame_image3
 if(subarray eq 0) then image_noref_data = frame_image3[4:1027,*]
 if(subarray eq 1 and colstart eq 1 ) then image_noref_data = frame_image3[4:*,*]
 
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 
 info.jwst_compare_image[ic].mean = image_mean
@@ -162,11 +162,8 @@ image_noref_data = frame_image3
 if(subarray eq 0) then image_noref_data = frame_image3[4:1027,*]
 if(subarray eq 1 and colstart eq 1 ) then image_noref_data = frame_image3[4:*,*]
 
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
-
-
-
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 info.jwst_compare_image[ic].mean = image_mean
 info.jwst_compare_image[ic].median = image_median
@@ -182,18 +179,6 @@ frame_image1 = 0
 Widget_Control,info.jwst_QuickLook,Set_UValue=info
 
 end
-
-
-
-
-
-
-
-
-
-;***********************************************************************
-
-
 
 ; This program takes image ia and image ib and subtracts them
 
@@ -235,8 +220,8 @@ image_noref_data = frame_image3
 if(subarray eq 0) then image_noref_data = frame_image3[4:1027,*]
 if(subarray eq 1 and colstart eq 1 ) then image_noref_data = frame_image3[4:*,*]
 
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,numgood
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 info.jwst_rcompare_image[ic].mean = image_mean
 info.jwst_rcompare_image[ic].median = image_median
@@ -294,8 +279,8 @@ image_noref_data = frame_image3
 if(subarray eq 0) then image_noref_data = frame_image3[4:1027,*]
 if(subarray eq 1 and colstart eq 1 ) then image_noref_data = frame_image3[4:*,*]
 
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 
 info.jwst_rcompare_image[ic].mean = image_mean
@@ -357,8 +342,8 @@ image_noref_data = frame_image3
 if(subarray eq 0) then image_noref_data = frame_image3[4:1027,*]
 if(subarray eq 1 and colstart eq 1 ) then image_noref_data = frame_image3[4:*,*]
 
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 
 

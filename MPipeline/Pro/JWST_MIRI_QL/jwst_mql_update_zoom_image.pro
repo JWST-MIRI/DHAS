@@ -9,12 +9,10 @@ xstart_plot = info.jwst_image.x_zoom_start/info.jwst_image.binfactor
 xrange  = info.jwst_image.x_zoom_end - info.jwst_image.x_zoom_start + 1
 xend_plot = xstart_plot + (xrange/info.jwst_image.binfactor)
 
-
 ystart_plot = info.jwst_image.y_zoom_start/info.jwst_image.binfactor
 yrange  = info.jwst_image.y_zoom_end - info.jwst_image.y_zoom_start + 1
 yend_plot = ystart_plot + (yrange/info.jwst_image.binfactor) 
 
-;print,'in box',xrange,yrange
 box_coords1 = [xstart_plot,xend_plot, $
                ystart_plot,yend_plot]
 
@@ -104,11 +102,11 @@ zoom = info.jwst_image.scale_zoom
 i = info.jwst_image.integrationNO
 j = info.jwst_image.rampNO
 
-slope_exist = info.jwst_data.slope_exist
-if(info.jwst_image.integrationNO+1 gt info.jwst_data.nslopes) then slope_exist = 0
+slope_exist = info.jwst_control.file_slope_exist
+if(info.jwst_image.integrationNO+1 gt info.jwst_data.nints) then slope_exist = 0
 
 ; clicked on slope image - but slope image does not exist
-if(graphnum eq 3 and not slope_exist) then return
+if(graphnum eq 3 and slope_exist eq 0) then return
 
 
 
@@ -129,20 +127,9 @@ if(graphnum eq 1) then begin
     frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
     frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
     if(info.jwst_image.default_scale_graph[1] eq 1) then begin    
-
         info.jwst_image.graph_range[1,0] = info.jwst_image.graph_range[0,0]
         info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[0,1]
-
     endif
-
-
-    numbad = 0
-    if(info.jwst_image.apply_bad) then begin
-        index = where( (*info.jwst_badpixel.pmask) and 1,numbad)
-        if(numbad gt 0) then frame_image[index] = !values.F_NaN
-    endif
-
-
 endif
 
 if(graphnum eq 3) then begin 
@@ -257,8 +244,8 @@ if(info.jwst_data.subarray eq 0) then begin
 endif
 
 
-get_image_stat,stat_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,stat_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 stat_data= 0
 ;_______________________________________________________________________
 if ptr_valid (info.jwst_image.pzoomdata) then ptr_free,info.jwst_image.pzoomdata
@@ -271,23 +258,14 @@ info.jwst_image.zoom_stat[2] = image_min
 info.jwst_image.zoom_stat[3] = image_max
 info.jwst_image.zoom_stat[4] = image_median
 info.jwst_image.zoom_stat[5] = stdev_mean
-info.jwst_image.zoom_stat[6] = skew
-info.jwst_image.zoom_stat[7] = ngood
-info.jwst_image.zoom_stat[8] = nbad
 info.jwst_image.zoom_range[0] = irange_min
 info.jwst_image.zoom_range[1] = irange_max
-
-     
-
 
 widget_control,info.jwst_image.graphID[1],draw_xsize = xrange*zoom,draw_ysize=yrange*zoom 
 
 if(hcopy eq 0) then wset,info.jwst_image.pixmapID[1]
 
-
 disp_image = congrid(sub_image, xsize*zoom,ysize*zoom)
-
-
 disp_image = bytscl(disp_image,min=info.jwst_image.graph_range[1,0], $
                     max=info.jwst_image.graph_range[1,1],$
                     top=info.col_max-info.col_bits-1,/nan)

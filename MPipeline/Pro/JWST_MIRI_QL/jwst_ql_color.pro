@@ -11,13 +11,10 @@ Case !version.os of
     else:
 endcase
 if(type eq -1) then begin 
-
-    xloadct,group=info.QuickLook
+    xloadct,group=info.jwst_QuickLook
     Widget_Control,event.top,Set_UValue=info
-	print,colorInfoData.index
-
 endif
-
+print,type
 ;_______________________________________________________________________
 if(type eq 1 or type eq 0) then begin
     Widget_Control,event.top,Get_UValue=info
@@ -25,20 +22,19 @@ if(type eq 1 or type eq 0) then begin
         print, 'XColors already loaded'
     endif else begin
         xcolors,/Block,colorinfo=colorInfoData
-    help,colorInfoData,/Structure
-    print," Loading Color Table", colorInfoData.name
-    print,' Color Table Index',colorInfoData.index
+        help,colorInfoData,/Structure
+        print," Loading Color Table", colorInfoData.name
+        print,' Color Table Index',colorInfoData.index
         info.col_table = colorInfoData.index
         Widget_Control,event.top,Set_UValue=info
 
-        if(XRegistered ('mql')) then begin
-            mql_update_images,info
-            mql_update_slope,info
-            mql_update_zoom_image,info
+        if(XRegistered ('jwst_mql')) then begin
+            jwst_mql_update_images,info
+            jwst_mql_update_slope,info
+            jwst_mql_update_zoom_image,info
         endif
 
         if(XRegistered ('msql')) then begin
-
             msql_update_slope,info.slope.plane[0],0,info
             msql_update_slope,info.slope.plane[2],2,info
             msql_update_zoom_image,info
@@ -74,13 +70,6 @@ if(type eq 1 or type eq 0) then begin
             endfor
         endif
 
-
-
-
-        if(XRegistered ('mrp')) then begin ; reference pixel display
-            mrp_update_refpixel,info
-            mrp_update_zoom_image,info
-        endif
 
         if(XRegistered ('mql_compare')) then begin ; compare raw images
 

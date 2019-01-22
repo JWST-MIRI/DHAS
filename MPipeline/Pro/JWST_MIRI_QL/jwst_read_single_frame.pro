@@ -76,18 +76,13 @@ cube_raw = 0
 if(subarray eq 0) then image_noref_data = imagedata[4:1027,*]
 if(subarray eq 1 and colstart eq 1) then image_noref_data = imagedata[4:*,*]
 ;_______________________________________________________________________
-
-;
-; stats on images, image_stat[mean,sigma,min,max]
-;                  image_range[min,max] starting values for min,max dsplay range
-
 ;print,' Finding stats on images'
-get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 image_noref_data = 0
 
-stats_image = fltarr(9)
+stats_image = fltarr(8)
 
 stats_image[0] = image_mean
 stats_image[1] = image_median
@@ -97,7 +92,7 @@ stats_image[4] = image_max
 stats_image[5] = irange_min
 stats_image[6] = irange_max
 stats_image[7] = stdev_mean
-stats_image[8] = skew
+
 
 ;_______________________________________________________________________
 header_raw = 0
