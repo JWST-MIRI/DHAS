@@ -1,4 +1,3 @@
-;_______________________________________________________________________
 ;***********************************************************************
 pro jwst_miql_quit,event
 ;_______________________________________________________________________
@@ -9,9 +8,6 @@ wdelete,info.jwst_inspect.pixmapID
 widget_control,info.jwst_inspectImage,/destroy
 
 end
-;_______________________________________________________________________
-;***********************************************************************
-;_______________________________________________________________________
 ;***********************************************************************
 pro jwst_miql_event,event
 ;_______________________________________________________________________
@@ -32,7 +28,6 @@ if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
 endif
     case 1 of
 ;_______________________________________________________________________
-
     (strmid(event_name,0,5) EQ 'print') : begin
         print_inspect_images,info
     end    
@@ -41,7 +36,7 @@ endif
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'sinspect') : begin
         if(info.jwst_inspect.default_scale_graph eq 0 ) then begin ; true - turn to false
-            widget_control,info.jwst_inspect.image_recomputeID,set_value=' Image  Scale'
+            widget_control,info.jwst_inspect.image_recomputeID,set_value='Image Scale  '
             info.jwst_inspect.default_scale_graph = 1
         endif
 
@@ -61,7 +56,6 @@ endif
             widget_control,info.jwst_inspect.rlabelID[1],get_value = temp
             info.jwst_inspect.graph_range[1] = temp
         endif
-
 
         if(strmid(event_name,4,1) EQ 't') then begin
             info.jwst_inspect.graph_range[1] = event.value
@@ -84,11 +78,9 @@ endif
 
         if(strmid(event_name,6,1) EQ 'l') then begin
             info.jwst_inspect.limit_low = event.value
-
             widget_control,info.jwst_inspect.limit_highID,get_value = temp
             info.jwst_inspect.limit_high = temp
         endif
-
 
         if(strmid(event_name,6,1) EQ 'h') then begin
             info.jwst_inspect.limit_high = event.value
@@ -112,7 +104,6 @@ endif
 
          ; redefine the xpos and y pos value in new zoom window
          jwst_miql_update_images,info
-
          
          ; xposful, uposful - x,y location in full image
          ; x_pos, y_pos = x and y location on the image screen
@@ -202,11 +193,9 @@ endif
         endif
 
 ; ++++++++++++++++++++++++++++++
-
         xmove = xvalue - xstart
         ymove = yvalue - ystart
         
-
         info.jwst_inspect.xposful = info.jwst_inspect.xposful + xmove
         info.jwst_inspect.yposful = info.jwst_inspect.yposful + ymove
 
@@ -222,9 +211,6 @@ endif
 
         jwst_miql_update_pixel_location,info
 
-
-
-
 ; If the Frame values for pixel window is open - destroy
         if(XRegistered ('mpixel')) then begin
             widget_control,info.jwst_RPixelInfo,/destroy
@@ -232,10 +218,8 @@ endif
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
 ;_______________________________________________________________________
 ; click on a  different pixel to query the values
-
     (strmid(event_name,0,14) EQ 'jwst_miqlpixel') : begin
         if(event.type eq 1) then begin 
             xvalue = event.x    ; starts at 0
@@ -249,10 +233,9 @@ endif
 
             xvalue = x * info.jwst_inspect.zoom
             yvalue = y * info.jwst_inspect.zoom
-;;
+
             info.jwst_inspect.x_pos = xvalue ;value in image screen 
             info.jwst_inspect.y_pos = yvalue ;
-
 
             xposful = (xvalue/info.jwst_inspect.zoom_x)+ info.jwst_inspect.xstart_zoom
             yposful = (yvalue/info.jwst_inspect.zoom)+ info.jwst_inspect.ystart_zoom
@@ -286,116 +269,6 @@ endif
     end
 ;_______________________________________________________________________
 
-   (strmid(event_name,0,8) EQ 'getframe') : begin
-       
-
-	x = info.jwst_inspect.xposful 
-	y = info.jwst_inspect.yposful
-; pixel frame sdata
-        jwst_mql_read_rampdata,x,y,pixeldata,info
-        if ptr_valid (info.jwst_image_pixel.pixeldata) then ptr_free,info.jwst_image_pixel.pixeldata
-        info.jwst_image_pixel.pixeldata = ptr_new(pixeldata)
-
-
-; reference corrected data
-        refcorrected_data = pixeldata
-        refcorrected_data[*,*] = 0
-        id_data = refcorrected_data
-        lc_data = refcorrected_data
-; fill in reference corrected data, if the file was written
-        if(info.jwst_control.file_refcorrection_exist eq 1) then begin 
-            mql_read_refcorrected_data,x,y,info
-            refcorrected_data = (*info.jwst_image.prefcorrected_pixeldata)
-        endif
-        if ptr_valid (info.jwst_image_pixel.refcorrected_pixeldata) then $
-          ptr_free,info.jwst_image_pixel.refcorrected_pixeldata
-        info.jwst_image_pixel.refcorrected_pixeldata = ptr_new(refcorrected_data)        
-
-
-; fill in linearity corrected, if the file was written
-        if(info.jwst_control.file_lc_exist eq 1) then begin
-            mql_read_lc_data,x,y,info
-            lc_data = (*info.jwst_image.plc_pixeldata) 
-        endif
-
-        if ptr_valid (info.jwst_image_pixel.lc_pixeldata) then $
-          ptr_free,info.jwst_image_pixel.lc_pixeldata
-        info.jwst_image_pixel.lc_pixeldata = ptr_new(lc_data)
-
-; fill in mean dark  corrected, if the file was written
-        if(info.jwst_control.file_mdc_exist eq 1) then begin
-            mql_read_mdc_data,x,y,info
-            mdc_data = (*info.jwst_image.pmdc_pixeldata) 
-        endif
-
-        if ptr_valid (info.jwst_image_pixel.mdc_pixeldata) then $
-          ptr_free,info.jwst_image_pixel.mdc_pixeldata
-        info.jwst_image_pixel.mdc_pixeldata = ptr_new(mdc_data)
-
-; fill in reset  corrected, if the file was written
-        if(info.jwst_control.file_reset_exist eq 1) then begin
-            mql_read_reset_data,x,y,info
-            reset_data = (*info.jwst_image.preset_pixeldata)
-        endif
-
-        if ptr_valid (info.jwst_image_pixel.reset_pixeldata) then $
-          ptr_free,info.jwst_image_pixel.reset_pixeldata
-        info.jwst_image_pixel.reset_pixeldata = ptr_new(reset_data)
-
-; fill in lastframe  corrected, if the file was written
-        if(info.jwst_control.file_lastframe_exist eq 1) then begin
-            mql_read_lastframe_data,x,y,info
-            lastframe_data = (*info.jwst_image.plastframe_pixeldata) 
-
-        endif
-
-        if ptr_valid (info.jwst_image_pixel.lastframe_pixeldata) then $
-          ptr_free,info.jwst_image_pixel.lastframe_pixeldata
-        info.jwst_image_pixel.lastframe_pixeldata = ptr_new(lastframe_data)
-        
-
-        
-
-
-        info.jwst_image_pixel.file_refcorrection_exist = info.jwst_control.file_refcorrection_exist 
-
-
-        info.jwst_image_pixel.file_lc_exist  = info.jwst_control.file_lc_exist 
-        info.jwst_image_pixel.file_mdc_exist  = info.jwst_control.file_mdc_exist 
-        info.jwst_image_pixel.file_reset_exist  = info.jwst_control.file_reset_exist 
-        info.jwst_image_pixel.file_lastframe_exist  = info.jwst_control.file_lastframe_exist 
-
-
-        info.jwst_image_pixel.start_fit = info.jwst_image.start_fit
-        info.jwst_image_pixel.end_fit = info.jwst_image.end_fit
-        info.jwst_image_pixel.nints = info.jwst_data.nints
-        info.jwst_image_pixel.integrationNo = info.jwst_image.integrationNO
-        info.jwst_image_pixel.nframes = info.jwst_data.ngroups
-        info.jwst_image_pixel.coadd = info.jwst_data.coadd
-        info.jwst_image_pixel.nslopes = info.jwst_data.nslopes
-        info.jwst_image_pixel.filename = info.jwst_control.filename_raw
-        info.jwst_image_pixel.slope_exist = info.jwst_data.slope_exist
-        if(info.jwst_image_pixel.slope_exist) then begin
-            info.jwst_image_pixel.slope = (*info.jwst_data.preduced)[x,y,0]
-            
-            info.jwst_image_pixel.zeropt =  0.0
-            info.jwst_image_pixel.error  = (*info.jwst_data.preduced)[x,y,2]
-            info.jwst_image_pixel.quality_flag =  (*info.jwst_data.preduced)[x,y,1]
-
-
-        endif else begin
-        
-            info.jwst_image_pixel.slope = 0
-            info.jwst_image_pixel.error  =0
-            info.jwst_image_pixel.quality_flag =-1
-
-        endelse 
-
-
-  
-	jwst_display_frame_values,x,y,info
-    end
-
 else: print,event_name
 endcase
 end
@@ -428,14 +301,12 @@ y = info.jwst_inspect.yposful ; yposful = y location in full image
 if(zoom eq 1) then begin
     x = info.jwst_data.image_xsize/2
     y = info.jwst_data.image_ysize/2
-
 endif
 xsize_org =  info.jwst_inspect.xplotsize
 ysize_org =  info.jwst_inspect.yplotsize
 
-  xsize = xsize_org
-  ysize = ysize_org
-
+xsize = xsize_org
+ysize = ysize_org
 
 if(zoom eq 2) then begin
   xsize = xsize_org/2
@@ -458,7 +329,6 @@ if(zoom eq 32) then begin
   xsize = xsize_org/32
   ysize = ysize_org/32
 endif
-
 
 ; ixstart and iystart are the starting points for the zoom image
 ; xstart and ystart are the starting points for the orginal image
@@ -498,12 +368,6 @@ iystart = 0
 ixend = ixstart + ix
 iyend = iystart + iy
 ;;
-
-;print,'ixstart, ixend ',ixstart,ixend,ixend - ixstart
-;print,'iystart, iyend ',iystart,iyend,iyend - iystart
-;print,'xstart xend ',xstart,xend,xend-xstart
-;print,'ystart yend ',ystart,yend,yend-ystart
-
 info.jwst_inspect.ixstart_zoom = ixstart
 info.jwst_inspect.xstart_zoom = xstart
 
@@ -520,7 +384,6 @@ sub_image = fltarr(xsize,ysize)
 sub_image[ixstart:ixend,iystart:iyend] =frame_image[xstart:xend,ystart:yend]
 stat_data =     sub_image
 
-
 x_zoom_start = ixstart
 x_zoom_end = ixend
 if(info.jwst_data.colstart eq 1 and xstart eq 0) then x_zoom_start = x_zoom_start +4
@@ -536,8 +399,8 @@ stat_data = 0
 stat_data = stat_noref
 stat_noref = 0
        
-get_image_stat,stat_data,image_mean,stdev,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,stat_data,image_mean,stdev,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 stat_data = 0
 ;_______________________________________________________________________
@@ -547,15 +410,10 @@ info.jwst_inspect.psubdata = ptr_new(sub_image)
 z_mean  = image_mean
 z_stdev  = stdev
 z_median  = image_median
-z_skew  = skew
 z_min  = image_min
 z_max  = image_max
-z_good = ngood
-z_bad  = nbad
 ;_______________________________________________________________________
 ; get stats on full image - no reference pixels
-
-
 
 if(info.jwst_data.subarray eq 0) then begin  
     frame_image_noref  = frame_image[4:1027,*]
@@ -563,8 +421,8 @@ endif else begin
     frame_image_noref = frame_image
 endelse
 
-get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 frame_image = 0                 ; free memory
 frame_image_noref = 0
 ;_______________________________________________________________________
@@ -572,10 +430,8 @@ widget_control,info.jwst_inspect.graphID,draw_xsize=info.jwst_inspect.xplotsize,
                draw_ysize=info.jwst_inspect.yplotsize
 if(hcopy eq 0 ) then wset,info.jwst_inspect.pixmapID
 
-
 xsize_image = info.jwst_inspect.xplotsize
 ysize_image = info.jwst_inspect.yplotsize
-
 ;_______________________________________________________________________
 ; check if default scale is true - then reset to orginal value
 if(info.jwst_inspect.default_scale_graph eq 1) then begin
@@ -583,16 +439,13 @@ if(info.jwst_inspect.default_scale_graph eq 1) then begin
     info.jwst_inspect.graph_range[1] = irange_max
 endif
 
-
 disp_image = congrid(sub_image, $
                      xsize_image,ysize_image)
 
 test_image = disp_image
-
 disp_image = bytscl(disp_image,min=info.jwst_inspect.graph_range[0], $
                     max=info.jwst_inspect.graph_range[1],top=info.col_max,/nan)
 tv,disp_image,0,0,/device
-
 if( hcopy eq 0) then begin  
     wset,info.jwst_inspect.draw_window_id
     device,copy=[0,0,xsize_image,ysize_image, $
@@ -605,17 +458,12 @@ min = image_min
 max = image_max
 median = image_median
 st_mean = stdev_mean
-skew = skew
-
-
 
 low_limit_value = info.jwst_inspect.limit_low
 high_limit_value = info.jwst_inspect.limit_high
     
-
 index_low = where(sub_image lt low_limit_value,num_low)
 index_high = where(sub_image gt high_limit_value,num_high)
-
 
 info.jwst_inspect.limit_low_num = num_low
 info.jwst_inspect.limit_high_num = num_high
@@ -630,6 +478,7 @@ info.jwst_inspect.zoom_x = xzoom
 if(num_low ge 1 or num_high ge 1) then begin
     save_color = info.col_table
 
+    color6
     if(num_low ge 1) then begin 
         yvalue = index_low/xsize
         xvalue = index_low - (yvalue*xsize)
@@ -637,7 +486,7 @@ if(num_low ge 1 or num_high ge 1) then begin
         yvalue = yvalue + 0.5
         yvalue = yvalue*yzoom
         xvalue = xvalue*xzoom
-        plots,xvalue,yvalue,color=1,psym=1,/device
+        plots,xvalue,yvalue,color=2,psym=1,/device
 
         if ptr_valid (info.jwst_inspect.plowx) then ptr_free,info.jwst_inspect.plowx
         info.jwst_inspect.plowx = ptr_new(xvalue)
@@ -657,7 +506,7 @@ if(num_low ge 1 or num_high ge 1) then begin
         yvalue = yvalue*yzoom
         xvalue = xvalue*xzoom
 
-        plots,xvalue,yvalue,color=255,psym=1,/device
+        plots,xvalue,yvalue,color=4,psym=1,/device
         if ptr_valid (info.jwst_inspect.phighx) then ptr_free,info.jwst_inspect.phighx
         info.jwst_inspect.phighx = ptr_new(xvalue)
         xvalue = 0
@@ -701,9 +550,6 @@ widget_control,info.jwst_inspect.slabelID[2],set_value=info.jwst_inspect.sname[2
 widget_control,info.jwst_inspect.slabelID[3],set_value=info.jwst_inspect.sname[3]+ strtrim(string(min,format="(g14.6)"),2) 
 widget_control,info.jwst_inspect.slabelID[4],set_value=info.jwst_inspect.sname[4]+ strtrim(string(max,format="(g14.6)"),2) 
 
-widget_control,info.jwst_inspect.slabelID[5],set_value=info.jwst_inspect.sname[5]+ strtrim(string(skew,format="(g14.6)"),2) 
-widget_control,info.jwst_inspect.slabelID[6],set_value=info.jwst_inspect.sname[6]+ strtrim(string(ngood,format="(i10)"),2) 
-widget_control,info.jwst_inspect.slabelID[7],set_value=info.jwst_inspect.sname[7]+ strtrim(string(nbad,format="(i10)"),2) 
 
 widget_control,info.jwst_inspect.rlabelID[0],set_value=info.jwst_inspect.graph_range[0]
 widget_control,info.jwst_inspect.rlabelID[1],set_value=info.jwst_inspect.graph_range[1]
@@ -734,34 +580,19 @@ if(info.jwst_inspect.zoom gt info.jwst_inspect.set_zoom) then begin
  widget_control,info.jwst_inspect.zslabelID[4],$
                 set_value=info.jwst_inspect.sname[4]+ strtrim(string(z_max,format="(g14.6)"),2) 
  
- widget_control,info.jwst_inspect.zslabelID[5],$
-                set_value=info.jwst_inspect.sname[5]+ strtrim(string(z_skew,format="(g14.6)"),2) 
- widget_control,info.jwst_inspect.zslabelID[6],$
-                set_value=info.jwst_inspect.sname[6]+ strtrim(string(z_good,format="(i10)"),2) 
- widget_control,info.jwst_inspect.zslabelID[7],$
-                set_value=info.jwst_inspect.sname[7]+ strtrim(string(z_bad,format="(i10)"),2) 
- 
 endif else begin
 
  widget_control,info.jwst_inspect.zlabelID,set_value = ''
  widget_control,info.jwst_inspect.zlabel1,set_value = ''
-
-
  widget_control,info.jwst_inspect.zslabelID[0],set_value = ' ' 
  widget_control,info.jwst_inspect.zslabelID[1],set_value = ' ' 
  widget_control,info.jwst_inspect.zslabelID[2],set_value = ' ' 
  widget_control,info.jwst_inspect.zslabelID[3],set_value = ' ' 
  widget_control,info.jwst_inspect.zslabelID[4],set_value = ' ' 
- widget_control,info.jwst_inspect.zslabelID[5],set_value = ' ' 
- widget_control,info.jwst_inspect.zslabelID[6],set_value = ' ' 
- widget_control,info.jwst_inspect.zslabelID[7],set_value = ' ' 
-
 
 endelse
 
 ; replot the pixel location
-
-
 halfpixelx = 0.5* info.jwst_inspect.zoom_x
 halfpixely = 0.5* info.jwst_inspect.zoom
 xpos1 = info.jwst_inspect.x_pos-halfpixelx
@@ -773,25 +604,14 @@ ypos2 = info.jwst_inspect.y_pos+halfpixely
 box_coords1 = [xpos1,xpos2,ypos1,ypos2]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
-
-
-
-
 sub_image = 0
 test_image = 0
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
-
-
-
-
-
-
 ;_______________________________________________________________________
 ;***********************************************************************
 pro jwst_miql_update_pixel_location,info
 ;***********************************************************************
-
 xvalue = info.jwst_inspect.xposful ; location in image 
 yvalue = info.jwst_inspect.yposful
 
@@ -802,7 +622,6 @@ widget_control,info.jwst_inspect.pix_statID[1],$
                strtrim(string(pixelvalue,format="("+info.jwst_inspect.pix_statFormat[1]+")"),2)
 
 wset,info.jwst_inspect.draw_window_id
-
 
 xsize_image = info.jwst_inspect.xplotsize 
 ysize_image  = info.jwst_inspect.yplotsize 
@@ -823,12 +642,17 @@ box_coords1 = [xpos1,xpos2,ypos1,ypos2]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
+change_color = 0 
+if(info.jwst_inspect.limit_low_num gt 0 or info.jwst_inspect.limit_high_num gt 0) then begin
+   change_color = 1
+   save_color = info.col_table
+endif
 
 if(info.jwst_inspect.limit_low_num gt 0) then begin
     color6
     xvalue = (*info.jwst_inspect.plowx)
     yvalue = (*info.jwst_inspect.plowy)
-    plots,xvalue,yvalue,color=1,psym=1,/device
+    plots,xvalue,yvalue,color=2,psym=1,/device
     xvalue = 0
     yvalue = 0
 endif
@@ -837,11 +661,11 @@ if(info.jwst_inspect.limit_high_num gt 0) then begin
     color6
     xvalue = (*info.jwst_inspect.phighx)
     yvalue = (*info.jwst_inspect.phighy)
-    plots,xvalue,yvalue,color=255,psym=1,/device
+    plots,xvalue,yvalue,color=4,psym=1,/device
     xvalue = 0
     yvalue = 0
 endif
-
+if(change_color eq 1) then loadct,save_color
 
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
@@ -908,8 +732,6 @@ if(info.jwst_inspect.uwindowsize eq 1) then begin ; user has set window size
     ysize_scroll = info.jwst_inspect.ywindowsize
 endif
 
-
-
 if(info.jwst_control.x_scroll_window lt xsize_scroll) then xsize_scroll = info.jwst_control.x_scroll_window
 if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.jwst_control.y_scroll_window
 
@@ -923,9 +745,6 @@ InspectImage = widget_base(title="MIRI Quick Look- Inspect Image" + info.jwst_ve
                                 ysize=   ywidget_size,/scroll,$
                                 x_scroll_size= xsize_scroll,$
                                 y_scroll_size = ysize_scroll,/TLB_SIZE_EVENTS)
-
-
-
 
 ;********
 ; build the menubar
@@ -983,8 +802,6 @@ if(info.jwst_inspect.zoom eq 8) then widget_control,info.jwst_inspect.zbutton[3]
 if(info.jwst_inspect.zoom eq 16) then widget_control,info.jwst_inspect.zbutton[4],set_button = 1
 if(info.jwst_inspect.zoom eq 32) then widget_control,info.jwst_inspect.zbutton[5],set_button = 1
 
-
-
 info.jwst_inspect.xplotsize = xplotsize
 info.jwst_inspect.yplotsize = yplotsize
 
@@ -993,7 +810,6 @@ info.jwst_inspect.graphID = widget_draw(graphID1,$
                               ysize = yplotsize,$
                               /Button_Events,$
                               retain=info.retn,uvalue='jwst_miqlpixel')
-
 ;_______________________________________________________________________
 ;  Information on the image
 
@@ -1002,7 +818,6 @@ xsize_label = 8
 ; statistical information - next column
 
 blank = '                                               '
-
 ttitle = info.jwst_control.filename_raw 
 
 ititle =  "Integration #: " + strtrim(string(info.jwst_inspect.integrationNO+1),2) 
@@ -1014,17 +829,15 @@ info.jwst_inspect.iLabelID = widget_label(base1,value= ititle,/align_left)
 info.jwst_inspect.fLabelID = widget_label(base1,value= ftitle,/align_left)
 
 blank10 = '               '
-
 ;-----------------------------------------------------------------------
 ; min and max scale of  image
-
 
 base1 = widget_base(graphID2,row= 1,/align_left)
 r_label1 = widget_label(base1,value="Change Image Scale" ,/align_left,font=info.font5,$
                        /sunken_frame)
 
 
-info.jwst_inspect.image_recomputeID = widget_button(base1,value='Image Scale',font=info.font3,$
+info.jwst_inspect.image_recomputeID = widget_button(base1,value='Image Scale  ',font=info.font3,$
                                           uvalue = 'sinspect',/align_left)
 base1 = widget_base(graphID2,row= 1,/align_left)
 info.jwst_inspect.rlabelID[0] = cw_field(base1,title="Minimum",font=info.font3,uvalue="isr_b",$
@@ -1075,19 +888,12 @@ info.jwst_inspect.pix_label[1] = cw_field(pix_num_base,title="y",font=info.font4
                                    value=fix(yvalue+1),xsize=6,$
                                    fieldfont=info.font3)
 
-info.jwst_inspect.pix_statLabel[0] = "Dead/hot/noisy Pixel"
-info.jwst_inspect.pix_statFormat[0] = "A4"
-info.jwst_inspect.pix_statID[0] = widget_label(graphid2,$
-                                            value = info.jwst_inspect.pix_statLabel[0]+$
-                                            ' =        ',/align_left)
 
 info.jwst_inspect.pix_statLabel[1] = "Frame Value"
 info.jwst_inspect.pix_statFormat[1]= "F10.2" 
 info.jwst_inspect.pix_statID[1]=widget_label(graphID2,value = info.jwst_inspect.pix_statLabel[1]+$
                                         ' =         ' ,/align_left)
 
-flabel = widget_button(graphID2,value="Get All Frame Values",/align_left,$
-                         uvalue = "getframe")
 
 ; stats
 b_label = widget_label(graphID2,value=blank)
@@ -1101,21 +907,12 @@ info.jwst_inspect.sname = ['Mean:              ',$
                       'Standard Deviation ',$
                       'Median:            ',$
                       'Min:               ',$
-                      'Max:               ',$
-                      'Skew:              ',$
-                      '# of Good Pixels   ',$
-                      '# of Bad Pixels    ']
+                      'Max:               ']
 info.jwst_inspect.slabelID[0] = widget_label(graphID2,value=info.jwst_inspect.sname[0] +blank10,/align_left)
 info.jwst_inspect.slabelID[1] = widget_label(graphID2,value=info.jwst_inspect.sname[1] +blank10,/align_left)
 info.jwst_inspect.slabelID[2] = widget_label(graphID2,value=info.jwst_inspect.sname[2] +blank10,/align_left)
 info.jwst_inspect.slabelID[3] = widget_label(graphID2,value=info.jwst_inspect.sname[3] +blank10,/align_left)
 info.jwst_inspect.slabelID[4] = widget_label(graphID2,value=info.jwst_inspect.sname[4] +blank10,/align_left)
-info.jwst_inspect.slabelID[5] = widget_label(graphID2,value=info.jwst_inspect.sname[5] +blank10,/align_left)
-info.jwst_inspect.slabelID[6] = widget_label(graphID2,value=info.jwst_inspect.sname[6] +blank10,/align_left)
-info.jwst_inspect.slabelID[7] = widget_label(graphID2,value=info.jwst_inspect.sname[7] +blank10,/align_left)
-
-
-
 
 
 ; stats on zoom window
@@ -1135,9 +932,6 @@ info.jwst_inspect.zslabelID[1] = widget_label(graphID2,value=blank10,/align_left
 info.jwst_inspect.zslabelID[2] = widget_label(graphID2,value=blank10,/align_left,/dynamic_resize)
 info.jwst_inspect.zslabelID[3] = widget_label(graphID2,value=blank10,/align_left,/dynamic_resize)
 info.jwst_inspect.zslabelID[4] = widget_label(graphID2,value=blank10,/align_left,/dynamic_resize)
-info.jwst_inspect.zslabelID[5] = widget_label(graphID2,value=blank10,/align_left,/dynamic_resize)
-info.jwst_inspect.zslabelID[6] = widget_label(graphID2,value=blank10,/align_left,/dynamic_resize)
-info.jwst_inspect.zslabelID[7] = widget_label(graphID2,value=blank10,/align_left,/dynamic_resize)
 
 ;_______________________________________________________________________
 longline = '                              '

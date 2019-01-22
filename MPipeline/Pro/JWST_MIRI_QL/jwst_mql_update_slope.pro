@@ -9,13 +9,10 @@ hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 
-slope_exist = info.jwst_data.slope_exist
+slope_exist = info.jwst_control.file_slope_exist
 if(slope_exist eq 0) then return
-
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
-
 ;_______________________________________________________________________
-
 if(slope_exist) then begin
     i = info.jwst_image.integrationNO
 ; if on Quicklook image: 
@@ -66,11 +63,10 @@ endif
 
 ; update stats    
 
-
 range1 = info.jwst_image.graph_range[2,0] 
 range2 = info.jwst_image.graph_range[2,1] 
 
-if(not slope_exist) then begin
+if(slope_exist eq 0 ) then begin
 	ssmean = '   Mean:  NA        '
         sminmax = '   Min and Max:  NA  '
         range1 = " NA"
