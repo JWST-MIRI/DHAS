@@ -36,15 +36,25 @@ median = fltarr(3)
 st_mean  = fltarr(3)
 
 stitle[0] = " Statistics on Window 1 "
-mean[0] = info.jwst_data.slope_stat[0,info.jwst_slope.plane[0]]
-st_pixel[0] = info.jwst_data.slope_stat[2,info.jwst_slope.plane[0]]
+plane = info.jwst_slope.plane[0]
+if(plane le 2) then begin
+   stat = info.jwst_data.ratefinal_stat
+endif
+if(plane gt 2) then begin
+   stat = info.jwst_data.rateint_stat
+   plane = plane - 3
+endif
+
+mean[0] = stat[0,plane]
+st_pixel[0] = stat[2,plane]
 var[0] = st_pixel[0]*st_pixel[0]
-min[0] = info.jwst_data.slope_stat[3,info.jwst_slope.plane[0]]
-max[0] = info.jwst_data.slope_stat[4,info.jwst_slope.plane[0]]
-median[0] = info.jwst_data.slope_stat[1,info.jwst_slope.plane[0]]
-st_mean[0] = info.jwst_data.slope_stat[7,info.jwst_slope.plane[0]]
+min[0] = stat[3,plane]
+max[0] = stat[4,plane]
+median[0] =stat[1,plane]
+st_mean[0] = stat[7,plane]
 
 stitle[1] = " Statistics on Zoom Image "
+
 mean[1] = info.jwst_slope.zoom_stat[0]
 st_pixel[1] = info.jwst_slope.zoom_stat[1]
 var[1] = st_pixel[1]*st_pixel[1] 
@@ -60,13 +70,21 @@ ystart = info.jwst_slope.y_zoom_start
 yend = info.jwst_slope.y_zoom_end
 
 stitle[2] = " Statistics on Window 2"
-mean[2] = info.jwst_data.slope_stat[0,info.jwst_slope.plane[1]]
-st_pixel[2] = info.jwst_data.slope_stat[2,info.jwst_slope.plane[1]]
+plane = info.jwst_slope.plane[1]
+if(plane le 2) then begin
+   stat = info.jwst_data.ratefinal_stat
+endif
+if(plane gt 2) then begin
+   stat = info.jwst_data.rateint_stat
+   plane = plane - 3
+endif
+mean[2] = stat[0,plane]
+st_pixel[2] = stat[2,plane]
 var[2] = st_pixel[2]*st_pixel[1]
-min[2] = info.jwst_data.slope_stat[3,info.jwst_slope.plane[1]]
-max[2] = info.jwst_data.slope_stat[4,info.jwst_slope.plane[1]]
-median[2] = info.jwst_data.slope_stat[1,info.jwst_slope.plane[1]]
-st_mean[2] = info.jwst_data.slope_stat[7,info.jwst_slope.plane[1]]
+min[2] = stat[3,plane]
+max[2] = stat[4,plane]
+median[2] = stat[1,plane]
+st_mean[2] = stat[7,plane]
 
 statinfo = widget_base(title="Statisics on Slope Images (without reference pixels)",$
                          col=1,mbar=menuBar,group_leader=info.jwst_SlopeQuickLook,$

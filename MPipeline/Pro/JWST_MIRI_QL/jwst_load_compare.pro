@@ -68,21 +68,20 @@ case 1 of
         
         jwst_read_data_type,filename1,type1
         jwst_read_data_type,filename2,type2
-        print,'type of data',type1, type2
-        if(type1 ne type2) then begin
-            mess1 = 'The files are not the same type. They both have to be either raw science data, rate or cal file' 
+
+        if(type1 eq 0 and type2 ne 0)   then begin
+            mess1 = 'The files are not the same type. One is a raw image and other is a rate or cal file' 
+            mess2 = 'Hit re-load button  and choose the same type of data' 
+            ok = dialog_message(mess1 + string(10B) + mess2,/Information)
+            return
+         endif
+        if(type1 ne 0 and type2 eq 0)   then begin
+            mess1 = 'The files are not the same type. One is a raw image and other is a rate or cal file' 
             mess2 = 'Hit re-load button  and choose the same type of data' 
             ok = dialog_message(mess1 + string(10B) + mess2,/Information)
             return
         endif
 
-       if(type1 eq 0 or type1 eq 1 or type1 eq 3) then begin
-       endif else begin
-            mess1 = " The files do not contain the correct data, they must be either "
-            mess2 = "a) raw science data or b) rate file c) cal file.   Select the files again"
-            ok = dialog_message(mess1 + string(10B) + mess2,/Information)
-            return
-        endelse
 
        if(type1 eq 0) then begin 
 
@@ -92,8 +91,8 @@ case 1 of
             info.jwst_compare_image[0].jintegration = 0
             info.jwst_compare_image[1].jintegration = 0
 
-            info.jwst_compare_image[0].iramp = 0
-            info.jwst_compare_image[1].iramp = 0
+            info.jwst_compare_image[0].iframe = 0
+            info.jwst_compare_image[1].iframe = 0
             
             widget_control,event.top,Set_Uvalue = ginfo
             widget_control,ginfo.info.jwst_QuickLook,Set_Uvalue = info
@@ -101,20 +100,22 @@ case 1 of
             jwst_mql_compare_display,info
         endif
 
-        if(type1 eq 1 or type1 eq 6 or type1 eq 7) then begin 
+        if(type1 ge 1 ) then begin 
 
             info.jwst_rcompare_image[0].filename  = filename1
             info.jwst_rcompare_image[1].filename  = filename2
 
             info.jwst_rcompare_image[0].jintegration = 0
             info.jwst_rcompare_image[1].jintegration = 0
+            
+            info.jwst_rcompare_image[0].type = type1
+            info.jwst_rcompare_image[1].type = type2
 
             widget_control,event.top,Set_Uvalue = ginfo
             widget_control,ginfo.info.jwst_QuickLook,Set_Uvalue = info
 
             jwst_msql_compare_display,info
 
-            print,' Going to load comparing Slope data'
         endif
         
     end

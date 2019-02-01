@@ -905,9 +905,6 @@ pix_num_base = widget_base(graphid2,col=2,/align_left)
 
 info.jwst_inspect_final.pix_statLabel = ["Slope (DN/s)" , "Uncertainity", "Data Quality Flag"] 
 
-if(info.jwst_data.coadd eq 1) then info.jwst_inspect_final.pix_statLabel = $
-  ["Average (DN)" , "Uncertainity", "Data Quality Flag" ]
-
 info.jwst_inspect_final.pix_statFormat = ["F12.5" ,"F12.5" ,"I8" ]
 for i = 0,2 do begin 
     info.jwst_inspect_final.pix_statID[i]=widget_label(pix_num_base,value = info.jwst_inspect_final.pix_statLabel[i]+$

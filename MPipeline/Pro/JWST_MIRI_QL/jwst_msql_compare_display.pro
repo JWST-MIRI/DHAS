@@ -1,7 +1,7 @@
 ;***********************************************************************
 pro jwst_msql_compare_display_quit,event
 widget_control,event.top, Get_UValue = tinfo
-widget_control,tinfo.info.QuickLook,Get_UValue=info
+widget_control,tinfo.info.jwst_QuickLook,Get_UValue=info
 widget_control,info.jwst_RCompareDisplay,/destroy
 end
 
@@ -88,15 +88,11 @@ type_a = info.jwst_rcompare_image[0].type
 filename = info.jwst_rcompare_image[i].filename
 this_integration = info.jwst_rcompare_image[i].jintegration
 
-if(type_a eq 1) then $
+if(type_a eq 1 or type_a eq 2) then $
 jwst_read_single_slope,filename,exists,this_integration,$
-                  subarray,imagedata,image_xsize,image_ysize,image_zsize,$
-                  stats_image,do_bad,bad_file,status,error_message
-
-if(type_a eq 7) then $
-jwst_read_single_cal,filename,exists,this_integration,$
-                  subarray,imagedata,image_xsize,image_ysize,image_zsize,$
+                  subarray,imagedata,image_xsize,image_ysize,$
                   stats_image,status,error_message
+
     
 if(status ne 0) then begin
     result = dialog_message(error_message,/error )
@@ -113,7 +109,9 @@ info.jwst_rcompare_image[i].ysize = image_ysize
 
 plane = info.jwst_rcompare_image[i].plane
 
+print,'stop here - make sure these are rate images'
 reduced_data = imagedata[*,*,plane]
+
 if ptr_valid (info.jwst_rcompare_image[i].pdata) then ptr_free,$
   info.jwst_rcompare_image[i].pdata
 info.jwst_rcompare_image[i].pdata= ptr_new(reduced_data)
@@ -295,7 +293,7 @@ endif
         info.jwst_rcompare_image[1].plane = info.jwst_rcompare_image[0].plane
     
         jwst_read_data_type,info.jwst_rcompare_image[1].filename,type
-        if(type ne 1) then begin 
+        if(type eq 0) then begin 
             error = dialog_message(" The file must be a reduced science file, select file again",/error)
             return
         endif
@@ -325,7 +323,7 @@ endif
 ;_______________________________________________________________________
         widget_control,info.jwst_rcompare.integration_label[1],set_value = info.jwst_rcompare_image[1].jintegration+1
 
-        difference_reduced_images,info,0,1,2
+        jwst_difference_reduced_images,info,0,1,2
          for i = 1, 2 do begin 
              jwst_msql_compare_update_images,info,i
          endfor
@@ -491,7 +489,6 @@ end
         info.jwst_crinspect[imageno].graph_range[0] =info.jwst_rcompare.graph_range[imageno,0] 
         info.jwst_crinspect[imageno].graph_range[1] =info.jwst_rcompare.graph_range[imageno,1] 
 
-
         info.jwst_crinspect[imageno].limit_low = -5000.0
         info.jwst_crinspect[imageno].limit_high = 70000.0
         info.jwst_crinspect[imageno].limit_low_num = 0
@@ -611,8 +608,8 @@ if(XRegistered ('jwst_msql_compare')) then begin
 endif
 
 
-if(XRegistered ('loadcompare')) then begin ; if loaded images from load_compare - get rid of window
-    widget_control,info.jwst_loadRDisplay,/destroy
+if(XRegistered ('jwst_loadcompare')) then begin ; if loaded images from load_compare - get rid of window
+    widget_control,info.jwst_load2Display,/destroy
 endif
 
 this_integration = info.jwst_slope.integrationNO
@@ -621,9 +618,10 @@ if(info.jwst_rcompare.uwindowsize eq 0) then begin
     info.jwst_crinspect[*].uwindowsize = 0
     jwst_read_data_type,info.jwst_rcompare_image[0].filename,type
     info.jwst_rcompare_image[0].type = type
-    
+    print,'type 1',type
     jwst_read_data_type,info.jwst_rcompare_image[1].filename,type
     info.jwst_rcompare_image[1].type = type
+    print,'type 2',type
 
     status = 0
     for i = 0,1 do begin 
@@ -686,16 +684,6 @@ info.jwst_RCompareDisplay = CompareDisplay
 QuitMenu = widget_button(menuBar,value="Quit",font = info.font2)
 quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_msql_compare_display_quit')
 
-HistoMenu = widget_button(menuBar,value="Histogram",font = info.font2)
-Histbutton = widget_button(Histomenu,value="Histogram of Images",uvalue='histo')
-
-CSMenu = widget_button(menuBar,value="Column Slice",font = info.font2)
-CDbutton = widget_button(CSmenu,value="Column Slice of Images",uvalue='cslice')
-
-RSMenu = widget_button(menuBar,value="Row slice",font = info.font2)
-RSbutton = widget_button(RSmenu,value="Row Slice of Images",uvalue='rslice')
-
-
 ;_______________________________________________________________________
 ; window size is based on 1032 X 1024 image
 ; The default scale is 4 so the window (on the analyze raw images
@@ -716,13 +704,10 @@ info.jwst_rcompare.graph_range[*,*] = 0.0
 
 info.jwst_rcompare.x_pos =0.0
 info.jwst_rcompare.y_pos = 0.0
-;
-;*********
-;Setup main panel
-;*********
+;****
 ; setup the image windows
 ;*****
-; set up for Raw image widget window
+
 graphID_master00 = widget_base(info.jwst_RCompareDisplay,row=1,/align_center)
 graphID_master0 = widget_base(info.jwst_RCompareDisplay,row=1)
 graphID_master1 = widget_base(info.jwst_RCompareDisplay,row=1)
@@ -733,11 +718,6 @@ info.jwst_rcompare.graphID13 = widget_base(graphID_master0,col=1)
     
 graphID21 = widget_base(graphID_master1,col=1) 
 
-;_______________________________________________________________________  
-; set up the images to be displayed
-; default to start with first integration and first ramp
-; 
-;_______________________________________________________________________  
 
 info.jwst_rcompare.x_pos =(info.jwst_rcompare.image_xsize/info.jwst_rcompare.binfactor)/2.0
 info.jwst_rcompare.y_pos = (info.jwst_rcompare.image_ysize/info.jwst_rcompare.binfactor)/2.0
@@ -855,23 +835,25 @@ info.jwst_rcompare.slabelID[0,2] = widget_label(info.jwst_rcompare.graphID11,val
 info.jwst_rcompare.slabelID[0,3] = widget_label(info.jwst_rcompare.graphID11,value=info.jwst_rcompare.sname[3] +blank10,/align_left)
 info.jwst_rcompare.slabelID[0,4] = widget_label(info.jwst_rcompare.graphID11,value=info.jwst_rcompare.sname[4] +blank10,/align_left)
 
-moveframe_label = widget_label(info.jwst_rcompare.graphID11,value='Change Image 1 Displayed',$
-                                font=info.font5,/sunken_frame,/align_left)
-move_base1 = widget_base(info.jwst_rcompare.graphID11,row=1,/align_left)
-int1 = fix(info.jwst_rcompare_image[0].jintegration)
-info.jwst_rcompare.integration_label[0] = cw_field(move_base1,$
-                                          title="Integration # ",font=info.font5, $
-                                          uvalue="integ1i",/integer,/return_events, $
-                                          value=int1+1,xsize=4,$
-                                          fieldfont=info.font3)
+if(info.jwst_rcompare_image[0].type eq 2) then begin ; must have integrations to select
+   moveframe_label = widget_label(info.jwst_rcompare.graphID11,value='Change Image 1 Displayed',$
+                                  font=info.font5,/sunken_frame,/align_left)
+   move_base1 = widget_base(info.jwst_rcompare.graphID11,row=1,/align_left)
+   int1 = fix(info.jwst_rcompare_image[0].jintegration)
+   info.jwst_rcompare.integration_label[0] = cw_field(move_base1,$
+                                                      title="Integration # ",font=info.font5, $
+                                                      uvalue="integ1i",/integer,/return_events, $
+                                                      value=int1+1,xsize=4,$
+                                                      fieldfont=info.font3)
 
-labelID = widget_button(move_base1,uvalue='integ1_move_dn',value='<',font=info.font3)
-labelID = widget_button(move_base1,uvalue='integ1_move_up',value='>',font=info.font3)
+   labelID = widget_button(move_base1,uvalue='integ1_move_dn',value='<',font=info.font3)
+   labelID = widget_button(move_base1,uvalue='integ1_move_up',value='>',font=info.font3)
 
-nints= info.jwst_rcompare_image[0].nints
-tlabel = "Total # " + strcompress(string(nints),/remove_all)
-info.jwst_rcompare.total_ilabel[0] = widget_label( move_base1,value = tlabel,/align_left)
-ilabel = widget_label(info.jwst_rcompare.graphID11,value = ' Enter 0 for Averaged Primary Image',/align_left)
+   nints= info.jwst_rcompare_image[0].nints
+   tlabel = "Total # " + strcompress(string(nints),/remove_all)
+   info.jwst_rcompare.total_ilabel[0] = widget_label( move_base1,value = tlabel,/align_left)
+   ilabel = widget_label(info.jwst_rcompare.graphID11,value = ' Enter 0 for Combined Rate Image',/align_left)
+endif
 
 ;_______________________________________________________________________
 ;graph 1,2
@@ -932,32 +914,30 @@ info.jwst_rcompare.slabelID[1,2] = widget_label(info.jwst_rcompare.graphID12,val
 info.jwst_rcompare.slabelID[1,3] = widget_label(info.jwst_rcompare.graphID12,value=info.jwst_rcompare.sname[3] +blank10,/align_left)
 info.jwst_rcompare.slabelID[1,4] = widget_label(info.jwst_rcompare.graphID12,value=info.jwst_rcompare.sname[4] +blank10,/align_left)
 
-moveframe_label = widget_label(info.jwst_rcompare.graphID12,value='Change Image 2 Displayed',$
-                                font=info.font5,/sunken_frame,/align_left)
-move_base1 = widget_base(info.jwst_rcompare.graphID12,row=1,/align_left)
-int1 = fix(info.jwst_rcompare_image[1].jintegration)
-info.jwst_rcompare.integration_label[1] = cw_field(move_base1,$
-                                          title="Integration # ",font=info.font5, $
-                                          uvalue="integ2i",/integer,/return_events, $
-                                          value=int1+1,xsize=4,$
-                                          fieldfont=info.font3)
+if(info.jwst_rcompare_image[1].type eq 2) then begin ; the data is rate_int type and we can change the integration #
+   moveframe_label = widget_label(info.jwst_rcompare.graphID12,value='Change Image 2 Displayed',$
+                                  font=info.font5,/sunken_frame,/align_left)
+   move_base1 = widget_base(info.jwst_rcompare.graphID12,row=1,/align_left)
+   int1 = fix(info.jwst_rcompare_image[1].jintegration)
+   info.jwst_rcompare.integration_label[1] = cw_field(move_base1,$
+                                                      title="Integration # ",font=info.font5, $
+                                                      uvalue="integ2i",/integer,/return_events, $
+                                                      value=int1+1,xsize=4,$
+                                                      fieldfont=info.font3)
 
-labelID = widget_button(move_base1,uvalue='integ2_move_dn',value='<',font=info.font3)
-labelID = widget_button(move_base1,uvalue='integ2_move_up',value='>',font=info.font3)
+   labelID = widget_button(move_base1,uvalue='integ2_move_dn',value='<',font=info.font3)
+   labelID = widget_button(move_base1,uvalue='integ2_move_up',value='>',font=info.font3)
 
-nints = info.jwst_rcompare_image[1].nints
-tlabel = "Total # " + strcompress(string(nints),/remove_all)
-info.jwst_rcompare.total_ilabel[1] = widget_label( move_base1,value = tlabel,/align_left)
+   nints = info.jwst_rcompare_image[1].nints
+   tlabel = "Total # " + strcompress(string(nints),/remove_all)
+   info.jwst_rcompare.total_ilabel[1] = widget_label( move_base1,value = tlabel,/align_left)
 
-ilabel = widget_label(info.jwst_rcompare.graphID12,value = ' Enter 0 for Averaged Primary Image',/align_left)
-
+   ilabel = widget_label(info.jwst_rcompare.graphID12,value = ' Enter 0 for Combinded Rate Image',/align_left)
+endif
 load_label = widget_button(info.jwst_rcompare.graphID12,value='Load a Different Comparison Image',$
                                 uvalue='loadnew')
 ;_______________________________________________________________________
 ;graph 1,3 - the difference plot
-
-
-
 
 info.jwst_rcompare.compareoptions = ['Difference Images (A-B)', $
                   'Difference Images (B-A)', $
@@ -1037,9 +1017,7 @@ pix_statlabel = strarr(3)
 pixel_statformat = strarr(3)
 
 pix_statLabel = [" Image Value 1", " Image Value 2", " Compare Value"]
-                  
 pix_statFormat = ["F16.8","F16.8","F16.8"]
-
 
 pix_statLabelID = lonarr(3)
 
@@ -1052,7 +1030,6 @@ pix_statLabelID[1] = widget_label(graphID21,$
                                   value=svalue2,/dynamic_resize,/align_left)
 pix_statLabelID[2] = widget_label(graphID21,$
                                   value=svalue3,/dynamic_resize,/align_left)
-
                                              
 
 info.jwst_rcompare.pix_statLabelID = pix_statLabelID

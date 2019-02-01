@@ -6,12 +6,12 @@ if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 n_pixels = float( (info.jwst_data.image_xsize) * (info.jwst_data.image_ysize))
 
 i = info.jwst_image.integrationNO
-j = info.jwst_image.rampNO
+j = info.jwst_image.frameNO
 
 if(info.jwst_data.read_all eq 0) then begin
     i = 0
     if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-        j = info.jwst_image.rampNO- info.jwst_control.frame_start
+        j = info.jwst_image.frameNO- info.jwst_control.frame_start
     endif
 endif
 

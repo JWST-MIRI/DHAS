@@ -5,8 +5,8 @@
 ; files that might exist. 
 ;_______________________________________________________________________
 pro jwst_setup_names,info,type,status,error_message
-; type = 1 input is uncal file
-; type = 2 input is rate file 
+; type = 0 input is uncal file
+; type = 1 input is rate file 
 status = 0
 error_message = ' ' 
 ;_______________________________________________________________________
@@ -43,7 +43,7 @@ endif else begin
 info.jwst_control.filename = out_filebase ; only the filename not directory
 fitname = '.fits'
 ;_______________________________________________________________________
-if(type eq 1) then begin ; working with uncal - raw file 
+if(type eq 0) then begin ; working with uncal - raw file 
    uncal = '_uncal'
    info.jwst_control.dir = realpath
    check = strpos(out_filebase,uncal)
@@ -66,7 +66,7 @@ if(type eq 1) then begin ; working with uncal - raw file
    endif
 
 endif
-if (type eq 2) then begin       ; working with rate file  
+if (type eq 1) then begin       ; working with rate file  
    rate = '_rate'
    info.jwst_control.dirout = realpath    
    check = strpos(out_filebase,rate)
@@ -93,13 +93,11 @@ endif
 
 dirlocation = strpos(filename,'/',/reverse_search)
 
-print,'In jwst setup names, the base filename',info.jwst_control.filebase
+print,'The base filename: ',info.jwst_control.filebase
 
 info.jwst_control.filename_slope = info.jwst_control.filebase + '_rate'+fitname
 info.jwst_control.filename_slope_int = info.jwst_control.filebase + '_rateints'+fitname
 info.jwst_control.filename_cal = info.jwst_control.filebase + '_cal'+fitname
-coadd_file = info.jwst_control.filebase + '_FASTSHORT_MEAN'+fitname
-
 info.jwst_control.filename_linearity = info.jwst_control.filebase + '_linearity'+fitname
 info.jwst_control.filename_dark = info.jwst_control.filebase + '_dark_current'+fitname
 info.jwst_control.filename_reset = info.jwst_control.filebase + '_reset'+fitname
@@ -117,13 +115,12 @@ info.jwst_control.filename_cal = info.jwst_control.filebase + '_cal'+fitname
 info.jwst_control.filename_slope = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_slope,/remove_all)
 info.jwst_control.filename_slope_int = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_slope_int,/remove_all)
 info.jwst_control.filename_cal = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_cal,/remove_all)
-coadd_file = strcompress(info.jwst_control.dirout+'/'+coadd_file,/remove_all)
+
 
 
 info.jwst_control.filename_refpix = $
   strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_refpix,/remove_all)
 
-info.jwst_control.filename_cal = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_cal,/remove_all)
 info.jwst_control.filename_linearity = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_linearity,/remove_all)
 info.jwst_control.filename_dark = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_dark,/remove_all)
 info.jwst_control.filename_reset = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_reset,/remove_all)
@@ -223,7 +220,8 @@ if(lastframe_step eq 1) then info.jwst_control.file_lastframe_exist = file_test(
 
 header = 0
 ;_______________________________________________________________________  
-print,' Science frame input file name    ',info.jwst_control.filename_raw
+if(info.jwst_control.file_raw_exist eq 1) then $
+   print,' Science frame input file name    ',info.jwst_control.filename_raw
 
 if(info.jwst_control.file_slope_exist) then $
    print,' Slope file                    ',info.jwst_control.filename_slope

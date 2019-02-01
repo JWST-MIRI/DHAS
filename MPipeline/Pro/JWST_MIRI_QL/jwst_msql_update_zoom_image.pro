@@ -34,15 +34,9 @@ xdata_end = info.jwst_data.slope_xsize
 ydata_end = info.jwst_data.slope_ysize
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-;if(info.jwst_slope.plane_cal eq planenum ) then begin 
-;    frame_image[*,*] = (*info.jwst_data.pcaldata)[*,*,0]
-;    if(info.jwst_slope.default_scale_graph[2] eq 1) then begin    
-
-;        info.jwst_slope.graph_range[2,0] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,0]
-;        info.jwst_slope.graph_range[2,1] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,1]
-;    endif
-;endif else begin
-    frame_image[*,*] = (*info.jwst_data.pslopedata)[*,*,planenum]
+;print,'plane num for zoom window',planenum
+if(planenum le 2) then  frame_image[*,*] = (*info.jwst_data.pratefinal)[*,*,planenum]
+if(planenum ge 3) then  frame_image[*,*] = (*info.jwst_data.prateint)[*,*,planenum-3]
     if(info.jwst_slope.default_scale_graph[2] eq 1) then begin    
 
         info.jwst_slope.graph_range[2,0] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,0]
@@ -51,11 +45,13 @@ frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 ;endelse
 
 
-if(planenum eq 0) then szoom = "Zoom Centered on Slope image     " 
+if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
+if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 
+if(planenum eq 2) then szoom = "Zoom Centered on Final DQ       " 
 
-if(planenum eq 1) then szoom = "Zoom Centered on Uncertainty Image" 
-
-if(planenum eq 2) then szoom = "Zoom Centered on Data Quality Flag" 
+if(planenum eq 3) then szoom = "Zoom Centered on Int Rate     " 
+if(planenum eq 4) then szoom = "Zoom Centered on Int Error    " 
+if(planenum eq 5) then szoom = "Zoom Centered on Int DQ       " 
 
 
 x = info.jwst_slope.x_zoom

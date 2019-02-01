@@ -5,7 +5,7 @@ Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = ginfo
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
 update_slope_plots = 0
-iramp = info.jwst_image.rampNO
+iramp = info.jwst_image.frameNO
 jintegration = info.jwst_image.integrationNO
 
 
@@ -24,10 +24,17 @@ endif
 ; analyze the slope image
     (strmid(event_name,0,5) EQ 'LoadS') : begin
         if(info.jwst_control.file_slope_exist eq 0) then begin 
-            ok = dialog_message(" A Slope Image Does not exist",/Information)
+            ok = dialog_message(" A Rate Image Does not exist",/Information)
+            return
         endif else begin
-            slopedata = *info.jwst_data.preduced
-            if ptr_valid (info.jwst_data.pslopedata) then ptr_free,info.jwst_data.pslopedata
+
+           if(XRegistered ('jwst_msql')) then begin
+              widget_control,info.jwst_SlopeQuickLook,/destroy
+              print,'Closing Rate Look window'
+           endif        
+
+           slopedata = *info.jwst_data.preduced
+           if ptr_valid (info.jwst_data.pslopedata) then ptr_free,info.jwst_data.pslopedata
             info.jwst_data.pslopedata = ptr_new(slopedata)
             slopedata  = 0
             info.jwst_data.slope_stat = info.jwst_data.reduced_stat
@@ -35,7 +42,13 @@ endif
         endelse
     end
 ;_______________________________________________________________________
+    (strmid(event_name,0,7) EQ 'voption') : begin
 
+        info.jwst_image.plane = event.index
+        info.jwst_image.default_scale_graph[2] = 1
+        jwst_mql_update_slope,info
+     end
+;_______________________________________________________________________
 ; display heder
     (strmid(event_name,0,7) EQ 'rheader') : begin
         jwst_display_header,info,0
@@ -51,15 +64,6 @@ endif
 
     end
 
-    (strmid(event_name,0,7) EQ 'cheader') : begin
-        if(info.jwst_control.file_cal_exist eq 0) then begin
-            ok = dialog_message(" No calibration image exists",/Information)
-        endif else begin
-            j = info.jwst_image.IntegrationNO
-            jwst_display_header,info,2
-        endelse
-
-    end
 ;_______________________________________________________________________
 ;Subarray Geometry 
     (strmid(event_name,0,9) EQ 'sgeometry') : begin
@@ -104,10 +108,10 @@ endif
         info.jwst_compare_image[0].jintegration = info.jwst_image.integrationNO
         info.jwst_compare_image[1].jintegration = info.jwst_image.integrationNO
 
-        info.jwst_compare_image[0].iramp = info.jwst_image.rampNO
-        info.jwst_compare_image[1].iramp = info.jwst_image.rampNO
+        info.jwst_compare_image[0].iframe = info.jwst_image.frameNO
+        info.jwst_compare_image[1].iframe = info.jwst_image.frameNO
 	jwst_mql_compare_display,info
-        Widget_Control,ginfo.info.QuickLook,Set_UValue=info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 	endelse
     end
 ;_______________________________________________________________________
@@ -127,10 +131,9 @@ endif
         info.jwst_compare_image[0].jintegration = info.jwst_image.integrationNO 
         info.jwst_compare_image[1].jintegration = info.jwst_image.integrationNO
 
-        info.jwst_compare_image[0].iramp = info.jwst_image.rampNO 
-        info.jwst_compare_image[1].iramp = this_frame
+        info.jwst_compare_image[0].iframe= info.jwst_image.frameNO 
+        info.jwst_compare_image[1].iframe = this_frame
 
-        print,'compare images',info.jwst_compare_image[0].iramp,info.jwst_compare_image[1].iramp
        	jwst_mql_compare_display,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
@@ -287,21 +290,8 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
+       jwst_dqflags,info
 
-        data_id ='ID flag '+ strcompress(string(info.jwst_dqflag.Unusable),/remove_all) +  ' = ' + info.jwst_dqflag.Sunusable +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.CosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoiseSpike),/remove_all) +  ' = ' + info.jwst_dqflag.SNoiseSpike +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NegCosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SNegCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoReset),/remove_all) +  ' = ' + info.jwst_dqflag.SNoReset +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoDark),/remove_all) +  ' = ' + info.jwst_dqflag.SNoDark +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLin),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLin +  string(10b) + $
-;                 'ID flag '+ strcompress(string(info.jwst_dqflag.OutLinRange),/remove_all) +  ' = ' + info.jwst_dqflag.SOutLinRange +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLastFrame),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLastFrame +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Min_Frame_Failure),/remove_all) +  ' = ' + info.jwst_dqflag.SMin_Frame_Failure +  string(10b) 
-               
-        
-        result = dialog_message(data_id,/information)
     end
 ;_______________________________________________________________________
 ;_______________________________________________________________________
@@ -443,9 +433,8 @@ endif
         if(temp gt info.jwst_data.ngroups-1  ) then  temp = 0 ; loop back around 
 	iramp = temp
 	widget_control,info.jwst_image.frame_label,set_value = iramp+1
-	
 
-	jwst_mql_moveframe,jintegration,iramp,info
+	jwst_mql_moveframe,jintegration,iramp,info ; also reads in new slope integration if needed
         
         jwst_mql_update_pixel_stat,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
@@ -532,7 +521,6 @@ endif
         endif
 
 ; check if the <> buttons were used
-
         if(strmid(event_name,4,4) eq 'move') then begin
             if(strmid(event_name,9,2) eq 'x1') then xvalue = xvalue - 1
             if(strmid(event_name,9,2) eq 'x2') then xvalue = xvalue + 1
@@ -673,8 +661,6 @@ endif
         jwst_mql_update_slope,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
-;_______________________________________________________________________
 ;_______________________________________________________________________
 ; change x and y range of ramp graph 
 ;_______________________________________________________________________
@@ -707,7 +693,6 @@ endif
         jwst_mql_update_rampread,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-    
 ;_______________________________________________________________________
 ; set the Default range or user defined range for ramp plot
     (strmid(event_name,0,1) EQ 'r') : begin
@@ -721,8 +706,6 @@ endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
-
-
 ;_______________________________________________________________________
 ; Change Integration Range  For Ramp Plots
 ;_______________________________________________________________________
@@ -734,7 +717,6 @@ endif
             num = fix(strmid(event_name,9,1))-1
             info.jwst_image.int_range[num] = event.value
         endif
-
 
 ; check if the <> buttons were used
         if(strmid(event_name,4,4) eq 'move') then begin
@@ -762,8 +744,6 @@ endif
             info.jwst_image.int_range[1] = info.jwst_data.nints
             info.jwst_image.overplot_pixel_int = 0
         endif            
-
-
 ; check if overplot integrations 
 
         if(strmid(event_name,4,4) eq 'over') then begin
@@ -771,7 +751,6 @@ endif
             info.jwst_image.int_range[1] = info.jwst_data.nints
             info.jwst_image.overplot_pixel_int = 1
         endif            
-
 
 ; Check limits for the above options for changing the integration range
 ; lower limit 1
@@ -853,7 +832,6 @@ endif
                info.jwst_image.x_zoom_pos = info.jwst_data.image_xsize
             if(info.jwst_image.y_zoom_pos ge info.jwst_data.image_ysize) then $
                info.jwst_image.y_zoom_pos = info.jwst_data.image_ysize
-
          endif
 ; update the pixel locations in graphs 1, 3
          graphno = [0,2]
@@ -922,7 +900,6 @@ endif
          Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
       endif
    end
-   
 ;_______________________________________________________________________
 ; Change automatically reading pixels values and plotting ramp data
 ;_______________________________________________________________________
@@ -938,10 +915,6 @@ endif
         if(event.index ne 0) then info.jwst_image.autopixelupdate = 0
 
     end
-;_______________________________________________________________________
-
-
-    
 ;_______________________________________________________________________
 ;  Change the Zoom level for window 2
 ;_______________________________________________________________________
@@ -963,7 +936,6 @@ endif
         if(info.jwst_image.current_graph eq 0) then jwst_mql_update_images,info
         if(info.jwst_image.current_graph eq 2) then jwst_mql_update_slope,info
 
-
         jwst_mql_draw_zoom_box,info
 
         widget_control,event.top,Set_UValue = ginfo
@@ -974,19 +946,18 @@ endif
     (strmid(event_name,0,9) EQ 'inspect_i') : begin
 
         i = info.jwst_image.integrationNO
-        j = info.jwst_image.rampNO
+        j = info.jwst_image.frameNO
         if(info.jwst_data.read_all eq 0) then begin
             i = 0
             if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-                j = info.jwst_image.rampNO- info.jwst_control.frame_start
+                j = info.jwst_image.frameNO- info.jwst_control.frame_start
             endif
         endif
 
         info.jwst_inspect.integrationNO = info.jwst_image.integrationNO
-        info.jwst_inspect.frameNO = info.jwst_image.rampNO
+        info.jwst_inspect.frameNO = info.jwst_image.frameNO
         frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
         frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
-
 
         if ptr_valid (info.jwst_inspect.pdata) then ptr_free,info.jwst_inspect.pdata
         info.jwst_inspect.pdata = ptr_new(frame_image)
@@ -1024,27 +995,13 @@ endif
         i = info.jwst_image.integrationNO
         info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
 
-        info.jwst_slope.plane_cal = -1
-        image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
-        image[*,*] = (*info.jwst_data.preduced)[*,*,0]
+        frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
+        if(info.jwst_image.plane eq 0) then frame_image = (*info.jwst_data.preduced)
+        if(info.jwst_image.plane eq 1) then frame_image = (*info.jwst_data.preducedint)
 
         if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
-        info.jwst_inspect_slope.pdata = ptr_new(image)
-        image = 0
-
-
-        all_data = (*info.jwst_data.preduced)
-        if ptr_valid (info.jwst_inspect_slope.preduced) then ptr_free,info.jwst_inspect_slope.preduced
-        info.jwst_inspect_slope.preduced = ptr_new(all_data)
-        all_data = 0
-
-
-        if(info.jwst_control.file_cal_exist eq 1) then begin 
-            cal = (*info.jwst_data.pcaldata)[*,*,0]
-            if ptr_valid (info.jwst_inspect_slope.pcaldata) then ptr_free,info.jwst_inspect_slope.pcaldata
-            info.jwst_inspect_slope.pcaldata = ptr_new(cal)
-            cal = 0
-        endif
+        info.jwst_inspect_slope.pdata = ptr_new(frame_image)
+        frame_image = 0
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
