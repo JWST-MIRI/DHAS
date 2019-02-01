@@ -1,5 +1,5 @@
 ; 
-pro jwst_read_image_info,filename,nints,nframes,subarray,image_xsize,image_ysize,colstart,status,error_message
+pro jwst_read_image_info,filename,nints,ngroups,subarray,image_xsize,image_ysize,colstart,status,error_message
 
 status = 0
 error_message = ''
@@ -24,7 +24,7 @@ fits_close,fcb
 image_xsize = fxpar(header1,'NAXIS1',count = count)
 image_ysize = fxpar(header1,'NAXIS2',count = count)
 
-nframes = fxpar(header0,'NGROUPS',count=count)
+ngroups = fxpar(header0,'NGROUPS',count=count)
 nints = fxpar(header0,'NINTS',count = count)
 
 colstart = fxpar(header0,'SUBSTRT2',count = count)

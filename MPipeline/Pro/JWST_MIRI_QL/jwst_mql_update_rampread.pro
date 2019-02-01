@@ -3,8 +3,6 @@ save_color = info.col_table
 color6
 !p.multi = 0
 
-
-
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 stitle = ' '
@@ -36,75 +34,71 @@ if(info.jwst_image.autopixelupdate eq 0) then begin
     return
 endif
 
-
-
-
-
 ii = info.jwst_image.int_range[0]-1
 ij = info.jwst_image.int_range[1]-1
-
 
 widget_control,info.jwst_image.IrangeID[0],set_value=info.jwst_image.int_range[0]
 widget_control,info.jwst_image.IrangeID[1],set_value=info.jwst_image.int_range[1]
 num_int = info.jwst_image.int_range[1] - info.jwst_image.int_range[0] + 1
 
-if( ptr_valid(info.jwst_image.pixeldata) eq 0) then  begin
-
+if( ptr_valid(info.jwst_image.ppixeldata) eq 0) then  begin
     mql_read_rampdata,xvalue,yvalue,pixeldata,info  
-    if ptr_valid (info.jwst_image.pixeldata) then ptr_free,info.jwst_image.pixeldata
-    info.jwst_image.pixeldata = ptr_new(pixeldata)    
+
+    if ptr_valid (info.jwst_image.ppixeldata) then ptr_free,info.jwst_image.ppixeldata
+    info.jwst_image.ppixeldata = ptr_new(pixeldata)    
 endif
 
-pixeldata = (*info.jwst_image.pixeldata)[ii:ij,*,0]
+pixeldata = (*info.jwst_image.ppixeldata)[ii:ij,*,0]
+
 xnew = findgen(info.jwst_data.ngroups) + 1 ; 
-if(info.jwst_image.overplot_slope eq 1) then  begin 
+if(info.jwst_image.overplot_fit eq 1) then  begin 
     slopedata = (*info.jwst_image.pslope_pixeldata)[ii:ij,*]
     ynew = fltarr(num_int,info.jwst_data.ngroups)
     
     for k = 0,num_int-1 do begin
-        if(info.jwst_data.coadd ne 1) then begin
-            slope = slopedata[k,0]*info.jwst_image.frame_time
-            yint = slopedata[k,1]
-            ynew[k,*] = slope*xnew[*] + yint
-            
-        endif else begin ; coadded data - only one reduced data pt/pixel
-            ynew[k,*] = (*info.jwst_image.pslope_pixeldata)[0,0]
-        endelse
+       slope = slopedata[k,0]*info.jwst_data.frame_time
+       yint = slopedata[k,1]
+       ynew[k,*] = slope*xnew[*] + yint
     endfor
-
     ymin_cal = min(ynew,/nan)
     ymax_cal = max(ynew,/nan)
 endif
 
-if(info.jwst_image.overplot_reference_corrected eq 1) then begin
-    refcorrected_data = (*info.jwst_image.prefcorrected_pixeldata)[ii:ij,*,0]
+if(info.jwst_control.file_refpix_exist eq 0) then info.jwst_image.overplot_refpix = 0
+
+if(info.jwst_image.overplot_refpix eq 1) then begin
+    refcorrected_data = (*info.jwst_image.prefpix_pixeldata)[ii:ij,*,0]
     ymin_corrected = min(refcorrected_data,/nan)
     ymax_corrected = max(refcorrected_data,/nan)
 endif
 
 
-if(info.jwst_image.overplot_cr eq 1) then begin
-    cr_data = (*info.jwst_image.pid_pixeldata)[ii:ij,*,0]
+if(info.jwst_control.file_linearity_exist eq 0) then info.jwst_image.overplot_lin = 0
+if(info.jwst_image.overplot_lin eq 1) then begin
+    lin_data = (*info.jwst_image.plin_pixeldata)[ii:ij,*,0]
+    ymin_lin = min(lin_data,/nan)
+    ymax_lin = max(lin_data,/nan)
 endif
 
-if(info.jwst_image.overplot_lc eq 1) then begin
-    lc_data = (*info.jwst_image.plc_pixeldata)[ii:ij,*,0]
-endif
-
-
-if(info.jwst_control.file_mdc_exist eq 0) then info.jwst_image.overplot_mdc = 0
-if(info.jwst_image.overplot_mdc eq 1 ) then begin
-    mdc_data = (*info.jwst_image.pmdc_pixeldata)[ii:ij,*,0]
+if(info.jwst_control.file_dark_exist eq 0) then info.jwst_image.overplot_dark = 0
+if(info.jwst_image.overplot_dark eq 1 ) then begin
+    dark_data = (*info.jwst_image.pdark_pixeldata)[ii:ij,*,0]
+    ymin_dark = min(dark_data,/nan)
+    ymax_dark = max(dark_data,/nan)
  endif
 
 if(info.jwst_control.file_reset_exist eq 0) then info.jwst_image.overplot_reset = 0
 if(info.jwst_image.overplot_reset eq 1 ) then begin
    reset_data = (*info.jwst_image.preset_pixeldata)[ii:ij,*,0]
+   ymin_reset = min(reset_data,/nan)
+   ymax_reset = max(reset_data,/nan)
 endif
 
 if(info.jwst_control.file_rscd_exist eq 0) then info.jwst_image.overplot_rscd = 0
 if(info.jwst_image.overplot_rscd eq 1 ) then begin
    rscd_data = (*info.jwst_image.prscd_pixeldata)[ii:ij,*,0]
+   ymin_rscd = min(rscd_data,/nan)
+   ymax_rscd = max(rscd_data,/nan)
 endif
 
 if(info.jwst_control.file_lastframe_exist eq 0) then info.jwst_image.overplot_lastframe = 0
@@ -127,19 +121,36 @@ xmax = max(xvalues)
 ymin = min(pixeldata,/nan)
 ymax = max(pixeldata,/nan)
 
-if(info.jwst_image.overplot_slope) then begin
+if(info.jwst_image.overplot_fit) then begin
     if(ymin_cal lt ymin and ymin_cal ne 0) then ymin = ymin_cal
     if(ymax_cal gt ymax) then ymax = ymax_cal
 endif
 
 
-if(info.jwst_image.overplot_reference_corrected eq 1) then begin
+if(info.jwst_image.overplot_refpix eq 1) then begin
     if(ymin_corrected lt ymin and ymin_corrected ne 0 ) then ymin = ymin_corrected
     if(ymax_corrected gt ymax) then ymax = ymax_corrected
+ endif
+
+if(info.jwst_image.overplot_dark eq 1) then begin
+    if(ymin_dark lt ymin and ymin_dark ne 0 ) then ymin = ymin_dark
+    if(ymax_dark gt ymax) then ymax = ymax_dark
+ endif
+
+if(info.jwst_image.overplot_reset eq 1) then begin
+    if(ymin_reset lt ymin and ymin_reset ne 0 ) then ymin = ymin_reset
+    if(ymax_reset gt ymax) then ymax = ymax_reset
+ endif
+
+if(info.jwst_image.overplot_lin eq 1) then begin
+    if(ymin_lin lt ymin and ymin_lin ne 0 ) then ymin = ymin_lin
+    if(ymax_lin gt ymax) then ymax = ymax_lin
 endif
 
-
-
+if(info.jwst_image.overplot_rscd eq 1) then begin
+    if(ymin_rscd lt ymin and ymin_rscd ne 0 ) then ymin = ymin_rscd
+    if(ymax_rscd gt ymax) then ymax = ymax_rscd
+endif
 
 if(ymax gt 70000) then ymax = 70000
 
@@ -152,7 +163,6 @@ if(info.jwst_image.default_scale_ramp[0] eq 1) then begin
 endif 
   
 if(info.jwst_image.default_scale_ramp[1] eq 1) then begin
-
     if(ypad gt 0) then begin 
         info.jwst_image.ramp_range[1,0] = ymin-ypad 
         info.jwst_image.ramp_range[1,1] = ymax+ypad
@@ -160,12 +170,11 @@ if(info.jwst_image.default_scale_ramp[1] eq 1) then begin
         info.jwst_image.ramp_range[1,0] = ymin+ypad 
         info.jwst_image.ramp_range[1,1] = ymax-ypad
     endelse
-
 endif
 
 if(hcopy eq 1) then begin
     i = info.jwst_image.integrationNO
-    j = info.jwst_image.rampNO
+    j = info.jwst_image.frameNO
     
     ftitle = " Frame #: " + strtrim(string(i+1),2) 
     ititle = " Integration #: " + strtrim(string(j+1),2)
@@ -179,258 +188,109 @@ x2 = info.jwst_image.ramp_range[0,1]
 y1 = info.jwst_image.ramp_range[1,0]
 y2 = info.jwst_image.ramp_range[1,1]
 
-
 xs = "Frame #" + xs + ys
 ys = "DN/frame"
-if(info.jwst_data.coadd eq 1) then begin
-    xs = "Integration #"
-    ys = "Average DN"
-endif
+
 plot,xvalues,pixeldata,xtitle = xs, ytitle=ys,$
   xrange=[x1,x2],yrange=[y1,y2],title = stitle, subtitle = sstitle,$
      xstyle = 1, ystyle = 1,/nodata,ytickformat = '(f8.0)'
 
 
-
-BAD_FRAME = info.jwst_dqflag.CorruptFrame
-BAD_FRAME_SYM = 5
-
-NOISE_SPIKE = info.jwst_dqflag.NoiseSpike
-COSMICRAY_SLOPE_FAILURE = info.jwst_dqflag.cr_slope_failure
-REJECT_AFTER_NOISE_SPIKE = info.jwst_dqflag.reject_after_noise
-REJECT_AFTER_CR = info.jwst_dqflag.reject_after_cr
-SEG_MIN_FAILURE = info.jwst_dqflag.cr_seg_min
-NOISE_FLAG = noise_spike
-
-COSMICRAY = info.jwst_dqflag.CosmicRay
-COSMICRAY_NEG =info.jwst_dqflag.NegCosmicRay
-
-
 ptype = [1,2,4,5,6]
 
-if(info.jwst_data.coadd eq 1) then begin 
-    ptype[*]  = 1
-endif
-ip = 0
-ic = 0
-isp = 0
-isp2 = 0
-isp3 = 4
 for k = 0,num_int-1 do begin
-    n_noise = 0
-    n_cr = 0
-    n_corrupt = 0
-    marked = intarr(info.jwst_data.ngroups)
-    if(info.jwst_image.overplot_cr eq 1) then begin
-        index_noise = where(cr_data[k,*] eq  NOISE_SPIKE or cr_data[k,*] eq COSMICRAY_SLOPE_FAILURE $
-                            or cr_data[k,*] eq REJECT_AFTER_NOISE_SPIKE  or cr_data[k,*] eq REJECT_AFTER_CR  $
-                            or cr_data[k,*]  eq SEG_MIN_FAILURE, n_noise)
-        index_cr  = where(cr_data[k,*] eq COSMICRAY or cr_data[k,*] eq COSMICRAY_NEG, n_cr)
-	index_corrupt = where(cr_data[k,*] eq BAD_FRAME, n_corrupt)
-        if(n_noise gt 0)  then marked[index_noise] =NOISE_FLAG
-        if(n_cr gt 0) then marked[index_cr] = COSMICRAY
-	if(n_corrupt gt 0) then marked[index_corrupt] = BAD_FRAME
-
-    endif
-
     yvalues = pixeldata[k,*,*]
     xvalues = indgen(info.jwst_data.ngroups)+1
-
-    if(info.jwst_image.overplot_pixel_int eq 0) then     xvalues = xvalues + info.jwst_data.ngroups*(k)
-
+    if(info.jwst_image.overplot_pixel_int eq 0) then xvalues = xvalues + info.jwst_data.ngroups*(k)
     oplot,xvalues,yvalues,psym = 1,symsize = 0.8,color = info.white
 
     if(hcopy eq 1) then     oplot,xvalues,yvalues,psym = 1,symsize = 0.8,color = info.black
-    if(n_noise gt 0) then oplot,xvalues[index_noise], yvalues[index_noise],$
-      psym = 1,symsize = 0.8,color = info.yellow
 
-    if(n_cr gt 0) then oplot,xvalues[index_cr], yvalues[index_cr],$
-      psym = 1,symsize = 0.8,color = info.yellow
 
-    if(n_corrupt gt 0) then oplot,xvalues[index_corrupt], yvalues[index_corrupt],$
-      psym = 6,symsize = 1.2, color= info.yellow
-
-    ic = ic + 1
-    if(ic gt 3) then begin
-        ip = ip + 1
-        ic = 0
-    endif
-    if(ip gt 4) then ip = 0
-    if(info.jwst_image.overplot_slope) then begin
+    if(info.jwst_image.overplot_fit) then begin
         xnew_plot = xnew + info.jwst_data.ngroups*k
         if(info.jwst_image.overplot_pixel_int eq 1) then xnew_plot = xnew
-
         ynew_plot = ynew[k,*]
-
-
         oplot,xnew_plot,ynew_plot,linestyle= 0,color= info.red,thick = 1.5
-
         xnew_plot = 0 & ynew_plot = 0
-        isp = isp + 1
-        if(isp gt 4) then isp = 0
     endif
 
-    if(info.jwst_image.overplot_reference_corrected eq 1) then begin
+    if(info.jwst_image.overplot_refpix eq 1) then begin
         ynew_plot = refcorrected_data[k,*]
-
         for i = 0, info.jwst_data.ngroups-1 do begin
-
-            if(xnew[i] ge info.jwst_image.start_fit and xnew[i] le info.jwst_image.end_fit)then begin
+            if(xnew[i] ge info.jwst_data.start_fit and xnew[i] le info.jwst_data.end_fit)then begin
                 xplot = fltarr(1) & yplot = fltarr(1)
                 xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
-                
-                oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.blue
-
-                if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.yellow
-
-                if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = 1,symsize = 0.8,color= info.yellow
-
-                if(marked[i]  eq  BAD_FRAME) then $
-                  oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
-
+                oplot,xplot,yplot,psym = 6,symsize = 0.8,color= info.blue
             endif 
         endfor
         xnew_plot = 0 & ynew_plot = 0
-        isp2 = isp2 + 1
-        if(isp2 gt 4) then isp2 = 0
     endif
 
-    if(info.jwst_image.overplot_lc eq 1) then begin
-        ynew_plot = lc_data[k,*]
-
+    if(info.jwst_image.overplot_lin eq 1) then begin
+        ynew_plot = lin_data[k,*]
         for i = 0, info.jwst_data.ngroups-1 do begin
-            if(xnew[i] ge info.jwst_image.start_fit and xnew[i] le info.jwst_image.end_fit)then begin
+            if(xnew[i] ge info.jwst_data.start_fit and xnew[i] le info.jwst_data.end_fit)then begin
                 xplot = fltarr(1) & yplot = fltarr(1)
                 xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
-
-
                 oplot,xplot,yplot,psym =1,symsize = 0.8,color= info.blue
-
-                if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = 2,symsize = 0.8,color= info.yellow
-
-                if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = 2,symsize = 0.8,color= info.yellow
-
-                if(marked[i]  eq  BAD_FRAME) then $
-                  oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
             endif 
         endfor
         xnew_plot = 0 & ynew_plot = 0
-        isp3 = isp3 + 1
-        if(isp3 gt 4) then isp3 = 0
     endif
 
 ;_______________________________________________________________________
-    if(info.jwst_image.overplot_mdc eq 1 and info.jwst_control.file_mdc_exist eq 1)  then begin
-        ynew_plot = mdc_data[k,*]
-
+    if(info.jwst_image.overplot_dark eq 1)  then begin
+        ynew_plot = dark_data[k,*]
         for i = 0, info.jwst_data.ngroups-1 do begin
-            if(xnew[i] ge info.jwst_image.start_fit and xnew[i] le info.jwst_image.end_fit)then begin
+            if(xnew[i] ge info.jwst_data.start_fit and xnew[i] le info.jwst_data.end_fit)then begin
                 xplot = fltarr(1) & yplot = fltarr(1)
                 xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
-
                 oplot,xplot,yplot,psym =6,symsize = 0.5,color= info.green
-
-                if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym =6 ,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = 6,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  BAD_FRAME) then $
-                  oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
             endif 
         endfor
         xnew_plot = 0 & ynew_plot = 0
-        isp3 = isp3 + 1
-        if(isp3 gt 4) then isp3 = 0
     endif
-
-
 ;_______________________________________________________________________
-    if(info.jwst_image.overplot_reset eq 1 and info.jwst_control.file_reset_exist eq 1)  then begin
+    if(info.jwst_image.overplot_reset eq 1)  then begin
         ynew_plot = reset_data[k,*] ; k number of integrations
 
         for i = 0, info.jwst_data.ngroups-1 do begin
-            if(xnew[i] ge info.jwst_image.start_fit and xnew[i] le info.jwst_image.end_fit)then begin
+            if(xnew[i] ge info.jwst_data.start_fit and xnew[i] le info.jwst_data.end_fit)then begin
                 xplot = fltarr(1) & yplot = fltarr(1)
                 xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
-
                 oplot,xplot,yplot,psym =1,symsize = 1.0,color= info.green
-
-                if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = 1,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = 1,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  BAD_FRAME) then $
-                  oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
             endif 
         endfor
         xnew_plot = 0 & ynew_plot = 0
-        isp3 = isp3 + 1
-        if(isp3 gt 4) then isp3 = 0
     endif
-
-
 ;_______________________________________________________________________
-    if(info.jwst_image.overplot_rscd eq 1 and info.jwst_control.file_rscd_exist eq 1)  then begin
+    if(info.jwst_image.overplot_rscd eq 1)  then begin
         ynew_plot = rscd_data[k,*] ; k number of integrations
-
         for i = 0, info.jwst_data.ngroups-1 do begin
-            if(xnew[i] ge info.jwst_image.start_fit and xnew[i] le info.jwst_image.end_fit)then begin
+            if(xnew[i] ge info.jwst_data.start_fit and xnew[i] le info.jwst_data.end_fit)then begin
                 xplot = fltarr(1) & yplot = fltarr(1)
                 xplot[0] = xvalues[i] & yplot[0] = ynew_plot[i]
-
                 oplot,xplot,yplot,psym =1,symsize = 1.0,color= info.green
-
-                if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = 1,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = 1,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  BAD_FRAME) then $
-                  oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
             endif 
         endfor
         xnew_plot = 0 & ynew_plot = 0
-        isp3 = isp3 + 1
-        if(isp3 gt 4) then isp3 = 0
     endif
-    
-
 ;_______________________________________________________________________
-    if(info.jwst_image.overplot_lastframe eq 1 and info.jwst_control.file_lastframe_exist eq 1)  then begin
+    if(info.jwst_image.overplot_lastframe eq 1)  then begin
         ynew_plot = lastframe_data[k] ; k number of integrations
 
         for i = info.jwst_data.ngroups-1, info.jwst_data.ngroups-1 do begin
-            if(xnew[i] ge info.jwst_image.start_fit and xnew[i] le info.jwst_image.end_fit)then begin
+            if(xnew[i] ge info.jwst_data.start_fit and xnew[i] le info.jwst_data.end_fit)then begin
                 xplot = fltarr(1) & yplot = fltarr(1)
                 xplot[0] = xvalues[i] & yplot[0] = ynew_plot;[k]
-
                 oplot,xplot,yplot,psym =4,symsize = 1.0,color= info.blue
-
-                if(marked[i]  eq  NOISE_FLAG) then $
-                  oplot,xplot,yplot,psym = 4,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  COSMICRAY) then $
-                  oplot,xplot,yplot,psym = 4,symsize = 0.5,color= info.yellow
-
-                if(marked[i]  eq  BAD_FRAME) then $
-                  oplot,xplot,yplot,psym = BAD_FRAME_SYM,symsize = 1.2,color= info.yellow
             endif 
         endfor
         xnew_plot = 0 & ynew_plot = 0
-        isp3 = isp3 + 1
-        if(isp3 gt 4) then isp3 = 0
      endif
 ;_______________________________________________________________________
- if(num_int gt 1 and info.jwst_image.overplot_pixel_int eq 0 and info.jwst_data.coadd eq 0) then begin
+ if(num_int gt 1 and info.jwst_image.overplot_pixel_int eq 0) then begin
      yline = fltarr(2) & xline = fltarr(2)
      yline[0] = -1000000 & yline[1] = 100000
      xline[*] = info.jwst_data.ngroups* (k+1)
@@ -442,9 +302,6 @@ widget_control,info.jwst_image.ramp_mmlabel[0,0],set_value=fix(info.jwst_image.r
 widget_control,info.jwst_image.ramp_mmlabel[0,1],set_value=fix(info.jwst_image.ramp_range[0,1])
 widget_control,info.jwst_image.ramp_mmlabel[1,0],set_value=info.jwst_image.ramp_range[1,0]
 widget_control,info.jwst_image.ramp_mmlabel[1,1],set_value=info.jwst_image.ramp_range[1,1]
-
-
-
 
     
 pixeldata = 0

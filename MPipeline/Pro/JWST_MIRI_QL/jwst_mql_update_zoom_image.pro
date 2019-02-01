@@ -1,5 +1,4 @@
 ;_______________________________________________________________________
-;***********************************************************************
 pro jwst_mql_draw_zoom_box,info
 ;_______________________________________________________________________
 ij = info.jwst_image.current_graph
@@ -9,12 +8,10 @@ xstart_plot = info.jwst_image.x_zoom_start/info.jwst_image.binfactor
 xrange  = info.jwst_image.x_zoom_end - info.jwst_image.x_zoom_start + 1
 xend_plot = xstart_plot + (xrange/info.jwst_image.binfactor)
 
-
 ystart_plot = info.jwst_image.y_zoom_start/info.jwst_image.binfactor
 yrange  = info.jwst_image.y_zoom_end - info.jwst_image.y_zoom_start + 1
 yend_plot = ystart_plot + (yrange/info.jwst_image.binfactor) 
 
-;print,'in box',xrange,yrange
 box_coords1 = [xstart_plot,xend_plot, $
                ystart_plot,yend_plot]
 
@@ -22,11 +19,7 @@ box_coords1 = [xstart_plot,xend_plot, $
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
 end
-
-
-
 ;_______________________________________________________________________
-;***********************************************************************
 pro jwst_mql_update_zoom_pixel_location,xvalue,yvalue,update,info
 ;_______________________________________________________________________
 zoom = info.jwst_image.scale_zoom
@@ -34,14 +27,11 @@ zoom = info.jwst_image.scale_zoom
 xsize = info.jwst_plotsize1
 ysize = info.jwst_plotsize1
 
-
 wset,info.jwst_image.draw_window_id[1]
 device,copy=[0,0,$
              xsize,$
              ysize, $
              0,0,info.jwst_image.pixmapID[1]]
-
-
 
 ; if the x_pos and y_pos need to be determined (x and y plot
 ; screen value in  raw and slope plots) 
@@ -71,25 +61,16 @@ yy = fix(yvalue/info.jwst_image.scale_zoom)+0.5
 xx = xx * info.jwst_image.scale_zoom 
 yy = yy * info.jwst_image.scale_zoom 
 
-
 xpos1 = xx-halfpixelx
 xpos2 = xx+halfpixelX
 
 ypos1 = yy-halfpixely
 ypos2 = yy+halfpixely
 
-
 box_coords1 = [xpos1,xpos2,ypos1,ypos2]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
-
-
 end
 ;_______________________________________________________________________
-
-
-
-;_______________________________________________________________________
-;***********************************************************************
 pro jwst_mql_update_zoom_image,info,ps = ps,eps = eps
 ;_______________________________________________________________________
 hcopy = 0
@@ -102,25 +83,20 @@ info.jwst_image.zoom_window = graphnum ; orginal window zooming in on
 zoom = info.jwst_image.scale_zoom
 
 i = info.jwst_image.integrationNO
-j = info.jwst_image.rampNO
+j = info.jwst_image.frameNO
 
-slope_exist = info.jwst_data.slope_exist
-if(info.jwst_image.integrationNO+1 gt info.jwst_data.nslopes) then slope_exist = 0
+slope_exist = info.jwst_control.file_slope_exist
+if(info.jwst_image.integrationNO+1 gt info.jwst_data.nints) then slope_exist = 0
 
 ; clicked on slope image - but slope image does not exist
-if(graphnum eq 3 and not slope_exist) then return
-
-
+if(graphnum eq 3 and slope_exist eq 0) then return
 
 if(info.jwst_data.read_all eq 0) then begin
     i = 0
     if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-        j = info.jwst_image.rampNO- info.jwst_control.frame_start
+        j = info.jwst_image.frameNO- info.jwst_control.frame_start
     endif
 endif
-
-
-
 
 if(graphnum eq 1) then begin 
     szoom = "Zoom Centered on Raw image     " 
@@ -129,32 +105,35 @@ if(graphnum eq 1) then begin
     frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
     frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
     if(info.jwst_image.default_scale_graph[1] eq 1) then begin    
-
         info.jwst_image.graph_range[1,0] = info.jwst_image.graph_range[0,0]
         info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[0,1]
-
     endif
-
-
-    numbad = 0
-    if(info.jwst_image.apply_bad) then begin
-        index = where( (*info.jwst_badpixel.pmask) and 1,numbad)
-        if(numbad gt 0) then frame_image[index] = !values.F_NaN
-    endif
-
-
 endif
 
 if(graphnum eq 3) then begin 
-    szoom = "Zoom Centered on Slope Image" 
-    xdata_end = info.jwst_data.slope_xsize
-    ydata_end = info.jwst_data.slope_ysize
-    frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
-    frame_image[*,*] = (*info.jwst_data.preduced)[*,*,0]
-    if(info.jwst_image.default_scale_graph[1] eq 1) then begin
-        info.jwst_image.graph_range[1,0] = info.jwst_image.graph_range[2,0]
-        info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[2,1]
-    endif
+   if(info.jwst_image.plane eq 0) then begin 
+      szoom = "Zoom Centered on Final Rate Image" 
+      xdata_end = info.jwst_data.slope_xsize
+      ydata_end = info.jwst_data.slope_ysize
+      frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
+      frame_image[*,*] = (*info.jwst_data.preduced)[*,*,0]
+      if(info.jwst_image.default_scale_graph[1] eq 1) then begin
+         info.jwst_image.graph_range[1,0] = info.jwst_image.graph_range[2,0]
+         info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[2,1]
+      endif
+   endif
+
+   if(info.jwst_image.plane eq 1) then begin 
+      szoom = "Zoom Centered on Int Rate Image" 
+      xdata_end = info.jwst_data.slope_xsize
+      ydata_end = info.jwst_data.slope_ysize
+      frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
+      frame_image[*,*] = (*info.jwst_data.preducedint)[*,*,0]
+      if(info.jwst_image.default_scale_graph[1] eq 1) then begin
+         info.jwst_image.graph_range[1,0] = info.jwst_image.graph_range[2,0]
+         info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[2,1]
+      endif
+   endif
 endif
 
 
@@ -180,8 +159,6 @@ info.jwst_image.zoom_yplot_size = ysize
 
 ; ixstart and iystart are the starting points for the zoom imnage
 ; xstart and ystart are the starting points for the orginal image
-
-;;;;;;;;
 
 xstart = fix(x - xsize/2)
 ystart = fix(y - ysize/2)
@@ -216,13 +193,6 @@ iystart = 0
 ixend = ixstart + ix
 iyend = iystart + iy
 
-
-;print,'ixstart, ixend ',ixstart,ixend,ixend-ixstart+1
-;print,'iystart, iyend ',iystart,iyend,iyend-iystart+1
-
-;print,'xstart xend ',xstart,xend
-;print,'ystart yend ',ystart,yend
-
 info.jwst_image.x_zoom_start = xstart
 info.jwst_image.y_zoom_start = ystart
 info.jwst_image.y_zoom_end = yend
@@ -236,8 +206,7 @@ xrange = ixend-ixstart+1
 yrange = iyend-iystart+1
 sub_image = fltarr(xrange,yrange)
 sub_image = frame_image[xstart:xend,ystart:yend]
-;sub_image = fltarr(xsize,ysize)   
-;sub_image[ixstart:ixend,iystart:iyend] = frame_image[xstart:xend,ystart:yend]
+
 stat_data = sub_image[ixstart:ixend,iystart:iyend]
 
 x_zoom_start = ixstart
@@ -257,13 +226,12 @@ if(info.jwst_data.subarray eq 0) then begin
 endif
 
 
-get_image_stat,stat_data,image_mean,stdev_pixel,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,stat_data,image_mean,stdev_pixel,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 stat_data= 0
 ;_______________________________________________________________________
 if ptr_valid (info.jwst_image.pzoomdata) then ptr_free,info.jwst_image.pzoomdata
 info.jwst_image.pzoomdata = ptr_new(sub_image)
-
 
 info.jwst_image.zoom_stat[0] = image_mean
 info.jwst_image.zoom_stat[1] = stdev_pixel
@@ -271,23 +239,14 @@ info.jwst_image.zoom_stat[2] = image_min
 info.jwst_image.zoom_stat[3] = image_max
 info.jwst_image.zoom_stat[4] = image_median
 info.jwst_image.zoom_stat[5] = stdev_mean
-info.jwst_image.zoom_stat[6] = skew
-info.jwst_image.zoom_stat[7] = ngood
-info.jwst_image.zoom_stat[8] = nbad
 info.jwst_image.zoom_range[0] = irange_min
 info.jwst_image.zoom_range[1] = irange_max
-
-     
-
 
 widget_control,info.jwst_image.graphID[1],draw_xsize = xrange*zoom,draw_ysize=yrange*zoom 
 
 if(hcopy eq 0) then wset,info.jwst_image.pixmapID[1]
 
-
 disp_image = congrid(sub_image, xsize*zoom,ysize*zoom)
-
-
 disp_image = bytscl(disp_image,min=info.jwst_image.graph_range[1,0], $
                     max=info.jwst_image.graph_range[1,1],$
                     top=info.col_max-info.col_bits-1,/nan)

@@ -4,8 +4,6 @@ widget_control,event.top, Get_UValue = tinfo
 widget_control,tinfo.info.jwst_QuickLook,Get_UValue=info
 widget_control,info.jwst_CompareDisplay,/destroy
 end
-
-;***********************************************************************
 ;_______________________________________________________________________
 pro jwst_mql_compare_display_cleanup,topbaseID
 
@@ -17,34 +15,26 @@ widget_control,ginfo.info.jwst_QuickLook,get_uvalue = info
 widget_control,info.jwst_CompareDisplay,/destroy
 end
 
-;***********************************************************************
-;***********************************************************************
-; the event manager for the jwst_mql_compare_display.pro (comparing widget)
+;_______________________________________________________________________
 pro jwst_mql_compare_test,info,status
 ;_______________________________________________________________________
 ; Done selecting the images, do some checks that the data is of the
 ; same type, then read in the data
-
-
 status = 0
 
 type_a = info.jwst_compare_image[0].type 
 type_b = info.jwst_compare_image[1].type 
 
 type = type_a
-
 if(type_a ne type_b) then begin
-
-    mess1 = 'File types not the same. Both files need to be reduced slope or coadded data or raw science data'
+    mess1 = 'File types not the same. Both files need to be reduced slope or raw science data'
     mess2 = 'Pick comparision file again ' 
     print,mess1
     print,mess2    
     ok = dialog_message(mess1 + string(10B) + mess2,/Information)
-
     status = 1
     return
 endif
-
 
 if(type_a ne 0 or  type_b ne 0) then begin
     mess1 = 'Both files must be raw science data' 
@@ -52,13 +42,11 @@ if(type_a ne 0 or  type_b ne 0) then begin
     print,mess1
     print,mess2    
     ok = dialog_message(mess1 + string(10B) + mess2,/Information)
-
     status = 1
     return
 endif
 
 if(status eq 0) then begin 
-
 ; check that image sizes are the same
     status = 0
     if( info.jwst_compare_image[0].xsize ne info.jwst_compare_image[1].xsize) then begin
@@ -75,31 +63,23 @@ if(status eq 0) then begin
         print,mess
         ok = dialog_message(mess ,/Information)
         return
-
     endif
     if( info.jwst_compare_image[0].subarray ne info.jwst_compare_image[1].subarray) then begin
         status = 1
-
         mess = ' One image subarray data and the other is not, reload images'
         print,mess
         ok = dialog_message(mess ,/Information)
         return
     endif
 endif
-
-
-
 Widget_Control,info.jwst_QuickLook,Set_UValue=info        
 end
-
-
 ;_______________________________________________________________________
 pro jwst_mql_compare_read_image,info,i,status
 
-
 filename = info.jwst_compare_image[i].filename
 this_integration = info.jwst_compare_image[i].jintegration
-this_frame = info.jwst_compare_image[i].iramp
+this_frame = info.jwst_compare_image[i].iframe
 
 jwst_read_single_frame,filename,this_integration,this_frame,$
   subarray,imagedata,image_xsize,image_ysize,stats_image,$
@@ -112,9 +92,8 @@ endif
 
 jwst_read_image_info,filename,nints,nframes,subarray,xxsize,yysize,colstart
 
-
 info.jwst_compare_image[i].nints= nints
-info.jwst_compare_image[i].nramps= nframes
+info.jwst_compare_image[i].ngroups= nframes
 
 info.jwst_compare_image[i].subarray = subarray
 info.jwst_compare_image[i].colstart = colstart
@@ -134,23 +113,16 @@ info.jwst_compare_image[i].max = stats_image[4]
 info.jwst_compare_image[i].range_min = stats_image[5]
 info.jwst_compare_image[i].range_max = stats_image[6]
 info.jwst_compare_image[i].stdev_mean = stats_image[7]
-info.jwst_compare_image[i].skew = stats_image[8]
-
 imagedata = 0
 
 end
-
-;***********************************************************************
 ;***********************************************************************
 pro jwst_mql_compare_update_pixel_location,info
 
 for i = 0,2 do begin
     wset,info.jwst_compare.draw_window_id[i]
-
     device,copy=[0,0,info.jwst_compare.xplot_size,info.jwst_compare.yplot_size, $
                  0,0,info.jwst_compare.pixmapID[i]]
-
-
 
     box_coords1 = [info.jwst_compare.x_pos,(info.jwst_compare.x_pos+1), $
                    info.jwst_compare.y_pos,(info.jwst_compare.y_pos+1)]
@@ -159,12 +131,9 @@ for i = 0,2 do begin
     plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
 endfor
-
 end
-
 ;***********************************************************************
 pro jwst_mql_compare_update_pixel_info,info
-
 
 xvalue = fix(info.jwst_compare.x_pos*info.jwst_compare.binfactor)
 yvalue = fix(info.jwst_compare.y_pos*info.jwst_compare.binfactor)
@@ -187,19 +156,14 @@ svalue3 = info.jwst_compare.pix_statLabel[2]+' = '+$
 widget_control,info.jwst_compare.pix_statLabelID[0],set_value= svalue1
 widget_control,info.jwst_compare.pix_statLabelID[1],set_value= svalue2
 widget_control,info.jwst_compare.pix_statLabelID[2],set_value= svalue3
-
-
 end
 ;_______________________________________________________________________
-;***********************************************************************
-
 pro jwst_mql_compare_update_images,info,imageno
 
 loadct,info.col_table,/silent
 ximage_size = info.jwst_compare_image[imageno].xsize
 yimage_size = info.jwst_compare_image[imageno].ysize
 n_pixels = float( ximage_size*yimage_size)
-
 
 ; check if default scale is true - then reset to orginal value
 if(info.jwst_compare.default_scale_graph[imageno] eq 1) then begin
@@ -210,7 +174,6 @@ endif
 frame_image = fltarr(ximage_size,yimage_size)
 frame_image[*,*] = (*info.jwst_compare_image[imageno].pdata)
 indxs = where(finite(frame_image),n_pixels)
-
 
 widget_control,info.jwst_compare.graphID[imageno],draw_xsize = info.jwst_compare.xplot_size,$
                draw_ysize=info.jwst_compare.yplot_size 
@@ -236,9 +199,7 @@ device,copy=[0,0,$
              info.jwst_compare.yplot_size, $
              0,0,info.jwst_compare.pixmapID[imageno]]
 
-
 ; update stats    
-
 rawmean = info.jwst_compare_image[imageno].mean
 rawmedian = info.jwst_compare_image[imageno].median
 st = info.jwst_compare_image[imageno].stdev
@@ -270,17 +231,11 @@ box_coords2 = [info.jwst_compare.x_pos+1,(info.jwst_compare.x_pos+1)-1, $
                info.jwst_compare.y_pos+1,(info.jwst_compare.y_pos+1)-1]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
-
 end
-
-;_______________________________________________________________________
-;***********************************************************************
-
 
 ;_______________________________________________________________________
 ; the event manager for the ql.pro (main base widget)
 pro jwst_mql_compare_display_event,event
-
 
 Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = ginfo
@@ -300,8 +255,6 @@ endif
 case 1 of
 
 ;_______________________________________________________________________
-
-
 ; load a new comparison image
     (strmid(event_name,0,7) EQ 'loadnew') : begin
 
@@ -328,7 +281,7 @@ case 1 of
 
         info.jwst_compare_image[1].filename  = filename
         info.jwst_compare_image[1].jintegration = info.jwst_compare_image[0].jintegration
-        info.jwst_compare_image[1].iramp = info.jwst_compare_image[0].iramp
+        info.jwst_compare_image[1].iframe = info.jwst_compare_image[0].iframe
 
     
         read_data_type,info.jwst_compare_image[1].filename,type
@@ -353,19 +306,19 @@ case 1 of
         tlabel = "Total # " + strcompress(string(nints),/remove_all)
         widget_control,info.jwst_compare.total_ilabel[1], set_value = tlabel
         
-        iframe = info.jwst_compare_image[1].nramps
+        iframe = info.jwst_compare_image[1].ngroups
         tlabel = "Frames/Int  " + strcompress(string(iframe),/remove_all)
         widget_control,info.jwst_compare.total_flabel[1], set_value = tlabel
         
         sint = strtrim( string (fix(info.jwst_compare_image[1].jintegration+1)),2)
-        sframe = strtrim( string(fix(info.jwst_compare_image[1].iramp+1)),2)
+        sframe = strtrim( string(fix(info.jwst_compare_image[1].iframe+1)),2)
         sinfo = ' Integration #    ' + sint +  ' Frame #    ' + sframe
 
          widget_control,info.jwst_compare.info_label[1],set_value = sinfo
 ;_______________________________________________________________________
 
         widget_control,info.jwst_compare.integration_label[1],set_value = info.jwst_compare_image[1].jintegration+1
-        widget_control,info.jwst_compare.frame_label[1],set_value = info.jwst_compare_image[1].iramp+1
+        widget_control,info.jwst_compare.frame_label[1],set_value = info.jwst_compare_image[1].iframe+1
         jwst_difference_images,info,0,1,2
          for i = 1, 2 do begin 
              jwst_mql_compare_update_images,info,i
@@ -523,7 +476,7 @@ end
        imageno = fix(strmid(event_name,7,1))-1
 
         info.jwst_cinspect[imageno].integrationNO = info.jwst_compare_image[imageno].jintegration
-        info.jwst_cinspect[imageno].frameNO = info.jwst_compare_image[imageno].iramp
+        info.jwst_cinspect[imageno].frameNO = info.jwst_compare_image[imageno].iframe
         frame_image = fltarr(info.jwst_compare_image[imageno].xsize,info.jwst_compare_image[imageno].ysize)
         frame_image[*,*] = (*info.jwst_compare_image[imageno].pdata)
 
@@ -632,7 +585,7 @@ end
 
 
          sint = strtrim( string (fix(info.jwst_compare_image[imageno-1].jintegration+1)),2)
-         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].iramp+1)),2)
+         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].iframe+1)),2)
          sinfo = ' Integration # ' + sint +  ' Frame # ' + sframe
 
          widget_control,info.jwst_compare.info_label[imageno-1],set_value = sinfo
@@ -661,7 +614,7 @@ end
 	endif
 ; check if the <> buttons were used
         if (strmid(event_name,5,5) EQ '_move')then begin
-            this_frame = info.jwst_compare_image[imageno-1].iramp
+            this_frame = info.jwst_compare_image[imageno-1].iframe
             if(strmid(event_name,11,2) eq 'dn') then begin
               this_frame = this_frame -1
             endif
@@ -671,7 +624,7 @@ end
 	endif
 ; do some checks	
 
-        lastnum =  info.jwst_compare_image[imageno-1].nramps
+        lastnum =  info.jwst_compare_image[imageno-1].ngroups
 
 ;        print,'last num',lastnum,this_frame
         if(this_frame lt 0) then begin
@@ -682,11 +635,11 @@ end
             this_frame = 0
         endif
 
-         info.jwst_compare_image[imageno-1].iramp = this_frame   
+         info.jwst_compare_image[imageno-1].iframe = this_frame   
          widget_control,info.jwst_compare.frame_label[imageno-1],set_value = this_frame+1
              
          sint = strtrim( string (fix(info.jwst_compare_image[imageno-1].jintegration+1)),2)
-         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].iramp+1)),2)
+         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].iframe+1)),2)
          sinfo = ' Integration # ' + sint +  ' Frame # ' + sframe
 
          widget_control,info.jwst_compare.info_label[imageno-1],set_value = sinfo
@@ -719,12 +672,12 @@ if(XRegistered ('jwst_mql_compare')) then begin
     widget_control,info.jwst_compareDisplay,/destroy
 endif
 
-if(XRegistered ('loadcompare')) then begin ; if loaded images from load_compare - get rid of window
-    widget_control,info.jwst_loadRDisplay,/destroy
+if(XRegistered ('jwst_loadcompare')) then begin ; if loaded images from load_compare - get rid of window
+    widget_control,info.jwst_load2Display,/destroy
 endif
  
 this_integration = info.jwst_image.integrationNO
-this_frame = info.jwst_image.rampNO
+this_frame = info.jwst_image.frameNO
 if(info.jwst_compare.uwindowsize eq 0) then begin 
 
 
@@ -749,7 +702,7 @@ if(info.jwst_compare.uwindowsize eq 0) then begin
     info.jwst_compare.image_ysize = info.jwst_compare_image[0].ysize
     info.jwst_compare.subarray = info.jwst_compare_image[0].subarray
 
-    find_binfactor,info.jwst_compare_image[0].subarray,$
+    jwst_find_binfactor,info.jwst_compare_image[0].subarray,$
 	info.jwst_compare_image[0].xsize,info.jwst_compare_image[0].ysize,binfactor
 
     info.jwst_compare.binfactor = binfactor
@@ -778,33 +731,23 @@ if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.j
 if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-30
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-30
 
-
-
-CompareDisplay = widget_base(title="MIRI Quick Look- Compare Two Images " + info.jwst_version,$
+CompareDisplay = widget_base(title=" JWST MIRI Quick Look- Compare Two Images " + info.jwst_version,$
                            col = 1,mbar = menuBar,group_leader = info.jwst_QuickLook,$
                            xsize =  xwidget_size,$
                            ysize=   ywidget_size,/scroll,$
                            x_scroll_size= xsize_scroll,$
                            y_scroll_size = ysize_scroll,/TLB_SIZE_EVENTS)
 
-
 info.jwst_CompareDisplay = CompareDisplay
-
 ;********
 ; build the menubar
 ;********ql.p
 QuitMenu = widget_button(menuBar,value="Quit",font = info.font2)
 quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_mql_compare_display_quit')
-
-
-;Set up the GUI
-
 ;_______________________________________________________________________
 ; window size is based on 1032 X 1024 image
 ; The default scale is 4 so the window (on the analyze raw images
 ; window) is 258 X 256
-
-
 info.jwst_compare.xplot_size = 258
 info.jwst_compare.yplot_size = 256
 if(info.jwst_compare.subarray ne 0) then info.jwst_compare.xplot_size = 256
@@ -812,7 +755,6 @@ xsize_image = fix(info.jwst_compare.image_xsize/info.jwst_compare.binfactor)
 ysize_image = fix(info.jwst_compare.image_ysize/info.jwst_compare.binfactor)
 info.jwst_compare.xplot_size = xsize_image
 info.jwst_compare.yplot_size = ysize_image
-
 ;_______________________________________________________________________
 ; defaults to start with 
 
@@ -832,7 +774,6 @@ graphID_master00 = widget_base(info.jwst_CompareDisplay,row=1,/align_center)
 graphID_master0 = widget_base(info.jwst_CompareDisplay,row=1)
 graphID_master1 = widget_base(info.jwst_CompareDisplay,row=1)
 
-
 info.jwst_compare.graphID11 = widget_base(graphID_master0,col=1)
 info.jwst_compare.graphID12 = widget_base(graphID_master0,col=1)
 info.jwst_compare.graphID13 = widget_base(graphID_master0,col=1) 
@@ -840,20 +781,14 @@ info.jwst_compare.graphID13 = widget_base(graphID_master0,col=1)
 graphID41 = widget_base(graphID_master0,col=1) 
     
 graphID21 = widget_base(graphID_master1,col=1) 
-
 ;_______________________________________________________________________  
 ; set up the images to be displayed
 ; default to start with first integration and first ramp
-; 
 ;_______________________________________________________________________  
-
 info.jwst_compare.x_pos =(info.jwst_compare.image_xsize/info.jwst_compare.binfactor)/2.0
 info.jwst_compare.y_pos = (info.jwst_compare.image_ysize/info.jwst_compare.binfactor)/2.0
-
 ;_______________________________________________________________________
-
 ; binning information
-
 scale_i = strcompress(string(info.jwst_compare.binfactor,format='(f5.2)'),/remove_all)
 sizevalues = 'Bin X Y ['+ scale_i + ','+ scale_i+']'
 binlabel = 'Binning of Images: ' + sizevalues
@@ -868,13 +803,10 @@ endif else begin
                          value='  ',/align_left,font=info.font5)
 endelse
 
-
 ;*****
 ;graph 1,1
 ;*****
-
 xsize_label = 8
-
 sraw_A = " Science Image A : [" + strtrim(string(info.jwst_compare.image_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_compare.image_ysize),2) + ']' 
 
@@ -897,7 +829,7 @@ graph_label = widget_label(info.jwst_compare.graphID11,$
                                          value=sraw_A,/align_left,$
                                         font=info.font5)
 sint = strtrim( string (fix(info.jwst_compare_image[0].jintegration+1)),2)
-sframe = strtrim( string(fix(info.jwst_compare_image[0].iramp+1)),2)
+sframe = strtrim( string(fix(info.jwst_compare_image[0].iframe+1)),2)
 sinfo = ' Integration #    ' + sint +  ' Frame #     ' + sframe
 
 sbase = widget_base(info.jwst_compare.graphID11,row=1)
@@ -906,9 +838,6 @@ info.jwst_compare.info_label[0] = widget_label(sbase,$
                                  value =sinfo,/align_left,font=info.font5)
 
 inspect_label = widget_button(sbase,value='Inspect',uvalue = 'inspect1')
-; statistical information
-
-
 ; min and max scale of  image
 r13_base = widget_base(info.jwst_compare.graphID11,row=1)
 info.jwst_compare.image_recomputeID[0] = widget_button(r13_base,value=' Image Scale ',$
@@ -934,9 +863,6 @@ info.jwst_compare.graphID[0] = widget_draw(info.jwst_compare.graphID11,$
                                     ysize =info.jwst_compare.yplot_size,$
                                     /Button_Events,$
                                     retain=info.retn,uvalue='cpixel')
-
-    
-
 ;*****
 
 noref = widget_label(info.jwst_compare.graphID11,$
@@ -971,9 +897,8 @@ nints= info.jwst_compare_image[0].nints
 tlabel = "Total # " + strcompress(string(nints),/remove_all)
 info.jwst_compare.total_ilabel[0] = widget_label( move_base1,value = tlabel,/align_left)
 
-
 move_base2 = widget_base(info.jwst_compare.graphID11,row=1,/align_left)
-frame1 = fix(info.jwst_compare_image[0].iramp)
+frame1 = fix(info.jwst_compare_image[0].iframe)
 info.jwst_compare.frame_label[0] = cw_field(move_base2,$
                                     title="Frame # ",font=info.font5, $
                                     uvalue="fram1i",/integer,/return_events, $
@@ -981,10 +906,9 @@ info.jwst_compare.frame_label[0] = cw_field(move_base2,$
 labelID = widget_button(move_base2,uvalue='fram1_move_dn',value='<',font=info.font3)
 labelID = widget_button(move_base2,uvalue='fram1_move_up',value='>',font=info.font3)
 
-iframe = info.jwst_compare_image[0].nramps
+iframe = info.jwst_compare_image[0].ngroups
 tlabel = "Frames/Int  " + strcompress(string(iframe),/remove_all)
 info.jwst_compare.total_flabel[0] = widget_label( move_base2,value = tlabel,/align_left)
-
 
 ;_______________________________________________________________________
 ;graph 1,2
@@ -999,7 +923,7 @@ endif else begin
 endelse
 
 sint = strtrim( string (fix(info.jwst_compare_image[1].jintegration+1)),2)
-sframe = strtrim( string(fix(info.jwst_compare_image[1].iramp+1)),2)
+sframe = strtrim( string(fix(info.jwst_compare_image[1].iframe+1)),2)
 sinfo = ' Integration #      ' + sint +  ' Frame #     ' + sframe
 info.jwst_compare.filename_title[1] = widget_label(info.jwst_compare.graphID12,$
                                          value=onlyfile,/align_left,$
@@ -1011,7 +935,6 @@ sbase = widget_base(info.jwst_compare.graphID12,row=1)
 info.jwst_compare.info_label[1] = widget_label(sbase,$
                                  value =sinfo,/align_left,font=info.font5)
 inspect_label = widget_button(sbase,value='Inspect',uvalue = 'inspect2')
-
 
 ; min and max scale of  image
 r13_base = widget_base(info.jwst_compare.graphID12,row=1)
@@ -1031,17 +954,11 @@ info.jwst_compare.rlabelID[1,1] = cw_field(r13_base,title="max",font=info.font4,
                                     xsize = xsize_label,value =blank10,$
                                    fieldfont=info.font4)
 
-
-
-
-
 info.jwst_compare.graphID[1] = widget_draw(info.jwst_compare.graphID12,$
                                     xsize =info.jwst_compare.xplot_size,$ 
                                     ysize =info.jwst_compare.yplot_size,$
                                     /Button_Events,$
                                     retain=info.retn,uvalue='cpixel')
-
-
 ;_______________________________________________________________________
 noref = widget_label(info.jwst_compare.graphID12,$
                      value='No reference Pixels included in stats',$
@@ -1072,7 +989,7 @@ info.jwst_compare.total_ilabel[1] = widget_label( move_base1,value = tlabel,/ali
 
 
 move_base2 = widget_base(info.jwst_compare.graphID12,row=1,/align_left)
-frame1 =fix(info.jwst_compare_image[1].iramp)
+frame1 =fix(info.jwst_compare_image[1].iframe)
 info.jwst_compare.frame_label[1] = cw_field(move_base2,$
                                     title="Frame # ",font=info.font5, $
                                     uvalue="fram2i",/integer,/return_events, $
@@ -1080,7 +997,7 @@ info.jwst_compare.frame_label[1] = cw_field(move_base2,$
 labelID = widget_button(move_base2,uvalue='fram2_move_dn',value='<',font=info.font3)
 labelID = widget_button(move_base2,uvalue='fram2_move_up',value='>',font=info.font3)
 
-iframe = info.jwst_compare_image[1].nramps
+iframe = info.jwst_compare_image[1].ngroups
 tlabel = "Frames/Int  " + strcompress(string(iframe),/remove_all)
 info.jwst_compare.total_flabel[1] = widget_label( move_base2,value = tlabel,/align_left)
 
@@ -1101,15 +1018,11 @@ info.jwst_compare.compareID = widget_droplist(size_base,value=info.jwst_compare.
                                        uvalue='compare',font=font4,/align_left)
 
 inspect_label = widget_button(size_base,value='Inspect',uvalue = 'inspect3')
-
-
 ; min and max scale of  image
 r13_base = widget_base(info.jwst_compare.graphID13,row=1)
 info.jwst_compare.image_recomputeID[2] = widget_button(r13_base,value=' Image Scale ',$
                                                 font=info.font4,$
                                                 uvalue = 'scale3')
-
-
 info.jwst_compare.rlabelID[2,0] = cw_field(r13_base,title="min",font=info.font4,$
                                     uvalue="sr3_b",/float,/return_events,$
                                     xsize=xsize_label,$
@@ -1120,10 +1033,6 @@ info.jwst_compare.rlabelID[2,1] = cw_field(r13_base,title="max",font=info.font4,
                                     uvalue="sr3_t",/float,/return_events,$
                                     xsize = xsize_label,value =blank10,$
                                    fieldfont=info.font4)
-
-
-
-
 
 info.jwst_compare.graphID[2] = widget_draw(info.jwst_compare.graphID13,$
                                     xsize =info.jwst_compare.xplot_size,$ 
@@ -1139,13 +1048,6 @@ info.jwst_compare.slabelID[2,1] = widget_label(info.jwst_compare.graphID13,value
 info.jwst_compare.slabelID[2,2] = widget_label(info.jwst_compare.graphID13,value=info.jwst_compare.sname[2] +blank10,/align_left)
 info.jwst_compare.slabelID[2,3] = widget_label(info.jwst_compare.graphID13,value=info.jwst_compare.sname[3] +blank10,/align_left)
 info.jwst_compare.slabelID[2,4] = widget_label(info.jwst_compare.graphID13,value=info.jwst_compare.sname[4] +blank10,/align_left)
-
-;*****
-
-;______________________________________________________________________
-
-
-
 ;_______________________________________________________________________
 tlabelID = widget_label(graphID21,$
           value="Information on Pixels for Images- Includes Border Pixels",/align_left, font=info.font5,$
@@ -1175,12 +1077,8 @@ labelID = widget_button(pix_num_base,uvalue='pix_move_y2',value='>',font=info.fo
 
 pix_statlabel = strarr(3)
 pixel_statformat = strarr(3)
-
 pix_statLabel = [" Image Value 1", " Image Value 2", " Compare Value"]
-                  
 pix_statFormat = ["F16.4","F16.4","F16.4"]
-
-
 pix_statLabelID = lonarr(3)
 
 svalue1 = pix_statLabel[0]+' = '+ blank10
@@ -1193,15 +1091,10 @@ pix_statLabelID[1] = widget_label(graphID21,$
 pix_statLabelID[2] = widget_label(graphID21,$
                                   value=svalue3,/dynamic_resize,/align_left)
 
-                                             
-
 info.jwst_compare.pix_statLabelID = pix_statLabelID
 info.jwst_compare.pix_statLabel = pix_statLabel 
 info.jwst_compare.pix_statFormat = pix_statFormat
-
-
 ;_______________________________________________________________________
-
 Widget_control,info.jwst_CompareDisplay,/Realize
 XManager,'jwst_mql_compare',info.jwst_CompareDisplay,/No_Block,$
         event_handler='jwst_mql_compare_display_event'    
@@ -1218,7 +1111,6 @@ for i = 0,2 do begin
     window,/pixmap,xsize=info.jwst_compare.xplot_size,ysize=info.jwst_compare.yplot_size,/free
     info.jwst_compare.pixmapID[i] = !D.WINDOW
 endfor
-
 
 ; load the first image into the graph windows
 for i = 0,2 do begin

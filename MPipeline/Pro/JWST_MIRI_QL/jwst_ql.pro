@@ -14,28 +14,22 @@
 ;      users to diagnoise problems in the processing.
 ;
 ; CALLING SEQUENCE:
-;      1. interactive: ql
-;      2. command line driven:
-;          ql,dirin=dirinput,dirout=diroutput,$
-;              dirps = dirpsin
-; 
-;
+;      Interactive: jwst_ql
 ;
 ; INPUTS:
 ;      1. All the default information is held in a preferences file:
-;         MIRI_DHAS_v#.#.preferences. The location of this file is specified
+;         JWST_MIRI_QL_v#.#.preferences. The location of this file is specified
 ;         by the environmental varible: MIRI_DIR
-;      2. The quicklook program can be used to view science data or
-;      telemetry data. In the interactive mode the user selects the
-;      file to openned
-
-
+;      2. The MIRI DHAS JWST quicklook program can be used to view
+;      science data. The user selects the file raw level 1 data to
+;      open. The program checks if any intermediate output from the 
+;      step processing also exists, if it does it reads it in.
 ; OUTPUTS:
 ;      There are options to print certain graphs to a postscript or
 ;      encapsulated postscript file.  
 ;
 ; EXAMPLE:
-;       IDL> ql
+;       IDL> jwst_ql
 ;
 ; PROCEDURES USED:
 ;       many - This code should be put into a specific directory and
@@ -54,17 +48,15 @@
 ;       (morrison @as.arizona.edu).
 ;
 ; REVISON HISTORY:
-;       v1 & v2 - written by Jane Morrison 
+;       v1  - written by Jane Morrison 
 ;       A list of changes written to the DHAS Web site 
 ;       
+;
 
-;-
+;@jwst_code.pro ; listing of all code pieces
 
-@jwst_code.pro ; listing of all code pieces
 
 pro jwst_ql,help=help
-
-
 
 @jwst_ql_structs ; holds all data structures
 
@@ -85,7 +77,6 @@ endcase
 if keyword_set(help) then begin
         jwst_ql_help
 	return
-;	
 endif
 device,decomposed = 0 ; set this from the start
 device,pseudo = 8
@@ -95,12 +86,12 @@ jwst_control = {jwst_controli}
 
 ;_______________________________________________________________________
 
-edit_uwindowsize = 0 ; paramters for editing preferences file
-edit_xwindowsize = 0 ; no structure exists for this widget
-edit_ywindowsize = 0
+;edit_uwindowsize = 0 ; paramters for editing preferences file
+;edit_xwindowsize = 0 ; no structure exists for this widget
+;edit_ywindowsize = 0
 
 ;_______________________________________________________________________
-version = "(v 9.4.5 Dec 13, 2017)"
+version = "(v 1.0 Feb 11, 2019)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -108,7 +99,7 @@ test = strmid(miri_dir,len-1,len-1)
 if(test ne '/') then miri_dir = miri_dir + '/'
 jwst_control.miri_dir = miri_dir
 
-jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v9.4.preferences'
+jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v1.0.preferences'
 
 print,'  Preferences file ',jwst_control.pref_filename
 
@@ -208,32 +199,23 @@ Pdir = ' ' & Pdirps = ' '  & Pdirout = ' '
 Pint_num = 0 & Pframe_num =0 & Pread_limit = 0
 status = 0
 
-
 jwst_read_preference_keys,jwst_control.pref_filename,$
                           jwst_control.miri_dir,$
                           Pdir,Pdirout,Pdirps,$
                           Pint_num,Pframe_num,Pread_limit,$
                           status
 
-print, Pdirout
-
 if(status ne 0) then begin
     print,' Problem reading preferences file'
     stop
 endif
 
-
 print,' Done reading preferences file'
-
 if(status eq 0) then begin
-
 ; the program figures the largest window size 
-
     w = get_screen_size()
     xmax = w[0]* 0.95
     ymax = w[1]* 0.89
-
-
     if(xmax gt 1600) then xmax = 1600
     if(ymax gt 1600 ) then ymax = 1600
     jwst_control.x_scroll_window = xmax
@@ -243,34 +225,21 @@ if(status eq 0) then begin
 
     jwst_control.int_num = Pint_num-1      ; read from preference file - user starts at 1
     jwst_control.frame_start = Pframe_num-1  ; read from preference file - user starts at 1
-
     jwst_control.read_limit = Pread_limit
-
     jwst_control.frame_start_save = jwst_control.frame_start
     jwst_control.int_num_save = jwst_control.int_num
-
     jwst_control.read_limit_save = jwst_control.read_limit
-
-
     jwst_control.dir = Pdir
     jwst_control.dirout = Pdirout
     jwst_control.dirps = Pdirps
-
-
  endif
-
 ;_______________________________________________________________________
-
 ; Size of Windows.
 if(jwst_control.x_scroll_window eq 0) then jwst_control.x_scroll_window = 680
 if(jwst_control.y_scroll_window eq 0) then jwst_control.y_scroll_window = 680
-
-;_______________________________________________________________________
-
 ;_______________________________________________________________________
 ; values set by the program
 titlelabel = '      '
-
 ;*_______________________________________________________________________
 
 ;********
@@ -282,34 +251,36 @@ EditMenu = widget_button(menuBar,value="Color",font=fontname2)
 QuitMenu = widget_button(menuBar,value="Quit",font = fontname2)
 
 ; Analyze
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames and Slopes",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames and Rates",$
                                 uvalue='JWST_LoadI',font=fontname3)
 
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Rate Int Images",$
+                                uvalue='JWST_LoadS',font=fontname3)
 
+
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
+                                uvalue='JWST_LoadC',font=fontname3)
 ; compare
 loadcompareR2Button = widget_button(CompareMenu,value=" Compare Two Science Frames or Two Rate Images",$
-                            font=fontname3,uvalue='JWST_Load2R')
-
+                            font=fontname3,uvalue='JWST_Load2')
 
 ; Edits 
 colorbutton = widget_button(editmenu,value='Change Image Color',event_pro='jwst_ql_color',font=fontname3)
 ;Set up the GUI
 
-
 ; add quit button
 quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_ql_quit')
 
 ;***********************************************************************
-
 blankline = widget_label(JWST_Quicklook,value=' ')
 longline = '                                                                                                                        '
 longtag = widget_label(JWST_Quicklook,value = longline)
 titletag = widget_label(JWST_Quicklook,$
-                            value='      JWST MIRI DHAS Tool' ,$
+                            value='      JWST MIRI DHAS Commissioning Tool' ,$
                             /align_left,font=fontlarge)
 
 authortag = widget_label(JWST_Quicklook,$
-                            value='      Jane Morrison (520-626-3181)' ,$
+                            value='      View JWST Pipeline products' ,$
                             /align_left,font=fontmedium)
 
 emailtag = widget_label(JWST_Quicklook,$
@@ -337,23 +308,16 @@ Widget_control,jwst_QuickLook,/Realize
 ;********
 ; create and initialize "slope " structure
 jwst_slope = {jwst_slopei}
-jwst_slope.id_flags = [ 1,2,4,8,16,32]
-
-;lincor = {jwst_lincori}
-;lincor.uwindowsize = 0
+;jwst_slope.id_flags = [ 1,2,4,8,16,32]
 
 ; create and initialize "data" structure
 jwst_data = {jwst_datai}
-jwst_data.slope_zsize = 7
+
 jwst_data.read_all = 1
-jwst_data.slope_exist = 1
-jwst_data.ref_exist = 1
-jwst_data.slope_stat[*,*] = 0
+;jwst_data.ref_exist = 1
+;jwst_data.slope_stat[*,*] = 0
 
 loadfile = {jwst_generic_windowi} 
-
-
-
 
 ; create and initialize "output file name" structure
 output = {jwst_outputi}
@@ -372,37 +336,45 @@ output.slope_slope_pixel     = '_reduced_pixel'
 
 
 jwst_dqflag = {jwst_dqi} ; data quality flag
-jwst_dqflag .Unusable = 1
-jwst_dqflag .SUnusable = 'Unsable'
+jwst_dqflag .Donotuse = 1
+jwst_dqflag .Sdonotuse = 'Do Not Use'
 jwst_dqflag.Saturated = 2
 jwst_dqflag.SSaturated = 'Saturated'
-jwst_dqflag.CosmicRay = 4
-jwst_dqflag.SCosmicRay = 'Cosmic Ray Hit'
-jwst_dqflag.NoiseSpike = 8
-jwst_dqflag.SNoiseSpike = 'Noise Spike'
-jwst_dqflag.NegCosmicRay = 16
-jwst_dqflag.SNegCosmicRay = 'Cosmic Ray (Negative)'
-jwst_dqflag.NoReset = 32 
-jwst_dqflag.SNoReset = 'Unreliable Reset Switch Charge Decay Correction' 
-jwst_dqflag.NoDark = 64 
-jwst_dqflag.SNoDark = 'Unreliable Dark Correction' 
-jwst_dqflag.NoLin =128  
-jwst_dqflag.SNoLin = 'Unreliable Linearity Correction'  
-jwst_dqflag.NoLastFrame = 256
-jwst_dqflag.SNoLastFrame = ' No Last Frame Correction'  
-jwst_dqflag.Min_Frame_Failure = 512
-jwst_dqflag.SMin_Frame_Failure = ' Ramp has too few valid frames'
-jwst_dqflag.CorruptFrame= -2
-jwst_dqflag.SCorruptFrame= 'Corrupt Frame'
-jwst_dqflag.Reject_After_Noise=-8
-jwst_dqflag.SReject_After_Noise='Frame Rejected after Noise Spike'
-jwst_dqflag.Reject_After_Noise=-8
-jwst_dqflag.Reject_After_CR  =-4
-jwst_dqflag.SRefject_After_CR  ='Frame Rejected after Cosmic Ray'
-jwst_dqflag.CR_Slope_Failure= -16
-jwst_dqflag.SCR_Slope_Failure= 'Slope Failure on Segment - CR hit' 
-jwst_dqflag.CR_Seg_Min=-32
-jwst_dqflag.SCR_Seg_Min= 'Segment does not have min frames - CR hit' 
+jwst_dqflag.Jump = 4
+jwst_dqflag.SJump = 'Jump Det'
+jwst_dqflag.Dropout = 8
+jwst_dqflag.SDropout = 'Drop Out'
+jwst_dqflag.UnrelError = 256
+jwst_dqflag.SUnrelError = 'Unrelialbe Error'
+jwst_dqflag.Nonscience = 512
+jwst_dqflag.SNonscience = 'Non Science'
+jwst_dqflag.Dead = 1024 
+jwst_dqflag.SDead = 'Dead'
+jwst_dqflag.Hot = 2048
+jwst_dqflag.SHot = 'Hot' 
+jwst_dqflag.Warm =4096  
+jwst_dqflag.SWarm = 'Warm'  
+jwst_dqflag.RC = 16384
+jwst_dqflag.SRC = 'RC'  
+jwst_dqflag.nonlinear = 65536
+
+jwst_dqflag.Snonlinear = 'Nonlinear'
+jwst_dqflag.bad_refpixel= 131072
+jwst_dqflag.sbad_refpixel= 'Bad ref pixel'
+jwst_dqflag.no_flatfield=262144
+jwst_dqflag.sno_flatfield='No flat field'
+jwst_dqflag.no_gain=-524288
+jwst_dqflag.sno_gain='No gain value'
+jwst_dqflag.unrel_dark  = 8399608
+jwst_dqflag.Sunrel_dark = 'Unreliable dark'
+jwst_dqflag.unrel_slope  = 16777216
+jwst_dqflag.Sunrel_slope = 'Unreliable slope'
+jwst_dqflag.unrel_flat = 33554432
+jwst_dqflag.Sunrel_flat = 'Unreliable flat'
+jwst_dqflag.unrel_reset = 268435456
+jwst_dqflag.Sunrel_reset = 'Unreliable reset'
+jwst_dqflag.ref_pixel= 2147483648
+jwst_dqflag.Sref_pixel='Reference Pixel'
 
 
 jwst_image = {jwst_imagei}
@@ -415,47 +387,43 @@ jwst_inspect_slope = {jwst_inspecti}
 ; create and initialize inspect structure - raw image 
 jwst_inspect = {jwst_inspecti}
 
-;; create and initialize "compare" structure - holds comparision widget
+; create and initialize inspect structure - 3rd window slope  display  
+jwst_inspect_slope2 = {jwst_inspecti}
+
+; create and initialize inspect structure - slope  final image 
+jwst_inspect_final = {jwst_inspecti}
+
+; widget to load 2 files
+jwst_compare_load = {jwst_generic_windowi}
+jwst_compare_load.uwindowsize = 0
+
+;; create and initialize "compare" structure - holds comparision
+;;                                             widget for frames
 jwst_compare = {jwst_comparei}
 jwst_compare.uwindowsize = 0 
+jwst_cinspect = replicate(jwst_inspect,3) ; inspect comparison raw science frames
 
 ; compare 2 images:
 jwst_compare_image = replicate(jwst_single_image,3)
 
-
-;compare_load = {generic_windowi}
-;compare_load.uwindowsize = 0
-
-
-
-jwst_cinspect = replicate(jwst_inspect,3) ; inspect comparison raw science frames
-
-;jwst_rcompare = {comparei} ; reduced comparison widget
+;; create and initialize "compare" structure - holds comparision
+;;                                             widget for rate
+jwst_rcompare = {jwst_comparei}
+jwst_rcompare.uwindowsize = 0 
 
 ; compare 2 reduced images:
-;rcompare_image = replicate(qlsingle_image,3)
- 
+jwst_rcompare_image = replicate(jwst_single_image,3)
+jwst_crinspect = replicate(jwst_inspect,3) ; inspect comparison reduced data
+
 ; defaults to start with 
-;crinspect = replicate(qlinspect,3) ; inspect comparison reduced data
-
-
-
-; create and initialize inspect structure - 3rd window slope  display  
-;inspect_slope2 = {inspecti}
-
-
-; create and initialize inspect structure - slope  final image 
-;inspect_final = {inspecti}
-
 
 
 jwst_viewhead = 0
-
 display_widget = 1 ; default to display Science Frame and Slope Image
 ;********
-jinfo = {jwst_version             : version,$
+jinfo = {jwst_version        : version,$
          titlelabel          : titlelabel,$
-         display_widget       : display_widget,$
+         display_widget      : display_widget,$
          microsec2sec        : microsec2sec,$
          col_max             : col_max,$
          col_table           : col_table,$
@@ -480,18 +448,18 @@ jinfo = {jwst_version             : version,$
          jwst_plotsize1b          : plotsize1b,$
          jwst_plotsize3           : plotsize3,$
          jwst_plotsize4           : plotsize4,$
-         jwst_plotsize_fullX      : plotsize_fullX,$
-         jwst_plotsize_fullY      : plotsize_fullY,$
+;         jwst_plotsize_fullX      : plotsize_fullX,$
+;         jwst_plotsize_fullY      : plotsize_fullY,$
          viewhdrysize        : view_header_lines,$
-         edit_uwindowsize    : edit_uwindowsize,$
-         edit_xwindowsize    : edit_xwindowsize,$
-         edit_ywindowsize    : edit_ywindowsize,$
+;         edit_uwindowsize    : edit_uwindowsize,$
+;         edit_xwindowsize    : edit_xwindowsize,$
+;         edit_ywindowsize    : edit_ywindowsize,$
          binfactor           : binfactor,$
          xsize_label         : xsize_label,$
          retn                : retn,$
-         jwst_filetag             : filetag,$
-         jwst_typetag             : typetag,$
-         jwst_line_tag            : line_tag,$
+         jwst_filetag        : filetag,$
+         jwst_typetag        : typetag,$
+         jwst_line_tag       : line_tag,$
          JWST_QuickLook      : JWST_QuickLook,$
          jwst_data           : jwst_data,$
          jwst_control        : jwst_control,$
@@ -502,42 +470,33 @@ jinfo = {jwst_version             : version,$
          jwst_slope          : jwst_slope,$
          jwst_inspect        : jwst_inspect,$
          jwst_inspect_slope  : jwst_inspect_slope,$
+         jwst_inspect_slope2      : jwst_inspect_slope2,$
+         jwst_inspect_final       : jwst_inspect_final,$
          jwst_image_pixel    : jwst_image_pixel,$
-;         jwst_rcompare       : jwst_rcompare,$
-;         jwst_rcompare_image : jwst_rcompare_image,$
+         jwst_rcompare       : jwst_rcompare,$
+         jwst_rcompare_image : jwst_rcompare_image,$
          jwst_compare        : jwst_compare,$
          jwst_compare_image  : jwst_compare_image,$
- ;       compare_load        : compare_load,$
- ;       inspect_slope2      : inspect_slope2,$
- ;       inspect_final       : inspect_final,$
+         jwst_compare_load   : jwst_compare_load,$
          jwst_cinspect       : jwst_cinspect,$
- ;       crinspect           : crinspect,$
- ;       ms                  : ms,$
- ;       mc                  : mc,$
- ;       lincor              : lincor,$
+         jwst_crinspect      : jwst_crinspect,$
          loadfile            : loadfile,$
-         jwst_RawQuickLook        : 0L,$
- ;       TwoPtDiff           : 0L,$
+         jwst_RawQuickLook   : 0L,$
  ;       SubarrayGeo         : 0L,$
- ;       SlopeQuickLook      : 0L,$
+         jwst_SlopeQuickLook      : 0L,$
          jwst_RPixelInfo          : 0L,$
- ;       CPixelInfo          : 0L,$
- ;       SCPixelInfo         : 0L,$
- ;       MoveInfo            : 0L,$
          jwst_StatInfo            : 0L,$
- ;       Slope_StatInfo      : 0L,$
- ;        rcomparedisplay     : 0L,$
+         jwst_Slope_StatInfo      : 0L,$
+         jwst_rcomparedisplay     : 0L,$
          jwst_comparedisplay      : 0L,$
- ;       comparepixelinfo    : 0L,$
-        loadRdisplay        : 0L,$
- ;       LinCorResults       : 0L,$
-         jwst_InspectImage   : 0L,$
+         jwst_load2display        : 0L,$
+         jwst_InspectImage        : 0L,$
          jwst_InspectSlope        : 0L,$
- ;       InspectSlope2       : 0L,$
- ;       InspectSlopeFinal   : 0L,$
-         jwst_CInspectImage   : lonarr(3),$
- ;       CRInspectImage       : lonarr(3),$
-        LoadFileInfo            : 0L}
+         jwst_InspectSlope2       : 0L,$
+         jwst_InspectSlopeFinal   : 0L,$
+         jwst_CInspectImage       : lonarr(3),$
+         jwst_CRInspectImage      : lonarr(3),$
+         LoadFileInfo             : 0L}
 
 
 Widget_Control,JWST_QuickLook,Set_UValue=jinfo

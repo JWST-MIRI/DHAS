@@ -1,6 +1,5 @@
 pro jwst_find_image_binfactor,info
 
-
 info.jwst_image.scale_zoom = 1.0
 info.jwst_image.scale_inspect = 1.0
 info.jwst_image.binfactor = info.binfactor ; set default 
@@ -57,12 +56,11 @@ pro jwst_find_slope_binfactor,info
 info.jwst_slope.scale_zoom = 1.0
 info.jwst_slope.scale_inspect = 1.0
 
-info.jwst_slope.binfactor = info.jwst_binfactor ; set default 
+info.jwst_slope.binfactor = info.binfactor ; set default 
 
-
-if(info.jwst_jwst_data.subarray ne 0) then begin
- image_size = info.jwst_jwst_data.slope_xsize
- if(info.jwst_jwst_data.slope_ysize gt image_size) then image_size = info.jwst_jwst_data.slope_ysize
+if(info.jwst_data.subarray ne 0) then begin
+ image_size = info.jwst_data.slope_xsize
+ if(info.jwst_data.slope_ysize gt image_size) then image_size = info.jwst_data.slope_ysize
 
    ; default for subarray less than or =  256
     if(image_size le 256) then info.jwst_slope.binfactor = 1.0
@@ -104,7 +102,7 @@ end
 ;_______________________________________________________________________
 
 
-pro find_binfactor,subarray,image_xsize,image_ysize,binfactor
+pro jwst_find_binfactor,subarray,image_xsize,image_ysize,binfactor
 
 binfactor =4
 

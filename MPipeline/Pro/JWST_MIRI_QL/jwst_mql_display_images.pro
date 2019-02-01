@@ -16,7 +16,6 @@ endif
 
 end
 
-;***********************************************************************
 ; _______________________________________________________________________
 pro jwst_mql_update_pixel_location,info
 ; Update the pixel location is the user selected a different pixel
@@ -51,42 +50,32 @@ pro jwst_mql_update_pixel_stat,info
 
 i = info.jwst_image.integrationNO
 ii = info.jwst_image.integrationNO
-j = info.jwst_image.rampNO
+j = info.jwst_image.frameNO
 x = info.jwst_image.x_pos*info.jwst_image.binfactor
 y = info.jwst_image.y_pos*info.jwst_image.binfactor
 
 
-slope_exist = info.jwst_data.slope_exist
-
 if(info.jwst_data.read_all eq 0) then begin
     i = 0
     if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-        j = info.jwst_image.rampNO- info.jwst_control.frame_start
+        j = info.jwst_image.frameNO- info.jwst_control.frame_start
     endif
 endif
-
 
 pixelvalue = (*info.jwst_data.pimagedata)[i,j,x,y]
 sp =   strtrim(string(pixelvalue,format="("+info.jwst_image.pix_statFormat[0]+")"),2)
 
-
-
 ssignal = 'NA'
 serror = 'NA'
 sdq = 'NA'
-szero = 'NA'
-
-
-if(slope_exist) then begin
-
+if(info.jwst_control.file_slope_exist) then begin
     signal = (*info.jwst_data.preduced)[x,y,0]
     ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat[1]+")"),2)
-    error = (*info.jwst_data.preduced)[x,y,2]
+    error = (*info.jwst_data.preduced)[x,y,1]
     serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat[2]+")"),2)
 
-    dq = (*info.jwst_data.preduced)[x,y,1]
+    dq = (*info.jwst_data.preduced)[x,y,2]
     sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat[3]+")"),2)
-
 endif
 
 widget_control,info.jwst_image.pix_statID[0],set_value=info.jwst_image.pix_statLabel[0]+' = ' +sp
@@ -95,12 +84,27 @@ widget_control,info.jwst_image.pix_statID[2],set_value= info.jwst_image.pix_stat
 widget_control,info.jwst_image.pix_statID[3],set_value= info.jwst_image.pix_statLabel[3] +' = '+ sdq
 
 
+if(info.jwst_control.file_slope_int_exist) then begin
+   ssignal = 'NA'
+   serror = 'NA'
+   sdq = 'NA'
+    signal = (*info.jwst_data.preducedint)[x,y,0]
+    ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat2[0]+")"),2)
+    error = (*info.jwst_data.preducedint)[x,y,1]
+    serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat2[1]+")"),2)
+
+    dq = (*info.jwst_data.preducedint)[x,y,2]
+    sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat2[2]+")"),2)
+    widget_control,info.jwst_image.pix_statID2[0],set_value=info.jwst_image.pix_statLabel2[0]+' = ' +ssignal
+    widget_control,info.jwst_image.pix_statID2[1],set_value= info.jwst_image.pix_statLabel2[1] +' = '+serror
+    widget_control,info.jwst_image.pix_statID2[2],set_value= info.jwst_image.pix_statLabel2[2] +' = '+ sdq
+endif
+
+
+
 
 end
 
-
-
-;***********************************************************************
 ; _______________________________________________________________________
 pro jwst_mql_display_images,info
 ; _______________________________________________________________________
@@ -124,11 +128,14 @@ if(XRegistered ('jwst_mql')) then begin
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
 
+info.jwst_image.plane_final = 0
+info.jwst_image.plane_int = 1
+
 ;_______________________________________________________________________
 ; widget window parameters
 xwidget_size = 1200
 ywidget_size = 1000
-xsize_scroll = 960
+xsize_scroll = 980
 ysize_scroll = 980
 
 ;check the maximum size of the windows
@@ -142,10 +149,7 @@ if(info.jwst_control.x_scroll_window lt xsize_scroll) then xsize_scroll = info.j
 if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.jwst_control.y_scroll_window
 if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
-
 ;_______________________________________________________________________
-
-
 RawQuickLook = widget_base(title="JWST MIRI Quick Look- Science Images" + info.jwst_version,$
                            col = 1,mbar = menuBar,group_leader = info.jwst_QuickLook,$
                            xsize = xwidget_size,$
@@ -159,35 +163,27 @@ info.jwst_RawQuickLook = RawQuickLook
 ; build the menubar
 ;********
 QuitMenu = widget_button(menuBar,value="Quit",font = info.font2)
-quitbutton = widget_button(quitmenu,value="Quit",event_pro='mql_quit')
+quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_mql_quit')
 
 hMenu = widget_button(menuBar,value=" Header",font = info.font2)
 hrMenu = widget_button(hmenu,value="Display Science Image Header",uvalue = 'rheader')
 hsMenu = widget_button(hmenu,value="Display Rate Header",uvalue='sheader')
-hcMenu = widget_button(hmenu,value="Display Calibrated Header",uvalue='cheader')
+
 
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Statistics on Images",uvalue = 'Stat')
 
-
-
 slopeMenu = widget_button(menuBar,value="Reduced Data",font = info.font2)
 slopebutton = widget_button(slopemenu,value="Display Reduced Data",uvalue = 'LoadS')
 
-
-
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
 cbutton = widget_button(cMenu,value = "Compare Science Frame to another Science Frame",uvalue = 'compare')
-
-
 
 PMenu = widget_button(menuBar,value="Print",font = info.font2)
 PbuttonR = widget_button(Pmenu,value = "Print Science Image",uvalue='print_R')
 PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image",uvalue='print_Z')
 PbuttonS = widget_button(Pmenu,value = "Print Reduced Image",uvalue='print_S')
 PbuttonP = widget_button(Pmenu,value = "Print Frame value for pixel",uvalue='print_P')
-
-
 
 if(info.jwst_data.subarray ne 0) then begin
     SMenu = widget_button(menuBar,value = "Subarray",font = info.font2)
@@ -210,13 +206,11 @@ xsize_image = fix(info.jwst_data.image_xsize/info.jwst_image.binfactor)
 ysize_image = fix(info.jwst_data.image_ysize/info.jwst_image.binfactor)
 
 info.jwst_image.xplot_size = 258
-
 info.jwst_image.yplot_size = 256
 if(info.jwst_data.subarray ne 0) then info.jwst_image.xplot_size = 256
 
 info.jwst_image.xplot_size = xsize_image
 info.jwst_image.yplot_size  = ysize_image
-
 
 widget_control,info.jwst_filetag[0] ,set_value = 'Science File name: ' + info.jwst_control.filename_raw 
 widget_control,info.jwst_typetag, set_value ='Science Image ' 
@@ -230,10 +224,10 @@ widget_control,info.jwst_line_tag[0],set_value = '# of Integrations: ' + si
 widget_control,info.jwst_line_tag[1],set_value = '# of Samples/Integrations: ' + sr
 widget_control,info.jwst_line_tag[2],set_value = ' Image Size ' + sx + ' X ' + sy 
 
-if(info.jwst_data.slope_exist eq 0) then $
+if(info.jwst_control.file_slope_exist eq 0) then $
 widget_control,info.jwst_line_tag[4],set_value = ' No slope image exists' 
 
-if(info.jwst_data.slope_exist eq 1) then $
+if(info.jwst_control.file_slope_exist eq 1) then $
 widget_control,info.jwst_filetag[1] ,set_value = 'Slope File name: ' + info.jwst_control.filename_slope
 
 if(info.jwst_data.subarray ne 0) then begin
@@ -245,21 +239,14 @@ if(info.jwst_data.subarray ne 0) then begin
 
 endif
 ;_______________________________________________________________________
-
-;_______________________________________________________________________
 ; defaults to start with 
-
-
 info.jwst_image.default_scale_graph[*] = 1
 info.jwst_image.default_scale_ramp[*] = 1
-
 
 info.jwst_image.x_pos =(info.jwst_data.image_xsize/info.jwst_image.binfactor)/2.0
 info.jwst_image.y_pos = (info.jwst_data.image_ysize/info.jwst_image.binfactor)/2.0
 
-
 info.jwst_image.current_graph = 0
-
 Widget_Control,info.jwst_QuickLook,Set_UValue=info
 
 ;*********
@@ -288,13 +275,11 @@ info.jwst_image.infoID22 = widget_base(graphID_master2,col=1)
 zoomvalues = ['No Zoom', '2X', '4X', '8X', '16X', '32x']
 if(info.jwst_data.subarray ne 0) then zoomvalues = ['No Zoom', '2X', '4X', '8X', '16X', '32X']
 
-
 bimage = "Binned 4 X 4"
 bup =strcompress(string(1/info.jwst_image.binfactor,format="(f5.1)"),/remove_all)
 if(info.jwst_image.binfactor eq 1) then bimage = "No Binning"
 if(info.jwst_image.binfactor eq 2) then bimage = "Binned 2 X 2"
 if(info.jwst_image.binfactor lt 1.0) then bimage = "Blown up by " + bup
-
 
 info.jwst_image.bindisplay=[bimage,"Scroll Full Image"] 
 
@@ -328,8 +313,6 @@ smax = strcompress(string(rawmax),/remove_all)
 
 stat_base1 = widget_base(info.jwst_image.graphID11,row=1)
 stat_base2 = widget_base(info.jwst_image.graphID11,row=1)
-
-
 
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_i',font=info.font4)
 
@@ -365,7 +348,6 @@ info.jwst_image.graphID[0] = widget_draw(info.jwst_image.plot_base[0],$
                                         ysize =info.jwst_image.yplot_size,$
                                         /Button_Events,$
                                         retain=info.retn,uvalue='mqlpixel1')
-
 
 ;*****
 ;graph 1,2; window 2 initally set to raw image zoom
@@ -448,7 +430,7 @@ compare_label = cw_field(info.jwst_image.infoID00,title='Compare Science Frame t
 ; button to change all the images- one for integration#  and 
 ;                                  one for frame #
 
-iramp = info.jwst_image.rampNO
+iramp = info.jwst_image.frameNO
 jintegration = info.jwst_image.IntegrationNO
 
 moveframe_label = widget_label(info.jwst_image.infoID00,value='Change Image Displayed',$
@@ -482,13 +464,9 @@ tlabel = "Frames/Int  " + strcompress(string(info.jwst_data.ngroups),/remove_all
 
 total_ilabel = widget_label( move_base2,value = tlabel,/align_left)
 ;-----------------------------------------------------------------------
-
-
 ; Pixel Information
 general_label= widget_label(info.jwst_image.infoID00,$
                             value=" Pixel Information (Image: 1032 X 1024)",/align_left,$
-
-
                             font=info.font5,/sunken_frame)
 ; button to change 
 pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)
@@ -512,52 +490,65 @@ info.jwst_image.pix_label[1] = cw_field(pix_num_base,title="y",font=info.font4, 
 labelID = widget_button(pix_num_base,uvalue='pix_move_y1',value='<',font=info.font3)
 labelID = widget_button(pix_num_base,uvalue='pix_move_y2',value='>',font=info.font3)
 
-
-
-
-
 flabel = widget_button(info.jwst_image.infoID00,value="Display a Table of  Frame Values",/align_left,$
                         uvalue = "getframe")
 pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)    
 
-
-
 info.jwst_image.pix_statLabel = ["Frame Value",$
-                                 "Slope (DN/s)", $
-                                 "Error (DN/s)",$
-                                 "Data Quality Flag",$
-                                 "Zero-Pt (DN)"]
+                                 "Final Rate (DN/s)", $
+                                 "Final Error (DN/s)",$
+                                 "Final  DQ Flag"]
 
-info.jwst_image.pix_statFormat =  ["F10.2","F12.5", "F12.5","I10","F10.2"]
+info.jwst_image.pix_statFormat =  ["F10.2","F12.5", "F12.5","I10"]
 
-
-
-for i = 0,4 do begin  
+for i = 0,3 do begin  
     info.jwst_image.pix_statID[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel[i]+$
                                             ' =   ' ,/align_left,/dynamic_resize)
 endfor
 
+if(info.jwst_control.file_slope_int_exist eq 1) then begin 
+   pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)    
+
+   info.jwst_image.pix_statLabel2 = ["Int Rate (DN/s)", $
+                                    "Int Error (DN/s)",$
+                                    "Int  DQ Flag"]
+
+   info.jwst_image.pix_statFormat2 =  ["F12.5", "F12.5","I10"]
+
+   for i = 0,2 do begin  
+      info.jwst_image.pix_statID2[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel2[i]+$
+                                                   ' =   ' ,/align_left,/dynamic_resize)
+   endfor
+endif
 info_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)
-info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
-
-
+info_label = widget_button(info_base,value = 'Rate DQ Info',uvalue = 'datainfo')
 
 ;_______________________________________________________________________
 ;*****
 ;graph 2,1
 ;*****
+voptions = ['Final Rate Image: ']
+if(info.jwst_control.file_slope_int_exist) then voptions = ['Final Rate Image: ', 'Integration Rate Image']
 
-ss = " Slope Image [" + strtrim(string(info.jwst_data.image_xsize),2) + ' x ' +$
+
+ss = " Rate Image  [" + strtrim(string(info.jwst_data.image_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_data.image_ysize),2) + ']' + " " + info.jwst_image.bindisplay[0]
-if(not info.jwst_data.slope_exist) then ss = " NO Slope Image Exist" 
+if(info.jwst_control.file_slope_exist eq 0) then voptions = " No Final Rate Image Exist" 
 
+;info.jwst_image.graph_label[2]= widget_label(info.jwst_image.graphID21,value = ss,$
+;                                      /align_center,font=info.font5,/sunken_frame)
 
-info.jwst_image.graph_label[2]= widget_label(info.jwst_image.graphID21,value = ss,$
+label21= widget_label(info.jwst_image.graphID21,value = ss,$
                                       /align_center,font=info.font5,/sunken_frame)
+info.jwst_image.plane = 0 ; final rate image
+base1 = widget_base(info.jwst_image.graphID21,row=1)
+info.jwst_image.graph_label[2] = widget_droplist(base1,value=voptions,$
+                                            uvalue='voption',font=info.font5)
+
 mean = 0 & min = 0 & max = 0 
 range_min = 0 & range_max = 0
 
-if(info.jwst_data.slope_exist eq 1) then begin 
+if(info.jwst_control.file_slope_exist eq 1) then begin 
     mean = info.jwst_data.reduced_stat[0,0]
     min = info.jwst_data.reduced_stat[3,0]
     max = info.jwst_data.reduced_stat[4,0]
@@ -568,7 +559,6 @@ endif
 info.jwst_image.graph_range[2,0] = range_min
 info.jwst_image.graph_range[2,1] = range_max
 
-
 smean =  strcompress(string(mean),/remove_all)
 smin = strcompress(string(min),/remove_all) 
 smax = strcompress(string(max),/remove_all) 
@@ -576,15 +566,13 @@ smax = strcompress(string(max),/remove_all)
 ssmean = string('Mean ' + smean )    
 sminmax = string(' Min: ' + smin + '    Max: ' + smax) 
 
-if(not info.jwst_data.slope_exist) then begin
+if(info.jwst_control.file_slope_exist eq 0) then begin
 	ssmean = '   Mean  NA        '
 	sminmax = '   Min and Max  NA  '
 endif
 
 stat_base1 = widget_base(info.jwst_image.graphID21,row=1)
 stat_base2 = widget_base(info.jwst_image.graphID21,row=1)
-
-
 
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_s',font=info.font4)
 info.jwst_image.slabelID[2] = widget_label(stat_base2,$
@@ -602,7 +590,6 @@ info.jwst_image.rlabelID[2,0] = cw_field(info.jwst_image.srange_base[2],$
 info.jwst_image.rlabelID[2,1] = cw_field(info.jwst_image.srange_base[2],$
                                     title="max",font=info.font4,uvalue='sr3_t',$
                                     /float,/return_events,xsize = info.xsize_label,value =range_max)
-
     
 
 info.jwst_image.plot_base[2] = widget_base(info.jwst_image.graphID21)
@@ -611,13 +598,10 @@ info.jwst_image.graphID[2] = widget_draw(info.jwst_image.plot_base[2],$
                                         ysize =info.jwst_image.yplot_size,$
                                         /Button_Events,$
                                         retain=info.retn,uvalue='mqlpixel3')
-
 ;*****
 ;graph 2,2
 ;*****
-
 ramp_range = fltarr(2,2)        ; plot range for the ramp plot, 
-
 
 tlabelID = widget_label(info.jwst_image.graphID22,$
                         value = " Frame Values in Selected Pixel for Given " $
@@ -625,10 +609,7 @@ tlabelID = widget_label(info.jwst_image.graphID22,$
                         /align_center,$
                         font=info.font5,/sunken_frame)
 
-
 ; button to change selected pixel
-
-
 pix_num_base = widget_base(info.jwst_image.graphID22,row=1,/align_center)
 
 xs = ' x: '+ strcompress(string(fix(info.jwst_image.x_pos*info.jwst_image.binfactor) +1),/remove_all)
@@ -644,7 +625,6 @@ int_range = intarr(2)
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
 info.jwst_image.int_range[*] = int_range[*]
-if(info.jwst_data.coadd eq 1) then info.jwst_image.int_range[1] = info.jwst_data.nints
 
 move_base = widget_base(info.jwst_image.graphID22,/row,/align_left)
 
@@ -663,16 +643,12 @@ info.jwst_image.IrangeID[1] = cw_field(move_base,$
 labelID = widget_button(move_base,uvalue='int_move_d',value='<',font=info.font3)
 labelID = widget_button(move_base,uvalue='int_move_u',value='>',font=info.font3)
 
-
-
 info.jwst_image.graphID[3] = widget_draw(info.jwst_image.graphID22,$
                                     xsize = info.jwst_plotsize3,$
                                     ysize = info.jwst_plotsize1,$
                                     retain=info.retn)
 
-
 ;buttons to  change the x and y ranges
-
 pix_num_base2 = widget_base(info.jwst_image.graphID22,row=1)
 labelID = widget_label(pix_num_base2,value="X->",font=info.font4)
 info.jwst_image.ramp_mmlabel[0,0] = cw_field(pix_num_base2,title="min:",font=info.font4, $
@@ -717,10 +693,6 @@ info.jwst_image.autopixelupdate = 1
 
 ;_______________________________________________________________________
 
-
-
-
-
 IAllButton = Widget_button(info.jwst_image.infoID22, Value = 'Plot All Integrations',$
                            uvalue = 'int_grab_all',/align_left)
 widget_control,IAllButton,Set_Button = 0
@@ -729,50 +701,40 @@ IAllButton = Widget_button(info.jwst_image.infoID22, Value = 'Over plot Integrat
                            uvalue = 'int_overplot',/align_left)
 widget_control,IAllButton,Set_Button = 0
 bk = widget_label(info.jwst_image.infoID22,value = ' ' ) 
-overplotSlopeID = lonarr(2)
-overplotRefID = lonarr(2)
-if(info.jwst_data.slope_exist)then begin 
-    if(info.jwst_data.coadd ne 1) then $
+overplotFitID = lonarr(2)
+if(info.jwst_control.file_fitopt_exist)then begin 
+
     overplot = widget_label(info.jwst_image.infoID22,value = 'Over-plot Values from Fit (red)',/sunken_frame,$
                             font = info.font5,/align_left)
-    if(info.jwst_data.coadd eq 1) then $
-    overplot = widget_label(info.jwst_image.infoID22,value = 'Over-plot Coadded Value (red)',/sunken_frame,$
-                            font = info.font5,/align_left)
+
     oBase = Widget_base(info.jwst_image.infoID22,/row,/nonexclusive)
 
-    OverplotSlopeID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overslope1')
-    widget_control,OverplotSlopeID[0],Set_Button = 1
+    OverplotFitID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overslope1')
+    widget_control,OverplotFitID[0],Set_Button = 0
 
-    OverplotSlopeID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overslope2')
-    widget_control,OverplotSlopeID[1],Set_Button = 0
+    OverplotFitID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overslope2')
+    widget_control,OverplotFitID[1],Set_Button = 1
 
 endif
 
-info.jwst_image.overplotSlopeID = overplotSlopeID
+info.jwst_image.overplotFitID = overplotFitID
 
-overplotRefCorrectedID = lonarr(2)
+overplotRefpixID = lonarr(2)
 
-if(info.jwst_control.file_refcorrection_exist eq 1)then begin 
-    overplot = widget_label(info.jwst_image.infoID22,value = 'Over-plot Reference Corrected Data (blue +)',/sunken_frame,$
+if(info.jwst_control.file_refpix_exist eq 1)then begin 
+    overplot = widget_label(info.jwst_image.infoID22,value = 'Over-plot Reference Corrected Data (blue box)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.jwst_image.infoID22,/row,/nonexclusive)
 
-    OverplotRefCorrectedID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overref1')
-    widget_control,OverplotRefCorrectedID[0],Set_Button = 1
+    OverplotRefpixID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overref1')
+    widget_control,OverplotRefpixID[0],Set_Button = 1
 
-    OverplotRefCorrectedID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overref2')
-    widget_control,OverplotRefCorrectedID[1],Set_Button = 0
+    OverplotRefpixID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overref2')
+    widget_control,OverplotRefpixID[1],Set_Button = 0
 endif
 
-info.jwst_image.overplotRefcorrectedID = overplotRefCorrectedID
-
-
-
-;_______________________________________________________________________
-
-;_______________________________________________________________________
-
+info.jwst_image.overplotRefpixID = overplotRefpixID
 ;_______________________________________________________________________
 overplotresetID = lonarr(2)
 if(info.jwst_control.file_reset_exist eq 1)then begin 
@@ -789,10 +751,6 @@ if(info.jwst_control.file_reset_exist eq 1)then begin
 endif
 
 info.jwst_image.overplotresetID = overplotresetID
-
-;_______________________________________________________________________
-
-
 ;_______________________________________________________________________
 overplotrscdID = lonarr(2)
 if(info.jwst_control.file_rscd_exist eq 1)then begin 
@@ -829,61 +787,38 @@ info.jwst_image.overplotlastframeID = overplotlastframeID
 
 
 ;_______________________________________________________________________
-overplotMDCID = lonarr(2)
-if(info.jwst_control.file_mdc_exist eq 1)then begin 
+overplotdarkID = lonarr(2)
+if(info.jwst_control.file_dark_exist eq 1)then begin 
     mark = widget_label(info.jwst_image.infoID22,value = 'Over Plot Dark Corrected Data  (green boxes)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.jwst_image.infoID22,/row,/nonexclusive)
 
-    OverplotMDCID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overmd1')
-    widget_control,OverplotMDCID[0],Set_Button = 1
+    OverplotdarkID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overmd1')
+    widget_control,OverplotdarkID[0],Set_Button = 1
 
-    OverplotMDCID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overmd2')
-    widget_control,OverplotMDCID[1],Set_Button = 0
+    OverplotdarkID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overmd2')
+    widget_control,OverplotdarkID[1],Set_Button = 0
 endif
 
-info.jwst_image.overplotMDCID = overplotMDCID
+info.jwst_image.overplotdarkID = overplotdarkID
 ;_______________________________________________________________________
-
-overplotLCID = lonarr(2)
-
-plotRLCID = lonarr(2)
-info.jwst_image.plot_lc_results = 0
-if(info.jwst_control.file_lc_exist eq 1)then begin 
+overplotlinID = lonarr(2)
+if(info.jwst_control.file_linearity_exist eq 1)then begin 
     mark = widget_label(info.jwst_image.infoID22,value = 'Overplot Linearity Corrected Data (blue *)',/sunken_frame,$
                             font = info.font5,/align_left)
 
     oBase = Widget_base(info.jwst_image.infoID22,/row,/nonexclusive)
 
-    OverplotLCID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overlc1')
-    widget_control,OverplotLCID[0],Set_Button = 1
+    OverplotlinID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overlc1')
+    widget_control,OverplotlinID[0],Set_Button = 1
 
-    OverplotLCID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overlc2')
-    widget_control,OverplotLCID[1],Set_Button = 0
-
-
-    mark = widget_label(info.jwst_image.infoID22,value = 'Plot Lin. Cor. Results',/sunken_frame,$
-                            font = info.font5,/align_left)
-
-    oBase = Widget_base(info.jwst_image.infoID22,/row,/nonexclusive)
-
-    plotRLCID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'plotrlc1')
-    widget_control,plotRLCID[0],Set_Button = 0
-
-    plotRLCID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'plotrlc2')
-    widget_control,plotRLCID[1],Set_Button = 1
-
-
+    OverplotlinID[1] = Widget_Button(oBase, Value = ' No ',uvalue = 'overlc2')
+    widget_control,OverplotLinID[1],Set_Button = 0
 endif
-
-info.jwst_image.plotRLCID = plotRLCID
-info.jwst_image.overplotLCID = overplotLCID
-
-
+info.jwst_image.overplotlinID = overplotlinID
 
 ;*****
-
 blank = "                                                                                                                                                       "
 blank_label= widget_label(info.jwst_image.infoID00,value = blank)
 ;_______________________________________________________________________
@@ -893,7 +828,6 @@ longtag = widget_label(RawQuicklook,value = longline)
 ;Set up the GUI
 Widget_control,info.jwst_RawQuickLook,/Realize
 XManager,'jwst_mql',info.jwst_RawQuickLook,/No_Block,event_handler='jwst_mql_event'
-
 
 ; get the window ids of the draw windows
 
@@ -912,13 +846,8 @@ for i = 0,(n_draw-1) do begin
     endif
 endfor
 
-
 ; load the first image into the graph windows
-
-
 loadct,info.col_table,/silent
-
-
 jwst_mql_update_images,info
 
 info.jwst_image.graph_mpixel = 1
@@ -928,15 +857,9 @@ info.jwst_image.y_zoom = info.jwst_image.y_pos* info.jwst_image.binfactor
 info.jwst_image.zoom_window = 1
 
 jwst_mql_update_zoom_image,info
-
-
 jwst_mql_update_slope,info
 ; load individual ramp graph - based on x_pos, y_pos
-
 if(info.jwst_data.ngroups lt 200) then  jwst_mql_update_rampread,info
-
-print,'********************',info.jwst_data.nslopes
-
 jwst_mql_update_pixel_stat,info
 
 Widget_Control,info.jwst_QuickLook,Set_UValue=info

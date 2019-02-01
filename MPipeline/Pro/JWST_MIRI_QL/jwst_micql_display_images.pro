@@ -5,7 +5,7 @@ pro jwst_micql_quit,event
 widget_control,event.top, Get_UValue = ginfo	
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
 widget_control,info.jwst_CinspectImage[ginfo.imageno],/destroy
-wdelete,info_jwst.cinspect[ginfo.imageno].pixmapID
+wdelete,info.jwst_cinspect[ginfo.imageno].pixmapID
 
 end
 ;_______________________________________________________________________
@@ -41,9 +41,9 @@ endif
 ; scaling image
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'sinspect') : begin
-        if(info.cinspect[imageno].default_scale_graph eq 0 ) then begin ; true - turn to false
-            widget_control,info.cinspect[imageno].image_recomputeID,set_value=' Image Scale '
-            info.cinspect[imageno].default_scale_graph = 1
+        if(info.jwst_cinspect[imageno].default_scale_graph eq 0 ) then begin ; true - turn to false
+            widget_control,info.jwst_cinspect[imageno].image_recomputeID,set_value=' Image Scale '
+            info.jwst_cinspect[imageno].default_scale_graph = 1
         endif
 
         jwst_micql_update_images,info,imageno
@@ -58,46 +58,44 @@ endif
     (strmid(event_name,0,3) EQ 'isr') : begin
 
         if(strmid(event_name,4,1) EQ 'b') then begin
-            info.cinspect[imageno].graph_range[0] = event.value
-            widget_control,info.cinspect[imageno].rlabelID[1],get_value = temp
-            info.cinspect[imageno].graph_range[1] = temp
+            info.jwst_cinspect[imageno].graph_range[0] = event.value
+            widget_control,info.jwst_cinspect[imageno].rlabelID[1],get_value = temp
+            info.jwst_cinspect[imageno].graph_range[1] = temp
         endif
 
 
         if(strmid(event_name,4,1) EQ 't') then begin
-            info.cinspect[imageno].graph_range[1] = event.value
-            widget_control,info.cinspect[imageno].rlabelID[0],get_value = temp
-            info.cinspect[imageno].graph_range[0] = temp
+            info.jwst_cinspect[imageno].graph_range[1] = event.value
+            widget_control,info.jwst_cinspect[imageno].rlabelID[0],get_value = temp
+            info.jwst_cinspect[imageno].graph_range[0] = temp
         endif
                         
-        info.cinspect[imageno].default_scale_graph = 0
-        widget_control,info.cinspect[imageno].image_recomputeID,set_value=' Default Scale'
+        info.jwst_cinspect[imageno].default_scale_graph = 0
+        widget_control,info.jwst_cinspect[imageno].image_recomputeID,set_value=' Default Scale'
 
         jwst_micql_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
-    
 ;_______________________________________________________________________
 ; Change limits
 
     (strmid(event_name,0,5) EQ 'limit') : begin
 
         if(strmid(event_name,6,1) EQ 'l') then begin
-            info.cinspect[imageno].limit_low = event.value
+            info.jwst_cinspect[imageno].limit_low = event.value
 
-            widget_control,info.cinspect[imageno].limit_highID,get_value = temp
-            info.cinspect[imageno].limit_high = temp
+            widget_control,info.jwst_cinspect[imageno].limit_highID,get_value = temp
+            info.jwst_cinspect[imageno].limit_high = temp
         endif
 
 
         if(strmid(event_name,6,1) EQ 'h') then begin
-            info.cinspect[imageno].limit_high = event.value
-            widget_control,info.cinspect[imageno].limit_lowID,get_value = temp
-            info.cinspect[imageno].limit_low = temp
+            info.jwst_cinspect[imageno].limit_high = event.value
+            widget_control,info.jwst_cinspect[imageno].limit_lowID,get_value = temp
+            info.jwst_cinspect[imageno].limit_low = temp
         endif
-        info.cinspect[imageno].limit_low_default = 0
-        info.cinspect[imageno].limit_high_default = 0
+        info.jwst_cinspect[imageno].limit_low_default = 0
+        info.jwst_cinspect[imageno].limit_high_default = 0
 
         jwst_micql_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
@@ -394,14 +392,6 @@ sub_image = fltarr(xsize,ysize)
 sub_image[ixstart:ixend,iystart:iyend] =frame_image[xstart:xend,ystart:yend]
 stat_data =     sub_image
 
-if(info.jwst_image.apply_bad) then begin 
-    bad_sub_mask  = fltarr(xsize,ysize)
-    bad_sub_mask[ixstart:ixend,iystart:iyend] = (*info.jwst_badpixel.pmask)[xstart:xend,ystart:yend]
-    index = where(bad_sub_mask and 1,numbad)
-    if(numbad gt 0) then stat_data[index] = !values.F_NaN
-    bad_sub_mask = 0
-endif    
-
 x_zoom_start = ixstart
 x_zoom_end = ixend
 
@@ -420,8 +410,8 @@ stat_data = 0
 stat_data = stat_noref
 stat_noref = 0
 
-get_image_stat,stat_data,image_mean,stdev,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,stat_data,image_mean,stdev,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 
 stat_data = 0
 ;_______________________________________________________________________
@@ -431,21 +421,10 @@ info.jwst_cinspect[imageno].psubdata = ptr_new(sub_image)
 z_mean  = image_mean
 z_stdev  = stdev
 z_median  = image_median
-z_skew  = skew
 z_min  = image_min
 z_max  = image_max
-z_good = ngood
-z_bad  = nbad
 ;_______________________________________________________________________
 ; get stats on full image - no reference pixels
-
-
-if(info.jwst_image.apply_bad) then begin 
-    index = where( (*info.jwst_badpixel.pmask) and 1,numbad)
-    if(numbad gt 0) then frame_image[index] = !values.F_NaN
-endif    
-
-
 
 if(info.jwst_compare_image[imageno].subarray eq 0) then begin  
     frame_image_noref  = frame_image[4:1027,*]
@@ -458,8 +437,8 @@ endif else begin
 endelse
 
 ;frame_image_noref = frame_image[*,*]
-get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean,skew,ngood,nbad
+jwst_get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
+               irange_min,irange_max,image_median,stdev_mean
 frame_image = 0                 ; free memory
 frame_image_noref = 0
 ;_______________________________________________________________________
@@ -470,8 +449,6 @@ if(hcopy eq 0 ) then wset,info.jwst_cinspect[imageno].pixmapID
 
 xsize_image = info.jwst_cinspect[imageno].xplotsize 
 ysize_image  = info.jwst_cinspect[imageno].yplotsize 
-
-
 ;_______________________________________________________________________
 ; check if default scale is true - then reset to orginal value
 if(info.jwst_cinspect[imageno].default_scale_graph eq 1) then begin
@@ -507,16 +484,12 @@ min = image_min
 max = image_max
 median = image_median
 st_mean = stdev_mean
-skew = skew
-
 
 low_limit_value = info.jwst_cinspect[imageno].limit_low
 high_limit_value = info.jwst_cinspect[imageno].limit_high
 
-
 index_low = where(sub_image lt low_limit_value,num_low)
 index_high = where(sub_image gt high_limit_value,num_high)
-
 
 info.jwst_cinspect[imageno].limit_low_num = num_low
 info.jwst_cinspect[imageno].limit_high_num = num_high
@@ -600,9 +573,6 @@ widget_control,info.jwst_cinspect[imageno].slabelID[2],set_value=info.jwst_cinsp
 widget_control,info.jwst_cinspect[imageno].slabelID[3],set_value=info.jwst_cinspect[imageno].sname[3]+ strtrim(string(min,format="(g14.6)"),2) 
 widget_control,info.jwst_cinspect[imageno].slabelID[4],set_value=info.jwst_cinspect[imageno].sname[4]+ strtrim(string(max,format="(g14.6)"),2) 
 
-widget_control,info.jwst_cinspect[imageno].slabelID[5],set_value=info.jwst_cinspect[imageno].sname[5]+ strtrim(string(skew,format="(g14.6)"),2) 
-widget_control,info.jwst_cinspect[imageno].slabelID[6],set_value=info.jwst_cinspect[imageno].sname[6]+ strtrim(string(ngood,format="(i10)"),2) 
-widget_control,info.jwst_cinspect[imageno].slabelID[7],set_value=info.jwst_cinspect[imageno].sname[7]+ strtrim(string(nbad,format="(i10)"),2) 
 
 widget_control,info.jwst_cinspect[imageno].rlabelID[0],set_value=info.jwst_cinspect[imageno].graph_range[0]
 widget_control,info.jwst_cinspect[imageno].rlabelID[1],set_value=info.jwst_cinspect[imageno].graph_range[1]
@@ -616,12 +586,6 @@ if(info.jwst_cinspect[imageno].zoom gt info.jwst_cinspect[imageno].set_zoom) the
  subt = "Statisical Information for Zoom Region"
  widget_control,info.jwst_cinspect[imageno].zlabelID,set_value = subt
 
- sf = ' ' 
- if(info.jwst_image.apply_bad eq 0) then sf = "Reference Pixels NOT Included" 
- if(info.jwst_image.apply_bad eq 1) then sf = "Reference Pixels & Bad Pixels  NOT Included" 
-
- widget_control,info.jwst_cinspect[imageno].zlabel1,set_value = sf
-
 
  widget_control,info.jwst_cinspect[imageno].zslabelID[0],$
                 set_value=info.jwst_cinspect[imageno].sname[0]+ strtrim(string(z_mean,format="(g14.6)"),2) 
@@ -634,13 +598,6 @@ if(info.jwst_cinspect[imageno].zoom gt info.jwst_cinspect[imageno].set_zoom) the
  widget_control,info.jwst_cinspect[imageno].zslabelID[4],$
                 set_value=info.jwst_cinspect[imageno].sname[4]+ strtrim(string(z_max,format="(g14.6)"),2) 
  
- widget_control,info.jwst_cinspect[imageno].zslabelID[5],$
-                set_value=info.jwst_cinspect[imageno].sname[5]+ strtrim(string(z_skew,format="(g14.6)"),2) 
- widget_control,info.jwst_cinspect[imageno].zslabelID[6],$
-                set_value=info.jwst_cinspect[imageno].sname[6]+ strtrim(string(z_good,format="(i10)"),2) 
- widget_control,info.jwst_cinspect[imageno].zslabelID[7],$
-                set_value=info.jwst_cinspect[imageno].sname[7]+ strtrim(string(z_bad,format="(i10)"),2) 
- 
 endif else begin
 
  widget_control,info.jwst_cinspect[imageno].zlabelID,set_value = ''
@@ -652,10 +609,6 @@ endif else begin
  widget_control,info.jwst_cinspect[imageno].zslabelID[2],set_value = ' ' 
  widget_control,info.jwst_cinspect[imageno].zslabelID[3],set_value = ' ' 
  widget_control,info.jwst_cinspect[imageno].zslabelID[4],set_value = ' ' 
- widget_control,info.jwst_cinspect[imageno].zslabelID[5],set_value = ' ' 
- widget_control,info.jwst_cinspect[imageno].zslabelID[6],set_value = ' ' 
- widget_control,info.jwst_cinspect[imageno].zslabelID[7],set_value = ' ' 
-
 endelse
 
 
@@ -697,23 +650,12 @@ yvalue = info.jwst_cinspect[imageno].yposful
 
 
 pixelvalue = (*info.jwst_cinspect[imageno].pdata)[xvalue,yvalue]
-dead_pixel = 0
-dead_pixel = (*info.jwst_badpixel.pmask)[xvalue,yvalue]
-
-dead_str = 'No '
-if(dead_pixel and 1) then dead_str= 'Yes' 
-if(info.jwst_control.display_apply_bad eq 0) then dead_str = 'NA ' 
-
-widget_control,info.jwst_cinspect[imageno].pix_statID[0],set_value= info.jwst_cinspect[imageno].pix_statLabel[0] + ' = ' + $
-  strtrim(string(dead_str,format="("+info.jwst_cinspect[imageno].pix_statFormat[0]+")"),2)
 
 widget_control,info.jwst_cinspect[imageno].pix_statID[1],$
                set_value= info.jwst_cinspect[imageno].pix_statLabel[1] + ' = ' + $
                strtrim(string(pixelvalue,format="("+info.jwst_cinspect[imageno].pix_statFormat[1]+")"),2)
 
 wset,info.jwst_cinspect[imageno].draw_window_id
-
-
 
 xsize_image = info.jwst_cinspect[imageno].xplotsize 
 ysize_image  = info.jwst_cinspect[imageno].yplotsize 
@@ -810,10 +752,8 @@ ywidget_size = 1100
 xsize_scroll = 1350
 ysize_scroll = 1050
 
-
 window,1,/pixmap
 wdelete,1
-
 
 if(info.jwst_cinspect[imageno].uwindowsize eq 1) then begin ; user has set window size 
     xsize_scroll = info.jwst_cinspect[imageno].xwindowsize
@@ -856,9 +796,6 @@ if(imageno eq 2) then begin
     sfile = stit
     ttitle = sfile
 endif
-
-
-
 InspectImage = widget_base(title="MIRI Quick Look- "+ stit + info.jwst_version,$
                                 mbar = menuBar,/row,group_leader = info.jwst_Quicklook,$
                                 xsize =  xwidget_size,$
@@ -900,15 +837,11 @@ graphID2  = widget_base(graphID_master1,col=1)
 ;*****
 ;graph full images
 ;*****
-
-
-
 xplotsize = info.jwst_compare_image[imageno].xsize
 yplotsize = info.jwst_compare_image[imageno].ysize
 
 info.jwst_cinspect[imageno].set_zoom = 1
 if (xplotsize lt 1032) then begin
-
     find_zoom,xplotsize,yplotsize,zoom
     info.jwst_cinspect[imageno].zoom = zoom
     info.jwst_cinspect[imageno].set_zoom = zoom
@@ -940,9 +873,6 @@ xsize_label = 8
 ; statistical information - next column
 
 blank = '                                               '
-
-
-
 ititle =  "Integration #: " + strtrim(string(info.jwst_cinspect[imageno].integrationNO+1),2) 
 ftitle = "Frame #: " + strtrim(string(info.jwst_cinspect[imageno].frameNO+1),2)   
          
@@ -956,12 +886,9 @@ blank10 = '               '
 
 ;-----------------------------------------------------------------------
 ; min and max scale of  image
-
-
 base1 = widget_base(graphID2,row= 1,/align_left)
 r_label1 = widget_label(base1,value="Change Image Scale" ,/align_left,font=info.font5,$
                        /sunken_frame)
-
 
 info.jwst_cinspect[imageno].image_recomputeID = widget_button(base1,value=' Image Scale ',$
                                                          font=info.font3,$
@@ -1006,8 +933,6 @@ info.jwst_cinspect[imageno].pix_label[0] = cw_field(pix_num_base,title="x",font=
                                    value=fix(xvalue+1),xsize=6,$  ; xvalue + 1 -4 (reference pixel)
                                    fieldfont=info.font3)
 
-
-
 pix_num_base = widget_base(graphID2,row=1,/align_left)
 labelID = widget_button(pix_num_base,uvalue='pix_move_y1',value='<',font=info.font3)
 labelID = widget_button(pix_num_base,uvalue='pix_move_y2',value='>',font=info.font3)
@@ -1015,13 +940,7 @@ info.jwst_cinspect[imageno].pix_label[1] = cw_field(pix_num_base,title="y",font=
                                    uvalue="pix_y_val",/integer,/return_events, $
                                    value=fix(yvalue+1),xsize=6,$
                                    fieldfont=info.font3)
-
-info.jwst_cinspect[imageno].pix_statLabel[0] = "Dead/hot/noisy Pixel"
-info.jwst_cinspect[imageno].pix_statFormat[0] = "A4"
-info.jwst_cinspect[imageno].pix_statID[0] = widget_label(graphid2,$
-                                            value = info.jwst_cinspect[imageno].pix_statLabel[0]+$
-                                            ' =        ',/align_left)
-
+;pix_statLabel[0] = was dead pixel
 info.jwst_cinspect[imageno].pix_statLabel[1] = "Frame Value"
 info.jwst_cinspect[imageno].pix_statFormat[1]= "F10.2" 
 info.jwst_cinspect[imageno].pix_statID[1]=widget_label(graphID2,value = info.jwst_cinspect[imageno].pix_statLabel[1]+$
@@ -1030,34 +949,22 @@ info.jwst_cinspect[imageno].pix_statID[1]=widget_label(graphID2,value = info.jws
 ; stats
 b_label = widget_label(graphID2,value=blank)
 s_label = widget_label(graphID2,value="Statisical Information" ,/align_left,/sunken_frame,font=info.font5)
-if(info.jwst_image.apply_bad eq 0) then $
-  s_label = widget_label(graphID2,value="Reference Pixels  NOT Included" ,/align_left)
-if(info.jwst_image.apply_bad eq 1) then $
-  s_label = widget_label(graphID2,value="Reference Pixels & Bad Pixels  NOT Included" ,/align_left)
-
 
 info.jwst_cinspect[imageno].sname = ['Mean:              ',$
                       'Standard Deviation ',$
                       'Median:            ',$
                       'Min:               ',$
-                      'Max:               ',$
-                      'Skew:              ',$
-                      '# of Good Pixels   ',$
-                      '# of Bad Pixels    ']
+                      'Max:               ']
 info.jwst_cinspect[imageno].slabelID[0] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[0],/dynamic_resize,/align_left)
 info.jwst_cinspect[imageno].slabelID[1] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[1],/dynamic_resize,/align_left)
 info.jwst_cinspect[imageno].slabelID[2] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[2],/dynamic_resize,/align_left)
 info.jwst_cinspect[imageno].slabelID[3] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[3],/dynamic_resize,/align_left)
 info.jwst_cinspect[imageno].slabelID[4] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[4],/dynamic_resize,/align_left)
-info.jwst_cinspect[imageno].slabelID[5] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[5],/dynamic_resize,/align_left)
-info.jwst_cinspect[imageno].slabelID[6] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[6],/dynamic_resize,/align_left)
-info.jwst_cinspect[imageno].slabelID[7] = widget_label(graphID2,value=info.jwst_cinspect[imageno].sname[7],/dynamic_resize,/align_left)
 
 ; stats on zoom window
 ;*****
 ;graph 1,2; Zoom window of reference image
 ;*****
-
 
 info.jwst_cinspect[imageno].zlabelID = widget_label(graphID2,value="",/align_left,$
                             font=info.font5,/sunken_frame,/dynamic_resize)
@@ -1068,11 +975,6 @@ info.jwst_cinspect[imageno].zslabelID[1] = widget_label(graphID2,value="",/dynam
 info.jwst_cinspect[imageno].zslabelID[2] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
 info.jwst_cinspect[imageno].zslabelID[3] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
 info.jwst_cinspect[imageno].zslabelID[4] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
-info.jwst_cinspect[imageno].zslabelID[5] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
-info.jwst_cinspect[imageno].zslabelID[6] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
-info.jwst_cinspect[imageno].zslabelID[7] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
-
-
 ; get the window ids of the draw windows
 
 

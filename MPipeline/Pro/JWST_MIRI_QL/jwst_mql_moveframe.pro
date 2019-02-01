@@ -3,7 +3,7 @@ pro jwst_mql_moveframe,jintegration,iramp,info
 imove=0
 fmove =0
 if(jintegration  ne info.jwst_image.integrationNO) then imove=1
-if(iramp ne info.jwst_image.rampNO) then fmove = 1
+if(iramp ne info.jwst_image.frameNO) then fmove = 1
 
 
 ; If integration or frame number changed then -update to following
@@ -19,19 +19,19 @@ if(iramp ne info.jwst_image.rampNO) then fmove = 1
 if(imove eq 1) then begin
     info.jwst_image.integrationNO = jintegration
 
-    if(info.jwst_data.coadd ne 1) then begin 
+    if(info.jwst_control.file_slope_int_exist) then begin 
         jwst_read_single_slope,info.jwst_control.filename_slope_int,slope_exists,$
-                          info.jwst_image.integrationNO,subarray,$
+                               info.jwst_image.integrationNO,subarray,$
                                slopedata,$
                                slope_xsize,slope_ysize,$
                                stats,$
                                status,error_message
 
         if(slope_exists eq 1) then begin 
-            if ptr_valid (info.jwst_data.preduced) then ptr_free,info.jwst_data.preduced
-            info.jwst_data.preduced = ptr_new(slopedata)
+           if ptr_valid (info.jwst_data.preducedint) then ptr_free,info.jwst_data.preducedint
+            info.jwst_data.preducedint = ptr_new(slopedata)
             
-            info.jwst_data.reduced_stat = stats
+            info.jwst_data.reducedint_stat = stats
         endif
         slopedata = 0
         stats = 0
@@ -45,7 +45,7 @@ if(imove eq 1) then begin
     if(info.jwst_data.read_all eq 0 and info.jwst_image.integrationNO ne info.jwst_control.int_num) then begin
         info.jwst_control.int_num = info.jwst_image.integrationNO
         print,'Reading in another set of images'
-        info.jwst_image.rampNO = 0
+        info.jwst_image.frameNO = 0
         info.jwst_control.frame_start = info.jwst_control.frame_start_save
         info.jwst_control.frame_end = info.jwst_control.frame_start + info.jwst_control.read_limit -1
         if(info.jwst_control.frame_end+1 ge info.jwst_data.ngroups) then $
@@ -53,8 +53,6 @@ if(imove eq 1) then begin
         iramp = 0
 
         jwst_read_multi_frames,info
-
-
         Widget_Control,info.jwst_QuickLook,Set_UValue=info
 
     endif
@@ -80,26 +78,21 @@ if(imove eq 1) then begin
 
     
     jwst_mql_update_rampread,info                          
-
-
     widget_control,info.jwst_image.integration_label,set_value= fix(jintegration+1)
     widget_control,info.jwst_image.frame_label,set_value= fix(iramp+1)
-;____________________
-    
-
         
 ; if inspect images open then update
     if(XRegistered ('miql')) then begin
         i = info.jwst_image.integrationNO
-        j = info.jwst_image.rampNO
+        j = info.jwst_image.frameNO
         if(info.jwst_data.read_all eq 0) then begin
             i = 0
             if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-                j = info.jwst_image.rampNO- info.jwst_control.frame_start
+                j = info.jwst_image.frameNO- info.jwst_control.frame_start
             endif
         endif
         info.jwst_inspect.integrationNO = info.jwst_image.integrationNO
-        info.jwst_inspect.frameNO = info.jwst_image.rampNO
+        info.jwst_inspect.frameNO = info.jwst_image.frameNO
         frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
         frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
         if ptr_valid (info.jwst_inspect.pdata) then ptr_free,info.jwst_inspect.pdata
@@ -118,7 +111,7 @@ endif
 ;_______________________________________________________________________
 ;  Frame Button
 if(fmove eq 1) then begin
-    info.jwst_image.rampNO = iramp
+    info.jwst_image.frameNO = iramp
     if(info.jwst_data.read_all eq 0) then begin
 
         
@@ -159,21 +152,18 @@ if(fmove eq 1) then begin
     jwst_mql_update_zoom_image,info
     Widget_Control,info.jwst_QuickLook,Set_UValue=info    
 
-    
-
-
 ; if inspect images open then update
     if(XRegistered ('miql')) then begin
         i = info.jwst_image.integrationNO
-        j = info.jwst_image.rampNO
+        j = info.jwst_image.frameNO
         if(info.jwst_data.read_all eq 0) then begin
             i = 0
             if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-                j = info.jwst_image.rampNO- info.jwst_control.frame_start
+                j = info.jwst_image.frameNO- info.jwst_control.frame_start
             endif
         endif
         info.jwst_inspect.integrationNO = info.jwst_image.integrationNO
-        info.jwst_inspect.frameNO = info.jwst_image.rampNO
+        info.jwst_inspect.frameNO = info.jwst_image.frameNO
         frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
         frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
         if ptr_valid (info.jwst_inspect.pdata) then ptr_free,info.jwst_inspect.pdata
