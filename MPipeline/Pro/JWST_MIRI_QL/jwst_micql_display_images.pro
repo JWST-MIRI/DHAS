@@ -736,7 +736,7 @@ if(info.jwst_cinspect[imageno].uwindowsize eq 0) then begin ; user changed the w
     mean = info.jwst_compare_image[imageno].mean
     std = info.jwst_compare_image[imageno].stdev
     
-    info.jwst_cinspect[imageno].limit_low = mean - std*20.0
+    info.jwst_cinspect[imageno].limit_low = -5000
     info.jwst_cinspect[imageno].limit_high = 65535
     info.jwst_cinspect[imageno].limit_low_num = 0
     info.jwst_cinspect[imageno].limit_high_num = 0
@@ -822,8 +822,8 @@ info.jwst_cinspect[imageno].zbutton[3] = widget_button(Zoommenu,value="Zoom 8x",
 info.jwst_cinspect[imageno].zbutton[4] = widget_button(Zoommenu,value="Zoom 16x",uvalue='zoom4',/checked_menu)
 info.jwst_cinspect[imageno].zbutton[5] = widget_button(Zoommenu,value="Zoom 32x",uvalue='zoom5',/checked_menu)
 
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
 ;*****
 ; setup the image windows
 ;*****

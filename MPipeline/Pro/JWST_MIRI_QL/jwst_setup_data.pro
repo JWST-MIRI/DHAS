@@ -139,7 +139,8 @@ end
 
 
 ;***********************************************************************
-pro jwst_setup_slope_final,info,type
+pro jwst_setup_slope_final,info,type,status
+status = 0
 ;_______________________________________________________________________
 ; read in slope data
 ; type = 0 Read slope for Frame display jwst_mql
@@ -162,6 +163,7 @@ jwst_read_final_slope,info.jwst_control.filename_slope,slope_exists,$
 info.jwst_control.file_slope_exist = slope_exists
 
 if(slope_exists eq 0) then begin
+   status = 1
    return
 endif
 

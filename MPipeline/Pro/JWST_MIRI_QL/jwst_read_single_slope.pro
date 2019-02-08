@@ -114,8 +114,6 @@ data = 0
 data_noref = 0
 end
 
-
-
 ;________________________________________________________________________________
 ; Read the final rate.fits file. If the exposure has multiple
 ; integrations this file contains the final combined data
@@ -132,7 +130,6 @@ slope_data = 0
 
 exists = 1
 file_exist1 = file_test(filename,/regular,/read)
-
 if(file_exist1 ne 1 ) then begin
     error_message = 'The rate file does not exist' + filename
     status = 1
@@ -153,6 +150,14 @@ if(count eq 0) then colstart = 1
 fits_read,fcb,sdata,header,exten_no = 1
 naxis1 = fxpar(header,'NAXIS1',count = count)
 naxis2 = fxpar(header,'NAXIS2',count = count)
+naxis3 = fxpar(header,'NAXIS3',count = count) ; rate image are 2d
+                                              ; rate int images are 3d
+if(count ne 0 ) then  begin
+   print,'This is not the final rate file',filename
+   exist = 0
+   return
+endif
+
 subarray = 0
 if(naxis1 ne 1032) then begin
     subarray = 1

@@ -10,6 +10,7 @@ if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 ;plane = 0 final rate image
 ;plate = 1 rate int image
+if(info.jwst_control.file_slope_exist eq 0) then return
 
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 

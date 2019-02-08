@@ -34,10 +34,13 @@ endif
            endif        
 
            slopedata = *info.jwst_data.preduced
-           if ptr_valid (info.jwst_data.pslopedata) then ptr_free,info.jwst_data.pslopedata
-            info.jwst_data.pslopedata = ptr_new(slopedata)
+           if ptr_valid (info.jwst_data.pratefinal) then ptr_free,info.jwst_data.pratefinal
+            info.jwst_data.pratefinal = ptr_new(slopedata)
             slopedata  = 0
-            info.jwst_data.slope_stat = info.jwst_data.reduced_stat
+            info.jwst_data.ratefinal_stat = info.jwst_data.reduced_stat
+            jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
+            jwst_find_slope_binfactor,info
+
             jwst_msql_display_slope,info
         endelse
     end
@@ -152,7 +155,7 @@ endif
         if(strmid(event_name,6,1) eq 'S') then type = 2
         if(strmid(event_name,6,1) eq 'P') then type = 3
 
-        print_images,info,type
+        jwst_print_images,info,type
     end
 ;_______________________________________________________________________
 ; overplot slope

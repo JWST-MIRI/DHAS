@@ -37,10 +37,9 @@
 @jwst_mql_update_zoom_image.pro
 @jwst_mql_moveframe.pro
 @jwst_display_frame_values.pro
-@jwst_miql_display_images.pro
-@jwst_misql_display_images.pro
-@jwst_misfql_display_images.pro
-@jwst_misql2_display_images.pro
+@jwst_miql_display_images.pro ; Frame image from jwst_mql_diplay
+@jwst_misql_display_images.pro ; Slope image from jwst_mql_display, or jwst_msql_display (1st win)
+@jwst_misql2_display_images.pro ; second win from jwst_msql_display
 @jwst_mql_display_stat.pro
 @jwst_read_image_info.pro
 @jwst_difference_images.pro
@@ -104,5 +103,8 @@
 
 ; Subarray geometry plot
 ;@mql_plot_subarray_geo.pro
+; Print plots
+@jwst_print_images.pro
+;@jwst_print_slopes_images.pro
 
 @jwst_ql.pro

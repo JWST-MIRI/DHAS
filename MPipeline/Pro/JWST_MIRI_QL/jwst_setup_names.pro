@@ -42,6 +42,7 @@ endif else begin
 
 info.jwst_control.filename = out_filebase ; only the filename not directory
 fitname = '.fits'
+
 ;_______________________________________________________________________
 if(type eq 0) then begin ; working with uncal - raw file 
    uncal = '_uncal'
@@ -136,11 +137,12 @@ info.jwst_control.file_raw_exist = 0
 info.jwst_control.file_raw_exist = file_test(info.jwst_control.filename_raw,/regular,/read)
 
 complete_string = 'complete'
-refpixel_step = 0 
+refpix_step = 0 
 linearity_step  = 0
 dark_step = 0
 reset_step = 0
 rscd_step = 0 
+lastframe_step = 0
 ;fitopt = 0
 
 file_exist1 = file_test(info.jwst_control.filename_slope,/regular,/read)

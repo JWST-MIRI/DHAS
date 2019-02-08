@@ -56,7 +56,7 @@
 ;@jwst_code.pro ; listing of all code pieces
 
 
-pro jwst_ql,help=help
+pro miri_ql,help=help
 
 @jwst_ql_structs ; holds all data structures
 
@@ -71,7 +71,6 @@ endcase
   'sunos': print,' Operating System: sunos'
   else:
 endcase
-
 ;_______________________________________________________________________
 ; Print the help file
 if keyword_set(help) then begin
@@ -83,7 +82,6 @@ device,pseudo = 8
 
 ; create  "jwst_control " structure
 jwst_control = {jwst_controli}
-
 ;_______________________________________________________________________
 
 ;edit_uwindowsize = 0 ; paramters for editing preferences file
@@ -91,7 +89,7 @@ jwst_control = {jwst_controli}
 ;edit_ywindowsize = 0
 
 ;_______________________________________________________________________
-version = "(v 1.0 Feb 11, 2019)"
+version = "(v 1.0 Feb 08, 2019)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -100,9 +98,7 @@ if(test ne '/') then miri_dir = miri_dir + '/'
 jwst_control.miri_dir = miri_dir
 
 jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v1.0.preferences'
-
 print,'  Preferences file ',jwst_control.pref_filename
-
 ;_______________________________________________________________________
 ; work out the fontname
 ; on command line you can find the fontnames by typing
@@ -132,7 +128,6 @@ device,get_fontnames=fnames,set_font=fontname6
 fontname6 = fnames[0]
 
 wdelete,1
-
 
 xsize_label = 8
 plotsizeA = 200
@@ -320,19 +315,19 @@ jwst_data.read_all = 1
 loadfile = {jwst_generic_windowi} 
 
 ; create and initialize "output file name" structure
-output = {jwst_outputi}
-output.inspect_rawimage = '_science_image'
-output.inspect_slope = '_reduced_'
-output.inspect_slope2 = '_reduced_'
-output.rawimage      = '_science_image'
-output.zoomimage      = '_zoom_image'
-output.slopeimage      = '_reduced_image'
-output.frame_pixel      = '_frame_pixel'
-output.slope_win1      = '_reduced'
-output.slope_zoomimage      = '_reduced_zoom_image'
-output.slope_win2      = '_reduced'
-output.slope_frame_pixel      = '_frame_pixel'
-output.slope_slope_pixel     = '_reduced_pixel'
+jwst_output = {jwst_outputi}
+jwst_output.inspect_rawimage = '_science_image'
+jwst_output.inspect_slope = '_reduced_'
+jwst_output.inspect_slope2 = '_reduced_'
+jwst_output.rawimage      = '_science_image'
+jwst_output.zoomimage      = '_zoom_image'
+jwst_output.slopeimage      = '_reduced_image'
+jwst_output.frame_pixel      = '_frame_pixel'
+jwst_output.slope_win1      = '_reduced'
+jwst_output.slope_zoomimage      = '_reduced_zoom_image'
+jwst_output.slope_win2      = '_reduced'
+jwst_output.slope_frame_pixel      = '_frame_pixel'
+jwst_output.slope_slope_pixel     = '_reduced_pixel'
 
 
 jwst_dqflag = {jwst_dqi} ; data quality flag
@@ -404,7 +399,7 @@ jwst_compare.uwindowsize = 0
 jwst_cinspect = replicate(jwst_inspect,3) ; inspect comparison raw science frames
 
 ; compare 2 images:
-jwst_compare_image = replicate(jwst_single_image,3)
+jwst_compare_image = replicate(jwst_cimage,3)
 
 ;; create and initialize "compare" structure - holds comparision
 ;;                                             widget for rate
@@ -412,7 +407,7 @@ jwst_rcompare = {jwst_comparei}
 jwst_rcompare.uwindowsize = 0 
 
 ; compare 2 reduced images:
-jwst_rcompare_image = replicate(jwst_single_image,3)
+jwst_rcompare_image = replicate(jwst_cimage,3)
 jwst_crinspect = replicate(jwst_inspect,3) ; inspect comparison reduced data
 
 ; defaults to start with 
@@ -464,7 +459,7 @@ jinfo = {jwst_version        : version,$
          jwst_data           : jwst_data,$
          jwst_control        : jwst_control,$
          jwst_dqflag         : jwst_dqflag,$
-         output              : output,$
+         jwst_output         : jwst_output,$
          jwst_viewhead       : ptr_new(jwst_viewhead),$
          jwst_image          : jwst_image,$
          jwst_slope          : jwst_slope,$
@@ -502,7 +497,7 @@ jinfo = {jwst_version        : version,$
 Widget_Control,JWST_QuickLook,Set_UValue=jinfo
 
 
-XManager,'jwst_ql',JWST_QuickLook,/No_Block,cleanup='jwst_ql_cleanup',$
+XManager,'miri_ql',JWST_QuickLook,/No_Block,cleanup='jwst_ql_cleanup',$
 	event_handler="jwst_ql_event"
 
 

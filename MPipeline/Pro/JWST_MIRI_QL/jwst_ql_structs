@@ -216,7 +216,8 @@ jwst_generic_window = {jwst_generic_windowi,$
 	        status                : 0}
 
 ;***********************************************************************
-jwst_single_image= { jwst_single_imagei,$
+; 
+jwst_cimage= { jwst_cimagei,$
 	        uwindowsize     : 0,$
 	        xwindowsize     : 0,$
 	        ywindowsize     : 0,$

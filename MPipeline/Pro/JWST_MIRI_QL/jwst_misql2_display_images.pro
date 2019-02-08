@@ -776,8 +776,8 @@ info.jwst_inspect_slope2.zbutton[3] = widget_button(Zoommenu,value="Zoom 8x",uva
 info.jwst_inspect_slope2.zbutton[4] = widget_button(Zoommenu,value="Zoom 16x",uvalue='zoom4',/checked_menu)
 info.jwst_inspect_slope2.zbutton[5] = widget_button(Zoommenu,value="Zoom 32x",uvalue='zoom5',/checked_menu)
 
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
 ;*****
 ; setup the image windows
 ;*****

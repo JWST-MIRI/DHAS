@@ -223,16 +223,16 @@ statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Get Statistics on Images",uvalue = 'Stat')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
-cbutton = widget_button(cMenu,value = "Compare First Image to an Image in another file",uvalue = 'compare')
+cbutton = widget_button(cMenu,value = "Compare Image in first Window to an Image in another file",uvalue = 'compare')
 
 ;chMenu   = widget_button(menuBar,value="Channel",font= info.font2)
 ;cbutton = widget_button(chMenu,value = "Display Reduced Image by Channel",uvalue = 'channel')
 
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonS = widget_button(Pmenu,value = "Print Plot 1",uvalue='print_S')
-PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image (Plot 2)",uvalue='print_Z')
-PbuttonU = widget_button(Pmenu,value = "Print Plot 2",uvalue='print_U')
-PbuttonE = widget_button(Pmenu,value = "Print Slope value for pixel for exposure",uvalue='print_E')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonS = widget_button(Pmenu,value = "Print Plot 1",uvalue='print_1')
+;PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image (Plot 2)",uvalue='print_Z')
+;PbuttonU = widget_button(Pmenu,value = "Print Plot 2",uvalue='print_2')
+;PbuttonE = widget_button(Pmenu,value = "Print Slope value for pixel for exposure",uvalue='print_E')
 
 filelabelID = widget_label(info.jwst_SlopeQuickLook, $
                            value=info.jwst_control.filename_slope,/align_left, $
@@ -417,7 +417,7 @@ info.jwst_slope.graphID[1] = widget_draw(info.jwst_slope.plot_base[1],$
 
 
 if(info.jwst_control.file_slope_int_exist eq 1) then begin 
-   label = widget_label(infoID00,value='Compare Rate Image in Window to ',$
+   label = widget_label(infoID00,value='Compare Rate Image in Window 1 to ',$
                                   font=info.font5)
    info.jwst_slope.compare_label = cw_field(infoID00,title='  Rate in Integration #',$
                             font = info.font5,uvalue='icompare',/integer,/return_events,$

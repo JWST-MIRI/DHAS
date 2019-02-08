@@ -778,9 +778,6 @@ info.jwst_compare.graphID11 = widget_base(graphID_master0,col=1)
 info.jwst_compare.graphID12 = widget_base(graphID_master0,col=1)
 info.jwst_compare.graphID13 = widget_base(graphID_master0,col=1) 
 
-graphID41 = widget_base(graphID_master0,col=1) 
-    
-graphID21 = widget_base(graphID_master1,col=1) 
 ;_______________________________________________________________________  
 ; set up the images to be displayed
 ; default to start with first integration and first ramp
@@ -1049,7 +1046,8 @@ info.jwst_compare.slabelID[2,2] = widget_label(info.jwst_compare.graphID13,value
 info.jwst_compare.slabelID[2,3] = widget_label(info.jwst_compare.graphID13,value=info.jwst_compare.sname[3] +blank10,/align_left)
 info.jwst_compare.slabelID[2,4] = widget_label(info.jwst_compare.graphID13,value=info.jwst_compare.sname[4] +blank10,/align_left)
 ;_______________________________________________________________________
-tlabelID = widget_label(graphID21,$
+; graphID13 =info.jwst_compare.graphID13   
+tlabelID = widget_label(info.jwst_compare.graphID13,$
           value="Information on Pixels for Images- Includes Border Pixels",/align_left, font=info.font5,$
                        /sunken_frame)
 
@@ -1057,7 +1055,7 @@ xvalue = fix(info.jwst_compare.x_pos*info.jwst_compare.binfactor)
 yvalue = fix(info.jwst_compare.y_pos*info.jwst_compare.binfactor)
 
 ; button to change 
-pix_num_base = widget_base(graphID21,row=1,/align_left)
+pix_num_base = widget_base(info.jwst_compare.graphID13,row=1,/align_left)
 labelID = widget_button(pix_num_base,uvalue='pix_move_x1',value='<',font=info.font3)
 labelID = widget_button(pix_num_base,uvalue='pix_move_x2',value='>',font=info.font3)
 
@@ -1084,11 +1082,11 @@ pix_statLabelID = lonarr(3)
 svalue1 = pix_statLabel[0]+' = '+ blank10
 svalue1 = pix_statLabel[1]+' = '+ blank10
 svalue1 = pix_statLabel[2]+' = '+ blank10
-pix_statLabelID[0] = widget_label(graphID21,$
+pix_statLabelID[0] = widget_label(info.jwst_compare.graphID13,$
                                  value=svalue1,/dynamic_resize,/align_left)
-pix_statLabelID[1] = widget_label(graphID21,$
+pix_statLabelID[1] = widget_label(info.jwst_compare.graphID13,$
                                   value=svalue2,/dynamic_resize,/align_left)
-pix_statLabelID[2] = widget_label(graphID21,$
+pix_statLabelID[2] = widget_label(info.jwst_compare.graphID13,$
                                   value=svalue3,/dynamic_resize,/align_left)
 
 info.jwst_compare.pix_statLabelID = pix_statLabelID

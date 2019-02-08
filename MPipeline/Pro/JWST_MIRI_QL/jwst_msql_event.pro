@@ -117,15 +117,16 @@ case 1 of
         if(info.jwst_slope.plane[0] eq 3) then begin ; if window 1 is integration rate image
            info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope_int
            info.jwst_rcompare_image[0].jintegration = info.jwst_slope.integrationNO 
-           info.jwst_rcompare_image[0].type = 1
+           info.jwst_rcompare_image[0].type = 2
         endif
 
         info.jwst_rcompare_image[1].jintegration = fix(this_int)
         info.jwst_rcompare_image[1].filename  = info.jwst_control.filename_slope_int
-        info.jwst_rcompare_image[1].type = 1 ; 
+        info.jwst_rcompare_image[1].type = 2 ; 
 
-        info.jwst_rcompare_image[0].plane = info.jwst_slope.plane[0]
-        info.jwst_rcompare_image[1].plane = info.jwst_slope.plane[1]
+
+        info.jwst_rcompare_image[0].plane = 0
+        info.jwst_rcompare_image[1].plane = 0
 
 	jwst_msql_compare_display,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
@@ -133,13 +134,12 @@ case 1 of
 ;_______________________________________________________________________
 ; print
     (strmid(event_name,0,5) EQ 'print') : begin
-        if(strmid(event_name,6,1) eq 'S') then type = 0
+        if(strmid(event_name,6,1) eq '1') then type = 0
         if(strmid(event_name,6,1) eq 'Z') then type = 1
-        if(strmid(event_name,6,1) eq 'U') then type = 2
-        if(strmid(event_name,6,1) eq 'P') then type = 3
-        if(strmid(event_name,6,1) eq 'E') then type = 4 
+        if(strmid(event_name,6,1) eq '2') then type = 2
+        if(strmid(event_name,6,1) eq 'E') then type = 3
 
-        print_slope_images,info,type
+        jwst_print_slope_images,info,type
     end
 ;_______________________________________________________________________
 ; inspect image
@@ -229,33 +229,7 @@ case 1 of
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
-; inspect image
-;    (strmid(event_name,0,13) EQ 'final_inspect') : begin
-       
-;        slopedata = (*info.jwst_data.pslopedata_all)[*,*,0]
-;        if ptr_valid (info.jwst_inspect_final.pdata) then ptr_free,info.jwst_inspect_final.pdata
-;        info.jwst_inspect_final.pdata = ptr_new(slopedata)
-;        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
-;        info.jwst_inspect_final.default_scale_graph = 1
-;        info.jwst_inspect_final.zoom = 1
-;        info.jwst_inspect_final.zoom_x = 1
-;        info.jwst_inspect_final.x_pos =(info.jwst_data.slope_xsize)/2.0
-;        info.jwst_inspect_final.y_pos = (info.jwst_data.slope_ysize)/2.0
-        
-;        info.jwst_inspect_final.xposful = info.jwst_inspect_slope.x_pos
-;        info.jwst_inspect_final.yposful = info.jwst_inspect_slope.y_pos
-        
-;;        info.jwst_inspect_final.graph_range[0] = 0.0
-;        info.jwst_inspect_final.graph_range[1] = 0.0
-;        info.jwst_inspect_final.limit_low = -5000.0
-;        info.jwst_inspect_final.limit_high = 70000.0
-;        info.jwst_inspect_final.limit_low_num = 0
-;        info.jwst_inspect_final.limit_high_num = 0
-;        jwst_misfql_display_images,info
-;        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-;
-;    end
 ;_______________________________________________________________________
 ; Change the Integration #  of image displayed
 ;_______________________________________________________________________

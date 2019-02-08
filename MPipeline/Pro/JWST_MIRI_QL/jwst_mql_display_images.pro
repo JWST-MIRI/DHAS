@@ -1,5 +1,5 @@
 ; This program is used to display and analyze the science frames,
- ; slope image if it exists. This is the main display for the QL tool.
+; slope image if it exists. This is the main display for the QL tool.
 ; From this window the user can query pixel values, zoom the images,
 ; get statstics on the data
 ;***********************************************************************
@@ -68,7 +68,7 @@ sp =   strtrim(string(pixelvalue,format="("+info.jwst_image.pix_statFormat[0]+")
 ssignal = 'NA'
 serror = 'NA'
 sdq = 'NA'
-if(info.jwst_control.file_slope_exist) then begin
+if(info.jwst_control.file_slope_exist eq 1) then begin
     signal = (*info.jwst_data.preduced)[x,y,0]
     ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat[1]+")"),2)
     error = (*info.jwst_data.preduced)[x,y,1]
@@ -83,8 +83,7 @@ widget_control,info.jwst_image.pix_statID[1],set_value=info.jwst_image.pix_statL
 widget_control,info.jwst_image.pix_statID[2],set_value= info.jwst_image.pix_statLabel[2] +' = '+serror
 widget_control,info.jwst_image.pix_statID[3],set_value= info.jwst_image.pix_statLabel[3] +' = '+ sdq
 
-
-if(info.jwst_control.file_slope_int_exist) then begin
+if(info.jwst_control.file_slope_int_exist eq 1) then begin
    ssignal = 'NA'
    serror = 'NA'
    sdq = 'NA'
@@ -99,9 +98,6 @@ if(info.jwst_control.file_slope_int_exist) then begin
     widget_control,info.jwst_image.pix_statID2[1],set_value= info.jwst_image.pix_statLabel2[1] +' = '+serror
     widget_control,info.jwst_image.pix_statID2[2],set_value= info.jwst_image.pix_statLabel2[2] +' = '+ sdq
 endif
-
-
-
 
 end
 

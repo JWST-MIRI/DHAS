@@ -344,12 +344,10 @@ iyend = (ysize)-1
 
 if(xend ge xdata_end) then begin
     xend =  xdata_end-1
-;    print,' need to change xstart ',xend, xend - (xsize-1)
     xstart = xend - (xsize-1)
 endif
 if(yend ge ydata_end) then begin
     yend = ydata_end-1
-;    print,' need to change ystart ', yend,yend - (ysize-1)
     ystart = yend- (ysize-1)
 endif
 
@@ -394,7 +392,6 @@ if(info.jwst_rcompare_image[imageno].subarray eq 0 and xend ge 1028) then begin
     x_zoom_end = x_zoom_end - factor
 endif
 
-;print,'x_zoom_start,x_zoom_end',x_zoom_start,x_zoom_end
 
 stat_noref = stat_data[x_zoom_start:x_zoom_end,*]
 stat_data = 0
@@ -707,8 +704,10 @@ if(info.jwst_crinspect[imageno].uwindowsize eq 0) then begin ; user changed the 
 
     mean = info.jwst_rcompare_image[imageno].mean
     std = info.jwst_rcompare_image[imageno].stdev
-    
-    info.jwst_crinspect[imageno].limit_low = mean - std*20.0
+
+
+    ; limits on reduced data 
+    info.jwst_crinspect[imageno].limit_low = -5000
     info.jwst_crinspect[imageno].limit_high = 65535
 
     info.jwst_crinspect[imageno].limit_low_num = 0
@@ -797,8 +796,8 @@ info.jwst_crinspect[imageno].zbutton[2] = widget_button(Zoommenu,value="Zoom 4x"
 info.jwst_crinspect[imageno].zbutton[3] = widget_button(Zoommenu,value="Zoom 8x",uvalue='zoom3',/checked_menu)
 info.jwst_crinspect[imageno].zbutton[4] = widget_button(Zoommenu,value="Zoom 16x",uvalue='zoom4',/checked_menu)
 info.jwst_crinspect[imageno].zbutton[5] = widget_button(Zoommenu,value="Zoom 32x",uvalue='zoom5',/checked_menu)
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
 ;*****
 ; setup the image windows
 ;*****
