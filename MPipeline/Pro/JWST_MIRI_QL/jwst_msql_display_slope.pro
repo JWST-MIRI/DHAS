@@ -279,9 +279,9 @@ if(info.jwst_slope.binfactor lt 1.0) then bimage = "Blown up by " + $
 
 info.jwst_slope.bindisplay=[bimage,"Scroll Full Image"] 
 ;_______________________________________________________________________
-voptions = ['Fianl Rate: ', 'Final Error', 'Final DQ']
+voptions = ['Final Rate: ', 'Final Error', 'Final DQ']
 if(info.jwst_control.file_slope_int_exist eq 1) then $
-voptions = ['Fianl Rate: ', 'Final Error', 'Final DQ','Int Rate','Int Error','Int DQ']
+voptions = ['Final Rate: ', 'Final Error', 'Final DQ','Int Rate','Int Error','Int DQ']
 
 xsize_label = 9
 ;************************************
