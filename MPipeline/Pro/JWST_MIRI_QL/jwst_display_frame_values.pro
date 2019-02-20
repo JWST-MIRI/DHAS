@@ -141,25 +141,8 @@ widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
 
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
-
-
-        data_id ='ID flag '+ strcompress(string(info.jwst_dqflag.Unusable),/remove_all) +  ' = ' + info.jwst_dqflag.Sunusable +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.CosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoiseSpike),/remove_all) +  ' = ' + info.jwst_dqflag.SNoiseSpike +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NegCosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SNegCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoReset),/remove_all) +  ' = ' + info.jwst_dqflag.SNoReset +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoDark),/remove_all) +  ' = ' + info.jwst_dqflag.SNoDark +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLin),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLin +  string(10b) + $
-;                 'ID flag '+ strcompress(string(info.jwst_dqflag.OutLinRange),/remove_all) +  ' = ' + info.jwst_dqflag.SOutLinRange +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLastFrame),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLastFrame +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Min_Frame_Failure),/remove_all) +  ' = ' + info.jwst_dqflag.SMin_Frame_Failure +  string(10b) 
-
-                 
-        result = dialog_message(data_id,/information)
+       jwst_dqflags,info
     end
-;_______________________________________________________________________
-
 ;_______________________________________________________________________
 
 else: ;print," Event name not found ",event_name

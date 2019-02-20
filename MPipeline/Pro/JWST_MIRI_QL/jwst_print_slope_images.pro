@@ -1,9 +1,9 @@
 @file_decompose.pro
 
-pro slope_image_print, event
+pro jwst_slope_image_print, event
 
   Widget_Control, event.top, Get_UValue=printimageinfo
-  Widget_Control, printimageinfo.info.Quicklook, Get_UValue=info
+  Widget_Control, printimageinfo.info.jwst_Quicklook, Get_UValue=info
   type = printimageinfo.type
 
       ; Get the file name the user typed in.
@@ -50,11 +50,10 @@ pro slope_image_print, event
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
              device, file=filename, /landscape,/color, encapsulated=0
              
-             if(type eq 0) then msql_update_slope,info.slope.plane[0],0,info,/ps
-             if(type eq 1) then msql_update_zoom_image,info,/ps
-             if(type eq 2) then msql_update_slope,info.slope.plane[2],2,info,/ps
-             if(type eq 3) then msql_update_rampread,info,/ps
-             if(type eq 4) then msql_update_slopepixel,info,/ps
+             if(type eq 0) then jwst_msql_update_slope,info.slope.plane[0],0,info,/ps
+             if(type eq 1) then jwst_msql_update_slope,info.slope.plane[1],1,info,/ps
+             if(type eq 2) then msql_update_zoom_image,info,/ps
+             if(type eq 3) then msql_update_slopepixel,info,/ps
              device,/close
              set_plot, 'x'
            end
@@ -65,11 +64,11 @@ pro slope_image_print, event
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
              device,  file=filename, /color,/landscape, encapsulated=1
 
-             if(type eq 0) then msql_update_slope,info.slope.plane[0],0,info,/eps
-             if(type eq 1) then msql_update_zoom_image,info,/eps
-             if(type eq 2) then msql_update_slope,info.slope.plane[2],2,info,/eps
-             if(type eq 3) then msql_update_rampread,info,/eps
-             if(type eq 4) then msql_update_slopepixel,info,/eps
+             if(type eq 0) then jwst_msql_update_slope,info.slope.plane[0],0,info,/eps
+             if(type eq 1) then jwst_msql_update_slope,info.slope.plane[1],1,info,/eps
+             if(type eq 2) then jwst_msql_update_zoom_image,info,/eps
+
+             if(type eq 3) then jwst_msql_update_slopepixel,info,/eps
              device,/close
              set_plot, 'x'
            end
@@ -82,26 +81,21 @@ pro slope_image_print, event
              if(type eq 1) then  wset,info.slope.draw_window_id[1]
              if(type eq 2) then  wset,info.slope.draw_window_id[2]
              if(type eq 3) then  wset,info.slope.draw_window_id[3]
-             if(type eq 4) then  wset,info.slope.draw_window_id[4]
              image3d = TVRead(filename=filename,/JPEG,/nodialog)
              image3d = 0
 
          end
 
          3: Begin               ; write PNG
-
              filename = disk + path + name 
              Widget_Control, printimageinfo.selectfile, Set_Value = filename
-
              if(type eq 0 ) then  wset,info.slope.draw_window_id[0]
              if(type eq 1) then  wset,info.slope.draw_window_id[1]
              if(type eq 2) then  wset,info.slope.draw_window_id[2]
              if(type eq 3) then  wset,info.slope.draw_window_id[3]
-             if(type eq 4) then  wset,info.slope.draw_window_id[4]
 
              image3d = TVRead(filename=filename,/PNG,/nodialog)
              image3d = 0         
-
          end
 
           4: Begin  ; write GIF
@@ -112,7 +106,6 @@ pro slope_image_print, event
              if(type eq 1) then  wset,info.slope.draw_window_id[1]
              if(type eq 2) then  wset,info.slope.draw_window_id[2]
              if(type eq 3) then  wset,info.slope.draw_window_id[3]
-             if(type eq 4) then  wset,info.slope.draw_window_id[4]
              image3d = TVRead(filename=filename,/GIF,/nodialog)
              image3d = 0
          end
@@ -120,14 +113,14 @@ pro slope_image_print, event
        endcase
    endelse
 
-      if printfil eq 1 then Widget_Control, info.Quicklook, Set_UValue=info
+      if printfil eq 1 then Widget_Control, info.jwst_Quicklook, Set_UValue=info
       Widget_Control, event.top, /Destroy
       end  
 ;_______________________________________________________________________
-pro print_slope_image_event, event
+pro jwst_print_slope_image_event, event
 
   Widget_Control, event.top, Get_UValue=printimageinfo
-  Widget_Control, printimageinfo.info.QuickLook, Get_UValue=info
+  Widget_Control, printimageinfo.info.jwst_QuickLook, Get_UValue=info
   case event.id of
       printimageinfo.otypeButtons: begin
           otype = event.value
@@ -165,7 +158,7 @@ pro print_slope_image_event, event
       printimageinfo.cancelButton: begin
           ptype = 'x'
           set_plot, ptype
-          Widget_Control, info.Quicklook, Set_UValue=info
+          Widget_Control, info.jwst_Quicklook, Set_UValue=info
           Widget_Control, event.top, /Destroy
           return
       end
@@ -173,17 +166,16 @@ pro print_slope_image_event, event
   endcase
 
   Widget_Control, event.top, Set_UValue=printimageinfo
-  Widget_Control, printimageinfo.info.Quicklook, Set_UValue=info
+  Widget_Control, printimageinfo.info.jwst_Quicklook, Set_UValue=info
 
 end
 
 ;_______________________________________________________________________
-pro print_slope_images,info,type 
-
+pro jwst_print_slope_images,info,type 
 
   ; Pop up a small widget so the user can type in a file name.
   ; Wait for the user to type a carriage-return.
-if(XRegistered("msql_printimage")) then return
+if(XRegistered("jwst_msql_printimage")) then return
 
 
 jintegration = info.slope.integrationNO+1
@@ -343,12 +335,8 @@ if(type eq 2) then begin
     mtitle = 'MIRI Quicklook Print ' + xt
 endif
 
-if(type eq 3) then begin
-    outname = info.output.slope_frame_pixel + '_' + ij + '_' + xy
-    mtitle = 'MIRI Quicklook Print Frame Values for Selected Pixel'
-endif
 
-if(type eq 4) then begin
+if(type eq 3) then begin
     outname = info.output.slope_slope_pixel + '_' + xy
     mtitle = 'MIRI Quicklook Print Slope Values for Selected Pixel '
 endif
@@ -376,8 +364,7 @@ filename = info.control.dirps + slash + info.control.filebase + $
 
 
 pntrbase   = Widget_Base  (Title = mtitle, /Column, $
-                           Group_Leader=info.SlopeQuicklook, $
-;			      /Modal)
+                           Group_Leader=info.jwst_SlopeQuicklook, $
                            xsize = xwidget_size,$
                            ysize = ywidget_size,/scroll,$
                            x_scroll_size= xsize_scroll,$
@@ -409,6 +396,6 @@ printimageinfo = {selectfile    :     selectfile,   $
 Widget_Control, pntrbase, set_uvalue = printimageinfo
 Widget_Control, pntrbase, /Realize
 
-XManager, "msql_printimage", pntrbase, Event_Handler = "print_slope_image_event"
+XManager, "msql_printimage", pntrbase, Event_Handler = "jwst_print_slope_image_event"
 
 end

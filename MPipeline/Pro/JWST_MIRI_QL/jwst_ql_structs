@@ -7,7 +7,6 @@ jwst_data={jwst_datai, $
 	start_fit           : 0,$
 	end_fit             : 0,$
         mode                : 0,$ ; Mode = 0, Fast, Mode= 1, Slow, Mode = 2 Fast Short mode. 
-	coadd               : 0,$
 	nints               : 0,$ ; number of integrations in exposure 
 	ngroups             : 0,$ ; number of frames/ integration
 	detector            : " ",$
@@ -35,6 +34,8 @@ jwst_data={jwst_datai, $
         ref_ysize           : 0,$ ; size of ref image in y direction
         slope_xsize         : 0,$ ; size of slope image x direction
         slope_ysize         : 0,$ ; size of slope image y direction
+	slope_final_exist   : 0,$ ; 0 no rate, 1 = rate exist
+	slope_int_exist     : 0,$ ; 0 no rate_int, 1 = rate_int exist 
         cal_xsize           : 0,$ ; size of cal image x direction
         cal_ysize           : 0,$ ; size of cal image x direction
         read_all             : 1,$ ; read in all the data or integration by integration
@@ -47,8 +48,12 @@ jwst_data={jwst_datai, $
         prefdata            : ptr_new(),$ ;pointer to ref image cube         
         preduced            : ptr_new(),$ ; pointer to slope data for mql_display
         reduced_stat        : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
-        pslopedata          : ptr_new(),$ ; pointer to slope data for msql_display
-        slope_stat          : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
+        preducedint         : ptr_new(),$ ; pointer to slope data for mql_display
+        reducedint_stat     : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
+        pratefinal          : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display
+        ratefinal_stat      : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
+        prateint            : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display
+        rateint_stat        : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
         pslopedata_all      : ptr_new(),$  ; pointer to slope data
         pcaldata            : ptr_new(),$ ; pointer to slope data
         cal_stat            : fltarr(8,6),$ ; cal statistics (mean,st dev,min,max):
@@ -76,6 +81,9 @@ jwst_image={jwst_imagei, $
          graphID             : lonarr(4),$
 	 plot_base           : lonarr(3),$ ; location of 4 plots that can change size
 	 srange_base         : lonarr(3),$ ; scale range location for 4 plots that can change size
+	 plane               : 1,$
+	 plane_final         : 0,$  
+	 plane_int           : 0,$
          infoID00            : 0,$
          infoID22            : 0,$
          graphID11           : 0,$
@@ -100,7 +108,7 @@ jwst_image={jwst_imagei, $
 	 integration_label   : 0L,$
          current_graph       : 0,$
          integrationNO       : 0,$
-         rampNO              : 0,$
+         frameNO              : 0,$
          graphno             : intarr(1),$
          x_pos               : 0.0,$ ; starts at 0
          y_pos               : 0.0,$ ; starts at 0
@@ -150,9 +158,12 @@ jwst_image={jwst_imagei, $
          ramp_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
 	 ramp_x_label        : 0L,$
 	 ramp_y_label        : 0L,$
-         pix_statID          : lonarr(6),$
-         pix_statLabel       : strarr(6),$
-         pix_statFormat      : strarr(6) ,$
+         pix_statID          : lonarr(4),$
+         pix_statLabel       : strarr(4),$
+         pix_statFormat      : strarr(4) ,$
+         pix_statID2         : lonarr(3),$
+         pix_statLabel2      : strarr(3),$
+         pix_statFormat2     : strarr(3) ,$
 	 overplotRefID       : lonarr(2),$
 	 overplotCRID        : lonarr(2),$
 	 overplotlinID        : lonarr(2),$
@@ -205,17 +216,18 @@ jwst_generic_window = {jwst_generic_windowi,$
 	        status                : 0}
 
 ;***********************************************************************
-jwst_single_image= { jwst_single_imagei,$
-	        uwindowsize         : 0,$
-	        xwindowsize         : 0,$
-	        ywindowsize         : 0,$
-		filename            : ' ' ,$
-		type                : 0,$ ; 0 = raw, 1 = slope
-	        colstart	            : 1,$
-        	rowstart            : 1,$
-        	subarray            : 0,$
-		nints               : 0,$ ; number of integrations in exposure 
-		ngroups              : 0,$ ; number of groups/ integration
+; 
+jwst_cimage= { jwst_cimagei,$
+	        uwindowsize     : 0,$
+	        xwindowsize     : 0,$
+	        ywindowsize     : 0,$
+		filename        : ' ' ,$
+		type            : 0,$ ; 0 = raw, 1 = rate, 2 = rate_int, 3 = cal 
+	        colstart	: 1,$
+        	rowstart        : 1,$
+        	subarray        : 0,$
+		nints           : 0,$ ; number of integrations in exposure 
+		ngroups         : 0,$ ; number of groups/ integration
 	        plane           : 0,$
 	    	xsize           : 0.0,$
 	    	ysize           : 0.0,$
@@ -224,13 +236,9 @@ jwst_single_image= { jwst_single_imagei,$
 	        ref_ysize       : 0.0,$
 	    	iframe           : 0.0,$
 	    	jintegration    : 0.0,$
-		ptimedata       : ptr_new(),$
-	    	ptimedata2      : ptr_new(),$
-	    	ptime           : ptr_new(),$
 	    	ptimeflag       : ptr_new(),$
 	    	pdata           : ptr_new(),$
                 prefdata        : ptr_new(),$
-	    	pbadpixel       : ptr_new(),$
 	    	psubdata        : ptr_new(),$
 	    	psubdata_noref  : ptr_new(),$
 		mean            : 0.0,$
@@ -241,8 +249,6 @@ jwst_single_image= { jwst_single_imagei,$
 	    	max             : 0.0,$
 	    	range_min       : 0.0,$
 	    	range_max       : 0.0,$
-	    	ngood           : 0L,$
-	    	nbad            : 0L,$
                 pixelunits      : 0,$
 	    	ximage_range    : intarr(2),$
 	    	yimage_range    : intarr(2),$
@@ -254,9 +260,6 @@ jwst_single_image= { jwst_single_imagei,$
 	    	sd_range_min    : 0.0,$
 	    	sd_range_max    : 0.0,$
 	    	sd_stdev_mean   : 0.0,$
-	    	sd_skew         : 0.0,$
-	    	sd_ngood        : 0L,$
-	    	sd_nbad         : 0L,$
 	    	sd_ximage_range : intarr(2),$
 	    	sd_yimage_range : intarr(2)}
 
@@ -267,36 +270,33 @@ jwst_slope = {jwst_slopei,                $
 	   xwindowsize         : 0,$
 	   ywindowsize         : 0,$
 	   plane               : intarr(3),$
-	   plane_cal            : 0,$  
-	   plane_slope         : 0,$
-	   plane_error         : 0,$
-	   plane_dq            : 0,$
-	   integrationNO        : 0,$	
-	   binfactor            : 0.0,$
-	   scale_zoom           : 0.0,$
-	   scale_inspect        : 0,$
+	   integrationNO       : 0,$	
+	   binfactor           : 0.0,$
+	   scale_zoom          : 0.0,$
+	   scale_inspect       : 0,$
            current_graph       : 0,$
-	   xplot_size           : 0,$
-	   yplot_size           : 0,$
-           graph_label          : lonarr(3),$ ; title label for  images 	
-           zoom_label           : lonarr(6),$; label on the zoom X 
- 	   bindisplay           : strarr(2),$
+	   xplot_size          : 0,$
+	   yplot_size          : 0,$
+           graph_label         : lonarr(3),$ ; title label for  images 	
+           zoom_label          : lonarr(6),$; label on the zoom X 
+ 	   bindisplay          : strarr(2),$
 	   xpixel_typeLabel    : strarr(2),$
 	   xpixel_typeID       : 0L,$
-           x_pos                : 0.0,$
-           y_pos                : 0.0,$
+           x_pos               : 0.0,$
+           y_pos               : 0.0,$
 	   pix_label           : lonarr(2),$
-           graphID11            : 0,$
-           graphID12            : 0,$
-           graphID21            : 0,$
-           graphID22            : 0,$
-           default_scale_graph  : intarr(3,1),$
-           graph_range          : fltarr(3,2),$
-           integration_label    : 0L,$ ; Button to allow flipping through integrations
-           slabelID             : lonarr(3),$ 
-           rlabelID             : lonarr(3,2),$ 
-           mlabelID             : lonarr(3),$ 
-           image_recomputeID    : lonarr(3),$
+           graphID11           : 0,$
+           graphID12           : 0,$
+           graphID21           : 0,$
+           graphID22           : 0,$
+           default_scale_graph : intarr(3,1),$
+           graph_range         : fltarr(3,2),$
+           integration_label   : 0L,$ ; Button to allow flipping through integrations
+           compare_label   : 0L,$ ; Button set compare integration
+           slabelID            : lonarr(3),$ 
+           rlabelID            : lonarr(3,2),$ 
+           mlabelID            : lonarr(3),$ 
+           image_recomputeID   : lonarr(3),$
 	   zoom_integrationNO  : 0,$
 	   zoom_window         : 0,$
 	   x_zoom              : 0.0,$
@@ -319,23 +319,24 @@ jwst_slope = {jwst_slopei,                $
 	   zoom_range          : fltarr(2),$
 	   pzoomdata           : ptr_new(),$ ;pointer to zoom data         	
            int_range           : intarr(2),$
-	  pslope_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel
-	  slope_final         : 0.0,$
-	  slope_mmlabel       : lonarr(2,2),$
-	  slope_recomputeID   : lonarr(2),$
-	  slope_range         : fltarr(2,2),$
-          default_scale_slope : intarr(2),$
-	  median_labelID       : 0,$
-          graphID              : lonarr(4),$
-          draw_window_id       : intarr(4),$
-          pixmapID             : intarr(3),$
-	  srange_base          : lonarr(3),$
-	  plot_base            : lonarr(3),$
-          pix_statID           : lonarr(4),$
-          pix_statLabel        : strarr(4),$
-          pix_statFormat       : strarr(4),$
-          pix_statLabel3       : '  ',$
-          pix_statID3          : 0L}
+	   pslope_pixeldata    : ptr_new(),$ ;pointer all the data for 1 pixel
+	   slope_final         : 0.0,$
+	   slope_mmlabel       : lonarr(2,2),$
+	   slope_recomputeID   : lonarr(2),$
+	   slope_range         : fltarr(2,2),$
+           default_scale_slope : intarr(2),$
+	   median_labelID      : 0,$
+           graphID             : lonarr(4),$
+           draw_window_id      : intarr(4),$
+           pixmapID            : intarr(3),$
+	   srange_base         : lonarr(3),$
+	   plot_base           : lonarr(3),$
+           pix_statID          : lonarr(4),$
+           pix_statLabel       : strarr(4),$
+           pix_statFormat      : strarr(4),$
+           pix_statLabel3      : strarr(4),$
+           pix_statFormat3     : strarr(4),$
+           pix_statID3         : lonarr(4)}
 
 ;***********************************************************************
 jwst_inspect = {jwst_inspecti,$
@@ -382,9 +383,6 @@ jwst_inspect = {jwst_inspecti,$
 	    pix_statID          : lonarr(4),$
 	    pix_statLabel       : strarr(4),$
 	    pix_statFormat      : strarr(4),$
-;	    pix_statID2         : lonarr(4),$
-;	    pix_statLabel2      : strarr(4),$
-;	    pix_statFormat2     : strarr(4),$
 	    xsize               : 0,$
 	    ysize               : 0,$
 	    xpixel_typeLabel    : strarr(2),$
@@ -400,13 +398,9 @@ jwst_inspect = {jwst_inspecti,$
 	    iystart_zoom        :0,$
 	    stat                : fltarr(7),$
 	    range               : fltarr(2),$
+	    plane_plot          : 0,$
 	    pdata               : ptr_new(),$ ; in ref case expanded data 
-	    pdataimage          : ptr_new(),$  ; in ref case actual data: 
-	                                       ;258 * 1024
 	    psubdata            : ptr_new(),$
-	    preduced            : ptr_new(),$ ; holds all the planes of the reduced data 
-	    pslopefit           : ptr_new(),$
-	    pcaldata            : ptr_new(),$
 	    plowx               : ptr_new(),$
 	    plowy               : ptr_new(),$
 	    phighx              : ptr_new(),$
@@ -503,14 +497,6 @@ jwst_compare={jwst_comparei, $
          draw_window_id      : intarr(6),$  ; widget id of window
          pixmapID            : intarr(6),$  ; pixel map id of window
          graphID             : lonarr(6),$
-	 histo_binlabel      : lonarr(3),$
-	 histo_binnum        : intarr(3),$
-         histo_xlabel        : lonarr(3,2),$ ; plot label 
-         histo_ylabel        : lonarr(3,2),$ ; plot label 
-         histo_xrange        : lonarr(3,2),$ ; plot range for the ramp plot, 
-         histo_yrange        : lonarr(3,2),$ ; plot range for the ramp plot, 
-         histo_recomputeID   : lonarr(3,2),$ ; button controlling Default scale or User Set Scale
-         default_scale_histo : intarr(3,2),$ ; scaling min and max display ranges 
 	 pix_statlabel       : strarr(3),$
 	 pix_statformat      : strarr(3),$
          pix_statLabelID     : lonarr(3),$
@@ -522,26 +508,10 @@ jwst_compare={jwst_comparei, $
 
 ;***********************************************************************
 jwst_output={jwst_outputi, $
-	historaw          : '   ',$
-	histozoom         : '   ',$
-	historef          : '   ',$
-	histoslope        : '   ',$
-	histounc          : '   ',$
-	colsliceraw       : '   ',$
-	colslicezoom      : '   ',$
-	colsliceref       : '   ',$
-	colsliceslope     : '   ',$
-	colsliceunc       : '   ',$
-	rowsliceraw       : '   ',$
-	rowslicezoom      : '   ',$
-	rowsliceref       : '   ',$
-	rowsliceslope     : '   ',$
-	rowsliceunc       : '   ',$
 	zoomimage         : '   ',$
 	slopeimage        : '   ',$	
 	frame_pixel       : '   ',$
         rawimage          : '   ',$
-	timeorder         : '   ',$
 	inspect_rawimage  : '   ',$
 	inspect_slope     : '   ',$
 	inspect_slope2        : '   ',$
@@ -553,53 +523,46 @@ jwst_output={jwst_outputi, $
 	slope_slope_pixel : '   ',$ 
 	referenceimage    : '   ',$
 	test_report       : '   ',$
-	channelhistoraw   : '   ',$
-	channelhistoslope : '   ',$
-	channelcslice     : '   ',$
-	channelcsliceslope : '   ',$
-	channelrslice     : '   ',$
-	channelrsliceslope : '   ',$
-	fowler_report     : '   ',$
-	firstlook         : '   ',$
-	pixellook         : '   ',$
-	channel           : '   ',$
-	SlopeChannel      : '   ',$
-	channel_stat      : '   ',$
-	refpixel_time     : '   ',$
 	fwn               : '   '}	
 
 ;***********************************************************************
 
 jwst_dq = {jwst_dqi,$
-	        Unusable           : 0,$	
+	        Donotuse           : 0,$	
 		Saturated         : 0,$
-	        CosmicRay         : 0,$
-	        NoiseSpike        : 0,$
-	        NoDark            : 0,$
-	        NoReset           : 0,$
-	        NoLastFrame       : 0,$
-	        NoLin             : 0,$
-	        OutLinRange       : 0,$
-	        NegCosmicRay      : 0,$
-		CorruptFrame      : 0,$
-		Reject_After_Noise : 0,$
-		Reject_After_CR   : 0,$
-		CR_Slope_Failure   : 0,$
-		CR_Seg_Min         : 0,$
-		Min_Frame_Failure  : 0,$
-	        SUnusable           : ' ' ,$	
-		SSaturated         : ' ' ,$
-	        SCosmicRay         : ' ' ,$
-	        SNoiseSpike        :  ' ',$
-	        SNoDark            : ' ' ,$
-	        SNoReset           : ' ' ,$
-	        SNoLastFrame       : ' ' ,$
-	        SNoLin             : ' ' ,$
-	        SOutLinRange       : ' ' ,$
-		SCorruptFrame      : ' ' ,$
-		SReject_After_Noise : ' ' ,$
-		SRefject_After_CR   : ' ' ,$
-		SCR_Slope_Failure   : ' ' ,$
-		SCR_Seg_Min         : ' ' ,$
-		SMin_Frame_Failure  : ' ',$
-	        SNegCosmicRay      : ' ' }
+	        Jump              : 0,$
+	        Dropout           : 0,$
+	        Unrelerror        : 0,$
+	        Nonscience        : 0,$
+	        Dead              : 0,$
+	        Hot               : 0,$
+	        Warm       	  : 0,$
+	        RC      	  : 0,$
+		nonlinear      	  : 0,$
+		bad_refpixel      : 0,$
+		no_flatfield      : 0,$
+		no_gain           : 0,$
+		unrel_dark        : 0,$
+		unrel_slope       : 0,$
+	        unrel_flat        : 0 ,$	
+		unrel_reset       : 0 ,$
+		ref_pixel         : 0,$
+	        sDonotuse         : ' ',$	
+		sSaturated        : ' ',$
+	        sJump             : ' ' ,$
+	        sDropout          : ' ',$
+	        sUnrelerror       : ' ',$
+	        sNonscience       : ' ',$
+	        sDead             : ' ',$
+	        sHot              : ' ',$
+	        sWarm       	  : ' ',$
+	        sRC      	  : ' ',$
+		snonlinear        : ' ',$
+		sbad_refpixel     : ' ',$
+		sno_flatfield     : ' ',$
+		sno_gain          : ' ',$
+		sunrel_dark       : ' ',$
+		sunrel_slope      : ' ',$
+	        sunrel_flat       : ' ' ,$	
+		sunrel_reset      : ' ' ,$
+	        sref_pixel         : ' ' }

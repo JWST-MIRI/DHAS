@@ -17,10 +17,10 @@ case 1 of
 ;_______________________________________________________________________
     (strmid(event_name,0,10) EQ 'JWST_LoadI') : begin
 
-        if(XRegistered ('jwst_msql')) then sl_filename = info.jwst_control.filename_raw
+        if(XRegistered ('jwst_msql')) then sl_filename = info.jwst_control.filebase
 
         info.jwst_image.uwindowsize = 0
-        jwst_setup_names,info,1,status,error_message
+        jwst_setup_names,info,0,status,error_message
         if(status eq 2) then return
         if(status eq 1) then begin
             result = dialog_message(error_message,/error)
@@ -28,7 +28,7 @@ case 1 of
         endif
 
         if(XRegistered ('jwst_msql')) then begin
-            if(sl_filename ne info.jwst_control.filename_raw) then begin
+            if(sl_filename ne info.jwst_control.filebase) then begin
                 jwst_ql_reset,info
                 widget_control,info.jwst_SlopeQuickLook,/destroy
                 print,'Closing Rate Look window'
@@ -47,25 +47,24 @@ case 1 of
         info.jwst_image.x_pos =(info.jwst_data.image_xsize/info.jwst_image.binfactor)/2.0
         info.jwst_image.y_pos = (info.jwst_data.image_ysize/info.jwst_image.binfactor)/2.0
         jwst_setup_intermediate,info ; ramp data, slope data, and  all intemediate data 
-        jwst_setup_slope,info,info.jwst_image.integrationNO,0
+        jwst_setup_slope_final,info,0,status
+        jwst_setup_slope_int,info,0,0
 
         xvalue = info.jwst_image.x_pos * info.jwst_image.binfactor
         yvalue = info.jwst_image.y_pos * info.jwst_image.binfactor
 
         jwst_mql_read_slopedata,xvalue,yvalue,info
-
         jwst_get_this_frame_stat,info
         jwst_mql_display_images,info
+
      end	
-
 ;____________________________________________________________________
-
 ; Slope 
     (strmid(event_name,0,10) EQ 'JWST_LoadS') : begin
-       if(XRegistered ('jwst_mql')) then sl_filename = info.jwst_control.filename_slope
+       if(XRegistered ('jwst_mql')) then sl_filename = info.jwst_control.filebase
 
         status_continue = 0
-        jwst_setup_names,info,2,status_continue,error_message
+        jwst_setup_names,info,1,status_continue,error_message
 
         if(status_continue eq 2) then return
         if(status_continue eq 1 ) then begin
@@ -74,27 +73,32 @@ case 1 of
          endif
 
         if(XRegistered ('jwst_mql')) then begin
-            if(sl_filename ne info.jwst_control.filename_slope) then begin
+           print,sl_filename,info.jwst_control.filebase
+            if(sl_filename ne info.jwst_control.filebase) then begin
                 jwst_ql_reset,info
                 widget_control,info.jwst_QuickLook,/destroy
                 print,'Closing JWST QuickLook window'
             endif
         endif    
-    
 
-        jwst_setup_slope,info,info.jwst_slope.integrationNO,1
+        jwst_setup_slope_final,info,1,status
+        jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
         jwst_find_slope_binfactor,info
+;        jwst_setup_cal,info,1
 
-;        setup_cal_image,info
         jwst_msql_display_slope,info
     end
 ;_______________________________________________________________________
-
+    (strmid(event_name,0,10) EQ 'JWST_LoadC') : begin
+       imessage = 'Option to view calibrated data is not avaliable at this time'
+       result = dialog_message(imessage,/Information)
+       return
+    end
+;_______________________________________________________________________
     (strmid(event_name,0,10) EQ 'JWST_Load2') : begin
        jwst_load_compare,info
      end	
 ;_______________________________________________________________________
-
 
 else: print," Event name not found",event_name
 endcase

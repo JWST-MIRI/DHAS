@@ -1,9 +1,9 @@
 @file_decompose.pro
 
-pro image_print, event
+pro jwst_image_print, event
 
   Widget_Control, event.top, Get_UValue=printimageinfo
-  Widget_Control, printimageinfo.info.Quicklook, Get_UValue=info
+  Widget_Control, printimageinfo.info.jwst_Quicklook, Get_UValue=info
   type = printimageinfo.type
 
       ; Get the file name the user typed in.
@@ -49,10 +49,10 @@ pro image_print, event
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
              device, file=filename, /landscape,/color, encapsulated=0
              
-             if(type eq 0) then mql_update_images,info,/ps
-             if(type eq 1) then mql_update_zoom_image,info,/ps
-             if(type eq 2) then mql_update_slope,info,/ps
-             if(type eq 3) then mql_update_rampread,info,/ps
+             if(type eq 0) then jwst_mql_update_images,info,/ps
+             if(type eq 1) then jwst_mql_update_zoom_image,info,/ps
+             if(type eq 2) then jwst_mql_update_slope,info,/ps
+             if(type eq 3) then jwst_mql_update_rampread,info,/ps
              device,/close
              set_plot, 'x'
            end
@@ -74,10 +74,10 @@ pro image_print, event
 	     filename = disk + path + name 
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
 
-             if(type eq 0 ) then  wset,info.image.draw_window_id[0]
-             if(type eq 1) then  wset,info.image.draw_window_id[1]
-             if(type eq 2) then  wset,info.image.draw_window_id[2]
-             if(type eq 3) then  wset,info.image.draw_window_id[3]
+             if(type eq 0 ) then  wset,info.jwst_image.draw_window_id[0]
+             if(type eq 1) then  wset,info.jwst_image.draw_window_id[1]
+             if(type eq 2) then  wset,info.jwst_image.draw_window_id[2]
+             if(type eq 3) then  wset,info.jwst_image.draw_window_id[3]
 
              image3d = TVRead(filename=filename,/JPEG,/nodialog)
              image3d = 0
@@ -88,10 +88,10 @@ pro image_print, event
              filename = disk + path + name 
              Widget_Control, printimageinfo.selectfile, Set_Value = filename
 
-             if(type eq 0 ) then  wset,info.image.draw_window_id[0]
-             if(type eq 1) then  wset,info.image.draw_window_id[1]
-             if(type eq 2) then  wset,info.image.draw_window_id[2]
-             if(type eq 3) then  wset,info.image.draw_window_id[3]
+             if(type eq 0 ) then  wset,jwst_info.image.draw_window_id[0]
+             if(type eq 1) then  wset,jwst_info.image.draw_window_id[1]
+             if(type eq 2) then  wset,jwst_info.image.draw_window_id[2]
+             if(type eq 3) then  wset,jwst_info.image.draw_window_id[3]
              image3d = TVRead(filename=filename,/PNG,/nodialog)
              image3d = 0
          end
@@ -100,10 +100,10 @@ pro image_print, event
 	     filename = disk + path + name
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
 
-             if(type eq 0 ) then  wset,info.image.draw_window_id[0]
-             if(type eq 1) then  wset,info.image.draw_window_id[1]
-             if(type eq 2) then  wset,info.image.draw_window_id[2]
-             if(type eq 3) then  wset,info.image.draw_window_id[3]
+             if(type eq 0 ) then  wset,info.jwst_image.draw_window_id[0]
+             if(type eq 1) then  wset,info.jwst_image.draw_window_id[1]
+             if(type eq 2) then  wset,info.jwst_image.draw_window_id[2]
+             if(type eq 3) then  wset,info.jwst_image.draw_window_id[3]
              image3d = TVRead(filename=filename,/GIF,/nodialog)
              image3d = 0
 
@@ -112,14 +112,14 @@ pro image_print, event
            else:
        endcase
    endelse
-      if printfil eq 1 then Widget_Control, info.Quicklook, Set_UValue=info
+      if printfil eq 1 then Widget_Control, info.jwst_Quicklook, Set_UValue=info
       Widget_Control, event.top, /Destroy
       end  
 ;_______________________________________________________________________
-pro print_image_event, event
+pro jwst_print_image_event, event
 
   Widget_Control, event.top, Get_UValue=printimageinfo
-  Widget_Control, printimageinfo.info.QuickLook, Get_UValue=info
+  Widget_Control, printimageinfo.info.jwst_QuickLook, Get_UValue=info
   case event.id of
       printimageinfo.otypeButtons: begin
           otype = event.value
@@ -145,7 +145,7 @@ pro print_image_event, event
       end
       
       printimageinfo.browseButton: begin
-          pout = strcompress(info.control.dirps + '/',/remove_all)
+          pout = strcompress(info.jwst_control.dirps + '/',/remove_all)
           Pathvalue = Dialog_Pickfile(/read,Title='Please select output file path', $
                                       Path=pout, Get_Path=realpath,filter='*.fits')
 
@@ -156,7 +156,7 @@ pro print_image_event, event
       printimageinfo.cancelButton: begin
           ptype = 'x'
           set_plot, ptype
-          Widget_Control, info.Quicklook, Set_UValue=info
+          Widget_Control, info.jwst_Quicklook, Set_UValue=info
           Widget_Control, event.top, /Destroy
           return
       end
@@ -164,53 +164,53 @@ pro print_image_event, event
   endcase
 
   Widget_Control, event.top, Set_UValue=printimageinfo
-  Widget_Control, printimageinfo.info.Quicklook, Set_UValue=info
+  Widget_Control, printimageinfo.info.jwst_Quicklook, Set_UValue=info
 
 end
 
 ;_______________________________________________________________________
-pro print_images,info,type 
+pro jwst_print_images,info,type 
 
 
   ; Pop up a small widget so the user can type in a file name.
   ; Wait for the user to type a carriage-return.
 if(XRegistered("mql_printimage")) then return
 
-iframe = info.image.rampNO+1
-jintegration = info.image.integrationNO+1
+iframe = info.jwst_image.frameNO+1
+jintegration = info.jwst_image.integrationNO+1
 
 ij = 'int' + string(jintegration) + '_frame' + string(iframe)  
 ij = strcompress(ij,/remove_all)
 
 
-xvalue = fix(info.image.x_pos*info.image.binfactor)+1
-yvalue = fix(info.image.y_pos*info.image.binfactor)+1
+xvalue = fix(info.jwst_image.x_pos*info.jwst_image.binfactor)+1
+yvalue = fix(info.jwst_image.y_pos*info.jwst_image.binfactor)+1
 xy = strcompress(string(xvalue) + "_" + string(yvalue),/remove_all)
 mtitle = ' ' 
 if(type eq 0) then begin
-    outname = info.output.rawimage + '_' + ij
-    mtitle = 'MIRI Quicklook Print Science Image'
+    outname = info.jwst_output.rawimage + '_' + ij
+    mtitle = 'JWST MIRI Quicklook Print Science Image'
 endif
 if(type eq 1) then begin
-    outname = info.output.zoomimage + '_' + ij
-    mtitle = 'MIRI Quicklook Print Zoom Image'
+    outname = info.jwst_output.zoomimage + '_' + ij
+    mtitle = 'JWST MIRI Quicklook Print Zoom Image'
 endif
 if(type eq 2) then begin
-    outname = info.output.slopeimage + '_' + ij
-    mtitle = 'MIRI Quicklook Print Slope Image'
+    outname = info.jwst_output.slopeimage + '_' + ij
+    mtitle = 'JWST MIRI Quicklook Print Slope Image'
 endif
 
 if(type eq 3) then begin
-    outname = info.output.frame_pixel + '_' + ij + '_' + xy
-    mtitle = 'MIRI Quicklook Print Frame Values for Selected Pixel'
+    outname = info.jwst_output.frame_pixel + '_' + ij + '_' + xy
+    mtitle = 'JWST MIRI Quicklook Print Frame Values for Selected Pixel'
 endif
 
 	  
 otype = 0
-path = info.control.dirps
+path = info.jwst_control.dirps
 slash = '/'
 if(path eq "") then slash = ''
-filename = info.control.dirps + slash + info.control.filebase + $
+filename = info.jwst_control.dirps + slash + info.jwst_control.filebase + $
            outname + '.ps'
 
 
@@ -222,12 +222,14 @@ filename = info.control.dirps + slash + info.control.filebase + $
   ysize_scroll = 110
 
 
-  if(info.control.x_scroll_window lt xsize_scroll) then xsize_scroll = info.control.x_scroll_window
-  if(info.control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.control.y_scroll_window
+  if(info.jwst_control.x_scroll_window lt xsize_scroll) then $
+     xsize_scroll = info.jwst_control.x_scroll_window
+  if(info.jwst_control.y_scroll_window lt ysize_scroll) then $
+     ysize_scroll = info.jwst_control.y_scroll_window
   if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
   if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 pntrbase   = Widget_Base  (Title = mtitle, /Column, $
-                           Group_Leader=info.RawQuicklook, $
+                           Group_Leader=info.jwst_RawQuicklook, $
                            xsize = xwidget_size,$
                            ysize = ywidget_size,/scroll,$
                            x_scroll_size= xsize_scroll,$
@@ -235,7 +237,7 @@ pntrbase   = Widget_Base  (Title = mtitle, /Column, $
 pntr1base =  Widget_Base(pntrbase, /Row)
 label      = Widget_Label (pntr1base, Value='Output file name:') 
 selectfile = Widget_Text  (pntr1base, Value = filename, XSize = 120, /Edit, $
-                           Event_Pro = 'image_print')
+                           Event_Pro = 'jwst_image_print')
 pntr2base  = Widget_Base  (pntrbase, /Row)
 
 tnames = ['PostScript', 'Encapsulated Postscript', 'JPEG', 'PNG', 'GIF']
@@ -245,7 +247,7 @@ otypeButtons = cw_bgroup(pntr2base, tnames, row=1, label_left='File type:', $
 label3     = Widget_Label (pntr2base, Value = '     ')
 browseButton = Widget_Button(pntr2base, Value = ' Browse ')
 printButton = Widget_Button(pntr2base, Value = ' Print ', $
-                            Event_Pro = 'image_print')
+                            Event_Pro = 'jwst_image_print')
 cancelButton = Widget_Button(pntr2base, Value = ' Cancel ')
 
 printimageinfo = {selectfile    :     selectfile,   $
@@ -260,6 +262,6 @@ printimageinfo = {selectfile    :     selectfile,   $
 Widget_Control, pntrbase, set_uvalue = printimageinfo
 Widget_Control, pntrbase, /Realize
 
-XManager, "mql_printimage", pntrbase, Event_Handler = "print_image_event"
+XManager, "jwst_mql_printimage", pntrbase, Event_Handler = "jwst_print_image_event"
 
 end

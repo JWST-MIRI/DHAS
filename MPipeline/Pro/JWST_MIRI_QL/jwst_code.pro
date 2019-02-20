@@ -5,7 +5,7 @@
 @jwst_ql_color.pro
 @jwst_ql_help.pro
 @jwst_ql_quit.pro
-
+@jwst_dqflags.pro
 @jwst_clear_ql_info.pro
 @jwst_ql_reset.pro
 
@@ -25,6 +25,7 @@
 @jwst_read_all_slopes.pro
 @jwst_get_image_stat.pro
 
+@jwst_read_single_cal.pro
 ;Raw and slope image display
 ;@mql_cleanup_widgets.pro
 
@@ -36,10 +37,9 @@
 @jwst_mql_update_zoom_image.pro
 @jwst_mql_moveframe.pro
 @jwst_display_frame_values.pro
-@jwst_miql_display_images.pro
-@jwst_misql_display_images.pro
-@jwst_misfql_display_images.pro
-@jwst_misql2_display_images.pro
+@jwst_miql_display_images.pro ; Frame image from jwst_mql_diplay
+@jwst_misql_display_images.pro ; Slope image from jwst_mql_display, or jwst_msql_display (1st win)
+@jwst_misql2_display_images.pro ; second win from jwst_msql_display
 @jwst_mql_display_stat.pro
 @jwst_read_image_info.pro
 @jwst_difference_images.pro
@@ -76,9 +76,7 @@
 ;@determine_detector.pro
 ;@read_ptracking_refpixel.pro
 ;@check_header.pro
-;@read_coadd_type.pro
-;@get_cdp_badpixel_names.pro
-;@read_dead_pixels.pro
+
 ;@get_slope_fit_stat.pro
 ;@get_ref_pixeldata.pro
 ;@linearity_setup_pixel.pro
@@ -99,22 +97,14 @@
 ; comparing image to science image
 @jwst_mql_compare_display.pro
 @jwst_micql_display_images ; inspect comparison images'
-
-;@mql_compare_histo.pro
-;@print_compare_histo.pro
 ; comparing two reduced images
-;@msql_compare_display.pro
-;@msql_compare_histo.pro
-;@micrql_display_images ; inspect comparison images'
-
-;;@msicql_display_images ; inspect comparison images'
-
-
-; comparing images - event from ql.pro
-
-
+@jwst_msql_compare_display.pro
+@jwst_micrql_display_images ; inspect comparison images'
 
 ; Subarray geometry plot
 ;@mql_plot_subarray_geo.pro
+; Print plots
+@jwst_print_images.pro
+;@jwst_print_slopes_images.pro
 
 @jwst_ql.pro

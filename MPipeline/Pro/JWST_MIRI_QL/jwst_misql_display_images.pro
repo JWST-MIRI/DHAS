@@ -46,22 +46,7 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
-
-        data_id ='ID flag '+ strcompress(string(info.jwst_dqflag.Unusable),/remove_all) +  ' = ' + info.jwst_dqflag.Sunusable +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.CosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoiseSpike),/remove_all) +  ' = ' + info.jwst_dqflag.SNoiseSpike +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NegCosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SNegCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoReset),/remove_all) +  ' = ' + info.jwst_dqflag.SNoReset +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoDark),/remove_all) +  ' = ' + info.jwst_dqflag.SNoDark +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLin),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLin +  string(10b) + $
-;                 'ID flag '+ strcompress(string(info.jwst_dqflag.OutLinRange),/remove_all) +  ' = ' + info.jwst_dqflag.SOutLinRange +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLastFrame),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLastFrame +  string(10b)  + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Min_Frame_Failure),/remove_all) +  ' = ' + info.jwst_dqflag.SMin_Frame_Failure +  string(10b) 
-
-        
-        result = dialog_message(data_id,/information)
+       jwst_dqflags,info
     end
 ;_______________________________________________________________________
 ; change range of image graphs
@@ -392,11 +377,6 @@ ixend = ixstart + ix
 iyend = iystart + iy
 ;;
 
-;print,'ixstart, ixend ',ixstart,ixend,ixend - ixstart
-;print,'iystart, iyend ',iystart,iyend,iyend - iystart
-;print,'xstart xend ',xstart,xend,xend-xstart
-;print,'ystart yend ',ystart,yend,yend-ystart
-
 info.jwst_inspect_slope.ixstart_zoom = ixstart
 info.jwst_inspect_slope.xstart_zoom = xstart
 
@@ -406,7 +386,7 @@ info.jwst_inspect_slope.ystart_zoom = ystart
 info.jwst_inspect_slope.yend_zoom = yend
 info.jwst_inspect_slope.xend_zoom = xend
 
-frame_image = (*info.jwst_inspect_slope.pdata)
+frame_image = (*info.jwst_inspect_slope.pdata)[*,*,info.jwst_inspect_slope.plane_plot]
 
 sub_image = fltarr(xsize,ysize)   
 
@@ -668,40 +648,23 @@ yvalue = info.jwst_inspect_slope.yposful
 i = info.jwst_inspect_slope.integrationNO
 
 ss = 'NA'
-serror = 'NA'
-sflag = 'NA'
-scal = 'NA'
 
-slopevalue = (*info.jwst_inspect_slope.preduced)[xvalue,yvalue,0]
-error = (*info.jwst_inspect_slope.preduced)[xvalue,yvalue,1]
-dflag = (*info.jwst_inspect_slope.preduced)[xvalue,yvalue,2]
-if(info.jwst_control.file_cal_exist) then begin 
-;    cal = 0.0
-    scal = strtrim(string(cal,format="("+info.jwst_inspect_slope.pix_statFormat[3]+")"),2)
-
- endif
+slopevalue = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,0]
+error = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,1]
+dq = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,2]
 
 
 ss =  strtrim(string(slopevalue,format="("+info.jwst_inspect_slope.pix_statFormat[0]+")"),2)
-serror =   strtrim(string(error,format="("+info.jwst_inspect_slope.pix_statFormat[1]+")"),2)
-sflag = strtrim(string(dflag,format="("+info.jwst_inspect_slope.pix_statFormat[3]+")"),2)
-
+se =  strtrim(string(error,format="("+info.jwst_inspect_slope.pix_statFormat[1]+")"),2)
+sdq =  strtrim(string(dq,format="("+info.jwst_inspect_slope.pix_statFormat[2]+")"),2)
 
 widget_control,info.jwst_inspect_slope.pix_statID[0],$
                set_value= info.jwst_inspect_slope.pix_statLabel[0] + ' = ' + ss
-              
-
 widget_control,info.jwst_inspect_slope.pix_statID[1],$
-               set_value= info.jwst_inspect_slope.pix_statLabel[1] + ' = ' + serror
-
-
+               set_value= info.jwst_inspect_slope.pix_statLabel[1] + ' = ' + se
 widget_control,info.jwst_inspect_slope.pix_statID[2],$
-               set_value= info.jwst_inspect_slope.pix_statLabel[2] + ' = ' + scal
-
-widget_control,info.jwst_inspect_slope.pix_statID[3],$
-               set_value= info.jwst_inspect_slope.pix_statLabel[3] + ' = ' + sflag
-
-
+               set_value= info.jwst_inspect_slope.pix_statLabel[2] + ' = ' + sdq
+              
 
 wset,info.jwst_inspect_slope.draw_window_id
 
@@ -746,10 +709,7 @@ endif
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
 
-
-
 ;_______________________________________________________________________
-;***********************************************************************
 pro jwst_misql_display_images,info
 ;_______________________________________________________________________
 if(info.jwst_inspect_slope.uwindowsize eq 0) then begin ; user changed the widget window size - only redisplay
@@ -786,18 +746,15 @@ endif
 window,1,/pixmap
 wdelete,1
 
-
 if(XRegistered ('jwst_misql')) then begin
     widget_control,info.jwst_InspectSlope,/destroy
 endif
-
 
 ; widget window parameters
 xwidget_size = 1500
 ywidget_size = 1100
 xsize_scroll = 1450
 ysize_scroll = 1100
-
 
 if(info.jwst_inspect_slope.uwindowsize eq 1) then begin ; user has set window size 
     xsize_scroll = info.jwst_inspect_slope.xwindowsize
@@ -808,8 +765,6 @@ if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.j
 
 if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
-
-
 
 info.jwst_InspectSlope = widget_base(title="JWST MIRI Quick Look- Inspect Reduced Image" + info.jwst_version,$
                                 mbar = menuBar,/row,group_leader = info.jwst_Quicklook,$
@@ -836,8 +791,8 @@ info.jwst_inspect_slope.zbutton[3] = widget_button(Zoommenu,value="Zoom 8x",uval
 info.jwst_inspect_slope.zbutton[4] = widget_button(Zoommenu,value="Zoom 16x",uvalue='zoom4',/checked_menu)
 info.jwst_inspect_slope.zbutton[5] = widget_button(Zoommenu,value="Zoom 32x",uvalue='zoom5',/checked_menu)
 
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
 ;*****
 ; setup the image windows
 ;*****
@@ -958,19 +913,17 @@ info.jwst_inspect_slope.pix_label[1] = cw_field(pix_num_base,title="y",font=info
 
 pix_num_base = widget_base(graphid2,/col,/align_left)
 
-info.jwst_inspect_slope.pix_statLabel = ["Slope (DN/s)" , "Error" ,$
-                                       "Calibrated Value", "Data Quality Flag"]
+info.jwst_inspect_slope.pix_statLabel = ["Slope (DN/s)", "Error", "DQ Flag"]
 
-info.jwst_inspect_slope.pix_statFormat = ["F16.5" ,"F12.5" ,"F12.5", "I8"]
+info.jwst_inspect_slope.pix_statFormat = ["F16.5","F16.8","I16" ]
 
-for i = 0,2 do begin 
+for i = 0,1 do begin 
    info.jwst_inspect_slope.pix_statID[i]=widget_label(pix_num_base,value = info.jwst_inspect_slope.pix_statLabel[i]+$
                                                       ' = ' ,/align_left,/dynamic_resize)
 endfor
 
 info_base = widget_base(graphid2,row=1,/align_left)
-
-info.jwst_inspect_slope.pix_statID[3] = widget_label(info_base,value = info.jwst_inspect_slope.pix_statLabel[3]+$
+info.jwst_inspect_slope.pix_statID[2] = widget_label(info_base,value = info.jwst_inspect_slope.pix_statLabel[2]+$
                                         ' =  ' ,/align_left,/dynamic_resize)                                       
 info_label = widget_button(info_base,value = 'Info',uvalue = 'datainfo')
 

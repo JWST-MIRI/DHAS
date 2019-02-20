@@ -23,15 +23,14 @@ endif
 ;Setup main panel
 ;*********
 i = info.jwst_image.integrationNO
-j = info.jwst_image.rampNO
+j = info.jwst_image.frameNO
 
 if(info.jwst_data.read_all eq 0) then begin
     i = 0
     if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-        j = info.jwst_image.rampNO- info.jwst_control.frame_start
+        j = info.jwst_image.frameNO- info.jwst_control.frame_start
     endif
 endif
-
 
 xstart = 0 & xend = 0 
 ystart = 0 & yend = 0 
@@ -47,7 +46,6 @@ st_mean  = fltarr(3)
 
 ngood = lonarr(3)
 nbad = lonarr(3)
-
 
 stitle[0] = " Statistics on Science Image "
 ; These statistics were filled in after they where read in (read_multi_frames) 
@@ -75,21 +73,33 @@ xend = info.jwst_image.x_zoom_end
 ystart = info.jwst_image.y_zoom_start
 yend = info.jwst_image.y_zoom_end
 
-stitle[2] = " Statistics on Slope Image "
-mean[2] = info.jwst_data.reduced_stat[0,0]
-st_pixel[2] = info.jwst_data.reduced_stat[2,0]
-var[2] = st_pixel[2]*st_pixel[2,0]
-min[2] = info.jwst_data.reduced_stat[3,0]
-max[2] = info.jwst_data.reduced_stat[4,0]
-median[2] = info.jwst_data.reduced_stat[2,0]
-st_mean[2] = info.jwst_data.reduced_stat[7,0]
+if(info.jwst_image.plane eq 0) then begin 
+   stitle[2] = " Statistics on Final Rate Image "
+   mean[2] = info.jwst_data.reduced_stat[0,0]
+   st_pixel[2] = info.jwst_data.reduced_stat[2,0]
+   var[2] = st_pixel[2]*st_pixel[2,0]
+   min[2] = info.jwst_data.reduced_stat[3,0]
+   max[2] = info.jwst_data.reduced_stat[4,0]
+   median[2] = info.jwst_data.reduced_stat[2,0]
+   st_mean[2] = info.jwst_data.reduced_stat[7,0]
+endif
 
+if(info.jwst_image.plane eq 1) then begin 
+   stitle[2] = " Statistics on Int Rate Image "
+   mean[2] = info.jwst_data.reducedint_stat[0,0]
+   st_pixel[2] = info.jwst_data.reducedint_stat[2,0]
+   var[2] = st_pixel[2]*st_pixel[2,0]
+   min[2] = info.jwst_data.reducedint_stat[3,0]
+   max[2] = info.jwst_data.reducedint_stat[4,0]
+   median[2] = info.jwst_data.reducedint_stat[2,0]
+   st_mean[2] = info.jwst_data.reduced_stat[7,0]
+endif
 statinfo = widget_base(title="Statistics on Images",$
                          col = 1,mbar = menuBar,group_leader = info.jwst_RawQuickLook,$
                            xsize = 730,ysize = 270,/align_right)
 lineid = widget_base(statinfo,row = 1)
 si = strtrim(string(info.jwst_image.integrationNO+1),2)
-sj = strtrim(string(info.jwst_image.rampNO+1),2)
+sj = strtrim(string(info.jwst_image.frameNO+1),2)
 st = 'Integration: ' + si + '    Frame: ' + sj
 label = widget_label(lineid,value=st,/align_center,font=info.font5)
 nolable = widget_label(lineid,value='   No reference pixels included',font = info.font5)

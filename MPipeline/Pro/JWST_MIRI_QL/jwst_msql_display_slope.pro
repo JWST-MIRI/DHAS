@@ -26,7 +26,6 @@ end
 ;_______________________________________________________________________
 pro jwst_msql_update_pixel_location,info
 ;_______________________________________________________________________
-
 ij = info.jwst_slope.current_graph
 wset,info.jwst_slope.draw_window_id[ij]
 ; set up the pixel box window - this will initialize the
@@ -64,36 +63,39 @@ pro jwst_msql_update_pixel_stat_slope,info
 i = info.jwst_slope.integrationNO
 x = info.jwst_slope.x_pos*info.jwst_slope.binfactor
 y = info.jwst_slope.y_pos*info.jwst_slope.binfactor
+scal = 'NA'
+
+
+signal_final = (*info.jwst_data.pratefinal)[x,y,0]
+error_final = (*info.jwst_data.pratefinal)[x,y,1]
+dq_final = (*info.jwst_data.pratefinal)[x,y,2]
+
+sfin = strtrim(string(signal_final,format="("+info.jwst_slope.pix_statFormat3[1]+")"),2)
+se = strtrim(string(error_final,format="("+info.jwst_slope.pix_statFormat3[2]+")"),2)
+sdq = strtrim(string(dq_final,format="("+info.jwst_slope.pix_statFormat3[3]+")"),2)
+
+widget_control,info.jwst_slope.pix_statID3[0],set_value= info.jwst_slope.pix_statLabel3[0] + ' = ' + scal
+widget_control,info.jwst_slope.pix_statID3[1],set_value= info.jwst_slope.pix_statLabel3[1] + ' = ' + sfin
+widget_control,info.jwst_slope.pix_statID3[2],set_value= info.jwst_slope.pix_statLabel3[2] + ' = ' + se
+widget_control,info.jwst_slope.pix_statID3[3],set_value= info.jwst_slope.pix_statLabel3[3] + ' = ' + sdq
 
 ss = 'NA'
 su = 'NA'
 sf = 'NA'
+if(info.jwst_control.file_slope_int_exist eq 1) then begin
+   signal = (*info.jwst_data.prateint)[x,y,0]
+   unc = (*info.jwst_data.prateint)[x,y,1]
+   dq = (*info.jwst_data.prateint)[x,y,2]
 
-signal = (*info.jwst_data.pslopedata)[x,y,0]
-unc = (*info.jwst_data.pslopedata)[x,y,1]
-dq = (*info.jwst_data.pslopedata)[x,y,2]
-
-signal_final = (*info.jwst_data.pslopedata_all)[x,y,0]
-sfin = strtrim(string(signal_final,format="("+info.jwst_slope.pix_statFormat[0]+")"),2)
-
-widget_control,info.jwst_slope.pix_statID3,set_value= info.jwst_slope.pix_statLabel3 + ' = ' + sfin
-
-ss = strtrim(string(signal,format="("+info.jwst_slope.pix_statFormat[0]+")"),2)
-su = strtrim(string(unc,format="("+info.jwst_slope.pix_statFormat[1]+")"),2)
-sf = strtrim(string(dq,format="("+info.jwst_slope.pix_statFormat[2]+")"),2)
-
-
-scal = 'NA'
-if(info.jwst_control.file_cal_exist eq 1) then begin
-    cal = (*info.jwst_data.pcaldata)[x,y,0]
-    scal = strtrim(string(cal,format="("+info.jwst_slope.pix_statFormat[8]+")"),2)
+   print,'infor from integration',signal,unc,dq
+   ss = strtrim(string(signal,format="("+info.jwst_slope.pix_statFormat[0]+")"),2)
+   su = strtrim(string(unc,format="("+info.jwst_slope.pix_statFormat[1]+")"),2)
+   sf = strtrim(string(dq,format="("+info.jwst_slope.pix_statFormat[2]+")"),2)
 endif
 
 widget_control,info.jwst_slope.pix_statID[0],set_value= info.jwst_slope.pix_statLabel[0] + ' = ' + ss
 widget_control,info.jwst_slope.pix_statID[1],set_value= info.jwst_slope.pix_statLabel[1] + ' = ' + su
 widget_control,info.jwst_slope.pix_statID[2],set_value= info.jwst_slope.pix_statLabel[2] + ' = ' + sf
-widget_control,info.jwst_slope.pix_statID[3],set_value= info.jwst_slope.pix_statLabel[3] + ' = ' + scal
-
 
 end
 ;_______________________________________________________________________
@@ -109,7 +111,9 @@ xvalue = info.jwst_slope.x_pos*info.jwst_slope.binfactor
 yvalue = info.jwst_slope.y_pos*info.jwst_slope.binfactor
 
 pixeldata = (*info.jwst_data.pslopedata_all)[xvalue,yvalue,*]
-
+if(info.jwst_control.file_slope_int_exist eq 0) then begin
+   pixeldata = pixeldata[*,*,0]
+endif
 
 if(hcopy eq 0) then wset,info.jwst_slope.draw_window_id[3]
 
@@ -197,7 +201,7 @@ if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.j
 if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 ;_______________________________________________________________________
-SlopeQuickLook = widget_base(title="JWST MIRI Quick Look- Slope Images" + info.jwst_version,$
+SlopeQuickLook = widget_base(title="JWST MIRI Quick Look- Rate/Cal Images" + info.jwst_version,$
                              col = 1,mbar = menuBar,group_leader = info.jwst_QuickLook,$
                              xsize = xwidget_size,$
                              ysize = ywidget_size,/scroll,$
@@ -213,22 +217,22 @@ quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_msql_quit')
 
 hMenu = widget_button(menuBar,value="Display Header",font = info.font2)
 hsMenu = widget_button(hmenu,value="Display Reduced Header",uvalue='sheader')
-hcMenu = widget_button(hmenu,value="Display Calibrated Header",uvalue='cheader')
+
 
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Get Statistics on Images",uvalue = 'Stat')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
-cbutton = widget_button(cMenu,value = "Compare First Image to an Image in another file",uvalue = 'compare')
+cbutton = widget_button(cMenu,value = "Compare Image in first Window to an Image in another file",uvalue = 'compare')
 
 ;chMenu   = widget_button(menuBar,value="Channel",font= info.font2)
 ;cbutton = widget_button(chMenu,value = "Display Reduced Image by Channel",uvalue = 'channel')
 
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonS = widget_button(Pmenu,value = "Print Plot 1",uvalue='print_S')
-PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image (Plot 2)",uvalue='print_Z')
-PbuttonU = widget_button(Pmenu,value = "Print Plot 2",uvalue='print_U')
-PbuttonE = widget_button(Pmenu,value = "Print Slope value for pixel for exposure",uvalue='print_E')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonS = widget_button(Pmenu,value = "Print Plot 1",uvalue='print_1')
+;PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image (Plot 2)",uvalue='print_Z')
+;PbuttonU = widget_button(Pmenu,value = "Print Plot 2",uvalue='print_2')
+;PbuttonE = widget_button(Pmenu,value = "Print Slope value for pixel for exposure",uvalue='print_E')
 
 filelabelID = widget_label(info.jwst_SlopeQuickLook, $
                            value=info.jwst_control.filename_slope,/align_left, $
@@ -236,10 +240,6 @@ filelabelID = widget_label(info.jwst_SlopeQuickLook, $
 ;_______________________________________________________________________
 ; determine the main window display based on scale and image size
 
-info.jwst_slope.plane_slope = 0
-info.jwst_slope.plane_error = 1
-info.jwst_slope.plane_dq = 2
-info.jwst_slope.plane_cal = 3
 
 xsize = info.jwst_data.slope_xsize/info.jwst_slope.binfactor
 ysize = info.jwst_data.slope_ysize/info.jwst_slope.binfactor
@@ -279,11 +279,9 @@ if(info.jwst_slope.binfactor lt 1.0) then bimage = "Blown up by " + $
 
 info.jwst_slope.bindisplay=[bimage,"Scroll Full Image"] 
 ;_______________________________________________________________________
-voptions = ['Rate Image: ', 'Error Image', 'Data Quality Flag']
-if(info.jwst_control.file_cal_exist) then begin
-    voptions = ['Rate Image: ', 'Error Image', 'Data Quality Flag',$
-                ' Calibrated Image' ]
-endif
+voptions = ['Final Rate: ', 'Final Error', 'Final DQ']
+if(info.jwst_control.file_slope_int_exist eq 1) then $
+voptions = ['Final Rate: ', 'Final Error', 'Final DQ','Int Rate','Int Error','Int DQ']
 
 xsize_label = 9
 ;************************************
@@ -298,16 +296,16 @@ info.jwst_slope.graph_label[0] = widget_droplist(base1,value=voptions,$
                                             uvalue='voption1',font=info.font5)
 slope_bin = widget_label(base1,value = bintitle,font=info.font4)
 
-slmean = info.jwst_data.slope_stat[0,0]
-slmin = info.jwst_data.slope_stat[3,0]
-slmax = info.jwst_data.slope_stat[4,0]
+slmean = info.jwst_data.reduced_stat[0,0]
+slmin = info.jwst_data.reduced_stat[3,0]
+slmax = info.jwst_data.reduced_stat[4,0]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.slope_stat[5,0]
-range_max = info.jwst_data.slope_stat[6,0]
+range_min = info.jwst_data.reduced_stat[5,0]
+range_max = info.jwst_data.reduced_stat[6,0]
 info.jwst_slope.graph_range[0,0] = range_min
 info.jwst_slope.graph_range[0,1] = range_max
 
@@ -362,16 +360,16 @@ slope_bin = widget_label(base1,value = bintitle,font=info.font4)
 
 widget_control,info.jwst_slope.graph_label[1],set_droplist_select=1
 info.jwst_slope.plane[1] = 1 ; error image  
-slmean = info.jwst_data.slope_stat[0,1]
-slmin = info.jwst_data.slope_stat[3,1]
-slmax = info.jwst_data.slope_stat[4,1]
+slmean = info.jwst_data.reduced_stat[0,1]
+slmin = info.jwst_data.reduced_stat[3,1]
+slmax = info.jwst_data.reduced_stat[4,1]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.slope_stat[5,1]
-range_max = info.jwst_data.slope_stat[6,1]
+range_min = info.jwst_data.reduced_stat[5,1]
+range_max = info.jwst_data.reduced_stat[6,1]
 info.jwst_slope.graph_range[1,0] = range_min
 info.jwst_slope.graph_range[1,1] = range_max
 
@@ -416,29 +414,37 @@ info.jwst_slope.graphID[1] = widget_draw(info.jwst_slope.plot_base[1],$
 ; Information 
 ; Move through images (integrations)
 ; Pixel Information
-compare_label = cw_field(infoID00,title='Compare Image 1 to Integration #',$
-                         font = info.font5,uvalue='fcompare',/integer,/return_events,$
-                         value = 0, xsize=4,fieldfont = info.font3)
-compare_info = widget_label(infoID00,value='Enter 0 to compare to the Final Combined Image')
-sinum = strcompress(string(info.jwst_data.nints),/remove_all)
-compare_info = widget_label(infoID00,value = ' Number of integrations in file: ' + sinum,/align_left)
-
-move_base0 = widget_base(infoID00,row=1,/align_left)
-jintegration = info.jwst_slope.IntegrationNO
-
-;print,'Integration NO',info.jwst_slope.IntegrationNO
-moveframe_label = widget_label(move_base0,value='Change Image Displayed',$
-                                font=info.font5,/sunken_frame)
-move_base1 = widget_base(infoID00,row=1,/align_left)
-info.jwst_slope.integration_label = cw_field(move_base1,$
-                    title=" Integration # ",font=info.font5, $
-                    uvalue="integration",/integer,/return_events, $
-                    value=jintegration+1,xsize=4,$
-                    fieldfont=info.font3)
 
 
-labelID = widget_button(move_base1,uvalue='integr_move_dn',value='<',font=info.font3)
-labelID = widget_button(move_base1,uvalue='integr_move_up',value='>',font=info.font3)
+if(info.jwst_control.file_slope_int_exist eq 1) then begin 
+   label = widget_label(infoID00,value='Compare Rate Image in Window 1 to ',$
+                                  font=info.font5)
+   info.jwst_slope.compare_label = cw_field(infoID00,title='  Rate in Integration #',$
+                            font = info.font5,uvalue='icompare',/integer,/return_events,$
+                            value = 1, xsize=4,fieldfont = info.font3)
+
+   sinum = strcompress(string(info.jwst_data.nints),/remove_all)
+   compare_info = widget_label(infoID00,value = ' Number of integrations in exposure: ' + sinum,/align_left)
+   move_base0 = widget_base(infoID00,row=1,/align_left)
+   jintegration = info.jwst_slope.IntegrationNO
+
+   moveframe_label = widget_label(move_base0,value='Change Image Displayed',$
+                                  font=info.font5,/sunken_frame)
+   move_base1 = widget_base(infoID00,row=1,/align_left)
+   info.jwst_slope.integration_label = cw_field(move_base1,$
+                                                title=" Integration # ",font=info.font5, $
+                                                uvalue="integration",/integer,/return_events, $
+                                                value=jintegration+1,xsize=4,$
+                                                fieldfont=info.font3)
+
+
+   labelID = widget_button(move_base1,uvalue='integr_move_dn',value='<',font=info.font3)
+   labelID = widget_button(move_base1,uvalue='integr_move_up',value='>',font=info.font3)
+endif else begin
+   compare_info = widget_label(infoID00,value='No *rate_int.fits file exist.',font=info.font5)
+   compare_info = widget_label(infoID00,value='Only view combined rate image',font=info.font5)
+endelse
+
 ;__________________________
 ; Pixel Statistics Display
 blank_label= widget_label(infoID00,value="     ")
@@ -466,8 +472,6 @@ info.jwst_slope.pix_label[1] = cw_field(pix_num_base,title="y",font=info.font4, 
                                    uvalue="pix_y_val",/integer,/return_events, $
                                    value=fix(yvalue+1),xsize=6,$
                                    fieldfont=info.font3)
-
-
 ;*****
 ;graph 2,1; window 2 initally set to Slope image zoom
 ;*****
@@ -503,16 +507,16 @@ info.jwst_slope.zoom_label[5] = widget_button(zoom_base,value=zoomvalues[5],$
                                            font=info.font4)
 
 ; default values for slope image
-slmean = info.jwst_data.slope_stat[0,0]
-slmin = info.jwst_data.slope_stat[3,0]
-slmax = info.jwst_data.slope_stat[4,0]
+slmean = info.jwst_data.reduced_stat[0,0]
+slmin = info.jwst_data.reduced_stat[3,0]
+slmax = info.jwst_data.reduced_stat[4,0]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.slope_stat[5,0]
-range_max = info.jwst_data.slope_stat[6,0]
+range_min = info.jwst_data.reduced_stat[5,0]
+range_max = info.jwst_data.reduced_stat[6,0]
 
 info.jwst_slope.graph_range[2,0] = range_min
 info.jwst_slope.graph_range[2,1] = range_max
@@ -557,9 +561,8 @@ info.jwst_slope.graphID[2] = widget_draw(info.jwst_slope.plot_base[2],$
 slope_range = fltarr(2,2)        ; plot range for pixel over exposure ,
 
 
-stitle = "Slope Values for Selected Pixel for Exposure"
-stitle1 = " Averaged Slope is given at Int = 0" 
-if(info.jwst_data.coadd eq 1) then stitle1 = " Value in Primary Image = 0" 
+stitle = "Rate Values for Selected Pixel for Exposure"
+stitle1 = " Final Rate is given at Int = 0" 
 
 tlabelID = widget_label(info.jwst_slope.graphID22,value = stitle,/align_center,$
                                      font=info.font5,/sunken_frame)
@@ -612,36 +615,33 @@ info.jwst_slope.slope_range = slope_range
 
 
 ;_______________________________________________________________________
-base1 = widget_base(infoID01,row=1)
-FinalID = widget_button(base1,value='View Combined Slope',uvalue='final_inspect',font=info.font5)
+;base1 = widget_base(infoID01,row=1)
 
-info.jwst_slope.pix_statLabel3 = "Combined Slope (DN/s) " 
-info.jwst_slope.pix_statID3 = widget_label(infoID01,value = info.jwst_slope.pix_statLabel3 +$
-                                        ' =                     ' ,/align_left)
+info.jwst_slope.pix_statLabel3 = ["Calibrated Value (Dn/s)", "Final Rate (DN/s)",  "Final Error",  "DQ flag"] 
+info.jwst_slope.pix_statFormat3 =  ["F16.4","F16.4", "F16.8", "I16"] 
 
+for i = 0,3 do begin  
+    info.jwst_slope.pix_statID3[i] = widget_label(infoID01,value = info.jwst_slope.pix_statLabel3[i]+$
+                                        ' =  NA' ,/align_left,/dynamic_resize)
+endfor
 
-if(info.jwst_data.coadd eq 0) then info.jwst_slope.pix_statLabel = $
-  ["Slope (DN/s)", "Error (DN/S)","Data Quality Flag", "Calibrated Value"]
+info.jwst_slope.pix_statLabel = ["Rate (DN/s)", "Error (DN/S)","DQ Flag"]
 
-if(info.jwst_data.coadd eq 1) then info.jwst_slope.pix_statLabel =$
-  ["Average (DN/frame)", "Uncertainty (DN/frame)","Data Quality Flag", "Calibrated Value"]
-
-info.jwst_slope.pix_statFormat =  ["F16.4", "F16.8", "I5","F12.4"] 
+info.jwst_slope.pix_statFormat =  ["F16.4", "F16.8", "I16"] 
 slope_intid = widget_label(infoID01,value= "Current Integration Values",/align_left,$
                           font=info.font5,/sunken_frame)
 
 
 for i = 0,1 do begin  
     info.jwst_slope.pix_statID[i] = widget_label(infoID01,value = info.jwst_slope.pix_statLabel[i]+$
-                                        ' =  ' ,/align_left,/dynamic_resize)
+                                        ' =  NA' ,/align_left,/dynamic_resize)
 endfor
 
 info_base = widget_base(infoID01,row=1,/align_left)
 info.jwst_slope.pix_statID[2] = widget_label(info_base,value = info.jwst_slope.pix_statLabel[2]+$
-                                        ' =  ' ,/align_left,/dynamic_resize)                                       
-info_label = widget_button(info_base,value = 'Info',uvalue = 'datainfo')
-info.jwst_slope.pix_statID[3] = widget_label(infoID01,value = info.jwst_slope.pix_statLabel[3]+$
-                                             ' =   ' ,/align_left,/dynamic_resize)
+                                        ' =  NA ' ,/align_left,/dynamic_resize)                                       
+info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
+
 
 
 ;Set up the GUI
@@ -702,6 +702,7 @@ jwst_read_all_slopes,info,slopedata,status,error_message
 if ptr_valid (info.jwst_data.pslopedata_all) then ptr_free,info.jwst_data.pslopedata_all
 info.jwst_data.pslopedata_all = ptr_new(slopedata)
 slopedata = 0
+
 
 jwst_msql_update_slopepixel,info
 jwst_msql_update_pixel_stat_slope,info

@@ -49,20 +49,7 @@ endif
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
 
-
-        data_id ='ID flag '+ strcompress(string(info.jwst_dqflag.Unusable),/remove_all) +  ' = ' + info.jwst_dqflag.Sunusable +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.CosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoiseSpike),/remove_all) +  ' = ' + info.jwst_dqflag.SNoiseSpike +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NegCosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SNegCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoReset),/remove_all) +  ' = ' + info.jwst_dqflag.SNoReset +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoDark),/remove_all) +  ' = ' + info.jwst_dqflag.SNoDark +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLin),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLin +  string(10b) + $
-
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLastFrame),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLastFrame +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Min_Frame_Failure),/remove_all) +  ' = ' + info.jwst_dqflag.SMin_Frame_Failure +  string(10b) 
-        
-        result = dialog_message(data_id,/information)
+       jwst_dqflags,info
     end
 ;_______________________________________________________________________
 ; change range of image graphs
@@ -393,7 +380,7 @@ info.jwst_inspect_slope2.ystart_zoom = ystart
 info.jwst_inspect_slope2.yend_zoom = yend
 info.jwst_inspect_slope2.xend_zoom = xend
 
-frame_image = (*info.jwst_inspect_slope2.pdata)
+frame_image = (*info.jwst_inspect_slope2.pdata)[*,*,info.jwst_inspect_slope2.plane_plot]
 
 sub_image = fltarr(xsize,ysize)   
 
@@ -640,37 +627,24 @@ i = info.jwst_inspect_slope2.integrationNO
 
 
 ss = 'NA'
-serror = 'NA'
-sflag = 'NA'
-scal = 'NA'
 
-slopevalue = (*info.jwst_data.pslopedata)[xvalue,yvalue,0]
+
+slopevalue = (*info.jwst_inspect_slope2.pdata)[xvalue,yvalue,0]
 ss =  strtrim(string(slopevalue,format="("+info.jwst_inspect_slope2.pix_statFormat[0]+")"),2)
 
-error = (*info.jwst_data.pslopedata)[xvalue,yvalue,1]
-serror =  strtrim(string(error,format="("+info.jwst_inspect_slope2.pix_statFormat[1]+")"),2)
+error = (*info.jwst_inspect_slope2.pdata)[xvalue,yvalue,1]
+se =  strtrim(string(error,format="("+info.jwst_inspect_slope2.pix_statFormat[1]+")"),2)
 
-dflag = (*info.jwst_data.pslopedata)[xvalue,yvalue,2]
-sflag =  strtrim(string(dflag,format="("+info.jwst_inspect_slope2.pix_statFormat[3]+")"),2)
-
-if(info.jwst_control.file_cal_exist) then begin 
-    cal = (*info.jwst_data.pcaldata)[xvalue,yvalue,0]
-    scal = strtrim(string(cal,format="("+info.jwst_inspect_slope2.pix_statFormat[2]+")"),2)
-endif
+dq = (*info.jwst_inspect_slope2.pdata)[xvalue,yvalue,2]
+sdq =  strtrim(string(dq,format="("+info.jwst_inspect_slope2.pix_statFormat[2]+")"),2)
 
 
 widget_control,info.jwst_inspect_slope2.pix_statID[0],$
                set_value= info.jwst_inspect_slope2.pix_statLabel[0] + ' = ' + ss
-
 widget_control,info.jwst_inspect_slope2.pix_statID[1],$
-               set_value= info.jwst_inspect_slope2.pix_statLabel[1] + ' = ' + serror
-
-widget_control,info.jwst_inspect_slope2.pix_statID[3],$
-               set_value= info.jwst_inspect_slope2.pix_statLabel[3] + ' = ' + sflag
-
+               set_value= info.jwst_inspect_slope2.pix_statLabel[1] + ' = ' + se
 widget_control,info.jwst_inspect_slope2.pix_statID[2],$
-               set_value= info.jwst_inspect_slope2.pix_statLabel[2] + ' = ' + scal
-
+               set_value= info.jwst_inspect_slope2.pix_statLabel[2] + ' = ' + sdq
 
 wset,info.jwst_inspect_slope2.draw_window_id
 
@@ -802,8 +776,8 @@ info.jwst_inspect_slope2.zbutton[3] = widget_button(Zoommenu,value="Zoom 8x",uva
 info.jwst_inspect_slope2.zbutton[4] = widget_button(Zoommenu,value="Zoom 16x",uvalue='zoom4',/checked_menu)
 info.jwst_inspect_slope2.zbutton[5] = widget_button(Zoommenu,value="Zoom 32x",uvalue='zoom5',/checked_menu)
 
-PMenu = widget_button(menuBar,value="Print",font = info.font2)
-PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
+;PMenu = widget_button(menuBar,value="Print",font = info.font2)
+;PbuttonR = widget_button(Pmenu,value = "Print Science Image to output file",uvalue='prints')
 ;*****
 ; setup the image windows
 ;*****
@@ -926,21 +900,22 @@ info.jwst_inspect_slope2.pix_label[1] = cw_field(pix_num_base,title="y",font=inf
                                    fieldfont=info.font3)
 
 
-pix_num_base = widget_base(graphid2,col=2,/align_left)
+pix_num_base = widget_base(graphid2,col=1,/align_left)
 
-info.jwst_inspect_slope2.pix_statLabel = ["Slope (DN/s)" , "Error","Calibrated Value", "Data Quality Flag"]
+info.jwst_inspect_slope2.pix_statLabel = ["Slope (DN/s)","Error","DQ Flag" ]
 
-info.jwst_inspect_slope2.pix_statFormat = ["F16.5" ,"F12.5","F12.3","I8"]
+info.jwst_inspect_slope2.pix_statFormat = ["F16.5","F16.8","I16"]
 
 
-for i = 0,2 do begin 
-    info.jwst_inspect_slope2.pix_statID[i]=widget_label(pix_num_base,value = info.jwst_inspect_slope2.pix_statLabel[i]+$
-                                                  ' =               ' ,/align_left)
+for i = 0,1 do begin 
+    info.jwst_inspect_slope2.pix_statID[i]=widget_label(pix_num_base,$
+                                                        value = info.jwst_inspect_slope2.pix_statLabel[i]+$
+                                                        ' =               ' ,/align_left)
 endfor
 
 info_base = widget_base(graphid2,row=1,/align_left)
 
-info.jwst_inspect_slope2.pix_statID[3] = widget_label(info_base,value = info.jwst_inspect_slope2.pix_statLabel[3]+$
+info.jwst_inspect_slope2.pix_statID[2] = widget_label(info_base,value = info.jwst_inspect_slope2.pix_statLabel[2]+$
                                         ' =  ' ,/align_left,/dynamic_resize)                                       
 info_label = widget_button(info_base,value = 'Info',uvalue = 'datainfo')
 

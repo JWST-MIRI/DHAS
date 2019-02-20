@@ -56,14 +56,9 @@ if(info.jwst_image.overplot_fit eq 1) then  begin
     ynew = fltarr(num_int,info.jwst_data.ngroups)
     
     for k = 0,num_int-1 do begin
-        if(info.jwst_data.coadd ne 1) then begin
-            slope = slopedata[k,0]*info.jwst_data.frame_time
-            yint = slopedata[k,1]
-            ynew[k,*] = slope*xnew[*] + yint
-            
-        endif else begin ; coadded data - only one reduced data pt/pixel
-            ynew[k,*] = (*info.jwst_image.pslope_pixeldata)[0,0]
-        endelse
+       slope = slopedata[k,0]*info.jwst_data.frame_time
+       yint = slopedata[k,1]
+       ynew[k,*] = slope*xnew[*] + yint
     endfor
     ymin_cal = min(ynew,/nan)
     ymax_cal = max(ynew,/nan)
@@ -179,7 +174,7 @@ endif
 
 if(hcopy eq 1) then begin
     i = info.jwst_image.integrationNO
-    j = info.jwst_image.rampNO
+    j = info.jwst_image.frameNO
     
     ftitle = " Frame #: " + strtrim(string(i+1),2) 
     ititle = " Integration #: " + strtrim(string(j+1),2)
@@ -195,32 +190,13 @@ y2 = info.jwst_image.ramp_range[1,1]
 
 xs = "Frame #" + xs + ys
 ys = "DN/frame"
-if(info.jwst_data.coadd eq 1) then begin
-    xs = "Integration #"
-    ys = "Average DN"
-endif
+
 plot,xvalues,pixeldata,xtitle = xs, ytitle=ys,$
   xrange=[x1,x2],yrange=[y1,y2],title = stitle, subtitle = sstitle,$
      xstyle = 1, ystyle = 1,/nodata,ytickformat = '(f8.0)'
 
-BAD_FRAME = info.jwst_dqflag.CorruptFrame
-BAD_FRAME_SYM = 5
-
-NOISE_SPIKE = info.jwst_dqflag.NoiseSpike
-COSMICRAY_SLOPE_FAILURE = info.jwst_dqflag.cr_slope_failure
-REJECT_AFTER_NOISE_SPIKE = info.jwst_dqflag.reject_after_noise
-REJECT_AFTER_CR = info.jwst_dqflag.reject_after_cr
-SEG_MIN_FAILURE = info.jwst_dqflag.cr_seg_min
-NOISE_FLAG = noise_spike
-COSMICRAY = info.jwst_dqflag.CosmicRay
-COSMICRAY_NEG =info.jwst_dqflag.NegCosmicRay
-
 
 ptype = [1,2,4,5,6]
-
-if(info.jwst_data.coadd eq 1) then begin 
-    ptype[*]  = 1
-endif
 
 for k = 0,num_int-1 do begin
     yvalues = pixeldata[k,*,*]
@@ -314,7 +290,7 @@ for k = 0,num_int-1 do begin
         xnew_plot = 0 & ynew_plot = 0
      endif
 ;_______________________________________________________________________
- if(num_int gt 1 and info.jwst_image.overplot_pixel_int eq 0 and info.jwst_data.coadd eq 0) then begin
+ if(num_int gt 1 and info.jwst_image.overplot_pixel_int eq 0) then begin
      yline = fltarr(2) & xline = fltarr(2)
      yline[0] = -1000000 & yline[1] = 100000
      xline[*] = info.jwst_data.ngroups* (k+1)

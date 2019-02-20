@@ -20,7 +20,7 @@ nvalid = long(1024) * long(1024)
 if(info.jwst_data.subarray eq 1) then nvalid= long(info.jwst_data.image_xsize) * long(info.jwst_data.image_ysize)
 
 ; read all set to true - so read in all the images
-print,'in jwst_read_multi_frames',info.jwst_data.read_all
+
 ;  _______________________________________________________________________
 if(info.jwst_data.read_all eq 1) then begin ; read all the data in
 

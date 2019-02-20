@@ -1,5 +1,5 @@
 ; This program is used to display and analyze the science frames,
- ; slope image if it exists. This is the main display for the QL tool.
+; slope image if it exists. This is the main display for the QL tool.
 ; From this window the user can query pixel values, zoom the images,
 ; get statstics on the data
 ;***********************************************************************
@@ -16,7 +16,6 @@ endif
 
 end
 
-;***********************************************************************
 ; _______________________________________________________________________
 pro jwst_mql_update_pixel_location,info
 ; Update the pixel location is the user selected a different pixel
@@ -51,15 +50,15 @@ pro jwst_mql_update_pixel_stat,info
 
 i = info.jwst_image.integrationNO
 ii = info.jwst_image.integrationNO
-j = info.jwst_image.rampNO
+j = info.jwst_image.frameNO
 x = info.jwst_image.x_pos*info.jwst_image.binfactor
 y = info.jwst_image.y_pos*info.jwst_image.binfactor
 
-slope_exist = info.jwst_control.file_slope_exist
+
 if(info.jwst_data.read_all eq 0) then begin
     i = 0
     if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-        j = info.jwst_image.rampNO- info.jwst_control.frame_start
+        j = info.jwst_image.frameNO- info.jwst_control.frame_start
     endif
 endif
 
@@ -69,17 +68,14 @@ sp =   strtrim(string(pixelvalue,format="("+info.jwst_image.pix_statFormat[0]+")
 ssignal = 'NA'
 serror = 'NA'
 sdq = 'NA'
-
-
-if(slope_exist) then begin
+if(info.jwst_control.file_slope_exist eq 1) then begin
     signal = (*info.jwst_data.preduced)[x,y,0]
     ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat[1]+")"),2)
-    error = (*info.jwst_data.preduced)[x,y,2]
+    error = (*info.jwst_data.preduced)[x,y,1]
     serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat[2]+")"),2)
 
-    dq = (*info.jwst_data.preduced)[x,y,1]
+    dq = (*info.jwst_data.preduced)[x,y,2]
     sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat[3]+")"),2)
-
 endif
 
 widget_control,info.jwst_image.pix_statID[0],set_value=info.jwst_image.pix_statLabel[0]+' = ' +sp
@@ -87,9 +83,24 @@ widget_control,info.jwst_image.pix_statID[1],set_value=info.jwst_image.pix_statL
 widget_control,info.jwst_image.pix_statID[2],set_value= info.jwst_image.pix_statLabel[2] +' = '+serror
 widget_control,info.jwst_image.pix_statID[3],set_value= info.jwst_image.pix_statLabel[3] +' = '+ sdq
 
+if(info.jwst_control.file_slope_int_exist eq 1) then begin
+   ssignal = 'NA'
+   serror = 'NA'
+   sdq = 'NA'
+    signal = (*info.jwst_data.preducedint)[x,y,0]
+    ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat2[0]+")"),2)
+    error = (*info.jwst_data.preducedint)[x,y,1]
+    serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat2[1]+")"),2)
+
+    dq = (*info.jwst_data.preducedint)[x,y,2]
+    sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat2[2]+")"),2)
+    widget_control,info.jwst_image.pix_statID2[0],set_value=info.jwst_image.pix_statLabel2[0]+' = ' +ssignal
+    widget_control,info.jwst_image.pix_statID2[1],set_value= info.jwst_image.pix_statLabel2[1] +' = '+serror
+    widget_control,info.jwst_image.pix_statID2[2],set_value= info.jwst_image.pix_statLabel2[2] +' = '+ sdq
+endif
+
 end
 
-;***********************************************************************
 ; _______________________________________________________________________
 pro jwst_mql_display_images,info
 ; _______________________________________________________________________
@@ -113,11 +124,14 @@ if(XRegistered ('jwst_mql')) then begin
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
 
+info.jwst_image.plane_final = 0
+info.jwst_image.plane_int = 1
+
 ;_______________________________________________________________________
 ; widget window parameters
 xwidget_size = 1200
 ywidget_size = 1000
-xsize_scroll = 960
+xsize_scroll = 980
 ysize_scroll = 980
 
 ;check the maximum size of the windows
@@ -131,10 +145,7 @@ if(info.jwst_control.x_scroll_window lt xsize_scroll) then xsize_scroll = info.j
 if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.jwst_control.y_scroll_window
 if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
-
 ;_______________________________________________________________________
-
-
 RawQuickLook = widget_base(title="JWST MIRI Quick Look- Science Images" + info.jwst_version,$
                            col = 1,mbar = menuBar,group_leader = info.jwst_QuickLook,$
                            xsize = xwidget_size,$
@@ -153,7 +164,7 @@ quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_mql_quit')
 hMenu = widget_button(menuBar,value=" Header",font = info.font2)
 hrMenu = widget_button(hmenu,value="Display Science Image Header",uvalue = 'rheader')
 hsMenu = widget_button(hmenu,value="Display Rate Header",uvalue='sheader')
-hcMenu = widget_button(hmenu,value="Display Calibrated Header",uvalue='cheader')
+
 
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Statistics on Images",uvalue = 'Stat')
@@ -415,7 +426,7 @@ compare_label = cw_field(info.jwst_image.infoID00,title='Compare Science Frame t
 ; button to change all the images- one for integration#  and 
 ;                                  one for frame #
 
-iramp = info.jwst_image.rampNO
+iramp = info.jwst_image.frameNO
 jintegration = info.jwst_image.IntegrationNO
 
 moveframe_label = widget_label(info.jwst_image.infoID00,value='Change Image Displayed',$
@@ -480,9 +491,9 @@ flabel = widget_button(info.jwst_image.infoID00,value="Display a Table of  Frame
 pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)    
 
 info.jwst_image.pix_statLabel = ["Frame Value",$
-                                 "Slope (DN/s)", $
-                                 "Error (DN/s)",$
-                                 "Slope DQ Flag"]
+                                 "Final Rate (DN/s)", $
+                                 "Final Error (DN/s)",$
+                                 "Final  DQ Flag"]
 
 info.jwst_image.pix_statFormat =  ["F10.2","F12.5", "F12.5","I10"]
 
@@ -491,20 +502,45 @@ for i = 0,3 do begin
                                             ' =   ' ,/align_left,/dynamic_resize)
 endfor
 
+if(info.jwst_control.file_slope_int_exist eq 1) then begin 
+   pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)    
+
+   info.jwst_image.pix_statLabel2 = ["Int Rate (DN/s)", $
+                                    "Int Error (DN/s)",$
+                                    "Int  DQ Flag"]
+
+   info.jwst_image.pix_statFormat2 =  ["F12.5", "F12.5","I10"]
+
+   for i = 0,2 do begin  
+      info.jwst_image.pix_statID2[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel2[i]+$
+                                                   ' =   ' ,/align_left,/dynamic_resize)
+   endfor
+endif
 info_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)
-info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
+info_label = widget_button(info_base,value = 'Rate DQ Info',uvalue = 'datainfo')
 
 ;_______________________________________________________________________
 ;*****
 ;graph 2,1
 ;*****
+voptions = ['Final Rate Image: ']
+if(info.jwst_control.file_slope_int_exist) then voptions = ['Final Rate Image: ', 'Integration Rate Image']
 
-ss = " Slope Image [" + strtrim(string(info.jwst_data.image_xsize),2) + ' x ' +$
+
+ss = " Rate Image  [" + strtrim(string(info.jwst_data.image_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_data.image_ysize),2) + ']' + " " + info.jwst_image.bindisplay[0]
-if(info.jwst_control.file_slope_exist eq 0) then ss = " NO Slope Image Exist" 
+if(info.jwst_control.file_slope_exist eq 0) then voptions = " No Final Rate Image Exist" 
 
-info.jwst_image.graph_label[2]= widget_label(info.jwst_image.graphID21,value = ss,$
+;info.jwst_image.graph_label[2]= widget_label(info.jwst_image.graphID21,value = ss,$
+;                                      /align_center,font=info.font5,/sunken_frame)
+
+label21= widget_label(info.jwst_image.graphID21,value = ss,$
                                       /align_center,font=info.font5,/sunken_frame)
+info.jwst_image.plane = 0 ; final rate image
+base1 = widget_base(info.jwst_image.graphID21,row=1)
+info.jwst_image.graph_label[2] = widget_droplist(base1,value=voptions,$
+                                            uvalue='voption',font=info.font5)
+
 mean = 0 & min = 0 & max = 0 
 range_min = 0 & range_max = 0
 
@@ -585,7 +621,6 @@ int_range = intarr(2)
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
 info.jwst_image.int_range[*] = int_range[*]
-if(info.jwst_data.coadd eq 1) then info.jwst_image.int_range[1] = info.jwst_data.nints
 
 move_base = widget_base(info.jwst_image.graphID22,/row,/align_left)
 
@@ -664,12 +699,10 @@ widget_control,IAllButton,Set_Button = 0
 bk = widget_label(info.jwst_image.infoID22,value = ' ' ) 
 overplotFitID = lonarr(2)
 if(info.jwst_control.file_fitopt_exist)then begin 
-    if(info.jwst_data.coadd ne 1) then $
+
     overplot = widget_label(info.jwst_image.infoID22,value = 'Over-plot Values from Fit (red)',/sunken_frame,$
                             font = info.font5,/align_left)
-    if(info.jwst_data.coadd eq 1) then $
-    overplot = widget_label(info.jwst_image.infoID22,value = 'Over-plot Coadded Value (red)',/sunken_frame,$
-                            font = info.font5,/align_left)
+
     oBase = Widget_base(info.jwst_image.infoID22,/row,/nonexclusive)
 
     OverplotFitID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overslope1')

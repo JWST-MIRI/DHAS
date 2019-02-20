@@ -13,8 +13,6 @@ endif
 ;_______________________________________________________________________
 ; read in raw data
 ;_______________________________________________________________________
-
-print,'Opening fits file and reading in data',info.jwst_control.filename_raw
 fits_open,info.jwst_control.filename_raw,fcb
 fits_read,fcb,cube_raw,header_raw,exten_no=0,/header_only
 fits_read,fcb,cube_raw,header_first,exten_no=1,/header_only
@@ -56,13 +54,6 @@ info.jwst_data.nints = fxpar(header_raw,'NINTS',count = count)
 if(count eq 0) then begin
    print,'NINTS is missing from header'
    stop
-endif
-
-info.jwst_data.coadd = 0
-if(info.jwst_data.ngroups eq 1 and info.jwst_data.nints gt 1) then begin
-    info.jwst_data.coadd = 1
-    print,'This tool does not support Co-Added data'
-    stop
 endif
 
 nsample = fxpar(header_raw,'NSAMPLES',count = count)
@@ -139,10 +130,11 @@ end
 ;_______________________________________________________________________  
 pro jwst_reading_slope_header,info,status,error_message
 
-print,'Reading rate file'
+
 info.jwst_data.subarray = 0
 status = 0
 error_message = ' ' 
+
 file_exist1 = file_test(info.jwst_control.filename_slope,/regular,/read)
 if(file_exist1 ne 1 ) then begin
     status = 1
@@ -196,13 +188,6 @@ result = strcmp(first_frame_status,complete)
 if(result eq 1) then fit_start = 2
 info.jwst_data.start_fit = fit_start
 
-info.jwst_data.coadd = 0
-if(info.jwst_data.ngroups eq 1 and info.jwst_data.nints gt 1) then begin
-    info.jwst_data.coadd = 1
-    print,' This tool does not support Co-added data'
-    stop
-endif
-
 nsample = fxpar(header_slope,'NSAMPLES',count = count)
 if(count eq 0) then  begin
    print,'NSAMPLES not found in header'
@@ -213,7 +198,6 @@ endif
 if(nsample eq 1) then info.jwst_data.mode =0
 if(nsample eq 10) then info.jwst_data.mode =1
 
-print,' Reading Science Frame Image data ',info.jwst_control.filename_slope
 print,' Number of Integrations:',info.jwst_data.nints 
 print,' Number of frames/int  :',info.jwst_data.ngroups 
 

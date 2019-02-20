@@ -7,7 +7,7 @@ end
 ;***********************************************************************
 ; Set up the structure to display a header
 ; If type = 0 called from image display. Display frame + slope (if
-; exist) + cal (if exist) 
+; exist) 
 
 ; If type = 1 callled from slope display. Display slope + cal (if
 ; exist)  
@@ -15,7 +15,7 @@ end
 ;***********************************************************************
 pro jwst_header_setup,type,info ; default type = 0 (only set up for Primary header
                            ; raw science image
-
+; set up size of header
 intnum = 0
 framenum = 0
 rhead = 0
@@ -25,7 +25,6 @@ chead = 0
 if(type eq 0) then begin ; called from Image Frame Display
     rhead = 1
     if(info.jwst_control.file_slope_exist) then shead = 1
-    if(info.jwst_control.file_cal_exist) then chead = 1
 endif
 
 if(type eq 1) then begin
@@ -35,7 +34,6 @@ if(type eq 1) then begin
 endif
 
 num =  shead  + chead + rhead
-
 
 if (ptr_valid ( (*info.jwst_viewhead)[0] )) then   begin
     old_num = (*(*info.jwst_viewhead)[0]).num
@@ -128,13 +126,13 @@ Widget_Control,info.jwst_Quicklook,Set_UValue=info
 end
 
 ;***********************************************************************
-pro header_setup_cal,info
+pro jwst_header_setup_cal,type,info
 
-file_exist2 = file_test(info.control.filename_cal,/regular,/read)
+file_exist2 = file_test(info.jwst_control.filename_cal,/regular,/read)
 if(file_exist2 ne  1)then begin
     return
 endif else begin
-    fits_open,info.control.filename_cal,fcb
+    fits_open,info.jwst_control.filename_cal,fcb
     fits_read,fcb,cube,header_cal,/header_only,exten_no = 0
 
     nint = fxpar(header_cal,'NINTS',count = count)
@@ -144,16 +142,20 @@ endif else begin
        stop
     endif
 
-    if ptr_valid ((*(*info.viewhead)[2]).phead) then ptr_free,$
-       (*(*info.viewhead)[2]).phead
-    (*(*info.viewhead)[2]).phead= ptr_new(header)
+
+    if(type eq 1) then begin 
+       if ptr_valid ((*(*info.jwst_viewhead)[1]).phead) then ptr_free,$
+          (*(*info.jwst_viewhead)[1]).phead
+       (*(*info.jwst_viewhead)[1]).phead= ptr_new(header_cal)
+    endif
+
     
     fits_close,fcb
     cube = 0
     header_cal = 0
 endelse
 
-Widget_Control,info.Quicklook,Set_UValue=info
+Widget_Control,info.jwst_Quicklook,Set_UValue=info
 
 end
 

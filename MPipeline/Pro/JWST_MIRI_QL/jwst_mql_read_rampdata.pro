@@ -172,12 +172,14 @@ slopefinal = data[x,y,0]
 fits_close,fcb
 
 slopepixel = fltarr(info.jwst_data.nints)
-fits_open,info.jwst_control.filename_slope_int,fcb
-fits_read,fcb,data,header,exten_no = 1
-for integ =0,info.jwst_data.nints-1 do begin
-   slopepixel[integ] = data[x,y,integ]
-endfor
-fits_close,fcb
+if(info.jwst_control.file_slope_int_exist eq 1) then begin 
+   fits_open,info.jwst_control.filename_slope_int,fcb
+   fits_read,fcb,data,header,exten_no = 1
+   for integ =0,info.jwst_data.nints-1 do begin
+      slopepixel[integ] = data[x,y,integ]
+   endfor
+   fits_close,fcb
+endif
 end
 
 ;_______________________________________________________________________

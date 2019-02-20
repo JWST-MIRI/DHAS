@@ -1,5 +1,4 @@
 pro jwst_msql_event,event
-
 Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = ginfo	
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
@@ -26,7 +25,6 @@ case 1 of
     end
 ;_______________________________________________________________________
 ; slope header
-
     (strmid(event_name,0,7) EQ 'sheader') : begin
         j = info.jwst_slope.IntegrationNO
         jwst_display_header,info,0
@@ -39,7 +37,6 @@ case 1 of
         endif else begin
             jwst_display_header,info,1
         endelse
-
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'compare') : begin
@@ -71,11 +68,9 @@ case 1 of
         info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope
         info.jwst_rcompare_image[1].filename  = filename
 
+        jwst_read_data_type,info.jwst_rcompare_image[1].filename,type
 
-        read_data_type,info.jwst_rcompare_image[1].filename,type
-
-        if(type eq 7) then type = 1
-        if(type ne 1) then begin 
+        if(type eq 0) then begin 
             error = dialog_message(" The file must be a reduced science file, select file again",/error)
             return
         endif
@@ -89,49 +84,62 @@ case 1 of
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
-; Compare current frame to another frame 
-    (strmid(event_name,0,8) EQ 'fcompare') : begin
+; Compare rate image  integration to another integration
+    (strmid(event_name,0,8) EQ 'icompare') : begin
+
+       ; must have rate image viewing in window 1
+       if(info.jwst_slope.plane[0] eq 0 or info.jwst_slope.plane[0] eq 3) then begin
+          
+       endif  else begin
+          result = dialog_message(" Image in Window 1 must be a rate image, load rate image into window 1",/error )
+          return
+       endelse
+
+       ;do some checks on the integration number
+        this_int = event.value
+        if(this_int le 0) then this_int = 1
+        if(this_int gt info.jwst_data.nints) then this_int = info.jwst_data.nints
+        
+        widget_control,info.jwst_slope.compare_label,set_value = this_int
+
 
         info.jwst_rcompare.uwindowsize = 0
         info.jwst_crinspect[*].uwindowsize = 1
-        this_int = event.value-1
 
-        if(this_int lt -1) then this_int = -1 ; primary image 
+        this_int = this_int -1 
 
-        if(this_int gt info.jwst_data.nints-1  ) then this_int = 0 ; wrap
 
-        info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope
-        info.jwst_rcompare_image[1].filename  = info.jwst_control.filename_slope
-        info.jwst_rcompare_image[0].jintegration = info.jwst_slope.integrationNO 
+        if(info.jwst_slope.plane[0] eq 0) then begin ; if window 1 is final rate image 
+           info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope
+           info.jwst_rcompare_image[0].jintegration = info.jwst_slope.integrationNO 
+           info.jwst_rcompare_image[0].type = 1
+        endif
+        if(info.jwst_slope.plane[0] eq 3) then begin ; if window 1 is integration rate image
+           info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope_int
+           info.jwst_rcompare_image[0].jintegration = info.jwst_slope.integrationNO 
+           info.jwst_rcompare_image[0].type = 2
+        endif
+
         info.jwst_rcompare_image[1].jintegration = fix(this_int)
-        info.jwst_rcompare_image[0].plane = info.jwst_slope.plane[0]
-        info.jwst_rcompare_image[1].plane = info.jwst_slope.plane[0]
+        info.jwst_rcompare_image[1].filename  = info.jwst_control.filename_slope_int
+        info.jwst_rcompare_image[1].type = 2 ; 
+
+
+        info.jwst_rcompare_image[0].plane = 0
+        info.jwst_rcompare_image[1].plane = 0
 
 	jwst_msql_compare_display,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
-; channel plots
-    (strmid(event_name,0,7) EQ 'channel') : begin
-        status = 0
-        setup_SlopeChannel,info,info.jwst_slope.integrationNO,status,error_message
-        if(status ne 0) then begin 
-            ok = dialog_message(error_message,/Information)
-            return
-        endif
-        info.jwst_Slopechannel.uwindowsize = 0
-        mql_display_SlopeChannel,info
-    end
-;_______________________________________________________________________
 ; print
     (strmid(event_name,0,5) EQ 'print') : begin
-        if(strmid(event_name,6,1) eq 'S') then type = 0
+        if(strmid(event_name,6,1) eq '1') then type = 0
         if(strmid(event_name,6,1) eq 'Z') then type = 1
-        if(strmid(event_name,6,1) eq 'U') then type = 2
-        if(strmid(event_name,6,1) eq 'P') then type = 3
-        if(strmid(event_name,6,1) eq 'E') then type = 4 
+        if(strmid(event_name,6,1) eq '2') then type = 2
+        if(strmid(event_name,6,1) eq 'E') then type = 3
 
-        print_slope_images,info,type
+        jwst_print_slope_images,info,type
     end
 ;_______________________________________________________________________
 ; inspect image
@@ -144,28 +152,21 @@ case 1 of
 	if(type eq 1) then begin 
             i = info.jwst_slope.integrationNO
             info.jwst_inspect_slope.integrationNO = info.jwst_slope.integrationNO
-            frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
-            if(info.jwst_slope.plane[0]  eq info.jwst_slope.plane_cal) then begin 
-                frame_image[*,*] = (*info.jwst_data.pcaldata)[*,*,0]
-            endif else begin
-                frame_image[*,*] = (*info.jwst_data.pslopedata)[*,*,info.jwst_slope.plane[0]]
-            endelse
-            if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
-            info.jwst_inspect_slope.pdata = ptr_new(frame_image)
-            frame_image = 0
+            
+            plane = info.jwst_slope.plane[0]
+            if(plane le 2) then $
+               info.jwst_inspect_slope.plane_plot = plane
+               frame_image = (*info.jwst_data.pratefinal)
 
-            all_data = (*info.jwst_data.pslopedata)
-            if ptr_valid (info.jwst_inspect_slope.preduced) then ptr_free,info.jwst_inspect_slope.preduced
-            info.jwst_inspect_slope.preduced = ptr_new(all_data)
-            all_data = 0
-
-            if(info.jwst_control.file_cal_exist) then begin 
-                cal = (*info.jwst_data.pcaldata)[*,*,0]
-                if ptr_valid (info.jwst_inspect_slope.pcaldata) then ptr_free,info.jwst_inspect_slope.pcaldata
-                info.jwst_inspect_slope.pcaldata = ptr_new(cal)
-                cal = 0
+            if(plane gt 2) then begin
+               info.jwst_inspect_slope.plane_plot = plane -3 
+               frame_image = (*info.jwst_data.prateint)
             endif
 
+            if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
+            info.jwst_inspect_slope.pdata = ptr_new(frame_image)
+            frame_image = 0 
+ 
             Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
             info.jwst_inspect_slope.plane = info.jwst_slope.plane[0]
             info.jwst_inspect_slope.zoom = 1
@@ -190,28 +191,20 @@ case 1 of
 	if(type eq 2) then  begin
             i = info.jwst_slope.integrationNO
             info.jwst_inspect_slope2.integrationNO = info.jwst_slope.integrationNO
-            frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
-            if(info.jwst_slope.plane[1] eq info.jwst_slope.plane_cal) then begin 
-                frame_image[*,*] = (*info.jwst_data.pcaldata)[*,*,0]
-            endif else begin
-                frame_image[*,*] = (*info.jwst_data.pslopedata)[*,*,info.jwst_slope.plane[1]]
-            endelse
+
+            plane = info.jwst_slope.plane[1]
+
+            if(plane le 2) then $
+               frame_image = (*info.jwst_data.pratefinal)
+               info.jwst_inspect_slope2.plane_plot = plane
+            if(plane gt 2) then begin
+               frame_image = (*info.jwst_data.prateint)
+               info.jwst_inspect_slope2.plane_plot = plane -3
+            endif
 
             if ptr_valid (info.jwst_inspect_slope2.pdata) then ptr_free,info.jwst_inspect_slope2.pdata
             info.jwst_inspect_slope2.pdata = ptr_new(frame_image)
-            frame_image = 0
-
-            all_data = (*info.jwst_data.pslopedata)
-            if ptr_valid (info.jwst_inspect_slope2.preduced) then ptr_free,info.jwst_inspect_slope2.preduced
-            info.jwst_inspect_slope2.preduced = ptr_new(all_data)
             all_data = 0
-
-            if(info.jwst_control.file_cal_exist) then begin 
-                cal = (*info.jwst_data.pcaldata)[*,*,0]
-                if ptr_valid (info.jwst_inspect_slope2.pcaldata) then ptr_free,info.jwst_inspect_slope2.pcaldata
-                info.jwst_inspect_slope2.pcaldata = ptr_new(cal)
-                cal = 0
-            endif
 
             info.jwst_inspect_slope2.plane = info.jwst_slope.plane[1]
             info.jwst_inspect_slope2.zoom = 1
@@ -236,39 +229,7 @@ case 1 of
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
-; inspect image
-    (strmid(event_name,0,13) EQ 'final_inspect') : begin
-       
-;        info.jwst_inspect_final.integrationNO = -1
-;        jwst_read_single_slope,info.jwst_control.filename_slope,slope_exists,$
-;                          -1,subarray,slopedata,$
-;                          slope_xsize,slope_ysize,stats,status,$
-;                          error_message
 
-        slopedata = (*info.jwst_data.pslopedata_all)[*,*,0]
-        if ptr_valid (info.jwst_inspect_final.pdata) then ptr_free,info.jwst_inspect_final.pdata
-        info.jwst_inspect_final.pdata = ptr_new(slopedata)
-        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-
-        info.jwst_inspect_final.default_scale_graph = 1
-        info.jwst_inspect_final.zoom = 1
-        info.jwst_inspect_final.zoom_x = 1
-        info.jwst_inspect_final.x_pos =(info.jwst_data.slope_xsize)/2.0
-        info.jwst_inspect_final.y_pos = (info.jwst_data.slope_ysize)/2.0
-        
-        info.jwst_inspect_final.xposful = info.jwst_inspect_slope.x_pos
-        info.jwst_inspect_final.yposful = info.jwst_inspect_slope.y_pos
-        
-        info.jwst_inspect_final.graph_range[0] = 0.0
-        info.jwst_inspect_final.graph_range[1] = 0.0
-        info.jwst_inspect_final.limit_low = -5000.0
-        info.jwst_inspect_final.limit_high = 70000.0
-        info.jwst_inspect_final.limit_low_num = 0
-        info.jwst_inspect_final.limit_high_num = 0
-        jwst_misfql_display_images,info
-        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-
-    end
 ;_______________________________________________________________________
 ; Change the Integration #  of image displayed
 ;_______________________________________________________________________
@@ -289,7 +250,6 @@ case 1 of
             endif
         endif
 
-
 ; do some checks - wrap around if necessary
         if(jintegration lt 0) then begin
             jintegration = info.jwst_data.nints-1
@@ -298,18 +258,11 @@ case 1 of
             jintegration = 0
         endif
 
-
-        if(jintegration ge 1 and info.jwst_data.coadd eq 1) then begin 
-            jintegration = info.jwst_data.nints-1
-        endif
-
         widget_control,info.jwst_slope.integration_label,set_value = jintegration+1
         info.jwst_slope.integrationNO = jintegration
         jwst_msql_moveframe,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
-
 ;_______________________________________________________________________
 ; clicked on images - update pixel information
 
@@ -388,7 +341,7 @@ case 1 of
            y = info.jwst_slope.y_pos * info.jwst_slope.binfactor
 
            jwst_msql_read_slopedata,x,y,info
-
+           jwst_msql_update_slopepixel,info
            Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
        endif
    end
@@ -418,22 +371,7 @@ case 1 of
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
-
-
-        data_id ='ID flag '+ strcompress(string(info.jwst_dqflag.Unusable),/remove_all) +  ' = ' + info.jwst_dqflag.Sunusable +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.CosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoiseSpike),/remove_all) +  ' = ' + info.jwst_dqflag.SNoiseSpike +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NegCosmicRay),/remove_all) +  ' = ' + info.jwst_dqflag.SNegCosmicRay +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoReset),/remove_all) +  ' = ' + info.jwst_dqflag.SNoReset +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoDark),/remove_all) +  ' = ' + info.jwst_dqflag.SNoDark +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLin),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLin +  string(10b) + $
-;                 'ID flag '+ strcompress(string(info.jwst_dqflag.OutLinRange),/remove_all) +  ' = ' + info.jwst_dqflag.SOutLinRange +  string(10b) + $
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.NoLastFrame),/remove_all) +  ' = ' + info.jwst_dqflag.SNoLastFrame +  string(10b) + $ 
-                 'ID flag '+ strcompress(string(info.jwst_dqflag.Min_Frame_Failure),/remove_all) +  ' = ' + info.jwst_dqflag.SMin_Frame_Failure +  string(10b) 
-
-
-        result = dialog_message(data_id,/information)
+       jwst_dqflags,info
     end
 ;_______________________________________________________________________
 ; scaling images
@@ -509,11 +447,10 @@ case 1 of
         if(info.jwst_slope.current_graph eq 0) then jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
         if(info.jwst_slope.current_graph eq 1) then jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
 
-
         jwst_msql_draw_zoom_box,info
 
         widget_control,event.top,Set_UValue = ginfo
-        Widget_Control,ginfo.nfo.jwst_QuickLook,Set_UValue=info    
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info    
     end
 
 ;_______________________________________________________________________

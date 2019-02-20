@@ -11,26 +11,23 @@ if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 i = info.jwst_slope.integrationNO
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
+if(data_plane le 2) then begin
+   stat = info.jwst_data.ratefinal_stat[*,data_plane]
+   frame_image[*,*] = (*info.jwst_data.pratefinal)[*,*,data_plane]
+endif
 
-if(data_plane eq info.jwst_slope.plane_cal) then begin 
-    info.jwst_slope.graph_range[win,0] = info.jwst_data.cal_stat[5,0]
-    info.jwst_slope.graph_range[win,1] = info.jwst_data.cal_stat[6,0]
-    frame_image[*,*] = (*info.jwst_data.pcaldata)[*,*,0]
+if(data_plane ge 3) then begin
+   dplane = data_plane - 3
+   stat = info.jwst_data.rateint_stat[*,dplane]
+   frame_image[*,*] = (*info.jwst_data.prateint)[*,*,dplane]
+endif
 
-    mean = info.jwst_data.cal_stat[0,0]
-    min = info.jwst_data.cal_stat[3,0]
-    max = info.jwst_data.cal_stat[4,0]
-endif else begin 
-    if(info.jwst_slope.default_scale_graph[win] eq 1) then begin
-        info.jwst_slope.graph_range[win,0] = info.jwst_data.slope_stat[5,data_plane]
-        info.jwst_slope.graph_range[win,1] = info.jwst_data.slope_stat[6,data_plane]
-    endif
-    frame_image[*,*] = (*info.jwst_data.pslopedata)[*,*,data_plane]
-; update stats 	   
-    mean = info.jwst_data.slope_stat[0,data_plane]
-    min = info.jwst_data.slope_stat[3,data_plane]
-    max = info.jwst_data.slope_stat[4,data_plane]
-endelse
+info.jwst_slope.graph_range[win,0] = stat[5]
+info.jwst_slope.graph_range[win,1] = stat[6]
+
+mean = stat[0]
+min = stat[3]
+max = stat[4]
 
 n_pixels = float( (info.jwst_data.slope_xsize) * (info.jwst_data.slope_ysize))
 indxs = where(finite(frame_image),n_pixels)

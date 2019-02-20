@@ -28,22 +28,27 @@ jwst_read_single_slope,info.jwst_control.filename_slope_int,slope_exists,$
                        status,$
                        error_message
 
-if ptr_valid (info.jwst_data.pslopedata) then ptr_free,info.jwst_data.pslopedata
-info.jwst_data.pslopedata = ptr_new(slopedata)
+if ptr_valid (info.jwst_data.prateint) then ptr_free,info.jwst_data.prateint
+info.jwst_data.prateint = ptr_new(slopedata)
 
-info.jwst_data.slope_stat = stats
+if(info.jwst_slope.plane[0] eq 3) then begin ; update this rate int 
+   info.jwst_data.rateint_stat = stats
+   jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+endif
+
+if(info.jwst_slope.plane[1] eq 3) then begin ; update this rate int 
+   info.jwst_data.rateint_stat = stats
+   jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+endif
+
 slopedata = 0
 stats = 0
 
-
-jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
-jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
 jwst_msql_update_zoom_image,info
 
-info.jwst_slope.int_range[*] = jintegration+1
+;info.jwst_slope.int_range[*] = jintegration+1
 ;widget_control,info.jwst_slope.IrangeID[0],set_value=info.jwst_slope.int_range[0]
 ;widget_control,info.jwst_slope.IrangeID[1],set_value=info.jwst_slope.int_range[1]
-
 
 jwst_msql_update_pixel_stat_slope,info
 

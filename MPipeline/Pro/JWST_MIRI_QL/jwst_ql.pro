@@ -56,7 +56,7 @@
 ;@jwst_code.pro ; listing of all code pieces
 
 
-pro jwst_ql,help=help
+pro miri_ql,help=help
 
 @jwst_ql_structs ; holds all data structures
 
@@ -71,7 +71,6 @@ endcase
   'sunos': print,' Operating System: sunos'
   else:
 endcase
-
 ;_______________________________________________________________________
 ; Print the help file
 if keyword_set(help) then begin
@@ -83,7 +82,6 @@ device,pseudo = 8
 
 ; create  "jwst_control " structure
 jwst_control = {jwst_controli}
-
 ;_______________________________________________________________________
 
 ;edit_uwindowsize = 0 ; paramters for editing preferences file
@@ -91,7 +89,7 @@ jwst_control = {jwst_controli}
 ;edit_ywindowsize = 0
 
 ;_______________________________________________________________________
-version = "(v 1.0 January 17, 2019)"
+version = "(v 1.0 Feb 08, 2019)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -100,9 +98,7 @@ if(test ne '/') then miri_dir = miri_dir + '/'
 jwst_control.miri_dir = miri_dir
 
 jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v1.0.preferences'
-
 print,'  Preferences file ',jwst_control.pref_filename
-
 ;_______________________________________________________________________
 ; work out the fontname
 ; on command line you can find the fontnames by typing
@@ -132,7 +128,6 @@ device,get_fontnames=fnames,set_font=fontname6
 fontname6 = fnames[0]
 
 wdelete,1
-
 
 xsize_label = 8
 plotsizeA = 200
@@ -254,8 +249,12 @@ QuitMenu = widget_button(menuBar,value="Quit",font = fontname2)
 loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames and Rates",$
                                 uvalue='JWST_LoadI',font=fontname3)
 
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Rate Int Images",$
                                 uvalue='JWST_LoadS',font=fontname3)
+
+
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
+                                uvalue='JWST_LoadC',font=fontname3)
 ; compare
 loadcompareR2Button = widget_button(CompareMenu,value=" Compare Two Science Frames or Two Rate Images",$
                             font=fontname3,uvalue='JWST_Load2')
@@ -316,53 +315,61 @@ jwst_data.read_all = 1
 loadfile = {jwst_generic_windowi} 
 
 ; create and initialize "output file name" structure
-output = {jwst_outputi}
-output.inspect_rawimage = '_science_image'
-output.inspect_slope = '_reduced_'
-output.inspect_slope2 = '_reduced_'
-output.rawimage      = '_science_image'
-output.zoomimage      = '_zoom_image'
-output.slopeimage      = '_reduced_image'
-output.frame_pixel      = '_frame_pixel'
-output.slope_win1      = '_reduced'
-output.slope_zoomimage      = '_reduced_zoom_image'
-output.slope_win2      = '_reduced'
-output.slope_frame_pixel      = '_frame_pixel'
-output.slope_slope_pixel     = '_reduced_pixel'
+jwst_output = {jwst_outputi}
+jwst_output.inspect_rawimage = '_science_image'
+jwst_output.inspect_slope = '_reduced_'
+jwst_output.inspect_slope2 = '_reduced_'
+jwst_output.rawimage      = '_science_image'
+jwst_output.zoomimage      = '_zoom_image'
+jwst_output.slopeimage      = '_reduced_image'
+jwst_output.frame_pixel      = '_frame_pixel'
+jwst_output.slope_win1      = '_reduced'
+jwst_output.slope_zoomimage      = '_reduced_zoom_image'
+jwst_output.slope_win2      = '_reduced'
+jwst_output.slope_frame_pixel      = '_frame_pixel'
+jwst_output.slope_slope_pixel     = '_reduced_pixel'
 
 
 jwst_dqflag = {jwst_dqi} ; data quality flag
-jwst_dqflag .Unusable = 1
-jwst_dqflag .SUnusable = 'Unsable'
+jwst_dqflag .Donotuse = 1
+jwst_dqflag .Sdonotuse = 'Do Not Use'
 jwst_dqflag.Saturated = 2
 jwst_dqflag.SSaturated = 'Saturated'
-jwst_dqflag.CosmicRay = 4
-jwst_dqflag.SCosmicRay = 'Cosmic Ray Hit'
-jwst_dqflag.NoiseSpike = 8
-jwst_dqflag.SNoiseSpike = 'Noise Spike'
-jwst_dqflag.NegCosmicRay = 16
-jwst_dqflag.SNegCosmicRay = 'Cosmic Ray (Negative)'
-jwst_dqflag.NoReset = 32 
-jwst_dqflag.SNoReset = 'Unreliable Reset Switch Charge Decay Correction' 
-jwst_dqflag.NoDark = 64 
-jwst_dqflag.SNoDark = 'Unreliable Dark Correction' 
-jwst_dqflag.NoLin =128  
-jwst_dqflag.SNoLin = 'Unreliable Linearity Correction'  
-jwst_dqflag.NoLastFrame = 256
-jwst_dqflag.SNoLastFrame = ' No Last Frame Correction'  
-jwst_dqflag.Min_Frame_Failure = 512
-jwst_dqflag.SMin_Frame_Failure = ' Ramp has too few valid frames'
-jwst_dqflag.CorruptFrame= -2
-jwst_dqflag.SCorruptFrame= 'Corrupt Frame'
-jwst_dqflag.Reject_After_Noise=-8
-jwst_dqflag.SReject_After_Noise='Frame Rejected after Noise Spike'
-jwst_dqflag.Reject_After_Noise=-8
-jwst_dqflag.Reject_After_CR  =-4
-jwst_dqflag.SRefject_After_CR  ='Frame Rejected after Cosmic Ray'
-jwst_dqflag.CR_Slope_Failure= -16
-jwst_dqflag.SCR_Slope_Failure= 'Slope Failure on Segment - CR hit' 
-jwst_dqflag.CR_Seg_Min=-32
-jwst_dqflag.SCR_Seg_Min= 'Segment does not have min frames - CR hit' 
+jwst_dqflag.Jump = 4
+jwst_dqflag.SJump = 'Jump Det'
+jwst_dqflag.Dropout = 8
+jwst_dqflag.SDropout = 'Drop Out'
+jwst_dqflag.UnrelError = 256
+jwst_dqflag.SUnrelError = 'Unrelialbe Error'
+jwst_dqflag.Nonscience = 512
+jwst_dqflag.SNonscience = 'Non Science'
+jwst_dqflag.Dead = 1024 
+jwst_dqflag.SDead = 'Dead'
+jwst_dqflag.Hot = 2048
+jwst_dqflag.SHot = 'Hot' 
+jwst_dqflag.Warm =4096  
+jwst_dqflag.SWarm = 'Warm'  
+jwst_dqflag.RC = 16384
+jwst_dqflag.SRC = 'RC'  
+jwst_dqflag.nonlinear = 65536
+
+jwst_dqflag.Snonlinear = 'Nonlinear'
+jwst_dqflag.bad_refpixel= 131072
+jwst_dqflag.sbad_refpixel= 'Bad ref pixel'
+jwst_dqflag.no_flatfield=262144
+jwst_dqflag.sno_flatfield='No flat field'
+jwst_dqflag.no_gain=-524288
+jwst_dqflag.sno_gain='No gain value'
+jwst_dqflag.unrel_dark  = 8399608
+jwst_dqflag.Sunrel_dark = 'Unreliable dark'
+jwst_dqflag.unrel_slope  = 16777216
+jwst_dqflag.Sunrel_slope = 'Unreliable slope'
+jwst_dqflag.unrel_flat = 33554432
+jwst_dqflag.Sunrel_flat = 'Unreliable flat'
+jwst_dqflag.unrel_reset = 268435456
+jwst_dqflag.Sunrel_reset = 'Unreliable reset'
+jwst_dqflag.ref_pixel= 2147483648
+jwst_dqflag.Sref_pixel='Reference Pixel'
 
 
 jwst_image = {jwst_imagei}
@@ -392,7 +399,7 @@ jwst_compare.uwindowsize = 0
 jwst_cinspect = replicate(jwst_inspect,3) ; inspect comparison raw science frames
 
 ; compare 2 images:
-jwst_compare_image = replicate(jwst_single_image,3)
+jwst_compare_image = replicate(jwst_cimage,3)
 
 ;; create and initialize "compare" structure - holds comparision
 ;;                                             widget for rate
@@ -400,7 +407,7 @@ jwst_rcompare = {jwst_comparei}
 jwst_rcompare.uwindowsize = 0 
 
 ; compare 2 reduced images:
-jwst_rcompare_image = replicate(jwst_single_image,3)
+jwst_rcompare_image = replicate(jwst_cimage,3)
 jwst_crinspect = replicate(jwst_inspect,3) ; inspect comparison reduced data
 
 ; defaults to start with 
@@ -409,9 +416,9 @@ jwst_crinspect = replicate(jwst_inspect,3) ; inspect comparison reduced data
 jwst_viewhead = 0
 display_widget = 1 ; default to display Science Frame and Slope Image
 ;********
-jinfo = {jwst_version             : version,$
+jinfo = {jwst_version        : version,$
          titlelabel          : titlelabel,$
-         display_widget       : display_widget,$
+         display_widget      : display_widget,$
          microsec2sec        : microsec2sec,$
          col_max             : col_max,$
          col_table           : col_table,$
@@ -436,8 +443,8 @@ jinfo = {jwst_version             : version,$
          jwst_plotsize1b          : plotsize1b,$
          jwst_plotsize3           : plotsize3,$
          jwst_plotsize4           : plotsize4,$
-         jwst_plotsize_fullX      : plotsize_fullX,$
-         jwst_plotsize_fullY      : plotsize_fullY,$
+;         jwst_plotsize_fullX      : plotsize_fullX,$
+;         jwst_plotsize_fullY      : plotsize_fullY,$
          viewhdrysize        : view_header_lines,$
 ;         edit_uwindowsize    : edit_uwindowsize,$
 ;         edit_xwindowsize    : edit_xwindowsize,$
@@ -445,14 +452,14 @@ jinfo = {jwst_version             : version,$
          binfactor           : binfactor,$
          xsize_label         : xsize_label,$
          retn                : retn,$
-         jwst_filetag             : filetag,$
-         jwst_typetag             : typetag,$
-         jwst_line_tag            : line_tag,$
+         jwst_filetag        : filetag,$
+         jwst_typetag        : typetag,$
+         jwst_line_tag       : line_tag,$
          JWST_QuickLook      : JWST_QuickLook,$
          jwst_data           : jwst_data,$
          jwst_control        : jwst_control,$
          jwst_dqflag         : jwst_dqflag,$
-         output              : output,$
+         jwst_output         : jwst_output,$
          jwst_viewhead       : ptr_new(jwst_viewhead),$
          jwst_image          : jwst_image,$
          jwst_slope          : jwst_slope,$
@@ -469,30 +476,28 @@ jinfo = {jwst_version             : version,$
          jwst_cinspect       : jwst_cinspect,$
          jwst_crinspect      : jwst_crinspect,$
          loadfile            : loadfile,$
-         jwst_RawQuickLook        : 0L,$
+         jwst_RawQuickLook   : 0L,$
  ;       SubarrayGeo         : 0L,$
          jwst_SlopeQuickLook      : 0L,$
          jwst_RPixelInfo          : 0L,$
- ;       MoveInfo            : 0L,$
          jwst_StatInfo            : 0L,$
          jwst_Slope_StatInfo      : 0L,$
- ;        rcomparedisplay     : 0L,$
+         jwst_rcomparedisplay     : 0L,$
          jwst_comparedisplay      : 0L,$
- ;       comparepixelinfo    : 0L,$
          jwst_load2display        : 0L,$
-         jwst_InspectImage   : 0L,$
+         jwst_InspectImage        : 0L,$
          jwst_InspectSlope        : 0L,$
          jwst_InspectSlope2       : 0L,$
          jwst_InspectSlopeFinal   : 0L,$
          jwst_CInspectImage       : lonarr(3),$
          jwst_CRInspectImage      : lonarr(3),$
-        LoadFileInfo            : 0L}
+         LoadFileInfo             : 0L}
 
 
 Widget_Control,JWST_QuickLook,Set_UValue=jinfo
 
 
-XManager,'jwst_ql',JWST_QuickLook,/No_Block,cleanup='jwst_ql_cleanup',$
+XManager,'miri_ql',JWST_QuickLook,/No_Block,cleanup='jwst_ql_cleanup',$
 	event_handler="jwst_ql_event"
 
 
