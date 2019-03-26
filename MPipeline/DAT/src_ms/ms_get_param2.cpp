@@ -171,6 +171,9 @@ int ms_get_param2(string param_filename,
   miri_search_keys("APPLY_RSCD",preference,preference.apply_rscd,status);
   if(status == 1) cout << "Failure to parse APPLY_RSCD from preferences file" << endl;
 
+  miri_search_keys("APPLY_MULT",preference,preference.apply_mult,status);
+  if(status == 1) cout << "Failure to parse APPLY_MULT from preferences file" << endl;
+
   miri_search_keys("APPLY_RESET",preference,preference.apply_reset,status);
   if(status == 1) cout << "Failure to parse APPLY_RESET from preferences file" << endl;
 

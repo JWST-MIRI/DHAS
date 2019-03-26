@@ -61,7 +61,7 @@ void mrs_read_preferences(mrs_control &control,
   cout << " Calibration directory " << control.calib_dir << endl;
 
 //_______________________________________________________________________
-  string Name ("MIRI_MRS_DHAS_v9.4.FM_preferences");
+  string Name ("MIRI_MRS_DHAS_v9.6.FM_preferences");
 
   string param_filename = control.miri_dir +"Preferences/" +  Name ;
   data_info.preference_filename_used = param_filename;

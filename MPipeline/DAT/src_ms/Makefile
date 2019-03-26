@@ -38,6 +38,7 @@ MS_SRCS = miri_sloper.cpp \
 	ms_miri_lin.cpp \
 	ms_miri_CDP.cpp \
 	ms_miri_rscd.cpp \
+	ms_miri_mult.cpp \
 	ms_setup_processing.cpp \
 	ms_get_param2.cpp \
 	ms_screen_info.cpp \
@@ -50,6 +51,7 @@ MS_SRCS = miri_sloper.cpp \
 	ms_write_processing_to_header.cpp\
 	ms_read_badpixel_fits.cpp  \
 	ms_read_RSCD_file.cpp  \
+	ms_read_MULT_file.cpp  \
 	ms_read_linearity_file.cpp  \
 	ms_adjust_caldata.cpp \
 	ms_final_slope.cpp \
@@ -175,7 +177,7 @@ ms_setup_output_files.o: ./include/miri_data_info.h  ./include/miri_control.h
 ms_ScreenFrames.o:   ./include/miri_data_info.h ./include/miri_control.h
 ms_read_process_data.o:  ./include/miri_pixel.h ./include/miri_data_info.h 
 ms_read_process_data.o:  ../src_gen/include/miri_constants.h ./include/miri_sloper.h
-ms_read_process_data.o:  ./include/miri_refcorrection.h ./include/miri_rscd.h    
+ms_read_process_data.o:  ./include/miri_refcorrection.h ./include/miri_rscd.h ./include/miri_mult.h    
 ms_miri_reset.o: ./include/miri_reset.h
 ms_read_refdata.o:   ./include/miri_pixel.h ./include/miri_data_info.h  
 ms_subtract_refdata.o:  ./include/miri_pixel.h ./include/miri_data_info.h ./include/miri_control.h
@@ -193,6 +195,7 @@ ms_read_badpix_fits.o : ./include/miri_data_info.h
 ms_read_linearity_file.o : ./include/miri_data_info.h  ./include/miri_control.h  ./include/miri_CDP.h  
 ms_read_linearity_file.o : ./include/miri_lin.h  
 ms_read_RSCD_file.o : ./include/miri_data_info.h  ./include/miri_CDP.h  ./include/miri_control.h ./include/miri_rscd.h
+ms_read_MULT_file.o : ./include/miri_data_info.h  ./include/miri_CDP.h  ./include/miri_control.h ./include/miri_mult.h
 ms_read_lastframe_file.o : ./include/miri_data_info.h  ./include/miri_CDP.h  ./include/miri_control.h 
 ms_read_frame_from_int.o: ./include/miri_data_info.h  
 ms_adjust_caldata.o : ./include/miri_CDP.h 

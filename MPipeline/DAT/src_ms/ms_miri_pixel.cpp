@@ -639,19 +639,13 @@ void miri_pixel::RSCD_UpdateInt1(const int write_corrected_data){
 }
 //_______________________________________________________________________
 void miri_pixel::ApplyRSCD(const int write_corrected_data,
-			   float frame_time,
 			   int frame_start,
-			   int nframes,
-			   int read_num_first_saturated,
+			   float counts,
 			   float tau,
-			   float b1,
-			   float rpow,
-			   float param3,
-			   float counts2, 
-			   float a1_sat,
-			   float lastframeDN,
-			   float lastframeDN_sat){
+			   float scale,
+			   float lastframeDN){
 			
+
 
   if(is_ref) { //Reference Pixel (no  correction determined)
     if(write_corrected_data==1) {
@@ -671,39 +665,16 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
   }
 
   int debug = 0;
-
   if(pix_x == -184 && pix_y == 169) debug = 1;
-
-  //-----------------------------------------------------------------------
-  float factor2  = exp(counts2/param3); 
-
-  float a1 = 0.0;
-  a1 = b1 *(pow(counts2,rpow)) * 1.0/(factor2-1);
-  a1 = a1 *0.01;   // converting scale factor from % to decimal
-  a1_sat = a1_sat*0.01;
-  float a1_save = 0;  //just used for debugging 
-
-  if(read_num_first_saturated != -1) { // data is saturated
-    a1_save = a1;
-    a1 = a1_sat;
-  } // last frame is saturated
-
-
   if(debug==1)  {
     cout << " lastframeDN " << lastframeDN << endl;
-    cout << " lastframeDN SAT " << lastframeDN_sat << endl;
-    cout << " counts2 " << counts2 << endl;
-    cout << " b1 " << b1 << endl;
-    cout << " b2 " << rpow << endl;
-    cout << " b3 " << param3 << endl;
-    cout << " a1 " << a1 << endl;
-    cout << "second scale factor" << a1_sat << endl;
-    cout << " first sat frame " << read_num_first_saturated << endl;
+    cout << " counts " << counts << endl;
+    cout << " scale " << scale << endl;
     cout << "first 3 ramp values" << raw_data[0] << " " << raw_data[1] << " " << raw_data[2] << endl;
   }
 
 
-  if(counts2 <= 0){
+  if(counts <= 0){
     // make no correction for this type of data
     quality_flag = quality_flag + NO_RSCD_CORRECTION ;
   } else {
@@ -712,28 +683,103 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
       if(id_data[i] == 0){
 	float T = (i+1) + frame_start;
 	float eterm = exp(-T/tau);
-	float corr =  lastframeDN * a1*eterm;
+	float corr =  lastframeDN * scale*eterm;
 
 	if(debug == 1) {
 	  cout << " RSCD correction " << pix_x << " " << pix_y << " " << i << " " <<  
-	    corr <<  " " << counts2 << " "   << lastframeDN << " " << raw_data[i] << " " <<
+	    corr <<  " " << counts << " "   << lastframeDN << " " << raw_data[i] << " " <<
 	    raw_data[i] + corr  << endl;
 
 	}
-	
-	
 	raw_data[i] = raw_data[i] +corr;
-    
 	if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
       } else {       // end loop over id_data[i] = 0 - making correction      
 	if(write_corrected_data) rscd_cor_data[i] = strtod("NaN",NULL); //  
       }
-    
 
     }// end loop over raw_data.size: number of frames in integration
   } //end loop over counts >0
 }
 //_______________________________________________________________________
+
+void miri_pixel::ApplyMULT(const int write_corrected_data,
+			   float datamult,
+			   float min_tol,
+			   float mult_scale,
+			   float mult_offset,
+			   float mult_sat_scale,
+			   float mult_sat_offset,
+			   int sat_flag,
+			   float mult_alpha){
+			
+
+  if(is_ref) { //Reference Pixel (no  correction determined)
+    if(write_corrected_data==1) {
+      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+	rscd_cor_data[i]= raw_data[i]; // initialize 
+      }
+    }
+    return;
+  } 
+
+  if(datamult == NO_SLOPE_FOUND) {
+    cout << " Can not use last frame to make correction for MULT " << endl;
+    process_flag = 0;
+    quality_flag = quality_flag + NO_RSCD_CORRECTION ;
+    return;
+
+  }
+
+  int debug = 0;
+  if(pix_x == -184 && pix_y == 169) debug = 1;
+  if(debug==1)  {
+    cout << " min tol " << min_tol << endl;
+    cout << " datamult " << datamult << endl;
+    cout << " mult_scale " << mult_scale << endl;
+    cout << " mult_offset " << mult_offset << endl;
+    cout << " mult_sat_scale " << mult_sat_scale << endl;
+    cout << " mult_sat_offset " << mult_sat_scale << endl;
+    cout << " mult_alpha " << mult_alpha << endl;
+    cout << "first 3 ramp values" << raw_data[0] << " " << raw_data[1] << " " << raw_data[2] << endl;
+  }
+
+
+  if(datamult > min_tol){ // only correct data if lastframe last in > minimum tolerance
+    vector<float> correct;
+    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
+      //      if(id_data[i] != 0) cout << "id" << id_data[i] << " " << i << endl;
+	float eterm = exp(0.0001 * mult_alpha * raw_data[i]);
+	float corr = mult_offset + mult_scale*eterm;
+	if(sat_flag ==1) corr = mult_sat_offset + mult_sat_scale*eterm;
+	correct.push_back(corr);
+    }
+
+    vector<float> new_correct(raw_data.size()-1,0.0);
+
+    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
+      new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- correct[raw_data.size()-2-i];
+    }
+
+    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
+      if(debug == 1) {
+	cout << " Mult correction " << pix_x << " " << pix_y << " " << i << " " <<  
+	  new_correct[i] <<  " " << raw_data[i] << " " <<
+	  raw_data[i] - new_correct[i]  << endl;
+      }
+      raw_data[i] = raw_data[i] - new_correct[i];
+      if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
+      
+    }// end loop over raw_data.size: number of frames in integration
+
+  } else {  //end loop datamult > min_tol
+
+    if(write_corrected_data==1) {
+      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+	rscd_cor_data[i]= raw_data[i]; // initialize 
+      }
+    }
+  }
+}
 
 
 //_______________________________________________________________________correct
@@ -775,15 +821,8 @@ void miri_pixel::ApplyLastFrameCorrection(const int write_corrected_data,
 
 
     lastframe_cor_data = raw_data[iframe];      
-
-
   } 
-
-
-
 }
-
-//_______________________________________________________________________
 
 //_______________________________________________________________________
 

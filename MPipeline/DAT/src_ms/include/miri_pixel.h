@@ -77,20 +77,21 @@ class  miri_pixel {
 				vector<float>, vector<float>);
   void RSCD_UpdateInt1(const int write_corrected_data);
   void ApplyRSCD(const int write_corrected_data,
-		 float frame_time,
 		 int StartFrame,
-		 int Nframes,
-		 int read_num_first_saturated,
+		 float counts, 
 		 float tau,
-		 float ascale,
-		 float rpow,
-		 float param3,
-		 float crosspt,
-		 float a1_sat,
-		 //		 float satzp,float satslope, float sat2,
-		 //float satmzp, float sat_rowterm, float sat_scale,
-		 float lastframeDN,
-		 float lastframeDN_sat);
+		 float scale,
+		 float lastframeDN);
+
+  void ApplyMULT(const int write_corrected_data,
+		 float datamult,
+		 float min_tol,
+		 float mult_scale,
+		 float mult_offset,
+		 float mult_sat_scale,
+		 float mult_sat_offset,
+		 int sat_flag,
+		 float mult_alpha);
 
 
   vector<int> GetFlags(int &, int &);

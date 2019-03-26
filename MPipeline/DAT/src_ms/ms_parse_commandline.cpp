@@ -1048,7 +1048,17 @@ void ms_parse_commandline(int& argc,
 
 
       //_______________________________________________________________________
+    case 'm': // multiple integration effect (secondary effect)
 
+      if(Cstring.size() == 2) {
+
+	if(plus) control.apply_mult_cor = 1;
+	if(minus) control.apply_mult_cor = 0;
+	control.flag_apply_mult_cor = 1;
+	++argv;
+	--argc;
+	break;
+      }
       //_______________________________________________________________________
       // L - Linearity &  Correction file
       //_______________________________________________________________________
@@ -1205,8 +1215,6 @@ void ms_parse_commandline(int& argc,
   if(test ==0){
     control.do_refpixel_option =0;
   }
-
-
     
 
   if(control.write_output_refpixel && control.do_refpixel_option == 0  ){
@@ -1218,8 +1226,6 @@ void ms_parse_commandline(int& argc,
     
   }
 
-
-
   if(control.flag_n_reads_end_fit == 1 && control.flag_n_frames_end_fit ==1) {
     cout << " You have used the -z and -n options. Chose one of them" << endl;
     cout << " -z # is the frame number to end the slope fit on" << endl;
@@ -1228,16 +1234,12 @@ void ms_parse_commandline(int& argc,
   }
 
 
-  
-
   if(control.num_ignore !=0) {
     cout << " Number of iterations to ignore " << control.num_ignore << endl;
     for (int ip = 0; ip < control.num_ignore; ip++){
       cout << "When determining Average Slope ignoring integration " << control.ignore_int[ip] << endl;
     }
   }
-
-
   
   if(control.xdebug !=0) {
     if(control.ydebug ==0) {

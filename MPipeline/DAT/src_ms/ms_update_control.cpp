@@ -193,6 +193,13 @@ void ms_update_control( miri_control &control,
   if(control.flag_apply_reset_cor ==0)
     control.apply_reset_cor = preference.apply_reset;
 
+
+  if(control.flag_apply_mult_cor ==0)
+    control.apply_mult_cor = preference.apply_mult;
+
+  if(control.apply_rscd_cor ==1 && control.flag_apply_mult_cor==0)
+    control.apply_mult_cor =1; 
+
   if(control.flag_apply_lastframe_cor ==0)
     control.apply_lastframe_cor = preference.apply_lastframe;
 
@@ -215,13 +222,15 @@ void ms_update_control( miri_control &control,
 
   if(control.do_cr_id ==0 ) control.write_detailed_cr =0;
   if(control.apply_dark_cor ==0) control.write_output_dark_correction = 0;   		
-  if(control.apply_rscd_cor ==0) control.write_output_rscd_correction = 0;   		
+  if(control.apply_rscd_cor ==0 && control.apply_mult_cor==0) control.write_output_rscd_correction = 0;   		
   if(control.apply_reset_cor ==0) control.write_output_reset_correction = 0;   		
   if(control.apply_lastframe_cor ==0) control.write_output_lastframe_correction = 0;   		
   if(control.apply_lin_cor ==0) control.write_output_lc_correction = 0;   		
   if(control.do_refpixel_option ==0)control.write_output_refpixel_corrections = 0;
 
-  
+  //  cout << "RSCD" << control.apply_rscd_cor <<endl;
+  //cout << "MULT" << control.apply_mult_cor <<endl;
+  //cout << control.write_output_rscd_correction << endl;
 
 
   

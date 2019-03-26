@@ -139,7 +139,9 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     cout << " Linearity Correction file: " << control.lin_cor_file << endl;
   }
 
-  if (control.subtract_dark==1)cout << " Applying Mean Dark  correction" << endl;
+  if (control.subtract_dark==1)cout << " Applying Mean Dark correction" << endl;
+
+  if (control.apply_mult_cor==1)cout << " Applying multiple integration correction" << endl;
   if (control.apply_rscd_cor==1){
     cout << " Applying RSCD  correction" << endl;
     if(control.rscd_lastframe_corrected ==1) cout << " RSCD correction uses the corrected last frame " << endl;

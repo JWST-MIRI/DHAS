@@ -1,8 +1,9 @@
-LIST	       = ThisFile		                          : list of Calibration Files to use for JPL Run 7
+LIST	       = ThisFile : list of Calibration Files to use for JPL Run 8
 BAD 	       = NA  : Bad Pixelfile				          
 PIXELSAT       = NA  : Pixel Saturation file 				  
 LIN_COR        = NA  : Linearity Correction file  		
 RSCD           = NA  : Reset Switch Charge Decay Correction File 
+MULT           = NA  : Multiple integration secondary correction
 RESET_FAST     = NA  : Reset anomaly correction Fast Full
 DARK_FAST      = NA  : Dark Fast Full
 LASTFRAME      = NA  : LastFrame Correction

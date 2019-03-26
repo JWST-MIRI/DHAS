@@ -46,6 +46,7 @@ struct miri_preference {
 
   int dn_high_sat;             // "high saturation" in DN
   int apply_rscd;              // Apply RSCD correction
+  int apply_mult;              // Apply secondary multiple integration correction
   int apply_reset;              // Apply Reset correction
   int apply_lastframe;         // Apply lastframe correction
   int apply_dark;              // Apply dark subtraction

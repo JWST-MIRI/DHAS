@@ -38,18 +38,18 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-#include "miri_rscd.h"
+#include "miri_mult.h"
 #include "miri_constants.h"
 
 // Default constructor to set initial values
 
-miri_rscd::miri_rscd()
+miri_mult::miri_mult()
 {
 
 }
 
 //Default destructor
-miri_rscd::~miri_rscd()
+miri_mult::~miri_mult()
 {
 }
 

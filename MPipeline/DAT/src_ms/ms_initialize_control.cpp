@@ -98,6 +98,7 @@ void ms_initialize_control(miri_control &control)
 
   control.apply_lastframe_cor = 0;        // +/- l do (not do) last frame correction
   control.apply_rscd_cor = 0;             // +/- rd do (not do) RSCD correction
+  control.apply_mult_cor = 0;             // +/- m do (not do) multi integration correction
   control.apply_reset_cor = 0;            //  +/- r do( do not) apply reset anomaly correction
   control.rscd_lastframe_corrected = 0;
   control.rscd_lastframe_extrap = 1;
@@ -109,6 +110,7 @@ void ms_initialize_control(miri_control &control)
   control.flag_apply_pixel_saturation = 0;
   control.flag_apply_lastframe_cor = 0;
   control.flag_apply_rscd_cor = 0; 
+  control.flag_apply_mult_cor = 0; 
   control.flag_apply_reset_cor = 0;
 
 
@@ -196,6 +198,7 @@ void ms_initialize_control(miri_control &control)
   control.flag_lastframe_file=0;              
   control.flag_dark_cor_file=0;     
   control.flag_rscd_cor_file  = 0;
+  control.flag_mult_cor_file  = 0;
   control.flag_reset_cor_file  = 0;
 
   control.apply_lin_offset = 1; // apply correction for DN at time 0, so we can overplot linearity corrected data
