@@ -13,6 +13,7 @@
 #include "miri_pixel.h"
 #include "miri_reset.h"
 #include "miri_rscd.h"
+#include "miri_mult.h"
 
 // namespaces
 using namespace std;
@@ -93,6 +94,7 @@ extern void ms_read_process_data(const int iter,
 				 const int refimage,  // = 0 if science data, = 1 if ref output 
 				 vector<miri_reset> &reset,
 				 miri_rscd RSCD,
+				 miri_mult MULT,
 				 vector<float> &lastframe,
 				 vector<float> &lastframe_corr,
 				 vector<float> lastframe_rscd,
@@ -161,6 +163,11 @@ extern int ms_read_RSCD_file( miri_data_info &data_info,
 			      miri_control &control,
 			      miri_CDP &CDP,
 			      miri_rscd &RSCD);
+
+extern int ms_read_MULT_file( miri_data_info &data_info,
+			      miri_control &control,
+			      miri_CDP &CDP,
+			      miri_mult &MULT);
 
 extern void ms_read_refdata(const int,
 			    const int,

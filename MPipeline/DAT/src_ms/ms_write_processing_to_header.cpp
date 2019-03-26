@@ -556,8 +556,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
     fits_write_key(file_ptr, TSTRING, "USE_RES", no_str, "Did Not Use Reset Correction File", &status);
   }
 
-
-
   //_______________________________________________________________________
   if(control.apply_rscd_cor ==1){
     fits_write_key(file_ptr, TSTRING, "USE_RSCD", yes_str, "Used RSCD Correction File", &status);
@@ -579,6 +577,28 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
     delete [] ptr3;
   }else{
     fits_write_key(file_ptr, TSTRING, "USE_RSCD", no_str, "Did Not Use RSCD Correction File", &status);
+  }
+
+  if(control.apply_mult_cor ==1){
+    fits_write_key(file_ptr, TSTRING, "USE_MULT", yes_str, "Used MULT Correction File", &status);
+    
+    string multfile = CDP.GetMULTName();
+    string mfile = multfile;
+
+    size_t dir = multfile.find_last_of("/");
+    if (dir != string::npos) {
+      mfile = multfile.substr(dir+1,multfile.size());
+    }
+
+    len = mfile.length();
+    char *ptr3 = new char[len+1];
+    mfile.copy(ptr3,len,0);
+    ptr3[len] = 0;
+    status = 0 ;
+    fits_write_key(file_ptr, TSTRING, "MULT", ptr3, "MULT Correction File", &status);
+    delete [] ptr3;
+  }else{
+    fits_write_key(file_ptr, TSTRING, "USE_MULT", no_str, "Did Not Use MULT Correction File", &status);
   }
   //_______________________________________________________________________
 

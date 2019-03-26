@@ -254,12 +254,12 @@ endif
 
 ;_______________________________________________________________________
 
-version = "(v 9.5.3 Feb 08, 2019)"
+version = "(v 9.6.0 March 25, 2019)"
 if(cube.TestModel eq 0) then begin
     Print,' VM option in CV is no longer possible, you can view/analyze data but use FM preferences file'
     stop
  endif
-control.pref_filename=miri_dir+'Preferences/'+'MIRI_MRS_DHAS_v9.4.FM_preferences'
+control.pref_filename=miri_dir+'Preferences/'+'MIRI_MRS_DHAS_v9.6.FM_preferences'
 
 if(cube.TestModel eq 2) then begin
     control.pref_filename=miri_dir+'Preferences/'+'MIRI_MRS_DHAS_v8.3.ZM_preferences'

@@ -125,7 +125,6 @@ int main(int argc, char* argv[])
   // read in the commandline options the user has set
   ms_parse_commandline(argc,argv,control);
 
-
   //  cout << " Control.subset_nrow " << control.subset_nrow << endl;
   // read in the preferences file containing the default values to use
   ms_read_preferences(control,preference);
@@ -161,8 +160,6 @@ int main(int argc, char* argv[])
 
     data_info.this_file_num = II;
 
-
-
     ms_read_header(data_info,control);
 
     // if the data was taken in FAST Short Mode - so adjustments are made
@@ -192,11 +189,18 @@ int main(int argc, char* argv[])
 
     // Read in RSCD file 
     miri_rscd RSCD;
-    if(control.apply_rscd_cor == 1 ) {
+    if(control.apply_rscd_cor == 1) {
       ms_read_RSCD_file(data_info,control,CDP,RSCD); 
     }
 
+    // Read in MULT file 
+    miri_mult MULT;
+    if(control.apply_mult_cor == 1 ) {
+      ms_read_MULT_file(data_info,control,CDP,MULT); 
+    }
 
+    int do_multiple_int_cor = 0;
+    if(control.apply_rscd_cor == 1 || control.apply_mult_cor == 1) do_multiple_int_cor = 1;
     //_______________________________________________________________________   
     // set up the name of the linearity file and read it in
     long NL = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
@@ -289,7 +293,7 @@ int main(int argc, char* argv[])
 
 
     long NLF = 1;
-    if(control.apply_rscd_cor ==1 && data_info.NInt > 1 ) NLF = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
+    if(do_multiple_int_cor == 1 && data_info.NInt > 1 ) NLF = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
     vector<float> lastframe_rscd(NLF,0.0);
     vector<float> lastframe_rscd_sat(NLF,0.0);
     // the lastframe to use the rscd correction is filled in according to the how the correction is is applied
@@ -343,22 +347,21 @@ int main(int argc, char* argv[])
       //_______________________________________________________________________
     // Set up lastframe, lastframe_corr
     // Set up the data to be used in the RSCD correction
-    // Three options:
+    // Two options:
 
       // -rx: rscd lastframe = extrapolated to last frame using 2nd and 3rd to last frames
       // -rc: rscd lastframe = corrected last frame (filled in after ms_read_process) 
 
       long NSCD = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
-      if(control.apply_lastframe_cor ==0 && control.apply_rscd_cor == 0) NSCD = 1; 
+      if(control.apply_lastframe_cor ==0 && control.apply_rscd_cor == 0 && control.apply_mult_cor == 0) NSCD = 1; 
       vector<float> lastframe(NSCD,0.0);  // last frame of current integration (to be used in lastframe correction)
       vector<float> lastframe_corr(NSCD,0.0); // corrected last frame
-
 
 	//--------------------------------------------------------------------------------
       // Applying the rscd correction
       // Set up the extrapolated last frame using the second and third to last frames
       // from the previous integration
-      if (control.apply_rscd_cor ==1 &&   i > 0 ){
+      if (do_multiple_int_cor ==1 &&   i > 0 ){
 	//--------------------------------------------------------------------------------
 	if(control.rscd_lastframe_extrap ==1) {
 	  // Then read 2nd and 3rd to last frame 
@@ -381,10 +384,9 @@ int main(int argc, char* argv[])
 	  }
 	
 	}  // end control.rscd_lastframe_extrap ==1
-      }  //   end control.apply_rscd_cor ==1 &&  i > 0 
+      }  //   end do_multiple_int_cor ==1 &&  i > 0 
 
       //________________________________________________________________________________
-
       if (control.apply_lastframe_cor ==1 ){
 	// read in the last frame from current integration 
 	ms_read_frame_from_int(data_info,i,data_info.NRamps, lastframe);
@@ -407,11 +409,8 @@ int main(int argc, char* argv[])
       vector<miri_reset> reset(NR);
       if(control.apply_reset_cor == 1 ) {
 	cout << " going to read reset correction file" << endl;
-
 	ms_read_reset_file(i,control,data_info,CDP,reset); 
       }
-	
-      //_______________________________________________________________________   
       
     // **********************************************************************
       vector<int> FrameBad;
@@ -514,6 +513,7 @@ int main(int argc, char* argv[])
 	  ms_read_process_data(i,isubset,this_nrow,refimage,
 			       reset,
 			       RSCD,
+			       MULT,
 			       lastframe,
 			       lastframe_corr,
 			       lastframe_rscd,
@@ -564,7 +564,6 @@ int main(int argc, char* argv[])
   // **********************************************************************
     // output the reduced and ancillary info to the FITS files
 
-
       time_t tb; 
       tb = time(NULL);
       if(control.do_verbose_time) cout << "Time  Elapsed to read/process all subsets: " << tb - ta <<   endl;
@@ -573,7 +572,7 @@ int main(int argc, char* argv[])
       //______________________________________________________________________
       // If applying rscd then determine the lastframe_rscd_sat- last frame using
       // the slope and zeropt to be used for the next integration
-      if(control.apply_rscd_cor && data_info.NInt > 1) {
+      if(do_multiple_int_cor == 1  && data_info.NInt > 1) {
 	long ik = 0; 
 	for (long i = 0; i< data_info.ramp_naxes[1] ; i++){
 	  for (long j = 0; j < data_info.ramp_naxes[0]; j++){
@@ -751,7 +750,7 @@ int main(int argc, char* argv[])
 
       // If apply_rscd then set up the lastframe_corr
       cout << " ************************************" << endl;
-      if(control.apply_rscd_cor ==1 && control.rscd_lastframe_corrected ==1) {
+      if(do_multiple_int_cor ==1  && control.rscd_lastframe_corrected ==1) {
 	copy(lastframe_corr.begin(), lastframe_corr.end(),lastframe_rscd.begin());
       }
 

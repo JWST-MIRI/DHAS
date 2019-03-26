@@ -116,6 +116,10 @@ class  miri_CDP {
   inline void SetRSCDName(string list) {RSCDName= list;}
   inline string GetRSCDName()const {return RSCDName;}
 
+  // MULT
+  inline void SetMULTName(string list) {MULTName= list;}
+  inline string GetMULTName()const {return MULTName;}
+
 //_______________________________________________________________________
 // Pixel Saturation
   inline string GetPixelSatName()const {return PixelSatName;}
@@ -225,11 +229,6 @@ class  miri_CDP {
   inline float GetLastFrame_Aodd (int ic)  {return LastFrameCoeff_Odd_A[ic];}
   inline float GetLastFrame_Beven (int ic) {return LastFrameCoeff_Even_B[ic];}
   inline float GetLastFrame_Bodd (int ic)  {return LastFrameCoeff_Odd_B[ic];}
-
-
-  // 
-
-
 //_______________________________________________________________________
      private:
 
@@ -247,9 +246,8 @@ class  miri_CDP {
   long num_badpixels; 
 
   string PixelSatName;              // filename of pixel saturation mask 
-
   string RSCDName;
-
+  string MULTName;
   string LastFrameName;
 
   vector<float> LastFrameCoeff_Even_A;
