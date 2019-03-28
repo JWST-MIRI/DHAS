@@ -152,6 +152,10 @@ void ms_setup_processing(miri_control &control,
 	cout << " If you want a different run then use option -run #" << endl;
       }
 
+      int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
+      cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
+      data_info.ColStart = corrected_value;
+
       if(control.jpl_run == "8") {
 	if(control.jpl_detector_flag ==0) {
 	  cout << " This is JPL Run 8, you must also set which detector the data is from, use option -jdet 101,106,124 " << endl;
@@ -167,11 +171,7 @@ void ms_setup_processing(miri_control &control,
 
       } else {
 	preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run +".list";	
-      
-	int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
-	cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
-	data_info.ColStart = corrected_value;
-	found = 1;
+	found = 1;      
 	
       }
     }
