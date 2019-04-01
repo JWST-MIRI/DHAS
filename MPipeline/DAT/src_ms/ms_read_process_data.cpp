@@ -469,7 +469,7 @@ void ms_read_process_data( const int iter,
 	// Multiple integration correction 
 	if(control.apply_mult_cor == 1) {
 	  if(iter== 0) {
-	    if(control.apply_rscd_cor ==0) pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
+	     pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
 	  } else { // interation = 2,3...
 	    float lastint_lastframe= lastframe_rscd[pixel_index];
 	    float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
