@@ -133,19 +133,6 @@ void ms_write_reduced_header(miri_control control,
 	cout << " ms_write_reduced_header: Problem creating image"<< endl;
 	exit(EXIT_FAILURE);
       }
-    } else  if(control.do_Pulse_Mode == 1){
-  // **********************************************************************
-      naxis = 2;
-      long naxes2[2];
-      naxes2[0] = naxes[0];
-      naxes2[1] = naxes[1];
-      status = 0;
-      fits_create_img(file_ptr, bitpix, naxis,naxes2, &status);
-      if(status !=0) {
-	cout << " ms_write_reduced_header: Problem creating image"<< endl;
-	exit(EXIT_FAILURE);
-      }
-      
     } else { 
 
   // **********************************************************************

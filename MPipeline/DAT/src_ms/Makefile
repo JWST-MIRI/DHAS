@@ -61,7 +61,6 @@ MS_SRCS = miri_sloper.cpp \
 	ms_write_intermediate_data.cpp \
 	ms_write_segments.cpp \
 	ms_QuickerSlope.cpp \
-	ms_PulseMode.cpp \
 	ms_lin_apply_correction.cpp \
 	ms_ScreenFrames.cpp \
 	ms_determine_CAL_Subarray.cpp \
@@ -201,7 +200,6 @@ ms_read_frame_from_int.o: ./include/miri_data_info.h
 ms_adjust_caldata.o : ./include/miri_CDP.h 
 ms_calculate_frame_time.o: ./include/miri_data_info.h  ./include/miri_control.h 
 ms_QuickerSlope.o: ./include/miri_data_info.h  ./include/miri_control.h 
-ms_PulseMode.o: ./include/miri_data_info.h  ./include/miri_control.h 
 ms_setup_dark.o: ./include/miri_data_info.h  ./include/miri_control.h   ./include/miri_CDP.h  ./include/miri_dark.h
 ms_final_slope.o:  ./include/miri_control.h 
 ms_adjust_control.o: ./include/miri_data_info.h  ./include/miri_control.h 

@@ -168,8 +168,6 @@ void ms_2pt_diff_quick(const int verbose_jump,
       cout << " Before Two pt diff " << diff[li] << " " << index[li] <<  " " << ipixel[li] << endl;
     }
   }
-  if(do_cosmic_id== 1  &&  n_good > cr_min_good_diffs);
-  if(debug ==1) cout << diff.size() << " " <<  index.size() << endl;
 
   piksrt3(diff,index); // sort differences and associated index array
 
@@ -179,7 +177,6 @@ void ms_2pt_diff_quick(const int verbose_jump,
       cout << "Two pt diff " << diff[li] << " " << index[li] << " " << ipixel[index[li]] << endl;
     }
   }
-
 
   //***********************************************************************
       // cosmic ray testing 

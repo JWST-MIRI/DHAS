@@ -82,95 +82,7 @@ void ms_adjust_control(miri_data_info& data_info, miri_control &control)
   }
 
   //***********************************************************************
-  if(data_info.Mode == 2){                  // FASTSHORT MODE DATA
-  //***********************************************************************
-  // get the base file name of the raw data and get basic information about the dataset
-  // making sure a file has actually been specified
-  // remove the .fits if it exists
-	
-    string output_name ="null";
-    int II = data_info.this_file_num;
-    string file = data_info.filenames[II];
-    string raw_fitsbase = file.substr(0,file.size()-5);
-  // _______________________________________________________________________
-  // Figure out the name of the output file from the input file name
-  // _______________________________________________________________________
 
-    output_name = raw_fitsbase +  "_FASTSHORT_MEAN.fits";
-  
-  // _______________________________________________________________________
-  // Use the user provided output filename
-  // _______________________________________________________________________
-      if(control.flag_output_name ==1) {
-  
-	output_name = control.output_name;
-	size_t fitspos = control.output_name.find(".fits");
-	if (fitspos != string::npos) {
-	  output_name = output_name.substr(0,output_name.size()-5);
-	}
-	size_t fsm = output_name.find("FASTSHORT_MEAN");
-	if (fsm == string::npos) {
-	  output_name = output_name + "_FASTSHORT_MEAN.fits";
-	}else{
-	  output_name = output_name + ".fits";
-	}
-	data_info.raw_fitsbase[II] = output_name.substr(0,output_name.size()-9);
-      }
-
-      cout << " Working with Fast Short Mode data, turning off writing extra output files " << endl;
-      cout << " and options not appropriate for this type of data" << endl; 
-      cout << " Output file " << output_name <<  endl;
-      data_info.red_filename[II] = "!" + control.scidata_out_dir + output_name;
-  // _______________________________________________________________________
-  // Options not allowed in FAST SHORT mode
-
-      control.write_output_refslope_FS =   control.write_output_refslope;
-      control.write_output_lc_correction_FS =  control.write_output_lc_correction;
-      control.apply_lin_cor_FS =  control.apply_lin_cor;
-      control.do_cr_id_FS = control.do_cr_id; 
-      control.do_diagnostic_FS  = control.do_diagnostic;
-      control.apply_dark_FS = control.apply_dark_cor;
-      control.write_output_dark_FS = control.write_output_dark_correction;
-      
-      if(control.apply_lin_cor ==1) cout << "Turning off applying linearity correcton for data " << endl;
-      if(control.apply_dark_cor ==1) cout << "Turning off applying dark correcton for data " << endl;
-
-
-      control.write_output_refslope = 0;
-      control.write_output_lc_correction =0;
-      control.apply_lin_cor = 0;  // no linearity correction allowed
-      control.do_cr_id = 0; // no cosmic ray detection allowed
-      control.do_diagnostic = 0;
-      control.apply_dark_cor = 0;
-      control.write_output_dark_correction = 0;
-
-  // switch the NRamps and NInt to get the data processed with miri_sloper -
-  // swtich back at the end
-
-      data_info.NRamps = data_info.NInt;
-      data_info.NInt  = 1;
-
-  // _______________________________________________________________________
-      cout << " Raw fits base              " << data_info.raw_fitsbase[II] << endl;
-      cout << " Raw filename               " << data_info.raw_filename[II] << endl;
-      cout << " Output filename            " << data_info.red_filename[II] << endl;
-      if(control.write_output_refslope == 1) 
-	cout << " Output Reference Filename  " << data_info.red_ref_filename[II] << endl;
-  // _______________________________________________________________________
-  // test if raw file exists
-
-      int status = 0;
-      int testfile = 0;
-      fits_file_exists(data_info.raw_filename[II].c_str(),&testfile,&status);
-      if( testfile !=1) { // open failed
-	cout << " Can not open the file: " << data_info.raw_filename[II] << endl;
-	cout << " Is the directory correct ? " << endl;
-	cout << "    If not either modify preference file or commandline option -DI" << endl;
-	cout << " Is the filename correct ? "  << endl;
-	cout << "    If not you provided an incorrect name (case sensitive) " << endl;
-	exit(EXIT_FAILURE);
-      }
-  }
   //***********************************************************************
 
   if(control.flag_frametime == 1 ) {
@@ -231,51 +143,25 @@ void ms_adjust_control(miri_data_info& data_info, miri_control &control)
     if(control.apply_rscd_cor ==0 && control.apply_mult_cor ==0 ) control.write_output_rscd_correction = 0;
   //***********************************************************************
 
-      if(control.QuickMethod ==1) {
-	control.apply_badpix = 0;
-	control.apply_pixel_saturation = 0;
-	control.apply_dark_cor = 0;
-	control.apply_lin_cor = 0;
+    if(control.QuickMethod ==1) {
+      control.apply_badpix = 0;
+      control.apply_pixel_saturation = 0;
+      control.apply_dark_cor = 0;
+      control.apply_lin_cor = 0;
 	
-	control.do_cr_id = 0;
-	control.do_refpixel_option = 0;
-	control.do_diagnostic =0;
-	control.write_output_refslope = 0;
-	control.write_output_lc_correction =0;	
-	control.write_output_refpixel = 0;
-	control.write_output_refpixel_corrections = 0; 
-	control.write_output_ids= 0;
-	control.write_output_dark_correction = 0 ;
-	control.write_output_reset_correction = 0;
-	control.write_output_lastframe_correction = 0 ;
-	if(data_info.Mode == 2) {
-	  control.QuickMethod = 0;
-	  // cout << " You can not use the Quick Method on data to be Co-added " << endl;
-	// cout << " Run again and do you use the -Q option " << endl;
-	// exit(EXIT_FAILURE);
-	}
-      }
+      control.do_cr_id = 0;
+      control.do_refpixel_option = 0;
+      control.do_diagnostic =0;
+      control.write_output_refslope = 0;
+      control.write_output_lc_correction =0;	
+      control.write_output_refpixel = 0;
+      control.write_output_refpixel_corrections = 0; 
+      control.write_output_ids= 0;
+      control.write_output_dark_correction = 0 ;
+      control.write_output_reset_correction = 0;
+      control.write_output_lastframe_correction = 0 ;
 
-      if(control.do_Pulse_Mode ==1) {
-	control.apply_badpix = 0;
-	control.apply_pixel_saturation = 0;
-	control.apply_lin_cor = 0;
-	control.apply_dark_cor = 0; 
-	control.do_cr_id = 0;
-	control.do_refpixel_option = 0;
-	control.do_diagnostic =0;
-	control.write_output_refslope = 0;
-	control.write_output_lc_correction =0;	
-	control.write_output_refpixel = 0;
-	control.write_output_refpixel_corrections = 0; 
-	control.write_output_ids= 0;
-	control.write_output_dark_correction = 0 ;
-	control.write_output_reset_correction = 0;
-	control.write_output_lastframe_correction = 0 ;
-	if(data_info.Mode == 2) {
-	  cout << " You can not use Pulse mode on data to be Co-added data " << endl;
+    }
 
-	  exit(EXIT_FAILURE);
-	}
-      }
+
 }

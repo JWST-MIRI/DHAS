@@ -95,53 +95,35 @@ void ms_process_refimage_data( miri_control control,
 // 1st iteration over array to identify auto rejects and saturation
 //  for (piter = pixel.begin(); piter != pixel.end();++piter) {   
 
-
   int debug_flag = 0;
 
   for (long j = 0; j < data_info.ref_numpixels; j++) {
     debug_flag = 0;
+    refpixel[j].FindSegments();
+    refpixel[j].CalculateSlopeNoErrors(control.n_reads_start_fit,0,0);       // Find Slopes for each segment dn/read
 
-    if(data_info.Mode == 2) {
-      refpixel[j].CoAddData();
-      //_______________________________________________________________________
-      // find slope - standard way
-    } else {
-      refpixel[j].FindSegments();
-
-      //if(j < 10) refpixel[j].PrintData();
-      refpixel[j].CalculateSlopeNoErrors(control.n_reads_start_fit,0,0);       // Find Slopes for each segment dn/read
-
-
-      refpixel[j].FinalSlope(control.slope_seg_cr_sigma_reject,
-			     control.n_reads_start_fit, 
-			     control.n_frames_reject_after_cr,
-			     control.cr_min_good_diffs,
-			     control.write_detailed_cr,
-			     control.UncertaintyMethod,
-			     data_info.output_cr,
-			     0,0);
+    refpixel[j].FinalSlope(control.slope_seg_cr_sigma_reject,
+			   control.n_reads_start_fit, 
+			   control.n_frames_reject_after_cr,
+			   control.cr_min_good_diffs,
+			   control.write_detailed_cr,
+			   control.UncertaintyMethod,
+			   data_info.output_cr,
+			   0,0);
 
 
-      refpixel[j].CalculatePixelFlag(); // update this as needed
+    refpixel[j].CalculatePixelFlag(); // update this as needed
 
       //_______________________________________________________________________
-      int numgoodseg = refpixel[j].GetNumGoodSegments();
-      if(numgoodseg > 1) {
-	cout << " this should not happen with reference pixels " << endl;
-      }
 
-      
-      int badpixel = refpixel[j].GetBadPixelFlag();
+    int badpixel = refpixel[j].GetBadPixelFlag();
 
-      if(badpixel == 0) {
-	refpixel[j].Convert2DNperSec(data_info.frame_time_to_use); // dn/read * read/seconds
-	if(control.convert_to_electrons_per_second ==1) 
-	  refpixel[j].Convert2ElectronperSec(control.gain); 
-      }
-      
+    if(badpixel == 0) {
+      refpixel[j].Convert2DNperSec(data_info.frame_time_to_use); // dn/read * read/seconds
+      if(control.convert_to_electrons_per_second ==1) 
+	refpixel[j].Convert2ElectronperSec(control.gain); 
     }
-
-
+      
     float signal = refpixel[j].GetSignal();
     float signal_unc = refpixel[j].GetSignalUnc();
     float id = float(refpixel[j].GetQualityFlag());
@@ -150,8 +132,10 @@ void ms_process_refimage_data( miri_control control,
     float zeropt = refpixel[j].GetZeroPt();
     float numgood = refpixel[j].GetNumGood();
     float numgoodseg = refpixel[j].GetNumGoodSegments();
+    if(numgoodseg > 1) {
+      cout << " this should not happen with reference pixels " << endl;
+    }
     float readnumfirstsat = refpixel[j].GetReadNumFirstSat();
-  
 
     if(signal == NO_SLOPE_FOUND ) {
       signal = strtod("NaN",NULL);

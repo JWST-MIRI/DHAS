@@ -59,20 +59,6 @@ void ms_adjust_control_end(miri_data_info &data_info, miri_control &control)
 
 
   //***********************************************************************
-  // for fast short
-  //***********************************************************************
-  if(data_info.Mode == 2){
-    control.write_output_refslope =   control.write_output_refslope_FS;
-    control.write_output_lc_correction =  control.write_output_lc_correction_FS;
-    control.apply_lin_cor =  control.apply_lin_cor_FS;
-    control.do_cr_id = control.do_cr_id_FS; 
-    control.do_diagnostic = control.do_diagnostic_FS; 
-    control.apply_dark_cor = control.apply_dark_FS;
-    control.write_output_dark_correction = control.write_output_dark_FS;
-
-  }
-
-  //***********************************************************************
     // If running over subarray data and in a list - if r2 set - reset. 
   //***********************************************************************
 
@@ -86,8 +72,6 @@ void ms_adjust_control_end(miri_data_info &data_info, miri_control &control)
     }
 
   //***********************************************************************
-
-
     control.apply_rscd_cor = control.apply_rscd_cor_Input;
     control.apply_mult_cor = control.apply_mult_cor_Input;
     control.write_output_rscd_correction = control.write_output_rscd_correction_Input;

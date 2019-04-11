@@ -1,8 +1,6 @@
 #include <string>
 #include <string.h>
 #include "miri_sloper.h"
-
-
 using namespace std;
 // ----------------------------------------------------------------------
 // Helper procedure

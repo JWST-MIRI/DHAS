@@ -54,7 +54,6 @@ void ms_write_final_data(int type,
 			 fitsfile *file_ptr,
 			 const long naxes[3],
 			 const int QuickMethod,
-			 const int do_Pulse_Mode,
 			 miri_data_info& data_info,
 			 vector<float> &Final_Slope,
 			 vector<float> &Final_SlopeUnc,
@@ -69,7 +68,7 @@ void ms_write_final_data(int type,
   // fitsfile *file_ptr=0;
   //long naxes[2] = {0};
 
-  if(QuickMethod ==1 || do_Pulse_Mode) { 
+  if(QuickMethod ==1) { 
     //    if(type ==0){ // Science Image
     //  file_ptr = data_info.red_file_ptr;
     //  naxes[0] = data_info.ramp_naxes[0];

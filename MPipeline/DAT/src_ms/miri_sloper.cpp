@@ -270,7 +270,7 @@ int main(int argc, char* argv[])
     int ysize = data_info.ramp_naxes[1];
     long tsize = xsize*ysize;
     long tsize2 = tsize;
-    if(control.QuickMethod ==1 || control.do_Pulse_Mode) tsize2 = 1; 
+    if(control.QuickMethod ==1) tsize2 = 1; 
 
     vector<float> Final_Slope(tsize);
     vector<float> Final_SlopeUnc(tsize);
@@ -489,12 +489,6 @@ int main(int argc, char* argv[])
 			  Slope,
 			  ZeroPt,
 			  RMS);
-	} else if (control.do_Pulse_Mode == 1) {
-	    ms_PulseMode(i,isubset,this_nrow,
-		       control, data_info,
-		       Slope);
-
-	//***********************************************************************
 	}  else{
 	  
 	//***********************************************************************
@@ -758,14 +752,10 @@ int main(int argc, char* argv[])
   // **********************************************************************
     }   // close the loop over the integrations
 
-
-
-
     ms_write_final_data(0,
 			data_info.red_file_ptr,
 			data_info.red_naxes,
 			control.QuickMethod,
-			control.do_Pulse_Mode,
 			data_info,Final_Slope,Final_SlopeUnc,Final_ID);
     int status = 0;
     int hdutype = 0;
@@ -784,7 +774,6 @@ int main(int argc, char* argv[])
 			  data_info.red_ref_file_ptr,
 			  data_info.red_ref_naxes,
 			  control.QuickMethod,
-			  control.do_Pulse_Mode,
 			  data_info,Final_RefSlope,Final_RefSlopeUnc,Final_RefID);
       fits_close_file(data_info.red_ref_file_ptr, &status);
     }
@@ -859,10 +848,7 @@ int main(int argc, char* argv[])
   cout << " Done miri_sloper" << endl;
   cout << "Total time " << t1 - t0 << endl;
 
-  if(control.do_Pulse_Mode ==1) {
-    cout << " Use a standard fits viewer to look at Pulse Mode results. " << endl;
-    cout << " You can NOT view  Pulse Mode output: *_PulseAmp.fits with the DHAS QL IDL package. " << endl;
-  }
+
   return 0;
 
 

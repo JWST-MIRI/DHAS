@@ -1062,7 +1062,7 @@ info.slope.slope_range = slope_range
 
 ;_______________________________________________________________________
 if(info.data.coadd eq 0) then info.slope.pix_statLabel = $
-  ["Slope (DN/s)", "Uncertainty(DN/S)","Data Quality Flag","Zero Pt","STD Fit (DN)",$
+  [" Average Slope (DN/s)", "Uncertainty(DN/S)","Data Quality Flag","Zero Pt","STD Fit (DN)",$
    "Frame # of 1st Sat Value", "# Good Segments","# Good Frames", "Calibrated Value"]
 
 if(info.data.coadd eq 1) then info.slope.pix_statLabel =$

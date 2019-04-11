@@ -80,7 +80,6 @@ void ms_write_reduced_refimage(const int intnum,
   data_info.red_ref_naxes[1] = data_info.ref_naxes[1];
   data_info.red_ref_naxes[2] = 7; // slope, uncertainty, id flag, zero pt, # good read,
                               // read num first sat, emp uncertainty
-  if(data_info.Mode ==2 ) data_info.ref_naxes[2] = 6; // Fast Short mode
   data_info.red_ref_bitpix = -32;
 
   // **********************************************************************
@@ -128,10 +127,7 @@ void ms_write_reduced_refimage(const int intnum,
   long tsize6 = tsize*6;
   long nelements = tsize*7;
 
-  if(data_info.Mode ==2)  nelements = tsize*6;
   vector<float> data(nelements);
-
-
   
   copy(Slope.begin(),Slope.end(),data.begin());
   copy(SlopeUnc.begin(),SlopeUnc.end(),data.begin() + tsize);
@@ -139,8 +135,7 @@ void ms_write_reduced_refimage(const int intnum,
   copy(ZeroPt.begin(),ZeroPt.end(),data.begin() + tsize3);
   copy(NumGood.begin(),NumGood.end(),data.begin() + tsize4);
   copy(ReadNumFirstSat.begin(),ReadNumFirstSat.end(),data.begin() + tsize5);
-  if(data_info.Mode !=2) 
-    copy(RMS.begin(),RMS.end(),data.begin() + tsize6);
+  copy(RMS.begin(),RMS.end(),data.begin() + tsize6);
 
   fits_write_img(data_info.red_ref_file_ptr,TFLOAT,1,nelements,&data[0],&status);
   if(status != 0) {

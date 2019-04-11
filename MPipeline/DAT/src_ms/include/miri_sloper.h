@@ -132,13 +132,6 @@ extern void ms_QuickerSlope( const int iter,
 			     vector<float> &ZeroPt,
 			     vector<float> &RMS);
 
-extern void ms_PulseMode ( const int iter,
-			   const int isubset,
-			   const int this_nrow,
-			   miri_control &control,
-			   miri_data_info &data_info,
-			   vector<float> &Slope);
-
 
 extern void ms_setup_dark( const int integ,
 			   const int isubset,
@@ -362,7 +355,6 @@ extern void ms_final_slope( const int,
 extern void ms_write_final_data(int type,
 				fitsfile *ifptr,
 				const long[3],
-				const int, 
 				const int, 
 				miri_data_info& data_info,
 				vector<float> &Final_Slope,
