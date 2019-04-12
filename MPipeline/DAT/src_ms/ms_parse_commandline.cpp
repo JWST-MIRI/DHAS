@@ -490,7 +490,6 @@ void ms_parse_commandline(int& argc,
 	break;
 
       //_______________________________________________________________________
-      //_______________________________________________________________________
       // R
       //_______________________________________________________________________
     case 'R':
@@ -542,60 +541,9 @@ void ms_parse_commandline(int& argc,
       break;
 
       //_______________________________________________________________________
-      // Pulse mode 
-      //_______________________________________________________________________
-    case 'P':
 
-      switch (argv[1][2]){
-      case 'i' :
-	if ( argc <= 2 || !isdigit(argv[2][0])  ) {
-	  cout << " Frame number not given after Pi" << endl;
-	  cout << " Run again and provide number after Pi" << endl;
-	  cout << " Printing Help screen" << endl;
-	  ms_usage();
-	  exit(EXIT_FAILURE);
-	}
-	control.do_Pulse_Mode = 1;
-	control.Pulse_Frame_i = atoi(argv[2]);
-
-
-      ++argv;	
-      --argc;
-      ++argv;
-      --argc;
-	break;
-
-
-      case 'f' :
-	if ( argc <= 2 || !isdigit(argv[2][0])  ) {
-	  cout << " Frame number not given after Pf" << endl;
-	  cout << " Run again and provide number after Pf" << endl;
-	  cout << " Printing Help screen" << endl;
-	  ms_usage();
-	  exit(EXIT_FAILURE);
-	}
-	control.Pulse_Frame_f = atoi(argv[2]);
-	control.flag_Pulse_Frame_f = 1;
-      ++argv;	
-      --argc;
-      ++argv;
-      --argc;
-	break;
-
-      default:
-	cerr<< " error unrecognized option after P " 
-	  << argv[1][2] << endl;
-        cout << "Aborting program, printing help screen" << endl;
-        ms_usage();
-        exit(EXIT_FAILURE);
-        break;
-      }
-
-      break;
 
       // following options are either true or false
-
-      //_______________________________________________________________________
       // rn, rx, rc rd, rdf, rs, rb,r6,r7
       //_______________________________________________________________________
     case 'r':

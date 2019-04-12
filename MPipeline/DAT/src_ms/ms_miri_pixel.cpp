@@ -624,7 +624,6 @@ void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
 
 //_______________________________________________________________________
 void miri_pixel::RSCD_UpdateInt1(const int write_corrected_data){
-						  
 
   if(write_corrected_data==1) {
     for (unsigned int i = 0 ; i < raw_data.size() ; i++){
@@ -665,14 +664,17 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
   }
 
   int debug = 0;
-  if(pix_x == -184 && pix_y == 169) debug = 1;
+  
+  if(pix_x == -184 && pix_y == 166) debug = 1;
   if(debug==1)  {
     cout << " lastframeDN " << lastframeDN << endl;
     cout << " counts " << counts << endl;
     cout << " scale " << scale << endl;
     cout << "first 3 ramp values" << raw_data[0] << " " << raw_data[1] << " " << raw_data[2] << endl;
   }
+  
 
+  
 
   if(counts <= 0){
     // make no correction for this type of data
@@ -746,7 +748,8 @@ void miri_pixel::ApplyMULT(const int write_corrected_data,
 
   if(datamult > min_tol){ // only correct data if lastframe last in > minimum tolerance
     vector<float> correct;
-    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
+    for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
+      //    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
       //      if(id_data[i] != 0) cout << "id" << id_data[i] << " " << i << endl;
 	float eterm = exp(0.0001 * mult_alpha * raw_data[i]);
 	float corr = mult_offset + mult_scale*eterm;
@@ -754,21 +757,24 @@ void miri_pixel::ApplyMULT(const int write_corrected_data,
 	correct.push_back(corr);
     }
 
-    vector<float> new_correct(raw_data.size()-1,0.0);
-
+    //    vector<float> new_correct(raw_data.size()-1,0.0);
+    vector<float> new_correct(raw_data.size(),0.0);
     for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- correct[raw_data.size()-2-i];
+      //cout << i << " " << raw_data.size()-2-i << "  " << raw_data.size() -1 - i << endl; 
     }
 
-    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
-      if(debug == 1) {
+    for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
+      if(debug == 1 || fabs(new_correct[i]) > 5000 ) {
 	cout << " Mult correction " << pix_x << " " << pix_y << " " << i << " " <<  
 	  new_correct[i] <<  " " << raw_data[i] << " " <<
 	  raw_data[i] - new_correct[i]  << endl;
+	debug = 1;
+	
       }
       raw_data[i] = raw_data[i] - new_correct[i];
       if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
-      
+      if(debug ==1) cout << " Testing " << raw_data[i] << " " << rscd_cor_data[i] << endl;
     }// end loop over raw_data.size: number of frames in integration
 
   } else {  //end loop datamult > min_tol
@@ -989,59 +995,10 @@ void miri_pixel::FindSegments(){
 }
 
 //_______________________________________________________________________
-// If the Data is Fast Short Mode data - Coadd it
-// 
-void miri_pixel::CoAddData(){
-  float sum = 0;
-  int num_good = 0;
-  vector<int>::iterator iter = id_data.begin();
-  vector<int>::iterator iter_start = id_data.begin();
-  vector <float> data;
-  int istart = -1;
-  for( ; iter!=id_data.end();++iter){
-
-    if (*iter == 0) {
-      int i = iter - iter_start;
-      if(istart == -1)  istart = i;
-      num_good++;
-      sum+=raw_data[i];
-      data.push_back(raw_data[i]);
-    }
-  }
-  sum = sum/num_good;
-  float sum_var = 0;
-  int inum = data.size();
-  for (int i = 0; i< inum; i++){
-    float diff =(data[i] - sum); 
-    sum_var+=  diff*diff;
-  }
-  sum_var = (sum_var)/(inum -1);
-  float Slope = 0.0;
-  float Slope_unc = 0.0;
-
-  if(num_good < 2) {
-    Slope = NO_SLOPE_FOUND;
-    Slope_unc = NO_SLOPE_FOUND;
-  }else{
-    Slope = sum;
-    Slope_unc  = sqrt(sum_var);
-  }
-
-  zero_pt = 0.0;
-  num_good_reads = num_good ;  
-  signal = Slope;
-  signal_unc = Slope_unc;
-}
-
-
-//_______________________________________________________________________
-
-//_______________________________________________________________________
 // Calculate the slope of each segment
 //
 void miri_pixel::CalculateSlopeNoErrors(int start_fit,int xdebug, int ydebug){
   // case where uncertainties are unknown but  equal
-
 
   rms = 0;
   num_good_reads = 0;

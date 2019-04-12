@@ -134,43 +134,26 @@ void ms_filenames(miri_data_info& data_info, miri_control control)
     data_info.raw_filename.push_back (control.scidata_dir + raw_fitsbase + ".fits");
     output_name =  raw_fitsbase + "_LVL2.fits";
     output_ref_name =  raw_fitsbase + "_LVL2_REF.fits";
-    if(control.do_Pulse_Mode ==1)     output_name =  raw_fitsbase + "_PulseAmp.fits";
   
   // _______________________________________________________________________
   // Use the user provided output filename
   // _______________________________________________________________________
     if(control.flag_output_name ==1) {
-      if(control.do_Pulse_Mode ==1) {
-	output_name = control.output_name;
-	size_t fitspos = control.output_name.find(".fits");
-	if (fitspos != string::npos) {
-	  output_name = output_name.substr(0,output_name.size()-5);
-	}
-	size_t lvl2 = output_name.find("PulseAmp");
-	if (lvl2 == string::npos) {
-	output_name = output_name + "_PulseAmp.fits";
-	}else{
-	  output_name = output_name + ".fits";
-	}
-	raw_fitsbase = output_name.substr(0,output_name.size()-10);
 
-
-
-      }else {
-	output_name = control.output_name;
-	size_t fitspos = control.output_name.find(".fits");
-	if (fitspos != string::npos) {
-	  output_name = output_name.substr(0,output_name.size()-5);
-	}
-	size_t lvl2 = output_name.find("LVL2");
-	if (lvl2 == string::npos) {
-	output_name = output_name + "_LVL2.fits";
-	}else{
-	  output_name = output_name + ".fits";
-	}
-	raw_fitsbase = output_name.substr(0,output_name.size()-10);
-	output_ref_name = raw_fitsbase + "_LVL2_REF.fits";
+      output_name = control.output_name;
+      size_t fitspos = control.output_name.find(".fits");
+      if (fitspos != string::npos) {
+	output_name = output_name.substr(0,output_name.size()-5);
       }
+      size_t lvl2 = output_name.find("LVL2");
+      if (lvl2 == string::npos) {
+	output_name = output_name + "_LVL2.fits";
+      }else{
+	output_name = output_name + ".fits";
+      }
+      raw_fitsbase = output_name.substr(0,output_name.size()-10);
+      output_ref_name = raw_fitsbase + "_LVL2_REF.fits";
+      
     }
 
     cout << " Output file " << output_name <<  endl;

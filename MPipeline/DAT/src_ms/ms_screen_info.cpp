@@ -50,32 +50,24 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
 
   int II = data_info.this_file_num;
 
-
   cout << "Processing file =               " << data_info.raw_fitsbase[II] << " " << endl;
   
   cout << "Calibration directory used      " << control.calib_dir << endl;
   cout << "Science input data directory   " << control.scidata_dir << endl;
   cout << "Science output data directory  " << control.scidata_out_dir << endl;
-  if(control.do_Pulse_Mode) {
-    cout << " This data will be processed using Pulse Mode Pipeline" << endl;
-    cout << " Amplitude of final image found from Frame f - Frame i" << endl;
 
-  } else {
-    
+  
   if(control.write_output_refslope == 1)
     cout << " Writing output reference image slope to " << data_info.red_ref_filename[II] << endl;
   if(control.write_output_refpixel_corrections) 
     cout << " Writing reference pixel corrected data " << data_info.rc_filename[II] << endl; 
   if(control.do_diagnostic) cout << " Writing 4 additional planes to LVL2 file (2pt difference information)" << endl;
 
-
-
   if(control.write_output_lc_correction == 1) 
     cout << " Writing linear corrected data " << data_info.lc_filename[II] << endl;;
 
   if(control.write_output_dark_correction == 1) 
-    cout << " Writing Mean Dark  corrected data " << data_info.dark_filename[II] << endl;;
-
+    cout << " Writing  Dark  corrected data " << data_info.dark_filename[II] << endl;;
 
   if(control.write_output_rscd_correction == 1) 
     cout << " Writing RSCD corrected data " << data_info.rscd_filename[II] << endl;;
@@ -86,10 +78,8 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
   if(control.write_output_lastframe_correction == 1) 
     cout << " Writing LastFrame corrected data " << data_info.lastframe_filename[II] << endl;;
 
-
   if(control.write_output_ids == 1) 
 	cout << " Writing pixel ID FITS file " << data_info.id_filename[II] << endl;
-
 
   if(control.write_detailed_cr == 1)
     cout << " Writing details of the cosmic ray detection " << data_info.cr_filename[II] << endl;
@@ -98,19 +88,6 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     
   
   if(control.do_refpixel_option ==0) cout << " Not using border reference pixels to correct data " << endl; 
-  if(control.do_refpixel_option ==2){
-    cout << " Using reference pixels to correct science data (interpolate between left and right side of ref pixels) "<< endl;
-    cout << " Number of even/odd rows on either side of current row to use to determine correction " << 
-      control.delta_refpixel_even_odd << endl;
-  }
-
-  if(control.do_refpixel_option ==1){
-    cout << " Using reference pixels to correct science data (Moving Mean of Left and Right Refernce pixels) "<< endl;
-    cout << " Box size of moving filter " << 
-      control.delta_refpixel_even_odd << endl;
-  }
-
-
 
   if(control.do_refpixel_option ==6) {
     cout << " Using reference pixels to correct science data (Correction: mean [even/odd rows] /channel after subtracting corresponding reference pixels in frame 1, 8 values/frame)" << endl; 
@@ -120,8 +97,6 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     cout << " Using reference pixels to correct science data. Removing Temperature dependence from reference pixels" << endl;
   }
 
-
-  
   if (control.apply_badpix==1){
     cout << " Removing Bad Pixels using the Bad Pixel File" << endl;
     cout << " Bad pixel file: " << control.badpix_file << endl;
@@ -131,9 +106,8 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     cout << " Using the pixel saturation mask to mark saturated pixels " << control.pixel_saturation_file << endl;
   }
 
-
   if (control.apply_reset_cor==1)cout << " Applying Reset  correction" << endl;
-	
+
   if (control.apply_lin_cor==1){
     cout << " Applying linearity correction" << endl;
     cout << " Linearity Correction file: " << control.lin_cor_file << endl;
@@ -151,28 +125,21 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
 
   if (control.apply_lastframe_cor==1)cout << " Applying Lastframe  correction" << endl;
 
-  if(data_info.Mode ==2) {
-    cout << " Number of Integrations         " << data_info.NRamps << endl;
-    cout << " Number of frames/int           " << data_info.NInt << endl;
-    
-    cout << " The single frames are COADDED " << endl;
-    
-  } else {
-    cout << " Frame number to start slope fit: " << control.n_reads_start_fit+1 << endl;
-    cout << " Frame number to end slope fit:   " << control.n_reads_end_fit+1 << endl;
-    cout << " Hi dn saturation:            " <<control.dn_high_sat << endl;
+  cout << " Frame number to start slope fit: " << control.n_reads_start_fit+1 << endl;
+  cout << " Frame number to end slope fit:   " << control.n_reads_end_fit+1 << endl;
+  cout << " Hi dn saturation:            " <<control.dn_high_sat << endl;
 
-    if(control.flag_gain ==1) cout <<" The gain (in electrons/DN) = " << control.gain << endl;
-    if(control.flag_read_noise ==1) cout << " The read noise (in electrons) = " << control.read_noise_electrons << endl;
-    if(control.UncertaintyMethod == 0)cout<<" The slope is determined by setting uncertainty in the measurements =1 "<<endl;
-    if(control.UncertaintyMethod == 1)cout<<" The slope is determined by using the uncertainty in the measurements"<<endl;
-    if(control.UncertaintyMethod == 2 )cout<<" The slope is determined by using the uncertainty in the measurements and the uncertainty of the slope is determined from correlated measurements"<<endl;
+  if(control.flag_gain ==1) cout <<" The gain (in electrons/DN) = " << control.gain << endl;
+  if(control.flag_read_noise ==1) cout << " The read noise (in electrons) = " << control.read_noise_electrons << endl;
+  if(control.UncertaintyMethod == 0)cout<<" The slope is determined by setting uncertainty in the measurements =1 "<<endl;
+  if(control.UncertaintyMethod == 1)cout<<" The slope is determined by using the uncertainty in the measurements"<<endl;
+  if(control.UncertaintyMethod == 2 )cout<<" The slope is determined by using the uncertainty in the measurements and the uncertainty of the slope is determined from correlated measurements"<<endl;
 
-    cout << " Number of Integrations         " << data_info.NInt << endl;
-    cout << " Number of frames/int           " << data_info.NRamps << endl;
-  }
-    cout << " Size of input data             " << data_info.raw_naxes[0] << " x " <<
-      data_info.raw_naxes[1] << " x " <<data_info.raw_naxes[2] <<endl;
+  cout << " Number of Integrations         " << data_info.NInt << endl;
+  cout << " Number of frames/int           " << data_info.NRamps << endl;
+  
+  cout << " Size of input data             " << data_info.raw_naxes[0] << " x " <<
+    data_info.raw_naxes[1] << " x " <<data_info.raw_naxes[2] <<endl;
   cout << " Size of science image          " << data_info.ramp_naxes[0] << " x " <<
       data_info.ramp_naxes[1] << " x " <<data_info.ramp_naxes[2] <<endl;
 
@@ -194,6 +161,6 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     cout << " Minimun DN noise level limit, above limit jump could flag as cosmic ray " << control.cosmic_ray_noise_level << endl;
   }
 
-  }
-
 }
+
+

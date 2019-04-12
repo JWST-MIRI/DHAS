@@ -100,9 +100,7 @@ void ms_write_reduced_file(const int intnum,
                               // read num first sat, num good segments, std of fit
   if(control.do_diagnostic)  data_info.red_naxes[2] = 12;
   if(control.QuickMethod == 1)  data_info.red_naxes[2] = 3; // slope, zero pt, std fit
-  if(control.do_Pulse_Mode == 1)  data_info.red_naxes[2] = 1; // amplitude
 
-  if(data_info.Mode ==2 ) data_info.red_naxes[2] = 6; // Fast Short mode
   data_info.red_bitpix = -32;
 
   // **********************************************************************
@@ -149,12 +147,9 @@ void ms_write_reduced_file(const int intnum,
   long tsize11 = tsize*11;
   long nelements = tsize*8;
   if(control.QuickMethod) nelements= tsize*3;
-  if(control.do_Pulse_Mode) nelements= tsize;
-  if(control.do_diagnostic ==1)  nelements = tsize*12;
-  if(data_info.Mode ==2)  nelements = tsize*6;
-  
-  vector<float> data(nelements);
 
+  if(control.do_diagnostic ==1)  nelements = tsize*12;
+  vector<float> data(nelements);
   // _______________________________________________________________________
   // Write only Slope and Zero Pt
 
@@ -163,12 +158,6 @@ void ms_write_reduced_file(const int intnum,
     copy(Slope.begin(),Slope.end(),data.begin());
     copy(ZeroPt.begin(),ZeroPt.end(),data.begin() + tsize);
     copy(RMS.begin(),RMS.end(),data.begin() + tsize2);
-  // _______________________________________________________________________
-    // Write Amplitude (which is n the Slope Vector) 
-  } else if(control.do_Pulse_Mode == 1) {
-
-    copy(Slope.begin(),Slope.end(),data.begin());
-
   // _______________________________________________________________________
     // Write it Full Set of Processed Data
   }else {
@@ -179,10 +168,8 @@ void ms_write_reduced_file(const int intnum,
     copy(ZeroPt.begin(),ZeroPt.end(),data.begin() + tsize3);
     copy(NumGood.begin(),NumGood.end(),data.begin() + tsize4);
     copy(ReadNumFirstSat.begin(),ReadNumFirstSat.end(),data.begin() + tsize5);
-    if(data_info.Mode != 2) {
-      copy(NumGoodSeg.begin(),NumGoodSeg.end(),data.begin() + tsize6);
-      copy(RMS.begin(),RMS.end(),data.begin() + tsize7);
-    }
+    copy(NumGoodSeg.begin(),NumGoodSeg.end(),data.begin() + tsize6);
+    copy(RMS.begin(),RMS.end(),data.begin() + tsize7);
 
     if(control.do_diagnostic) {
       copy(Max2ptDiff.begin(),Max2ptDiff.end(),data.begin() + tsize8);
@@ -192,11 +179,7 @@ void ms_write_reduced_file(const int intnum,
     }
   }
 
-  
-
-
   fits_write_img(data_info.red_file_ptr,TFLOAT,1,nelements,&data[0],&status);
-
   
   if(status != 0) {
     cout << " Problem writing Slope data " << endl;

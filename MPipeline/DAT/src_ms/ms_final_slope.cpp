@@ -65,7 +65,7 @@ void ms_final_slope(const int intnum,
 {
  
     //***********************************************************************
-  if(control.QuickMethod == 1 || control.do_Pulse_Mode == 1) {
+  if(control.QuickMethod == 1) {
     if(nint > 1 ) {
       long num = Slope.size();
       for (long i = 0; i< num; i++){

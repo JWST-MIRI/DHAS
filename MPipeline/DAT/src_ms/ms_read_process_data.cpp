@@ -469,7 +469,7 @@ void ms_read_process_data( const int iter,
 	// Multiple integration correction 
 	if(control.apply_mult_cor == 1) {
 	  if(iter== 0) {
-	    if(control.apply_rscd_cor ==0) pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
+	     pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
 	  } else { // interation = 2,3...
 	    float lastint_lastframe= lastframe_rscd[pixel_index];
 	    float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
@@ -495,7 +495,6 @@ void ms_read_process_data( const int iter,
 	      mult_sat_scale =  (mult_b0_odd + mult_b1_odd*datamult)/data_info.NRamps;
 	      mult_sat_offset = 0.0;
 	    }
-	    
 		  
 	    pixel[ik].ApplyMULT(control.write_output_rscd_correction,
 				datamult,
@@ -636,39 +635,31 @@ void ms_read_process_data( const int iter,
 
 	if(control.do_verbose_time == 1) cout << " Finished Cosmic Ray check"<< endl;
     //_______________________________________________________________________
-
-    // If Fast Short Mode - then co-add the data
-
-	if(data_info.Mode == 2) {
-	  pixel[ik].CoAddData();
-	  pixel[ik].CalculatePixelFlag(); // update this as needed
-      //_______________________________________________________________________
-      // find slope - standard way
-	} else {
-	  pixel[ik].FindSegments();
+	// find slope - standard 
+	pixel[ik].FindSegments();
 
 // Find Slopes for each segment dn/read	
 
-	  int find_uncorrelated = 0;
-	  if(control.UncertaintyMethod == 0) pixel[ik].CalculateSlopeNoErrors(control.n_reads_start_fit,
+	int find_uncorrelated = 0;
+	if(control.UncertaintyMethod == 0) pixel[ik].CalculateSlopeNoErrors(control.n_reads_start_fit,
 									    control.xdebug,control.ydebug);  
-	  if(control.UncertaintyMethod == 1) pixel[ik].CalculateSlope(control.n_reads_start_fit, 
+	if(control.UncertaintyMethod == 1) pixel[ik].CalculateSlope(control.n_reads_start_fit, 
 								    control.gain,find_uncorrelated,
 								    control.xdebug,control.ydebug);  
-	  if(control.UncertaintyMethod == 2) {
-	    find_uncorrelated = 1; 
-	    pixel[ik].CalculateSlope(control.n_reads_start_fit, control.gain,find_uncorrelated,
-				     control.xdebug, control.ydebug);  
-	  } 
+	if(control.UncertaintyMethod == 2) {
+	  find_uncorrelated = 1; 
+	  pixel[ik].CalculateSlope(control.n_reads_start_fit, control.gain,find_uncorrelated,
+				   control.xdebug, control.ydebug);  
+	} 
 
 
-	  pixel[ik].FinalSlope(control.slope_seg_cr_sigma_reject,control.n_reads_start_fit, 
-			       control.n_frames_reject_after_cr,
-			       control.cr_min_good_diffs,
-			       control.write_detailed_cr,
-			       control.UncertaintyMethod,
-			       data_info.output_cr,
-			       control.xdebug,control.ydebug);
+	pixel[ik].FinalSlope(control.slope_seg_cr_sigma_reject,control.n_reads_start_fit, 
+			     control.n_frames_reject_after_cr,
+			     control.cr_min_good_diffs,
+			     control.write_detailed_cr,
+			     control.UncertaintyMethod,
+			     data_info.output_cr,
+			     control.xdebug,control.ydebug);
 	  //________________________________________________________________________________
 	  //	  if(control.apply_rscd_cor ==1 && control.rscd_lastframe_corrected ==1) {
 
@@ -680,69 +671,61 @@ void ms_read_process_data( const int iter,
 	  //}
 
 	  //________________________________________________________________________________
-	  int nseg = pixel[ik].GetNumGoodSegments();
+	int nseg = pixel[ik].GetNumGoodSegments();
 
-	  if(nseg >= 3 && control.do_verbose) cout << " number segments = " << nseg << " " <<   
-						pixel[ik].GetX() << " " << pixel[ik].GetY()<< endl;
+	if(nseg >= 3 && control.do_verbose) cout << " number segments = " << nseg << " " <<   
+					      pixel[ik].GetX() << " " << pixel[ik].GetY()<< endl;
 
-
-	  if(nseg > data_info.Max_Num_Segments)data_info.Max_Num_Segments = nseg;
-
-
-
-	  pixel[ik].CalculatePixelFlag(); // update this as needed
+	if(nseg > data_info.Max_Num_Segments)data_info.Max_Num_Segments = nseg;
+	pixel[ik].CalculatePixelFlag(); // update this as needed
 
 
-	  if(control.do_cr_id || control.write_detailed_cr == 1){
-	    int numgoodseg = pixel[ik].GetNumGoodSegments();
-	    vector<int> flags;
-	    int nflags = 0;
-	    if(numgoodseg > 1) {
-	      int flag_pos  = 0;
-	      int flag_neg = 0;
+	if(control.do_cr_id || control.write_detailed_cr == 1){
+	  int numgoodseg = pixel[ik].GetNumGoodSegments();
+	  vector<int> flags;
+	  int nflags = 0;
+	  if(numgoodseg > 1) {
+	    int flag_pos  = 0;
+	    int flag_neg = 0;
           
-	      flags = pixel[ik].GetFlags(flag_pos,flag_neg);
-	      nflags = flags.size();
+	    flags = pixel[ik].GetFlags(flag_pos,flag_neg);
+	    nflags = flags.size();
           // a pixel may have more than 1 cosmic ray hit
-
-	      if(flag_pos !=0 ) num_cr_seg++;
-	      if(flag_neg !=0 ) num_cr_seg_neg++;
-	    }
+	    if(flag_pos !=0 ) num_cr_seg++;
+	    if(flag_neg !=0 ) num_cr_seg_neg++;
+	  }
       //_______________________________________________________________________
-	    if(control.write_detailed_cr == 1 ) {
-	      int numseg = pixel[ik].GetNumSegments();      
-	      if(numgoodseg > 1) {
-		int x = pixel[ik].GetX();
-		int y = pixel[ik].GetY();
+	  if(control.write_detailed_cr == 1 ) {
+	    int numseg = pixel[ik].GetNumSegments();      
+	    if(numgoodseg > 1) {
+	      int x = pixel[ik].GetX();
+	      int y = pixel[ik].GetY();
+	      
+	      data_info.output_cr << " " << endl;
+	      data_info.output_cr << " Cosmic Ray x,y:  " << x << " " << y << " # of segments: " << numgoodseg <<  endl;
+	      data_info.output_cr << " Flags : " ;
+	      for (int p = 0; p< nflags; p++) data_info.output_cr << flags[p] << " "  ;
+	      data_info.output_cr << " " << endl;
+	      for (int jk = 0; jk< numseg ; jk++){
+		int seg_begin = pixel[ik].GetBeginSeg(jk);
+		int seg_end = pixel[ik].GetEndSeg(jk);
+		int seg_flag = pixel[ik].GetFlagSeg(jk);
+		float seg_slope = pixel[ik].GetSlopeSeg(jk);
+		
+		float seg_unc = pixel[ik].GetSlopeSegUnc(jk);
+		float seg_y_intercept = pixel[ik].GetYIntSeg(jk);
+		float seg_dn_jump = pixel[ik].GetDnJumpSeg(jk);
+		data_info.output_cr <<"Begin Segment, End Segment, Slope, Unc, Y-intercept, DN-Jump, Seg Flag: " <<
+		  seg_begin << " " << seg_end << " " << seg_slope << " " << seg_unc << 
+		  "  " << seg_y_intercept<< " " << seg_dn_jump << " " << seg_flag << endl;
+	      }
+	    }//numgoodseg > 1
+	  } // end write detailed cr
+	}// do_cr_id or write_detailed_cr
 
-		data_info.output_cr << " " << endl;
-		data_info.output_cr << " Cosmic Ray x,y:  " << x << " " << y << " # of segments: " << numgoodseg <<  endl;
-		data_info.output_cr << " Flags : " ;
-		for (int p = 0; p< nflags; p++) data_info.output_cr << flags[p] << " "  ;
-		data_info.output_cr << " " << endl;
-            
-
-		for (int jk = 0; jk< numseg ; jk++){
-		  int seg_begin = pixel[ik].GetBeginSeg(jk);
-		  int seg_end = pixel[ik].GetEndSeg(jk);
-		  int seg_flag = pixel[ik].GetFlagSeg(jk);
-		  float seg_slope = pixel[ik].GetSlopeSeg(jk);
-
-		  float seg_unc = pixel[ik].GetSlopeSegUnc(jk);
-		  float seg_y_intercept = pixel[ik].GetYIntSeg(jk);
-		  float seg_dn_jump = pixel[ik].GetDnJumpSeg(jk);
-		  data_info.output_cr <<"Begin Segment, End Segment, Slope, Unc, Y-intercept, DN-Jump, Seg Flag: " <<
-		    seg_begin << " " << seg_end << " " << seg_slope << " " << seg_unc << 
-		    "  " << seg_y_intercept<< " " << seg_dn_jump << " " << seg_flag << endl;
-		}
-	      }//numgoodseg > 1
-	    } // end write detailed cr
-	  }// do_cr_id or write_detailed_cr
-
-	  pixel[ik].Convert2DNperSec(data_info.frame_time_to_use); // dn/read * read/seconds
-	  if(control.convert_to_electrons_per_second ==1) 
-	    pixel[ik].Convert2ElectronperSec(control.gain); 
-	}// find slope the standard way
+	pixel[ik].Convert2DNperSec(data_info.frame_time_to_use); // dn/read * read/seconds
+	if(control.convert_to_electrons_per_second ==1) 
+	  pixel[ik].Convert2ElectronperSec(control.gain); 
       } // end process_flag =1
       //***********************************************************************
 

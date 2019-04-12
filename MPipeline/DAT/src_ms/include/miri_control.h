@@ -16,19 +16,13 @@ struct miri_control {
 
   //________________________________________________________________________________________
   // environmental variable 
-   string  miri_dir;      // base directory of th MIPS/IT DAT
-  //________________________________________________________________________________________
-
-  
+  string  miri_dir;      // base directory of the DHAS
   string raw_fitsbase;  // base filename of dataset to process
 
   vector<int>  ignore_int;
   int num_ignore;
   //________________________________________________________________________________________
   // command line option switches - actions to be takens
-
-
-  //Options dealing with reference output (Channel 5)
 
   int flag_CDP_file;
   string CDP_file;
@@ -44,31 +38,13 @@ struct miri_control {
   int flag_jpl_run;
   string jpl_run;
 
-
   int jpl_detector_flag;  //  flag for Run 8 detector name 
   string jpl_detector;  // value for Run 8 detector name (101 or 106)
 
-
-  //int do_refoutput_option; // 1. Subtract output from
-  //int flag_do_refoutput_option; 
-  //int do_refoutput_options[2]; // options +ro1, +ro2
-
-  //int flag_do_refoutput_median_column; // subtract the median of each column from ref output
-  //int do_refoutput_median_column;
-
-
   // Options dealing with reference pixels
 
-  int do_refpixel_option;   //1: moving mean - filter on box same as refpixel_filter_size
-
-                            //2: use the border ref pixels  per frame per channel to
-                            // to find a correction to sci data using slope, y-intercept
-                            // -rd controls the number of rows on either side of the row in
-                            // in question to use for each correction
-                            // the default of rd is ZERO, so only 1 row is used 
-
-
-                            // 6. Like r3 but first subtract mean of frame 1 reference pixels (based on channel and even/odd)
+  int do_refpixel_option;   
+                            // 6. subtract frame 1, then determine mean value (based on channel and even/odd)
                             // 7. Determination of temperature factor
   
 
@@ -110,26 +86,16 @@ struct miri_control {
   int flag_apply_reset_cor;
   int flag_apply_lastframe_cor;
 
-  int make_log;             // create a log file: statistics
-  int do_cr_id;             // do cosmic ray identification
-  int do_noise_spike_id;    // do noise spike identification
 
+  int do_cr_id;             // do cosmic ray identification
 
   int do_verbose;           // output various status messages during reduction
   int do_verbose_jump;     // out more information on Jumps on ramp found- cr or noise
   int do_verbose_time;      // output time required to do different steps
   int do_diagnostic; 
 
-  int do_Pulse_Mode;        // Use Pulse Mode Options
-  int Pulse_Frame_i;         // first pulse frame (must be given
-  int Pulse_Frame_f;          // final pulse frame (default is nframes -1)
-  int flag_Pulse_Frame_f; 
-
   string output_name;       // output prefix name to use instead of default on 
   int flag_output_name;
-
-  int max_reset_int;
-  int max_reset_frames;
 
     //________________________________________________________________________________________
   // variables read in from the preferences file that can be replaced by the command line
@@ -157,13 +123,11 @@ struct miri_control {
   string preferences_file; // user provided preferences file name
   int flag_pfile;
 
-
   float gain;              // gain to use instead of the one in the preferences file
   int flag_gain;           // only used if converting from dn/s to e/s
 
   float frametime;
   int flag_frametime;
-
 
   int convert_to_electrons_per_second; // convert output from dn/s to e/s
 
@@ -181,7 +145,6 @@ struct miri_control {
                                          // for the reference output and reference border pixels (if set)
   int flag_write_output_refpixel_corrections ;	
 
-
   int write_all;
 
   int write_output_lc_correction; // write intermediate FITS file after linearity correction 
@@ -190,13 +153,11 @@ struct miri_control {
   int write_output_dark_correction; // write intermediate FITS file after dark correction 
   int flag_write_output_dark_correction;
 
-
   int write_output_rscd_correction; // write intermediate FITS file after rscd correction 
   int flag_write_output_rscd_correction;
 
   int write_output_reset_correction; // write intermediate FITS file after reset anomlay correction 
   int flag_write_output_reset_correction;
-
 
   int write_output_lastframe_correction; // write intermediate FITS file after last frame correction 
   int flag_write_output_lastframe_correction;
@@ -207,7 +168,6 @@ struct miri_control {
   string badpix_file;                 // filename of bad pixel list using for this data
   int flag_badpix_file;               // if not set on command line use preference value
 
-
   string pixel_saturation_file;      // pixel saturation file to use for this data set
   int flag_pixel_saturation_file;    //  if not set on command line use preference value
 
@@ -216,8 +176,7 @@ struct miri_control {
   int apply_lin_offset; 
 
   string dark_cor_file;          // dark filename
-  int flag_dark_cor_file;
-  int max_dark_int; 
+  int flag_dark_cor_file; 
 
   string lastframe_file;          // lastframe filename
   int flag_lastframe_file;
@@ -260,13 +219,11 @@ struct miri_control {
   float slope_seg_cr_sigma_reject ;          // # of sigmas above the noise for which a jump is a cosmic ray
   int  flag_slope_seg_cr_sigma_reject ;          // # of sigmas above the noise for which a jump is a cosmic ray
 
-
   int cr_min_good_diffs;           // minimum # of good differences in the cosmic ray detection
   int flag_cr_min_good_diffs;      // if not set on command line use preference value
                                    // set so a reasonable standard deviation can be determined
   float read_noise_electrons;	   // read noise per read in electrons
   int  flag_read_noise;   // if not set on command line use preference value
-
 
   int xdebug;
   int ydebug;

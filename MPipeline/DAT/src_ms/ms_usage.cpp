@@ -117,10 +117,6 @@ void ms_usage()
   cout << "     ATTENTION: miri_sloper will figure out the correct  file to use that is found in the calibration directory" << endl;
   cout << "     ONLY provide the filename if you are using a special user modified file" << endl;
 
-
-
-
-
   cout << "   " << endl;
   cout << " ------> Last frame  Correction: " << endl;
   cout << " +/- l apply last frame correction  [Default: do not] " << endl;
@@ -151,8 +147,6 @@ void ms_usage()
   cout << "     ATTENTION: miri_sloper will figure out the correct  file to use that is found in the calibration directory" << endl;
   cout << "     ONLY provide the filename if you are using a special user modified file" << endl;
 
-
-
   cout << "   " << endl;
   cout << " ------> Using uncertainty of measurements and calculating error plane of slope Options: " << endl;
   cout << " -U1 Set the measurement uncertainties = 1. This option does not used the measurement uncertainties in the slope determination" << endl;
@@ -178,16 +172,13 @@ void ms_usage()
   cout <<" -cr # <float> Cosmic ray slope segment sigma rejection value (default given in preferences file) " << endl;
   cout <<" -cv  Flag to print more information to screen on cosmic rays detected. (More for debugging and optimizing parameters " << endl;
 
-
-
-
   cout << "     " << endl;  
   cout << " ------> Reference Pixel correction options: " << endl;
 
   cout << " +/-r6  do(not do)  reference pixel correction option 6 [Default: do not]" << endl;  
   cout << "        subtract the reference pixels on frame 1 from all the other frames " << endl;
-  cout << "        correction based on mean of this difference per frame/channel split into even/odd rows. 8 correction values/frame " << endl;
-  cout << "        similar to r3 but frame 1 reference pixels are subtracted first" <<endl;
+  cout << "        correction based on mean of this difference per frame/channel split into even/odd rows." << endl;
+  cout << "        8 correction values/frame" <<endl;
 
 
   cout << " +/-r7  do(not do)  reference pixel correction option 7 [Default: do not]" << endl;  
@@ -197,21 +188,6 @@ void ms_usage()
   cout << " -rs #  <integer> sigma clipping # for reference pixel outlier rejection [default 3]" << endl;
   cout << " -rb #  <integer> filter box size for reference pixel outlier rejection [default 128 rows]" << endl;
   cout << "         Seperately for each channel and even and odd rows" << endl;
-
-
-  //  cout << " +/-r1  do(not do)  reference pixel correction option 1 [Default: do not]" << endl;  
-  // cout << "        subtract the reference pixels on frame 1 from all the other frames " << endl;
-  // cout << "        correction/frame/channel based on Moving mean this difference." << endl;
-  //cout << "        The mean is determined for each row & amplifier, usinga  box filter of size defined by parameter -rd "<< endl;
-  //cout << "        The moving mean filter is done using either even or odd rows based on row in question" << endl;
-  //cout << "        The Final Mean for the row is an average  left and right moving mean." << endl;
-
-  //cout << " +/-r2  do(not do)  reference pixel correction option 2 [Default: do not]" << endl;  
-  //cout << "        find a correction for each frame and each channel on a row by row basis interpolating " << endl;
-  //cout << "        between the left and right reference pixels (see -rd for averaging rows)" << endl;
-  //cout << " -r2d #  <integer> number of (even/odd) rows to average in determining the reference pixel correction" << endl;
-  //cout <<  "        based on option -r2. The value provided = # of even/odd rows +/- the current row  (default = in preference file) " << endl;
-  //cout << "        even/odd status  determined by even/odd nature of the row in question" << endl;
 
 
 
@@ -235,13 +211,7 @@ void ms_usage()
   cout << " -Op Write the reference pixel corrections to an ascii file (if +r1, +r2, +r3,r7 or r6  is set)" << endl;
 
   cout << "   " << endl;
-  cout << " ------> Pulse Mode Options " << endl;
-  cout << " -Pi  #. Pulse mode, # is the first frame to use in determining Amplitude f-i. " << endl;
-  cout << "          f is defaulted to be n-1 frame or can be provided by the user with -Pf # option. " << endl;
-  cout << " -Pf  #. Pulse mode, # is the last frame to use in determining Amplitude f-i. " << endl;
 
-
-  cout << "   " << endl;
   cout << " ------> Misc : " << endl;
 
   cout << " -v output very detailed information to the screen" << endl;

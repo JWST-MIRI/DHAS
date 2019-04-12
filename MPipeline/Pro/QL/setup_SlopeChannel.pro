@@ -5,7 +5,11 @@ error_message = ' '
 
 
 this_integration = IntNO
-if(info.data.coadd eq 1 and this_integration ge 1) then this_integration = 0
+if(info.data.coadd eq 1)  then begin
+   print,'This data is not supported by the DHAS, single frame data'
+   return
+endif
+
 subarray = info.data.subarray
 read_single_slope,info.control.filename_slope,exists,this_integration,subarray,slope_image,$
 slope_xsize, slope_ysize, slope_zsize,stats_slope,do_bad,bad_file,status,error_message

@@ -86,111 +86,58 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
   fits_write_comment(file_ptr, "**--------------------------------------------------------------**",&status);
 
   //_______________________________________________________________________
-
   if(control.QuickMethod ==1) { 
-
     fits_write_comment(file_ptr, "plane 1: Average signal (DN/Frame)",&status);
     if(primary == 0) {
       fits_write_comment(file_ptr, "plane 2: Zero Pt for first valid Frame (DN) ",&status);
     } 
 
+  }else { // Full Slope determination + other  planes of information
     //***********************************************************************
-  } else  if(control.do_Pulse_Mode ==1) { 
+    fits_write_comment(file_ptr, "Reduced Data",&status);
+    if(control.convert_to_electrons_per_second ==0) {
+      fits_write_comment(file_ptr, "plane 1: signal (DN/s)",&status);
+      fits_write_comment(file_ptr, "plane 2: uncertainty (DN/s)",&status);
+    }else{
+      fits_write_comment(file_ptr, "plane 1: signal (e/s)",&status);
+      fits_write_comment(file_ptr, "plane 2: uncertainty (e/s)",&status);
+    }
+      
+    fits_write_comment(file_ptr, "plane 3: data quality flag ",&status);
+    int dq_0 = BAD_PIXEL_ID;
+    fits_write_key(file_ptr, TINT, "DQ_0", &dq_0, "Bad Pixel", &status);
+    int dq_1 = HIGHSAT_ID;
+    fits_write_key(file_ptr, TINT, "DQ_1", &dq_1, "Saturated Data", &status);
+    int dq_2 = COSMICRAY_ID;
+    fits_write_key(file_ptr, TINT, "DQ_2", &dq_2, "Cosmic Ray Detected ", &status);
+    int dq_3 = NOISE_SPIKE_DOWN_ID;
+    fits_write_key(file_ptr, TINT, "DQ_3", &dq_3, " Noise Spike ", &status);
+    int dq_4 = COSMICRAY_NEG_ID;
+    fits_write_key(file_ptr, TINT, "DQ_4", &dq_4, " Negative Cosmic Ray Detected", &status);
 
-    fits_write_comment(file_ptr, "Image: Amplitude for Frame f - Frame i",&status);
-    fits_write_comment(file_ptr, "Units of Image: DN ",&status);
-    fits_write_key(file_ptr, TINT, "FRAMEI", &control.Pulse_Frame_i, 
-		   " Frame i for pulse mode (Amp = Frame f - frame i)", &status);
-    fits_write_key(file_ptr, TINT, "FRAMEF", &control.Pulse_Frame_f, 
-		   " Frame f for pulse mode (Amp = Frame f - frame i)", &status);
-
-
-  }else { // Full Slope determination + other 6 planes of information
-    //***********************************************************************
-      if(data_info.Mode ==2 ) { // Fast Mode Short
-	fits_write_comment(file_ptr, "plane 1: Average signal (DN/Frame)",&status);
-	fits_write_comment(file_ptr, "plane 2: uncertainty (DN/Frame)",&status);
-	fits_write_comment(file_ptr, "plane 3: data quality flag ",&status);
-
-	int dq_0 = BAD_PIXEL_ID;
-	fits_write_key(file_ptr, TINT, "DQ_0", &dq_0, "Bad Pixel", &status);
-	int dq_1 = HIGHSAT_ID;
-	fits_write_key(file_ptr, TINT, "DQ_1", &dq_1, "Saturated Data", &status);
-	int dq_2 = COSMICRAY_ID;
-	fits_write_key(file_ptr, TINT, "DQ_2", &dq_2, "Cosmic Ray Detected ", &status);
-	int dq_3 = NOISE_SPIKE_DOWN_ID;
-	fits_write_key(file_ptr, TINT, "DQ_3", &dq_3, " Noise Spike ", &status);
-	int dq_4 = COSMICRAY_NEG_ID;
-	fits_write_key(file_ptr, TINT, "DQ_4", &dq_4, " Negative Cosmic Ray Detected", &status);
-
-	int dq_6 = UNRELIABLE_DARK;
-	fits_write_key(file_ptr, TINT, "DQ_6", &dq_6, " Unrealible Dark Correction", &status);
-	int dq_7 = UNRELIABLE_LIN;
-	fits_write_key(file_ptr, TINT, "DQ_7", &dq_7, " Unreliable  Linearity Correction", &status);
+    int dq_6 = UNRELIABLE_DARK;
+    fits_write_key(file_ptr, TINT, "DQ_6", &dq_6, " Unreliable Dark Correction", &status);
+    int dq_7 = UNRELIABLE_LIN;
+    fits_write_key(file_ptr, TINT, "DQ_7", &dq_7, " Unreliable Linearity Correction", &status);
 	//	int dq_8 = LINRANGE;
 	//fits_write_key(file_ptr, TINT, "DQ_8", &dq_8, " Linearity Out of Range", &status);
 
-	int dq_8 = NOLASTFRAME;
-	fits_write_key(file_ptr, TINT, "DQ_9", &dq_8, " No Last Frame Correction", &status);
-
-	if(primary == 0) {
-	  fits_write_comment(file_ptr, "plane 4: NA for Fast Short Mode ",&status);
-	  fits_write_comment(file_ptr, "plane 5: # of good reads",&status);
-	  fits_write_comment(file_ptr, "plane 6: read number of first saturated read (-1 if none)",&status);
-	}
-
-
-  //_______________________________________________________________________
-    }else{ // Fast Mode or Slow Mode
-      fits_write_comment(file_ptr, "Reduced Data",&status);
-      if(control.convert_to_electrons_per_second ==0) {
-	fits_write_comment(file_ptr, "plane 1: signal (DN/s)",&status);
-	fits_write_comment(file_ptr, "plane 2: uncertainty (DN/s)",&status);
-
-      }else{
-	fits_write_comment(file_ptr, "plane 1: signal (e/s)",&status);
-	fits_write_comment(file_ptr, "plane 2: uncertainty (e/s)",&status);
-      }
-      
-      fits_write_comment(file_ptr, "plane 3: data quality flag ",&status);
-      
-	int dq_0 = BAD_PIXEL_ID;
-	fits_write_key(file_ptr, TINT, "DQ_0", &dq_0, "Bad Pixel", &status);
-	int dq_1 = HIGHSAT_ID;
-	fits_write_key(file_ptr, TINT, "DQ_1", &dq_1, "Saturated Data", &status);
-	int dq_2 = COSMICRAY_ID;
-	fits_write_key(file_ptr, TINT, "DQ_2", &dq_2, "Cosmic Ray Detected ", &status);
-	int dq_3 = NOISE_SPIKE_DOWN_ID;
-	fits_write_key(file_ptr, TINT, "DQ_3", &dq_3, " Noise Spike ", &status);
-	int dq_4 = COSMICRAY_NEG_ID;
-	fits_write_key(file_ptr, TINT, "DQ_4", &dq_4, " Negative Cosmic Ray Detected", &status);
-
-	int dq_6 = UNRELIABLE_DARK;
-	fits_write_key(file_ptr, TINT, "DQ_6", &dq_6, " Unreliable Dark Correction", &status);
-	int dq_7 = UNRELIABLE_LIN;
-	fits_write_key(file_ptr, TINT, "DQ_7", &dq_7, " Unreliable Linearity Correction", &status);
-	//	int dq_8 = LINRANGE;
-	//fits_write_key(file_ptr, TINT, "DQ_8", &dq_8, " Linearity Out of Range", &status);
-
-	int dq_8 = NOLASTFRAME;
-	fits_write_key(file_ptr, TINT, "DQ_8", &dq_8, " No Last Frame Correction", &status);
-
-
-      if(primary == 0) {
-	fits_write_comment(file_ptr, "plane 4: Zero Pt for first valid Frame (DN) ",&status);
-	fits_write_comment(file_ptr, "plane 5: # of good reads",&status);
-	fits_write_comment(file_ptr, "plane 6: read number of first saturated read (-1 if none)",&status);
-	fits_write_comment(file_ptr, "plane 7: number of good segments",&status);
-	;if(itype == 1) fits_write_comment(file_ptr, "plane 7: Empirical Uncertainty, DN (Fitted pt-Data pt",&status);
-	fits_write_comment(file_ptr, "plane 8: Standard Dev of fit, DN (Fitted pt-Data pt)",&status);
+    int dq_8 = NOLASTFRAME;
+    fits_write_key(file_ptr, TINT, "DQ_8", &dq_8, " No Last Frame Correction", &status);
+    if(primary == 0) {
+      fits_write_comment(file_ptr, "plane 4: Zero Pt for first valid Frame (DN) ",&status);
+      fits_write_comment(file_ptr, "plane 5: # of good reads",&status);
+      fits_write_comment(file_ptr, "plane 6: read number of first saturated read (-1 if none)",&status);
+      fits_write_comment(file_ptr, "plane 7: number of good segments",&status);
+      if(itype == 1) fits_write_comment(file_ptr, "plane 7: Empirical Uncertainty, DN (Fitted pt-Data pt",&status);
+      fits_write_comment(file_ptr, "plane 8: Standard Dev of fit, DN (Fitted pt-Data pt)",&status);
   
-	if (control.do_diagnostic && itype == 0) {
+      if (control.do_diagnostic && itype == 0) {
 
-	  fits_write_comment(file_ptr, "plane 9: maximum 2pt difference (DN)",&status);
-	  fits_write_comment(file_ptr, "plane 10: read number of maximum 2pt difference",&status);
-	  fits_write_comment(file_ptr, "planes 11: Standard Dev of 2pt differences",&status);
-	  fits_write_comment(file_ptr, "planes 12: Slope of 2pt differences",&status);
-	}
+	fits_write_comment(file_ptr, "plane 9: maximum 2pt difference (DN)",&status);
+	fits_write_comment(file_ptr, "plane 10: read number of maximum 2pt difference",&status);
+	fits_write_comment(file_ptr, "planes 11: Standard Dev of 2pt differences",&status);
+	fits_write_comment(file_ptr, "planes 12: Slope of 2pt differences",&status);
       }
     }
   }
@@ -242,128 +189,74 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
   delete [] ptr4;
 
 
-  // 
-  // ***********************************************************************
-  if(control.do_Pulse_Mode ==1) { return;}
-
-  // ***********************************************************************
-  if(data_info.Mode ==2) {
-
-    int sunit = 3;
-    fits_write_key(file_ptr,TINT,"SUNITS",&sunit," Units of Reduced image DN/Frame ",&status);
-    fits_write_key(file_ptr, TFLOAT, "FRMTIME", &data_info.frame_time_to_use, "Time to read Frame in seconds)", &status);
-
-    fits_write_key(file_ptr, TINT, "NPINT", &data_info.NRamps,
-		   "Number of Integrations Processed", &status);
-
-    fits_write_key(file_ptr, TINT, "NPGROUP", &data_info.NInt,
-		   "Number of Frames/Int- ", &status);
-
-    
-    int istart = control.n_reads_start_fit + 1;
-  
-    fits_write_key(file_ptr, TINT, "NSFITS", &istart, 
-		   " Starting Integration number to co-add", &status);
-
-    int iend = control.n_reads_end_fit + 1;
-    fits_write_key(file_ptr, TINT, "NSFITE", &iend, 
-		   " Ending Integration number to co-add", &status);
-
-    fits_write_key(file_ptr, TSTRING, "COADD", yes_str, 
-		   "Data Averaged: no slope determination", &status);
-
-    } else {
-
-  
-    //_______________________________________________________________________
-
-    if(control.convert_to_electrons_per_second == 0 ) {
-      int sunit = 1;
-      fits_write_key(file_ptr,TINT,"SUNITS",&sunit," Units of Reduced image DN/s ",&status);
-    } else{
-      int sunit = 2;
-      fits_write_key(file_ptr,TINT,"SUNITS",&sunit," Units of Reduced image e/s",&status);
-    }
-    if(control.UncertaintyMethod > 0) {
-        fits_write_key(file_ptr, TFLOAT, "GAIN", &control.gain, "Gain used (e/DN)", &status);
-       fits_write_key(file_ptr, TFLOAT, "RNOISE", &control.read_noise_electrons, "Read Noise used (electrons)", &status);
-    }
-    fits_write_key(file_ptr, TFLOAT, "FRMTIME", &data_info.frame_time_to_use, "Time to read Frame in seconds)", &status);
-    
-    if(control.UncertaintyMethod ==0)  fits_write_key(file_ptr, TSTRING, "UNCER_N", yes_str, 
-		   "Uncertainty of measurements = 1", &status);
-
-    if(control.UncertaintyMethod ==1)  fits_write_key(file_ptr, TSTRING, "UNCER_U", yes_str, 
-		   "Used uncertainty of measurements in slope determination", &status);
-
-    if(control.UncertaintyMethod ==2)  fits_write_key(file_ptr, TSTRING, "UNCER_C", yes_str, 
-		   "Correlated uncertainties used to calculate slope error", &status);
-
-
-
-    fits_write_key(file_ptr, TINT, "NPINT", &data_info.NInt,
-		   "Number of Integrations Processed", &status);
-
-
-    int int_use = data_info.NInt - control.num_ignore;
-    
-    fits_write_key(file_ptr,TINT,"NINTAVE",&int_use,"Number Integrations used for Ave Slope,Primary",&status);
-
-
-    // write if the integration was used in calculating the Average Slope
-
-    if(primary ==0) {
-
-      int use = 1;
-      if(control.num_ignore > 0) {
-	int found = 0;
-	int iv = 0;
-	while(found ==0 && iv < control.num_ignore ){
-	  if( (intnum+1) == control.ignore_int[iv]) found = 1;
-	  iv++;
-	}
-	if(found ==1) use = 0;
-      }
-      if(use == 1){
-	fits_write_key(file_ptr, TINT, "USEINT", &use,
-		       " 1 = This int used in Average Slope in Primary", &status);
-      } else {
-	fits_write_key(file_ptr, TINT, "USEINT", &use,
-		       " 0 = This int NOT used in Average Slope in Primary", &status);
-      }
-    }
-    //_______________________________________________________________________
-      
-
-    fits_write_key(file_ptr, TINT, "NPGROUP", &data_info.NRamps,
-		   "Number of Frames/Int- ", &status);
-
-    int istart = control.n_reads_start_fit + 1;
-  
-    fits_write_key(file_ptr, TINT, "NSFITS", &istart, 
-		   "Frame number to start slope fit", &status);
-
-
-
-
-    int iend = control.n_reads_end_fit + 1;
-    fits_write_key(file_ptr, TINT, "NSFITE", &iend, 
-		   "Frame number to end slope fit", &status);
-    
+  if(control.convert_to_electrons_per_second == 0 ) {
+    int sunit = 1;
+    fits_write_key(file_ptr,TINT,"SUNITS",&sunit," Units of Reduced image DN/s ",&status);
+  } else{
+    int sunit = 2;
+    fits_write_key(file_ptr,TINT,"SUNITS",&sunit," Units of Reduced image e/s",&status);
   }
+  if(control.UncertaintyMethod > 0) {
+    fits_write_key(file_ptr, TFLOAT, "GAIN", &control.gain, "Gain used (e/DN)", &status);
+    fits_write_key(file_ptr, TFLOAT, "RNOISE", &control.read_noise_electrons, "Read Noise used (electrons)", &status);
+  }
+  fits_write_key(file_ptr, TFLOAT, "FRMTIME", &data_info.frame_time_to_use, "Time to read Frame in seconds)", &status);
+    
+  if(control.UncertaintyMethod ==0)  fits_write_key(file_ptr, TSTRING, "UNCER_N", yes_str, 
+						    "Uncertainty of measurements = 1", &status);
+
+  if(control.UncertaintyMethod ==1)  fits_write_key(file_ptr, TSTRING, "UNCER_U", yes_str, 
+						    "Used uncertainty of measurements in slope determination", &status);
+
+  if(control.UncertaintyMethod ==2)  fits_write_key(file_ptr, TSTRING, "UNCER_C", yes_str, 
+						    "Correlated uncertainties used to calculate slope error", &status);
+
+  fits_write_key(file_ptr, TINT, "NPINT", &data_info.NInt,
+		 "Number of Integrations Processed", &status);
 
 
-  //Back to common Processing  
-
-  //  if(NFramesBad !=0) {
-    if(primary ==1) {
-      fits_write_key(file_ptr, TINT, "NCORRUPT", &NFramesBad, "# Corrupt Frames in Exposure", &status);
-    } else{
-      fits_write_key(file_ptr, TINT, "NCORRUPT", &NFramesBad, "# Corrupt Frames in Integration", &status);
-
+  int int_use = data_info.NInt - control.num_ignore;
+    
+  fits_write_key(file_ptr,TINT,"NINTAVE",&int_use,"Number Integrations used for Ave Slope,Primary",&status);
+  // write if the integration was used in calculating the Average Slope
+  if(primary ==0) {
+    int use = 1;
+    if(control.num_ignore > 0) {
+      int found = 0;
+      int iv = 0;
+      while(found ==0 && iv < control.num_ignore ){
+	if( (intnum+1) == control.ignore_int[iv]) found = 1;
+	iv++;
+      }
+      if(found ==1) use = 0;
     }
-    //}
+    if(use == 1){
+      fits_write_key(file_ptr, TINT, "USEINT", &use,
+		     " 1 = This int used in Average Slope in Primary", &status);
+    } else {
+      fits_write_key(file_ptr, TINT, "USEINT", &use,
+		     " 0 = This int NOT used in Average Slope in Primary", &status);
+    }
+  }
+    //_______________________________________________________________________
+  fits_write_key(file_ptr, TINT, "NPGROUP", &data_info.NRamps,
+		 "Number of Frames/Int- ", &status);
 
+  int istart = control.n_reads_start_fit + 1;
+  fits_write_key(file_ptr, TINT, "NSFITS", &istart, 
+		 "Frame number to start slope fit", &status);
+
+  int iend = control.n_reads_end_fit + 1;
+  fits_write_key(file_ptr, TINT, "NSFITE", &iend, 
+		 "Frame number to end slope fit", &status);
+    
+  
+
+  if(primary ==1) {
+    fits_write_key(file_ptr, TINT, "NCORRUPT", &NFramesBad, "# Corrupt Frames in Exposure", &status);
+  } else{
+    fits_write_key(file_ptr, TINT, "NCORRUPT", &NFramesBad, "# Corrupt Frames in Integration", &status);
+  }
 
   if (control.do_refpixel_option ==0)
     fits_write_key(file_ptr, TSTRING, "SUBRP0", no_str, 
@@ -377,26 +270,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
 		   "Ref Pixel Outlier Reject Sigma ", &status);
   }
 
-  if (control.do_refpixel_option ==2){
-    fits_write_key(file_ptr, TSTRING, "SUBRP2", yes_str, 
-		   "Used Ref Pixels using option 2", &status);
-
-    fits_write_key(file_ptr, TINT, "DELTARP", &control.delta_refpixel_even_odd,
-		   "# of +/- Rows (even/odd) used to find Ref Pixel correction, option 2", &status);
-
-  }
-
-  
-  if (control.do_refpixel_option ==1){
-    fits_write_key(file_ptr, TSTRING, "SUBRP1", yes_str, 
-		   "Used Ref Pixels using option 1", &status);
-
-    fits_write_key(file_ptr, TINT, "DELFILT", &control.delta_refpixel_even_odd,
-		   " size of moving filter", &status);
-
-  }
-
-  
   if (control.do_refpixel_option ==7)
     fits_write_key(file_ptr, TSTRING, "SUBRP7", yes_str, 
 		   "Used Ref Pixels using option 7", &status);
@@ -409,8 +282,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
   if(control.write_output_refpixel_corrections ==1)
     fits_write_key(file_ptr, TSTRING, "WREFPIXC", yes_str, 
 		   "Wrote reference pixel correction FITS file", &status);
-
-
   
   fits_write_key(file_ptr, TFLOAT, "HIGHSAT", &control.dn_high_sat, "High Saturation Value", &status);
   
@@ -450,8 +321,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
       fits_write_key(file_ptr, TSTRING, "WDETCR", yes_str, 
 		     "Wrote detailed cosmic ray information to file", &status);
   }
-  
-
 
   if(control.write_output_ids ==1)
     fits_write_key(file_ptr, TSTRING, "WID", yes_str, 
@@ -532,7 +401,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
     fits_write_key(file_ptr, TSTRING, "USE_PSM", no_str, "Did Not Use Pixel Saturation Mask?", &status);
   }
 
-
 //_______________________________________________________________________
   if(control.apply_reset_cor ==1){
     fits_write_key(file_ptr, TSTRING, "USE_RES", yes_str, "Used Reset Correction File", &status);
@@ -601,8 +469,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
     fits_write_key(file_ptr, TSTRING, "USE_MULT", no_str, "Did Not Use MULT Correction File", &status);
   }
   //_______________________________________________________________________
-
-  //_______________________________________________________________________
   if(control.apply_lastframe_cor ==1){
     fits_write_key(file_ptr, TSTRING, "USE_LAST", yes_str, "Used Last Frame Correction File", &status);
     
@@ -670,9 +536,6 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
   }else{
     fits_write_key(file_ptr, TSTRING, "USE_DARK", no_str, "Did not Use Dark Correction File", &status);
   }
-
-    
-  
 }
 
 

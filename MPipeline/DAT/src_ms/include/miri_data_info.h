@@ -21,7 +21,7 @@ struct miri_data_info {
   // values read in from the fits header
   
   int NSample;
-  int Mode;                 // 0: Fast mult frames, 1: slow, 2 : Fast-Short Frame =1, Int > 1, 3: NFRAME!=1
+  int Mode;                 // 0: Fast mult frames, 1: slow, 3: NFRAME!=1
   int NFrame;
   int NRamps;              // number of frames per integration (samples in a ramp)
   int NRampsRead;           // number of actual ramps read  in 

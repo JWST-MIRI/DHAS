@@ -71,7 +71,6 @@ dirlocation = strpos(filename,'/',/reverse_search)
 
 
 info.control.filename_slope = info.control.filebase + '_LVL2'+fitname
-coadd_file = info.control.filebase + '_FASTSHORT_MEAN'+fitname
 info.control.filename_refcorrection = info.control.filebase + '_RefCorrection'+fitname
 info.control.filename_IDS = info.control.filebase + '_IDS'+fitname
 info.control.filename_LC = info.control.filebase + '_LinCorrected'+fitname
@@ -109,8 +108,6 @@ endif
  ;;;_______________________________________________________________________
 
 info.control.filename_slope = strcompress(info.control.dirout+'/'+info.control.filename_slope,/remove_all)
-coadd_file = strcompress(info.control.dirout+'/'+coadd_file,/remove_all)
-
 
 info.control.filename_refcorrection = $
   strcompress(info.control.dirout+'/'+info.control.filename_refcorrection,/remove_all)
@@ -163,7 +160,6 @@ if(coadd_type eq 0) then begin
 
     file_exist1 = file_test(info.control.filename_slope,/regular,/read)
 
-
     if(file_exist1 eq 1) then begin 
         fits_open,info.control.filename_slope,fcb
         fits_read,fcb,cube_raw,header_raw,/header_only,exten_no = 0
@@ -205,33 +201,9 @@ if(coadd_type eq 0) then begin
         result = strcmp(lastframe_str,yes_string)
         if(result eq 1) then lastframe_file_exist = 1 
 
-    endif
-
-endif else begin 
-    
-    file_exist2 = file_test(coadd_file,/regular,/read)
-
-
-    if(file_exist2 eq 1) then begin 
-        info.control.filename_slope = coadd_file
-        info.data.coadd = 1
-        info.data.nslopes = 1
-        print,' This is coadded data'
-        fits_open,info.control.filename_slope,fcb
-        fits_read,fcb,cube,header,/header_only,exten_no = 0
-        fits_close,fcb
-
-        rc_str = fxpar(header,'WREFPIXC',count = count)
-        rc_str = strcompress(strlowcase(rc_str),/remove_all)
-        result = strcmp(rc_str,yes_string)
-        if(result eq 1) then ref_corrected = 1
-        
-        id_str = fxpar(header,'WID',count = count)
-        id_str = strcompress(strlowcase(id_str),/remove_all)
-        result = strcmp(id_str,yes_string)
-        if(result eq 1) then id_file_exist = 1 
-
-    endif
+     endif
+ endif else begin
+    print,'This type of data is not supported by the DHAS. It is single frame data'
 endelse
 
 info.control.file_refcorrection_exist = 0

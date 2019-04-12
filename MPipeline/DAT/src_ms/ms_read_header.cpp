@@ -245,13 +245,17 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
   // cout << " Origin " << data_info.Origin  << endl;
   
 
-  // Mode = 0, Fast, Mode= 1, Slow, Mode = 2 Fast Short mode. 
+  // Mode = 0, Fast, Mode= 1, Slow
 
   if(data_info.NSample !=1) data_info.Mode = 1;
-  if(data_info.NSample == 1 && data_info.NRamps == 1 && data_info.NInt > 1) data_info.Mode = 2;
+  if(data_info.NSample == 1 && data_info.NRamps == 1 && data_info.NInt > 1){
+    cout << " This is single frame, multiple integration data" << endl;
+    cout << " The DHAS can not process this data" << endl;
+    cout << " Try the JWST TSO pipeline for this this data" << endl;
+    exit(EXIT_FAILURE);
+  }
 
-
-  if(data_info.NRamps <= 1 && data_info.Mode !=2 ) {
+  if(data_info.NRamps <= 1) {
     cout << " *****************************************************" << endl;
     cout << " The determination of the slope image is not possible. " << endl;
     cout << " This file only contains one ramp point/integration " << endl;
