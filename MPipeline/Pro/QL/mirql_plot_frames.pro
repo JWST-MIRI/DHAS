@@ -150,10 +150,6 @@ if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 data_ref = (*pinfo.info.image_pixel.ref_pixeldata)[*,*]
 
 if(hcopy eq 0 ) then wset,pinfo.draw_window_id
-if(pinfo.info.image_pixel.coadd eq 1) then begin
-    value_ref = (*pinfo.info.image_pixel.ref_pixeldata)[*,0]
-endif
-
 
 widget_control,pinfo.IrangeID[0],set_value=pinfo.int_range[0]
 widget_control,pinfo.IrangeID[1],set_value=pinfo.int_range[1]
@@ -218,9 +214,7 @@ plot,xvalues,data_ref,xtitle = "Frame #", ytitle='DN/frame',title = ss,$
 
 ptype = [1,2,4,5,6]
 
-if(pinfo.info.image_pixel.coadd eq 1) then begin 
-    ptype[*]  = 1
-endif
+
 ip = 0
 ic = 0
 isp = 0
@@ -246,7 +240,7 @@ for k = 0,num_int-1 do begin
     if(ip gt 4) then ip = 0
 
     
- if(num_int gt 1 and pinfo.overplot_pixel_int eq 0 and pinfo.info.image_pixel.coadd eq 0) then begin
+ if(num_int gt 1 and pinfo.overplot_pixel_int eq 0) then begin
      yline = fltarr(2) & xline = fltarr(2)
      yline[0] = -1000000 & yline[1] = 100000
      xline[*] = pinfo.info.image_pixel.nframes* (k+1)
@@ -332,7 +326,7 @@ int_range = intarr(2)
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
 int_range[*] = int_range[*]
-if(info.image_pixel.coadd eq 1) then int_range[1] = info.image_pixel.nints
+
 
 move_base = widget_base(pixelplot,/row,/align_left)
 

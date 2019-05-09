@@ -30,7 +30,7 @@ pro msql_compare_test,info,status
 
 status = 0
 ;type = 1 slope data
-; type = 6 coadded data        
+
 
 type_a = info.rcompare_image[0].type 
 type_b = info.rcompare_image[1].type 
@@ -40,7 +40,7 @@ if(type_b eq 7) then type_b= 1
 
 type = type_a
 if(type_a ne type_b) then begin
-    mess1 = 'File types not the same. Both files need to be reduced slope or coadded data or raw science data'' 
+    mess1 = 'File types not the same. Both files need to be reduced slope  or raw science data'' 
     mess2 = 'Pick comparision file again ' 
     print,mess1
     print,mess2    

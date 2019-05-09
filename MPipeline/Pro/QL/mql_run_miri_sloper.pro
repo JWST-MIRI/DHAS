@@ -194,9 +194,6 @@ filename = strcompress(control_dirout  + filename,/remove_all)
 
 
 info.control.filename_raw =info.control.filename_raw
-coadd_file = filename + '_FASTSHORT_MEAN.fits'
-if(info.ms.coadd eq 1) then  info.control.filename_slope = coadd_file
-
 
 
 info.control.set_scidata = 1

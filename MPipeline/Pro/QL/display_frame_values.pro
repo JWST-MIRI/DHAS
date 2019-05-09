@@ -20,17 +20,8 @@ yvalue = info.image_pixel.yvalue ; starts at 0
 if(xvalue lt 0) then xvalue =0
 if(yvalue lt 0) then yvalue = 0
 
-
-if(info.image_pixel.coadd ne 1 ) then begin 
-    value = (*info.image_pixel.pixeldata)[i,*]
-    value_ref = (*info.image_pixel.ref_pixeldata)[i,*]
-endif else begin
-    value = (*info.image_pixel.pixeldata)[*,0]
-
-    value_ref = (*info.image_pixel.refcorrected_pixeldata)[*,0]
-endelse
-
-    
+value = (*info.image_pixel.pixeldata)[i,*]
+value_ref = (*info.image_pixel.ref_pixeldata)[i,*]
 
 lc = value
 mdc = value
@@ -64,7 +55,7 @@ endif
 
 
 nend = info.image_pixel.nframes
-if(info.image_pixel.coadd eq 1) then  nend = info.image_pixel.nints
+
 framevalue = strarr(nend)
 refvalue = strarr(nend)
 linvalue = strarr(nend)
@@ -267,16 +258,14 @@ pix_statFormat = strarr(9)
 
 pix_statLabel =["Integration", "X", "Y", "Signal (DN/S)", "Uncertainty (DN/S)","Data Quality Flag",$
                                 "Zero Pt of Fit","# Good Frames", "Read # of 1st Sat" ]
-if(info.image_pixel.coadd) then pix_statLabel =["Integration", "X", "Y", "Coadd (DN/frame)", $
-                                                                 "Uncertainty (DN/frame)","Data Quality Flag",$
-                                "Zero Pt of Fit","# Good Frames", "Read # of 1st Sat" ]
+
 pix_statFormat = ["I3", "I4", "I4", "F16.2","F16.2","I8","F16.2","I4","F16.2"]
 
 nend = info.image_pixel.nframes
 i = info.image_pixel.integrationNO
 
 
-if(info.image_pixel.coadd eq 1) then nend = info.image_pixel.nints
+
 ssignal = 'NA'
 suncertainty = 'NA'
 si = strtrim(string(i+1,format="("+pix_statFormat[0]+")"),2)
@@ -368,17 +357,6 @@ endif
 
 info_string = "Frame "
 
-if(info.image_pixel.coadd eq 1) then begin
-    value = (*info.image_pixel.pixeldata)[*,0]
-    value_ref = (*info.image_pixel.ref_pixeldata)[*,0]
-    value_refcorrected = (*info.image_pixel.refcorrected_pixeldata)[*,0]
-    value_id = (*info.image_pixel.id_pixeldata)[*,0]
-    info_string = "Int "
-endif
-
-
-
-
 
 pix_statLabelID = widget_label(pixelinfo,$
                                              value= pix_statLabel[0]+' = ' + $
@@ -412,14 +390,12 @@ pix_statLabelID = widget_label(info_base,$
                                              /dynamic_resize,/align_left)
 info_label = widget_button(info_base,value = 'Info',uvalue = 'datainfo')
 
-if(info.image_pixel.coadd eq 0)then pix_statLabelID = widget_label(pixelinfo,$
-                                             value= pix_statLabel[6]+' = ' + $
-                                             szeropt, $ 
-                                             /dynamic_resize,/align_left)
+pix_statLabelID = widget_label(pixelinfo,$
+                               value= pix_statLabel[6]+' = ' + $
+                               szeropt, $ 
+                               /dynamic_resize,/align_left)
 
-if(info.image_pixel.coadd eq 1) then pix_statLabelID = widget_label(pixelinfo,$
-                                             value= pix_statLabel[6]+' =  NA',$
-                                             /dynamic_resize,/align_left)
+
 
 pix_statLabelID = widget_label(pixelinfo,$
                                value= pix_statLabel[7]+' = ' + $

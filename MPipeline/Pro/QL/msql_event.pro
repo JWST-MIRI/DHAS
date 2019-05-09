@@ -383,11 +383,6 @@ endif
             jintegration = 0
         endif
 
-
-        if(jintegration ge 1 and info.data.coadd eq 1) then begin 
-            jintegration = info.data.nslopes-1
-        endif
-
         widget_control,info.slope.integration_label,set_value = jintegration+1
         info.slope.integrationNO = jintegration
         msql_moveframe,info
@@ -651,7 +646,6 @@ endif
         info.image_pixel.nints = info.data.nints
         info.image_pixel.integrationNo = info.slope.integrationNO
         info.image_pixel.nframes = info.data.nramps
-        info.image_pixel.coadd = info.data.coadd
         info.image_pixel.nslopes = info.data.nslopes
         info.image_pixel.slope_exist = info.data.slope_exist
         info.image_pixel.slope = (*info.data.pslopedata)[x,y,0]
@@ -671,8 +665,7 @@ endif
             info.image_pixel.nframesat =  (*info.data.pslopedata)[x,y,5]
             info.image_pixel.ngoodseg = 0
             info.image_pixel.filename = info.control.filename_slope
-            if(info.data.coadd eq 0) then $
-              info.image_pixel.ngoodseg =  (*info.data.pslopedata)[x,y,6]
+            info.image_pixel.ngoodseg =  (*info.data.pslopedata)[x,y,6]
         endelse
 
 

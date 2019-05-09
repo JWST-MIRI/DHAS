@@ -444,7 +444,6 @@ jintegration = info.inspect_ref.integrationNO
         info.image_pixel.nints = info.data.nints
         info.image_pixel.integrationNo = info.image.integrationNO
         info.image_pixel.nframes = info.data.nramps
-        info.image_pixel.coadd = info.data.coadd
         info.image_pixel.nslopes = info.data.nslopes
         info.image_pixel.slope_exist = info.data.sloperef_exist
         if(info.image_pixel.slope_exist and ptr_valid(info.inspect_ref.preduced)) then begin 

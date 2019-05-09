@@ -388,7 +388,6 @@ endif
         info.image_pixel.nints = info.data.nints
         info.image_pixel.integrationNo = info.image.integrationNO
         info.image_pixel.nframes = info.data.nramps
-        info.image_pixel.coadd = info.data.coadd
         info.image_pixel.nslopes = info.data.nslopes
         info.image_pixel.filename = info.control.filename_raw
         info.image_pixel.slope_exist = info.data.slope_exist
@@ -404,15 +403,13 @@ endif
                 info.image_pixel.ngoodseg = 0
                 info.image_pixel.ngoodseg =  0.0
             endif else begin 
-
                 info.image_pixel.uncertainty  = (*info.data.preduced)[x,y,1]
                 info.image_pixel.quality_flag =  (*info.data.preduced)[x,y,2]
                 info.image_pixel.zeropt =  (*info.data.preduced)[x,y,3]
                 info.image_pixel.ngood =  (*info.data.preduced)[x,y,4]
                 info.image_pixel.nframesat =  (*info.data.preduced)[x,y,5]
                 info.image_pixel.ngoodseg = 0
-                if(info.data.coadd eq 0) then $
-                  info.image_pixel.ngoodseg =  (*info.data.preduced)[x,y,6]
+                info.image_pixel.ngoodseg =  (*info.data.preduced)[x,y,6]
             endelse
         endif else begin
         

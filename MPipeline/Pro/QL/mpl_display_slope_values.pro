@@ -5,10 +5,6 @@ widget_control,tinfo.info.QuickLook,Get_UValue=info
 widget_control,info.PLSLOPEInfo,/destroy
 end
 ;***********************************************************************
-
-
-
-;***********************************************************************
 ;_______________________________________________________________________
 ;***********************************************************************
 pro mpl_slope_values_event,event
@@ -165,7 +161,6 @@ for k = 0, num -1 do begin
             segvalue = ' ' 
             if(j eq 0) then begin 
                 slope_no = 'Slope'
-                if(info.data.coadd eq 1) then slope_no = 'Average'
                 unc_no = 'Uncertainity'
                 id_no = 'Quality Flag '
                 good_no = '# Good '
@@ -206,8 +201,6 @@ for k = 0, num -1 do begin
 
             if(dataV4 eq -99) then uvalue = 'NA'
 
-	
-	    if(info.data.coadd  eq 1) then zvalue = 'NA'
             int_no = strcompress(string(fix(j-1)),/remove_all)+ " = " 
 
             slope_no = int_no

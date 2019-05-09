@@ -996,9 +996,6 @@ pix_num_base = widget_base(graphid2,col=2,/align_left)
 
 info.inspect_final.pix_statLabel = ["Dead/hot/noisy Pixel", "Slope (DN/s)" , "Uncertainity", "Data Quality Flag"] 
 
-if(info.data.coadd eq 1) then info.inspect_final.pix_statLabel = $
-  ["Bad Pixel", "Average (DN)" , "Uncertainity", "Data Quality Flag" ]
-
 
 info.inspect_final.pix_statFormat = ["A4","F12.5" ,"F12.5" ,"I8" ]
 

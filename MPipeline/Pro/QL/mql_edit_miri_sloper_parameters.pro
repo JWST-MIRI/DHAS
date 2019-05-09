@@ -44,7 +44,6 @@ info.data.raw_exist =1
 read_data_type,info.control.filename_raw,type
 read_coadd_type,info.control.filename_raw,coadd_type
 
-
 if(type ne 0) then begin
     error_message = ' You did not open a Raw Science Image data File, try again'
     fail = dialog_message(error_message,/error)
@@ -52,9 +51,15 @@ if(type ne 0) then begin
     return
 endif
 
+
+if(coadd_type ne 0) then begin
+    error_message = ' The DHAS does not work on NGROUP =1 data'
+    fail = dialog_message(error_message,/error)
+    status = 1
+    return
+endif
+
 info.data.raw_exist = 1
-info.ms.coadd = 0
-if(coadd_type eq 1) then info.ms.coadd = 1
 
 slash_str = strsplit(info.control.filename_raw,'/',/extract)
 n_slash = n_elements(slash_str)

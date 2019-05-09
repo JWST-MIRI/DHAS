@@ -47,11 +47,6 @@ num = info.pltrack.num_group[ind]
 ii = info.pl.int_range[0]-1
 ij = info.pl.int_range[1]-1
 num_int = info.pl.int_range[1] - info.pl.int_range[0] + 1
-if(info.data.coadd eq 1) then begin
-    ii = 0
-    ij = info.data.nints-1
-    num_int = info.data.nints
-endif
 
 xdata = (*info.pltrack.px)[ind,0:num-1]              ; typeof data, num pixels
 ydata = (*info.pltrack.py)[ind,0:num-1]              ; typeof data, num pixels
@@ -220,35 +215,19 @@ y2 = info.pl.graph_range[1,1]
 
 
 ;_______________________________________________________________________
-if(info.data.coadd ne 1) then begin 
-    reject = intarr(info.data.nramps)
-    doreject = 0
-    if(info.pl.start_fit gt 1) then begin
-        reject[0:info.pl.start_fit-2] = 1
-        doreject = 1
-    endif
 
-    if(info.pl.end_fit ne info.data.nramps ) then begin
-        reject[info.pl.end_fit:info.data.nramps-1] = 1
-        doreject =1
-    endif
-endif else begin
-    reject = intarr(info.data.nints)
-    doreject = 0
-    if(info.pl.start_fit gt 1) then begin
-        reject[0:info.pl.start_fit-2] = 1
-        doreject = 1
-    endif
+reject = intarr(info.data.nramps)
+doreject = 0
+if(info.pl.start_fit gt 1) then begin
+   reject[0:info.pl.start_fit-2] = 1
+   doreject = 1
+endif
 
-    if(info.pl.end_fit ne info.data.nints) then begin
-        reject[info.pl.end_fit:info.data.nints-1] = 1
-        doreject =1
-    endif
-endelse
-
-
+if(info.pl.end_fit ne info.data.nramps ) then begin
+   reject[info.pl.end_fit:info.data.nramps-1] = 1
+   doreject =1
+endif
 sxtitle = "Frame #"
-if(info.data.coadd eq 1) then sxtitle = "Integration #"
 ;_______________________________________________________________________
 if(hcopy eq 0) then begin
     
@@ -310,7 +289,6 @@ for k = 0,num_int-1 do begin
             if(doreject) then begin ; plot rejected points
                for ir = 0, info.data.nramps-1 do begin
                   reject_value = reject[ir]
-                  if(info.data.coadd eq 1) then reject_value = reject[k+ii]
                    
                   if(reject_value eq 1) then begin 
                      xplot = fltarr(1) & yplot = fltarr(1)
@@ -351,20 +329,13 @@ for k = 0,num_int-1 do begin
                           channel ne 5,numplot)
 
             if(info.pl.overplot_pixel_int eq 0) then xvalues = xvalues + info.data.nramps*(k)
-            if(info.data.coadd eq 1) then $
-               index = where(xvalues ge info.pl.start_fit and $
-                             xvalues le info.pl.end_fit and $
-                             channel ne 5,numplot)
 
             if(numplot gt 0) then begin
                xplot = xvalues[index]
                yplot = yvalues[index]
 
                if (finite (slopept)) then begin 
-                  if(info.data.coadd eq 1) then begin
-                     oplot,xplot,yplot,psym = 6, symsize = 0.2, color = line_colors[ic]
-                  endif
-                  if(info.data.coadd ne 1) then oplot,xplot,yplot, color = line_colors[ic],linestyle=0,thick=2
+                  oplot,xplot,yplot, color = line_colors[ic],linestyle=0,thick=2
                endif
             endif
          endif
@@ -658,7 +629,7 @@ endfor
 
 if(info.pl.slope_exists eq 1) then begin
     ii = info.pl.int_range[0]-1
-    if(info.data.coadd eq 1) then ii = 0
+
     slope = (*info.pltrack.pslope)[ind,ii,0:num-1] ; typeof data, num pixels
     unc = (*info.pltrack.punc)[ind,ii,0:num-1] ; typeof data, num pixels
     quality = (*info.pltrack.pid)[ind,ii,0:num-1] ; typeof data, num pixels
@@ -686,8 +657,6 @@ if(info.pl.slope_exists eq 1) then begin
             s6 = string (firstsat[0,0,i],format="(f7.0)")
             s7 = string (nseg[0,0,i],format="(f7.0)")
             s8 = string (rms[0,0,i],format="(f8.3)")
-
-            if(info.data.coadd eq 1) then s5 = 'NA'
 
 
             if(info.pltrack.zsize_data eq 2) then begin

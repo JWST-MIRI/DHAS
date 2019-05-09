@@ -6,9 +6,6 @@ widget_control,info.PL2ptInfo,/destroy
 end
 ;***********************************************************************
 
-
-
-;***********************************************************************
 ;_______________________________________________________________________
 ;***********************************************************************
 pro mpl_2pt_values_event,event
@@ -100,10 +97,6 @@ refcorrect_data = (*info.pltrack.prefcorrectdata)[ind,*,*,0:num-1]
 
 istart = info.pl.start_fit-1
 iend = info.pl.end_fit-1
-if(info.data.coadd eq 1) then begin
-    istart = info.pl2.int_range[0] -1
-    iend  = info.pl2.int_range[1] -1
-endif
 
 nvalid = iend - istart
 
@@ -115,8 +108,7 @@ iread = intarr(num_int,num)
 stdev2pt = fltarr(num_int,num)
 jj = 0
 for j = istart, iend-1 do begin
-    if(info.data.coadd ne 1) then twopt_diff[0,*,jj,*] = data[0,*,j+1,*] - data[0,*,j,*]
-    if(info.data.coadd eq 1) then twopt_diff[0,*,jj,*] = data[0,j+1,*,*] - data[0,j,*,*]
+    twopt_diff[0,*,jj,*] = data[0,*,j+1,*] - data[0,*,j,*]
     jj  = jj + 1
 endfor
 
@@ -153,12 +145,8 @@ stdev2pt_corrected = fltarr(num_int,num)
 if(info.control.file_refcorrection_exist eq 1 )then begin 
     jj = 0
     for j = istart, iend-1 do begin
-        if(info.data.coadd ne 1) then $
-          twopt_diff_corrected[0,*,jj,*] = refcorrect_data[0,*,j+1,*] - refcorrect_data[0,*,j,*]
-        if(info.data.coadd ne 1) then $
-          twopt_diff_corrected[0,*,jj,*] = refcorrect_data[0,*,j+1,*] - refcorrect_data[0,j,*,*]
-
-        jj  = jj + 1
+       twopt_diff_corrected[0,*,jj,*] = refcorrect_data[0,*,j+1,*] - refcorrect_data[0,*,j,*]
+       jj  = jj + 1
     endfor
 
 
