@@ -4,7 +4,7 @@ PIXELSAT       = MIRI_JPL_RUN7_SATURATION_07.02.00.fits	     : Pixel Saturation 
 LIN_COR        = MIRI_JPL_RUN7_LINEARITY_07.02.00.fits 	     : Linearity Correction file  		
 RSCD           = MIRI_JPL_RUN8_RSCD_07.04.00.fits            : Reset Switch Charge Decay Correction File 
 MULT           = MIRI_JPL_RUN8_MULT_07.04.00.fits            : Multi integration secondary Correction File 
-RESET_FAST     = MIRI_JPL_RUN7_FAST_RESET_MZPT_100_09.00.00.fits      : Reset anomaly correction
+RESET_FAST     = MIRI_JPL_RUN7_FAST_RESET_RESIDUAL_07.00.00.fits      : Reset anomaly correction
 LASTFRAME      = MIRI_JPL_RUN6_LASTFRAME_07.01.00.fits       : LastFrame Correction
 DARK_FAST      = MIRI_JPL_RUN6_FAST_DARK_06.01.00.fits       : Dark 
 
