@@ -134,8 +134,12 @@ info.data.raw_exist =1
 
 read_data_type,info.control.filename_raw,type
 read_coadd_type,info.control.filename_raw,coadd_type
-
-
+if(coadd_type eq 1) then begin
+   error_message = ' The DHAS does not support reading NGroup =1 data'
+    error_message = ' You did not open a  Science Frame data File, try again'
+    status = 1
+    return   
+endif
 
 if(type ne 0) then begin
     error_message = ' You did not open a  Science Frame data File, try again'
@@ -416,7 +420,7 @@ info.control.filebase = out_file
 read_data_type,info.control.filename_slope,type
 
 
-if(type eq 1 or type eq 6) then begin
+if(type eq 1) then begin
 endif else begin
     flag = 1
     error_message = ' You did NOT open a SLOPE file, input file name again '
@@ -424,28 +428,6 @@ endif else begin
     status = 1
     return
 endelse
-
-
-if(type eq 6) then begin
-    print,' This is coadded data'
-
-    info.data.coadd = 1
-    filename_slope = filename
-    len = strlen(filename_slope)
-    fitname = strmid(filename_slope,len-5,5)
-    fits = strpos(filename,fitname)
-    fitFM = strmid(filename_slope,len-20,20)
-    FM = strpos(filename,fitFM)
-
-    info.control.filename_slope = filename_slope
-    info.control.filename_raw = strmid(filename,0,FM) +fitname
-    info.control.filename_refcorrection = strmid(filename,0,FM) + '_RefCorrection'+fitname
-    info.control.filename_log = strmid(filename,0,FM) + '.log'
-    info.control.filename_cal = strmid(filename,0,FM) + '_LVL3'+fitname
-    len= strlen(out_filebase)
-    out_file = strmid(out_filebase,0,len-15)
-    info.control.filebase = out_file
-endif
 
 
 data = 0

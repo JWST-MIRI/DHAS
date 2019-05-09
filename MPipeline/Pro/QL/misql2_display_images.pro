@@ -339,7 +339,6 @@ endif
         info.image_pixel.nints = info.data.nints
         info.image_pixel.integrationNo = info.slope.integrationNO
         info.image_pixel.nframes = info.data.nramps
-        info.image_pixel.coadd = info.data.coadd
         info.image_pixel.nslopes = info.data.nslopes
         info.image_pixel.slope_exist = info.data.slope_exist
         info.image_pixel.slope = (*info.data.pslopedata)[x,y,0]
@@ -359,8 +358,7 @@ endif
             info.image_pixel.nframesat =  (*info.data.pslopedata)[x,y,5]
             info.image_pixel.ngoodseg = 0
             info.image_pixel.filename = info.control.filename_slope 
-            if(info.data.coadd eq 0) then $
-              info.image_pixel.ngoodseg =  (*info.data.pslopedata)[x,y,6]
+            info.image_pixel.ngoodseg =  (*info.data.pslopedata)[x,y,6]
         endelse
 
   
@@ -1161,9 +1159,6 @@ info.inspect_slope2.pix_statLabel = ["Dead/hot/noisy Pixel", "Slope (DN/s)" , "U
                                     "# of Good Segments" ,"# Good Frames", "Calibrated Value"]
 
 
-if(info.data.coadd eq 1) then info.inspect_slope2.pix_statLabel = $
-  ["Bad Pixel", "Average (DN)" , "Uncertainity", "Data Quality Flag" ,$
-   "Zero Pt of Fit", "# Good Reads" , "Read # 1st Sat", "Calibrated Value"]
 
 info.inspect_slope2.pix_statLabel2 = ["Max 2pt Diff","Read # Max 2 pt Diff",$
                                       "Slope 2pt Diff", "STDDEV 2pt diff" ]

@@ -85,9 +85,9 @@ case 1 of
         read_data_type,filename2,type2
         if(type1 eq 7) then type1 = 1
         if(type2 eq 7) then type2 = 1
-;        print,'type of data',type1, type2
+
         if(type1 ne type2) then begin
-            mess1 = 'The files are not the same type. They both have to be either raw science data, reduced slope data or coadded FAST-Short data' 
+            mess1 = 'The files are not the same type. They both have to be either raw science data or reduced slope data' 
             mess2 = 'Hit re-load button  and choose the same type of data' 
 
             ok = dialog_message(mess1 + string(10B) + mess2,/Information)
@@ -95,10 +95,10 @@ case 1 of
         endif
 
 
-       if(type1 eq 0 or type1 eq 1 or type1 eq 6 or type1 eq 7) then begin
+       if(type1 eq 0 or type1 eq 1  or type1 eq 7) then begin
        endif else begin
             mess1 = " The files do not contain the correct data, they must be either "
-            mess2 = "a) raw science data or b) reduced slope data c) reduced coadded data d) LVL3 file.   Select the files again"
+            mess2 = "a) raw science data or b) reduced slope data d) LVL3 file.   Select the files again"
             ok = dialog_message(mess1 + string(10B) + mess2,/Information)
 
             return
@@ -121,7 +121,7 @@ case 1 of
             mql_compare_display,info
         endif
 
-        if(type1 eq 1 or type1 eq 6 or type1 eq 7) then begin 
+        if(type1 eq 1  or type1 eq 7) then begin 
 
             info.rcompare_image[0].filename  = filename1
             info.rcompare_image[1].filename  = filename2

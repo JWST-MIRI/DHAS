@@ -19,21 +19,19 @@ if(iramp ne info.image.rampNO) then fmove = 1
 if(imove eq 1) then begin
     info.image.integrationNO = jintegration
 
-    if(info.data.coadd ne 1) then begin 
-        read_single_slope,info.control.filename_slope,slope_exists,$
-                          info.image.integrationNO,subarray,slopedata,$
-                          slope_xsize,slope_ysize,slope_zsize,stats,$
-                          do_bad,badfile, status,error_message
+    read_single_slope,info.control.filename_slope,slope_exists,$
+                      info.image.integrationNO,subarray,slopedata,$
+                      slope_xsize,slope_ysize,slope_zsize,stats,$
+                      do_bad,badfile, status,error_message
 
-        if(slope_exists eq 1) then begin 
-            if ptr_valid (info.data.preduced) then ptr_free,info.data.preduced
-            info.data.preduced = ptr_new(slopedata)
+    if(slope_exists eq 1) then begin 
+       if ptr_valid (info.data.preduced) then ptr_free,info.data.preduced
+       info.data.preduced = ptr_new(slopedata)
             
-            info.data.reduced_stat = stats
-        endif
-        slopedata = 0
-        stats = 0
+       info.data.reduced_stat = stats
     endif
+    slopedata = 0
+    stats = 0
 ; if not all of the data has been read in - then check to make sure that frame
 ; in question has been read in.
 ; If not then 1. call read_multi_frames

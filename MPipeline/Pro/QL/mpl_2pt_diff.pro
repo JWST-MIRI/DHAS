@@ -114,7 +114,6 @@ cinfo.info = minfo
         if(strmid(event_name,4,4) eq 'grab') then begin
             minfo.pl2.int_range[0] = 1            
             minfo.pl2.int_range[1] = minfo.data.nslopes
-            if(minfo.data.coadd eq 1) then  minfo.pl2.int_range[1] = minfo.data.nints
         endif            
 
 ; Check limits for the above options for changing the integration range
@@ -134,12 +133,6 @@ cinfo.info = minfo
             minfo.pl2.int_range[*] = 1
         endif	
 
-        if(minfo.data.coadd and minfo.pl2.int_range[1] eq minfo.pl2.int_range[0] ) then begin
-            result = dialog_message(" For coadded data must have more than 1 integration",/error )
-            minfo.pl2.int_range[0] = 1
-            minfo.pl2.int_range[1] = minfo.data.nints
-        endif
-            
 
         widget_control,minfo.pl2.IrangeID[0],set_value=minfo.pl2.int_range[0]
         widget_control,minfo.pl2.IrangeID[1],set_value=minfo.pl2.int_range[1]
@@ -410,18 +403,7 @@ PbuttonR = widget_button(Pmenu,value = "Print 2pt Differences Plot",uvalue='prin
 int_range = intarr(2) 
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
-if(info.data.coadd eq 1) then begin
-    int_range[1] = info.pl.end_fit
-    int_range[0] = info.pl.start_fit
-
-    int_range[1] = info.data.nints
-    int_range[0] = 1
-endif
-
 info.pl2.int_range[*] = int_range[*]
-
-
-;_______________________________________________________________________  
 
 
 svalue = " A sample of pixel values through an integration:  " + info.control.filename_raw
@@ -887,7 +869,6 @@ ii = info.pl2.int_range[0]-1
 ij = info.pl2.int_range[1]-1
 num_int = info.data.nslopes 
 num_int = ij -ii + 1
-if(info.data.coadd eq 1) then num_int = 1
 
 xdata = (*info.pltrack.px)[ind,0:num-1]              ; typeof data, num pixels
 ydata = (*info.pltrack.py)[ind,0:num-1]              ; typeof data, num pixels
@@ -908,12 +889,6 @@ lc_data = (*info.pltrack.plcdata)[ind,ii:ij,*,0:num-1]
 
 istart = info.pl.start_fit-1
 iend = info.pl.end_fit-1
-if(info.data.coadd eq 1) then begin
-    istart = info.pl2.int_range[0] -1
-    iend  = info.pl2.int_range[1] -1
-endif
-
-
 
 nvalid = (iend - istart)
 xvalues_plot = indgen(nvalid) + info.pl.start_fit
@@ -928,8 +903,7 @@ jj = 0
 
 
 for j = istart, iend-1 do begin
-    if(info.data.coadd ne 1) then twopt_diff[0,*,jj,*] = data[0,*,j+1,*] - data[0,*,j,*]
-    if(info.data.coadd eq 1) then twopt_diff[0,*,jj,*] = data[0,j+1,*,*] - data[0,j,*,*]
+    twopt_diff[0,*,jj,*] = data[0,*,j+1,*] - data[0,*,j,*]
     jj  = jj + 1
 endfor
 
@@ -966,9 +940,6 @@ stdev2pt_corrected = fltarr(num_int,num)
 if(info.control.file_refcorrection_exist eq 1 )then begin 
     jj = 0
     for j = istart, iend-1 do begin
-        if(info.data.coadd ne 1) then $
-          twopt_diff_corrected[0,*,jj,*] = refcorrect_data[0,*,j+1,*] - refcorrect_data[0,*,j,*]
-        if(info.data.coadd ne 1) then $
           twopt_diff_corrected[0,*,jj,*] = refcorrect_data[0,*,j+1,*] - refcorrect_data[0,*,j,*]
         jj  = jj + 1
     endfor
@@ -1083,7 +1054,6 @@ endif
 
 
 nreads = info.data.nramps*num_int
-if(info.data.coadd) then nreads = info.pl2.int_range[1]- info.pl2.int_range[0] + 1
 xvalues = indgen(nreads) + 1
 
 xmin = min(xvalues)

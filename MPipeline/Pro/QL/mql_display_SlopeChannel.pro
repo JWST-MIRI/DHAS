@@ -90,10 +90,7 @@ case 1 of
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,6) EQ 'integr') : begin
-        if(minfo.data.coadd eq 1) then begin
-    	    result = dialog_message(" Coadded data has only 1 reduced image  ",/error )	
-            return
-        endif
+
 	if (strmid(event_name,6,1) EQ 'a') then begin 
            this_value = event.value-1
            jintegration = this_value

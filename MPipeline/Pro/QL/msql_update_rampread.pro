@@ -66,13 +66,9 @@ xnew = findgen(info.data.nramps) + 1 ;
 ynew = fltarr(num_int,info.data.nramps)
     
 for k = 0,num_int-1 do begin
-    if(info.data.coadd ne 1) then begin
-        slope = slopedata[k,0]*info.slope.frame_time
-        yint = slopedata[k,1]
-        ynew[k,*] = slope*xnew[*] + yint
-    endif else begin 
-        ynew[k,*] = (*info.slope.pslope_pixeldata)[0,0]
-    endelse
+   slope = slopedata[k,0]*info.slope.frame_time
+   yint = slopedata[k,1]
+   ynew[k,*] = slope*xnew[*] + yint
 endfor
 
 
@@ -180,10 +176,7 @@ y2 = info.slope.ramp_range[1,1]
 ;print,y1,y2
 xs = "Frame #"
 ys = "DN/frame"
-if(info.data.coadd eq 1) then begin
-    xs = "Integration #"
-    ys = "Average DN"
-endif
+
 plot,xvalues,pixeldata,xtitle = xs, ytitle=ys,$
   xrange=[x1,x2],yrange=[y1,y2],title = stitle, subtitle = sstitle,$
      xstyle = 1, ystyle = 1,/nodata,ytickformat = '(f7.0)'
@@ -242,7 +235,7 @@ for k = 0,num_int-1 do begin
         oplot,xnew_plot,ynew_plot,linestyle= 1,color= info.red
     endif
 
- if(num_int gt 1 and info.slope.overplot_pixel_int eq 0 and info.data.coadd eq 0) then begin
+ if(num_int gt 1 and info.slope.overplot_pixel_int eq 0 ) then begin
      yline = fltarr(2) & xline = fltarr(2)
      yline[0] = -1000000 & yline[1] = 100000
      xline[*] = info.data.nramps* (k+1)

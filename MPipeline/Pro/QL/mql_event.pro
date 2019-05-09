@@ -174,7 +174,7 @@ endif
             ;return
         endif else begin
 
-        if(info.data.nslopes lt info.image.integrationNO+1 and info.data.coadd ne 1) then begin
+        if(info.data.nslopes lt info.image.integrationNO+1 ) then begin
             ok = dialog_message(" Partial Integration, no slope for this integration",/Information)
             return
         endif else begin
@@ -406,10 +406,6 @@ endif
             return
         endif
 
-        if(info.data.coadd eq 1) then begin
-            print,' This is coadded data - can not plot linearity corrected data'
-            return
-        endif
 
         linearity_setup_pixel,info
         display_linearity_correction_results,info
@@ -667,7 +663,6 @@ endif
         info.image_pixel.nints = info.data.nints
         info.image_pixel.integrationNo = info.image.integrationNO
         info.image_pixel.nframes = info.data.nramps
-        info.image_pixel.coadd = info.data.coadd
         info.image_pixel.nslopes = info.data.nslopes
         info.image_pixel.slope_exist = info.data.slope_exist
         info.image_pixel.filename = info.control.filename_raw
@@ -688,8 +683,7 @@ endif
                 info.image_pixel.ngood =  (*info.data.preduced)[x,y,4]
                 info.image_pixel.nframesat =  (*info.data.preduced)[x,y,5]
                 info.image_pixel.ngoodseg = 0
-                if(info.data.coadd eq 0) then $
-                  info.image_pixel.ngoodseg =  (*info.data.preduced)[x,y,6]
+                info.image_pixel.ngoodseg =  (*info.data.preduced)[x,y,6]
             endelse
 
         endif
@@ -1256,7 +1250,7 @@ endif
         graphnum = fix(strmid(event_name,6,1))
         type = graphnum -1 
         slope_exist = info.data.slope_exist
-        if(info.image.integrationNO+1 gt info.data.nslopes and info.data.coadd ne 1) then slope_exist = 0
+        if(info.image.integrationNO+1 gt info.data.nslopes) then slope_exist = 0
 
 
         if(type eq 2 and not slope_exist) then begin

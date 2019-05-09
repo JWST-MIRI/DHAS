@@ -38,7 +38,7 @@ type = type_a
 
 if(type_a ne type_b) then begin
 
-    mess1 = 'File types not the same. Both files need to be reduced slope or coadded data or raw science data'
+    mess1 = 'File types not the same. Both files need to be reduced slope or  raw science data'
     mess2 = 'Pick comparision file again ' 
     print,mess1
     print,mess2    

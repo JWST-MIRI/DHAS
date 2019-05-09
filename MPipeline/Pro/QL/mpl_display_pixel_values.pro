@@ -6,11 +6,6 @@ widget_control,info.PLPixelInfo,/destroy
 end
 ;***********************************************************************
 
-
-
-;***********************************************************************
-;_______________________________________________________________________
-;***********************************************************************
 pro mpl_pixel_values_event,event
 
 Widget_Control,event.id,Get_uValue=event_name
@@ -189,24 +184,19 @@ this_integration = info.pl.PIintegrationNO
 si = strtrim(string(ii),2)
 sj = strtrim(string(ij),2)
 
-if(info.data.coadd ne 1) then begin 
-    move_base1 = widget_base(pixelinfo,row=1,/align_left)
-    integration_label = cw_field(move_base1,$
-                                 title="Integration # ",font=info.font5, $
-                                 uvalue="integration",/integer,/return_events, $
-                                 value=this_integration+1,xsize=4,$
-                                 fieldfont=info.font3)
+move_base1 = widget_base(pixelinfo,row=1,/align_left)
+integration_label = cw_field(move_base1,$
+                             title="Integration # ",font=info.font5, $
+                             uvalue="integration",/integer,/return_events, $
+                             value=this_integration+1,xsize=4,$
+                             fieldfont=info.font3)
 
-    labelID = widget_button(move_base1,uvalue='integr_move_dn',value='<',font=info.font3)
-    labelID = widget_button(move_base1,uvalue='integr_move_up',value='>',font=info.font3)
-    
+labelID = widget_button(move_base1,uvalue='integr_move_dn',value='<',font=info.font3)
+labelID = widget_button(move_base1,uvalue='integr_move_up',value='>',font=info.font3)
+tlabel = "Total # " + strcompress(string(info.data.nslopes),/remove_all)
+total_ilabel = widget_label( move_base1,value = tlabel,/align_left)
+fLabel =widget_label(pixelinfo,value='Number of Frames/Int '+sj,/dynamic_resize,/align_left)
 
-    tlabel = "Total # " + strcompress(string(info.data.nslopes),/remove_all)
-    
-    total_ilabel = widget_label( move_base1,value = tlabel,/align_left)
-
-    fLabel =widget_label(pixelinfo,value='Number of Frames/Int '+sj,/dynamic_resize,/align_left)
-endif
 pixFormat = ["F10.2"]
 
 master1 = widget_base(pixelinfo,row=1,/align_left)
@@ -257,7 +247,6 @@ if(num ge 5) then begin
 endif
 
 iend = ij
-if(info.data.coadd eq 1) then iend = ii
 
 framevalue = strarr(iend+2)
 refvalue = strarr(iend+2)
@@ -302,10 +291,9 @@ for k = 0, num -1 do begin
             
             if(j eq 1) then begin 
                 frame_no = 'for Frame #'
-                if(info.data.coadd eq 1) then frame_no = ' for Int '
                 ref_no = 'Reference output '
-                refL_no = "Pixel
-                refR_no = "Pixel
+                refL_no = "Pixel"
+                refR_no = "Pixel"
                 refc_no = "Value"
                 id_no =" " 
                 lc_no =" " 
@@ -316,47 +304,25 @@ for k = 0, num -1 do begin
         endif else begin
                 
 ; look fast/slow mode data
-            if(info.data.coadd ne 1) then begin 
-                dataV1 = data[*,this_integration,j-2,k]
-                dataV2 = refdata[*,this_integration,j-2,k]
-                if(info.data.subarray eq 0) then begin
-                    dataV3 = refpL[*,this_integration,j-2,k]
-                    dataV4= refpR[*,this_integration,j-2,k]
-                    srefLvalue = strtrim(string(dataV3,format="("+pixFormat[0]+")"),2) 
-                    srefRvalue = strtrim(string(dataV4,format="("+pixFormat[0]+")"),2) 
-                endif else begin
-                    srefLvalue = 'NA'
-                    srefRvalue = 'NA'
-                endelse
-                dataV5= refcorrect_data[*,this_integration,j-2,k]
-                dataV6= id_data[*,this_integration,j-2,k]
-                dataV7= lc_data[*,this_integration,j-2,k]
-                dataV8= mdc_data[*,this_integration,j-2,k]
-                dataV9= reset_data[*,this_integration,j-2,k]
-                dataV10= lastframe_data[*,this_integration,k]
-                
-; grab fast-short mode data
-            endif else begin
-                dataV1 = data[*,j-2,0,k]
-                dataV2 = refdata[*,j-2,0,k]
-                if(info.data.subarray eq 0) then begin
-                    dataV3 = refpL[*,j-2,0,k]
-                    dataV4= refpR[*,j-2,0,k]
-                    srefLvalue = strtrim(string(dataV3,format="("+pixFormat[0]+")"),2) 
-                    srefRvalue = strtrim(string(dataV4,format="("+pixFormat[0]+")"),2) 
-                endif else begin
-                    srefLvalue = 'NA'
-                    srefRvalue = 'NA'
-                endelse
 
-                dataV5= refcorrect_data[*,j-2,0,k]
-                dataV6= id_data[*,j-2,0,k]
-                dataV7= lc_data[*,j-2,0,k]
-                dataV8= mdc_data[*,j-2,0,k]
-                dataV9= reset_data[*,j-2,0,k]
-                dataV10= lastframe_data[*,0,k]
-            endelse
-            
+           dataV1 = data[*,this_integration,j-2,k]
+           dataV2 = refdata[*,this_integration,j-2,k]
+           if(info.data.subarray eq 0) then begin
+              dataV3 = refpL[*,this_integration,j-2,k]
+              dataV4= refpR[*,this_integration,j-2,k]
+              srefLvalue = strtrim(string(dataV3,format="("+pixFormat[0]+")"),2) 
+              srefRvalue = strtrim(string(dataV4,format="("+pixFormat[0]+")"),2) 
+           endif else begin
+              srefLvalue = 'NA'
+              srefRvalue = 'NA'
+           endelse
+           dataV5= refcorrect_data[*,this_integration,j-2,k]
+           dataV6= id_data[*,this_integration,j-2,k]
+           dataV7= lc_data[*,this_integration,j-2,k]
+           dataV8= mdc_data[*,this_integration,j-2,k]
+           dataV9= reset_data[*,this_integration,j-2,k]
+           dataV10= lastframe_data[*,this_integration,k]
+                
             svalue = strtrim(string(dataV1,format="("+pixFormat[0]+")"),2) 
             srefvalue = strtrim(string(dataV2,$
                                        format="("+pixFormat[0]+")"),2)

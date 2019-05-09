@@ -60,10 +60,6 @@ pro mpl_update_display,info
     slope_frame_a = 'Frame to Start Fit on ' + strcompress(string(start_fit),/remove_all)
     slope_frame_b = 'Frame to End Fit on   ' + strcompress(string(end_fit),/remove_all)
 
-    if(info.data.coadd eq 1) then begin 
-        slope_frame_a = 'Int to Start Coadding ' + strcompress(string(info.pl.start_fit),/remove_all)
-        slope_frame_b = 'Int to End Coadding   ' + strcompress(string(info.pl.end_fit),/remove_all)
-    endif
 
     slope_high_dn = 'Drop Values greater than (DN) ' + strcompress(string(info.pl.high_sat),/remove_all)
 
@@ -108,22 +104,13 @@ for k = 0,num-1 do begin ;
 
     for i = 0, nint - 1 do begin
         for j = 0, iramp-1 do begin
-            if(info.data.coadd ne 1) then begin 
-                if( finite(slope[ind,i,k]) ) then begin
-                    slope_dn_frame = slope[ind,i,k]* info.pl.frame_time
-
-                    calramp[ind,i,j,k] = xvalue[j] * slope_dn_frame + zeropt[ind,i,k]
-                    ;print,'slope',slope[ind,i,k],slope_dn_frame,zeropt[ind,i,k],info.pl.frame_time, calramp[ind,i,j,k]
-                endif else begin
-                    calramp[ind,i,j,k] = zeropt[ind,i,k]
-                endelse
-            endif else begin
-                calramp[ind,i,j,k] =slope[ind,0,k]
-            endelse
-                
+           if( finite(slope[ind,i,k]) ) then begin
+              slope_dn_frame = slope[ind,i,k]* info.pl.frame_time
+              calramp[ind,i,j,k] = xvalue[j] * slope_dn_frame + zeropt[ind,i,k]
+           endif else begin
+              calramp[ind,i,j,k] = zeropt[ind,i,k]
+           endelse
         endfor
-
-
     endfor
 endfor
 
@@ -523,12 +510,6 @@ cinfo.info = minfo
             minfo.pl.int_range[1] = minfo.data.nints
             
             minfo.pl.overplot_pixel_int = 0
-
-            if(minfo.data.coadd eq 1) then begin 
-                minfo.pl.int_range[0] = minfo.pl.start_fit            
-                minfo.pl.int_range[1] = minfo.pl.end_fit            
-            endif
-                
         endif            
 
 ; overplot integrations
@@ -537,11 +518,6 @@ cinfo.info = minfo
             minfo.pl.int_range[0] = 1            
             minfo.pl.int_range[1] = minfo.data.nints
             minfo.pl.overplot_pixel_int = 1
-
-            if(minfo.data.coadd eq 1) then begin 
-                minfo.pl.int_range[0] = minfo.pl.start_fit            
-                minfo.pl.int_range[1] = minfo.pl.end_fit            
-            endif
         endif            
 
 
@@ -1088,13 +1064,7 @@ int_range = intarr(2)
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
 
-if(info.data.coadd eq 1) then begin
-	int_range[0] = info.pl.start_fit
-	int_range[1] = info.pl.end_fit
-endif
-
 info.pl.int_range[*] = int_range[*]
-
 
 ;_______________________________________________________________________  
 info.refpixel.readin =0
@@ -1107,10 +1077,7 @@ tlabelID = widget_label(PixelLook,value =svalue ,/align_left,$
 iramp = info.data.nramps
 istart =1
 iend = 1
-if(info.data.coadd) then begin 
-    istart = 2
-    iend = info.data.nints
-endif
+
 ftitle = "Integration #:  " + strcompress(string(istart),/remove_all)  + $
 " to" +  strcompress(string(iend),/remove_all)   + $
          "  Num of Frames/Integration: " + strtrim(string(fix(iramp)),2)     
@@ -1272,15 +1239,7 @@ if(slope_exists eq 1) then begin
    
     slope_frame_a = 'Frame to Start Fit on ' + strcompress(string(info.pl.start_fit),/remove_all)
     slope_frame_b = 'Frame to End Fit on   ' + strcompress(string(info.pl.end_fit),/remove_all)
-
-    if(info.data.coadd eq 1) then begin 
-        slope_frame_a = 'Int to Start Coadding ' + strcompress(string(info.pl.start_fit),/remove_all)
-        slope_frame_b = 'Int to End Coadding   ' + strcompress(string(info.pl.end_fit),/remove_all)
-    endif
-
     slope_high_dn = 'Drop Values greater than (DN) ' + strcompress(string(info.pl.high_sat),/remove_all)
-
-
 
     if(info.pl.use_psm  eq 1) then $
       psm ="Applied the pixel saturation mask " + info.pl.use_psm_file
@@ -1520,16 +1479,12 @@ desa= widget_label(all_base,value ="          Reduced Results are for  Starting 
 slope_all = widget_button(all_base,value=" Get Results for All Integrations" ,uvalue = 'getall') 
 
 descrip = Widget_Base(ChangeID,/row)
-if(info.data.coadd ne 1) then $
-  des1 = widget_label(descrip, value = "Name     X    Y Channel   "$
+
+des1 = widget_label(descrip, value = "Name     X    Y Channel   "$
                     + "  Plot            Reads  Cal Slope  Rejected" + $
-                      "    Slope(DN/s) Uncertainity   Quality Flag  # Good Reads  Zero-Pt       " +$
+                    "    Slope(DN/s) Uncertainity   Quality Flag  # Good Reads  Zero-Pt       " +$
                       " Read # First Sat    # Good Segments     STD Fit (DN) ",/align_left)	
 
-if (info.data.coadd eq 1) then $
-  des1 = widget_label(descrip, value = "Name     X    Y Channel   "$
-                      + "  Plot            Reads  Coadd    Rejected" + $
-                      "    Average  Uncertainity   Quality Flag  Num Good Reads  Zero-Pt       Read # First Sat",/align_left)	
 
 
 x1 = info.data.colstart

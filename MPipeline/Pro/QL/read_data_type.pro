@@ -7,7 +7,7 @@ pro read_data_type,filename,type
 ; type = 3 for reference corrected data
 ; type = 4 for the ID file
 ; type = 5 for the segment file
-; type = 6 for coadded data
+; type = 6 for coadded data - NOT valid starting with 9.6.5
 ; type = 7 for LVL3 data
 type = 0 ; default to raw files 
 file_exist1 = file_test(filename,/read,/regular)
@@ -39,11 +39,6 @@ if(count ne 0) then  type  = 4
 
 check = fxpar(header,'SEGMENTS',count = count)
 if(count ne 0) then  type  = 5
-
-coadd= fxpar(header,'COADD',count = count)
-coadd = strlowcase(coadd)
-test = strcmp('yes',coadd,3)
-if(test eq 1) then type = 6
 
 
 check = fxpar(header,'CALIBR',count = count)

@@ -165,7 +165,6 @@ if(dead_pix and 1 and info.image.apply_bad eq 1) then begin
      sp = 'NA'
 endif
 
-if(info.data.coadd) then sy = 'NA'
 
 widget_control,info.image.pix_statID[0],set_value=info.image.pix_statLabel[0]+' = ' +sdead
 widget_control,info.image.pix_statID[1],set_value=info.image.pix_statLabel[1]+' = ' +sp
@@ -671,10 +670,6 @@ info.image.pix_statLabel = ["Dead/hot/noisy Pixel","Frame Value","Slope (DN/s)",
                             "STD Fit ", "Read # of 1st Sat", $
                             "# Good Segments", "# of Good Frames"]
 
-if(info.data.coadd eq 1) then info.image.pix_statLabel = ["Dead/hot/noisy Pixel","Frame Value","Coadd (DN/frame)", $
-                            "Uncertainty (DN/frame)","Data Quality Flag",$
-                            "Y-intercept ",$
-                            "# Good Frames", "Read # of 1st Sat"]
 
 info.image.pix_statLabel2 = ["Max 2pt Diff","Read # Max 2 pt Diff",$
                             "Slope 2pt Diff", "STDDEV 2pt diff" ]
@@ -814,7 +809,6 @@ int_range = intarr(2)
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
 info.image.int_range[*] = int_range[*]
-if(info.data.coadd eq 1) then info.image.int_range[1] = info.data.nints
 
 move_base = widget_base(info.image.graphID22,/row,/align_left)
 
@@ -902,12 +896,10 @@ bk = widget_label(info.image.infoID22,value = ' ' )
 overplotSlopeID = lonarr(2)
 overplotRefID = lonarr(2)
 if(info.data.slope_exist)then begin 
-    if(info.data.coadd ne 1) then $
-    overplot = widget_label(info.image.infoID22,value = 'Over-plot Values from Fit (red)',/sunken_frame,$
-                            font = info.font5,/align_left)
-    if(info.data.coadd eq 1) then $
-    overplot = widget_label(info.image.infoID22,value = 'Over-plot Coadded Value (red)',/sunken_frame,$
-                            font = info.font5,/align_left)
+
+   overplot = widget_label(info.image.infoID22,value = 'Over-plot Values from Fit (red)',/sunken_frame,$
+                           font = info.font5,/align_left)
+
     oBase = Widget_base(info.image.infoID22,/row,/nonexclusive)
 
     OverplotSlopeID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overslope1')

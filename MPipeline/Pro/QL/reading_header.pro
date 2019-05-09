@@ -95,7 +95,9 @@ endif
 info.data.coadd = 0
 if(info.data.nramps eq 1 and info.data.nints gt 1) then begin
     info.data.coadd = 1
-    info.data.nslopes = 1
+    status = 1
+    error_message = " The DHAS does not support NGROUP =1 data "+ info.control.filename_raw
+    return 
 endif
 
 
@@ -114,7 +116,7 @@ check_header, naxis3,nints,nramps
 info.data.nints = nints
 info.data.nramps = nramps
 
-if(info.data.coadd ne 1) then info.data.nslopes = info.data.nints
+info.data.nslopes = info.data.nints
 
 
 
@@ -246,7 +248,9 @@ endif
 info.data.coadd = 0
 if(info.data.nramps eq 1 and info.data.nints gt 1) then begin
     info.data.coadd = 1
-    info.data.nslopes = 1
+    status = 1
+    error_message = " The DHAS does not support NGROUP =1 data "+ info.control.filename_raw
+    return 
 endif
 
 nsample = fxpar(header_slope,'NSAMPLE',count = count)
@@ -260,14 +264,10 @@ if(nsample eq 10) then info.data.mode =1
 
 nints = info.data.nints
 
-if(info.data.coadd ne 1) then info.data.nslopes = info.data.nints
-
-
-
+info.data.nslopes = info.data.nints
 print,' Reading Science Frame Image data ',info.control.filename_slope
 print,' Number of Integrations:',info.data.nints 
 print,' Number of frames/int  :',info.data.nramps
-
 
 info.data.num_frames = info.data.nramps
 

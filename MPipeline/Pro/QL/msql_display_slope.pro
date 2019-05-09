@@ -132,12 +132,9 @@ widget_control,info.slope.pix_statID[1],set_value= info.slope.pix_statLabel[1] +
 widget_control,info.slope.pix_statID[2],set_value= info.slope.pix_statLabel[2] + ' = ' + sf
 
 
-if(info.data.coadd eq 0) then $
-  widget_control,info.slope.pix_statID[3],set_value= info.slope.pix_statLabel[3] + ' = ' + $
-                 strtrim(string(zero,format="("+info.slope.pix_statFormat[3]+")"),2)
 
-if(info.data.coadd eq 1) then $
-  widget_control,info.slope.pix_statID[3],set_value= info.slope.pix_statLabel[3] + ' = NA' 
+widget_control,info.slope.pix_statID[3],set_value= info.slope.pix_statLabel[3] + ' = ' + $
+               strtrim(string(zero,format="("+info.slope.pix_statFormat[3]+")"),2)
 
 
 widget_control,info.slope.pix_statID[4],set_value= info.slope.pix_statLabel[4] + ' = ' + srms
@@ -447,10 +444,6 @@ if(info.data.slope_zsize eq 3) then voptions = ['Slope Image: ',' Zero Pt', 'STD
 if(info.data.slope_zsize eq 2) then voptions = ['Slope Image: ',' Zero Pt']
 
 
-if(info.data.slope_zsize eq 6 ) then $ ; coadded data
-    voptions = ['Slope Image: ', 'Uncertainty Image', 'Data Quality Flag',' Zero Pt', '# of Good Frames',$
-           'Frame # of 1st Sat']
-
 
 if(info.data.slope_zsize gt 8) then $
 voptions = ['Slope Image: ', 'Uncertainty Image', 'Data Quality Flag',' Zero Pt', '# of Good Frames',$
@@ -712,9 +705,10 @@ labelID = widget_button(move_base1,uvalue='integr_move_dn',value='<',font=info.f
 labelID = widget_button(move_base1,uvalue='integr_move_up',value='>',font=info.font3)
 
 
-sf = "Average Slope" 
-if(info.data.coadd eq 1) then sf = 'Value in Primary Image'
-slope_intid = widget_label(infoID00,value= sf,/align_left)
+;sf = "Average Slope" 
+
+;slope_intid = widget_label(infoID00,value= sf,/align_left)
+
 info.slope.pix_statID3 = widget_label(infoID00,value = info.slope.pix_statLabel[0]+$
                                         ' =                     ' ,/align_left)
 
@@ -764,12 +758,10 @@ tlabelID = widget_label(info.slope.graphID21,$
 info.slope.overplot_fit= 1 
 overplotSlopeID = lonarr(2)
 oinfo = widget_base(info.slope.graphID21,/row)
-if(info.data.coadd ne 1) then $
-  overplot = widget_label(oinfo,value = 'Over-plot Values from Fit (red)',/sunken_frame,$
-                            font = info.font5,/align_left)
-if(info.data.coadd eq 1) then $
-  overplot = widget_label(oinfo,value = 'Over-plot Coadded Value (red)',/sunken_frame,$
-                            font = info.font5,/align_left)
+
+overplot = widget_label(oinfo,value = 'Over-plot Values from Fit (red)',/sunken_frame,$
+                        font = info.font5,/align_left)
+
 oBase = Widget_base(oinfo,/row,/nonexclusive)
 
 OverplotSlopeID[0] = Widget_button(oBase, Value = ' Yes ',uvalue = 'overslope1')
@@ -919,7 +911,7 @@ int_range = intarr(2)
 int_range[0] = 1  ; initialize to look at first integration
 int_range[1] = 1
 info.slope.int_range[*] = int_range[*]
-if(info.data.coadd eq 1) then info.slope.int_range[1] = info.data.nints
+
 int_base = widget_base(info.slope.graphID21,row=1,/align_left)
 IrangeID = lonarr(2)
 info.slope.IrangeID[0] = cw_field(int_base,$
@@ -1008,7 +1000,7 @@ slope_range = fltarr(2,2)        ; plot range for pixel over exposure ,
 
 stitle = "Slope Values for Selected Pixel for Exposure"
 stitle1 = " Averaged Slope is given at Int = 0" 
-if(info.data.coadd eq 1) then stitle1 = " Value in Primary Image = 0" 
+
 if(not info.data.slope_exist) then stitle = "NO Slope Values in Selected Pixel for Exposure"
 tlabelID = widget_label(info.slope.graphID22,value = stitle,/align_center,$
                                      font=info.font5,/sunken_frame)
@@ -1061,13 +1053,9 @@ info.slope.slope_range = slope_range
 
 
 ;_______________________________________________________________________
-if(info.data.coadd eq 0) then info.slope.pix_statLabel = $
+info.slope.pix_statLabel = $
   [" Average Slope (DN/s)", "Uncertainty(DN/S)","Data Quality Flag","Zero Pt","STD Fit (DN)",$
    "Frame # of 1st Sat Value", "# Good Segments","# Good Frames", "Calibrated Value"]
-
-if(info.data.coadd eq 1) then info.slope.pix_statLabel =$
-  ["Average (DN/frame)", "Uncertainty (DN/frame)","Data Quality Flag","Zero Pt","# Good Frames",$
-   "Frame # of 1st Sat Value", "Calibrated Value"]
 
 info.slope.pix_statFormat =  ["F16.4", "F16.8", "I5","F12.4","F10.2","F5.0","F5.0","F5.0","F14.4"] 
 info.slope.pix_statLabel2 = ["Max 2pt Diff","Read # Max 2 pt Diff",$

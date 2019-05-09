@@ -134,7 +134,7 @@ endelse
 
 filename = info.mc.output_filename
 filename = strcompress(info.control.dirout  + filename,/remove_all)
-coadd_file = filename + '_FASTSHORT_MEAN.fits'
+
 info.control.filename_slope = info.control.dirout+info.control.filename_slope
 info.control.filename_refcorrection =filename + '_RefCorrection.fits'
 info.control.filename_IDS = filename + '_IDS.fits'

@@ -167,7 +167,7 @@ info.refp.default_scale_graph[*] = 1
 info.refp.integrationNO = info.control.int_num
 info.refp.rampNO = info.control.frame_start
 ;print,'in mrp_display',info.control.int_num
-if(info.data.coadd eq 1) then info.refp.rampNO = 0
+
 i = info.refp.integrationNO
 j = info.refp.rampNO
 ;_______________________________________________________________________  
