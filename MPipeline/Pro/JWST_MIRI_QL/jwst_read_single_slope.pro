@@ -5,7 +5,7 @@ pro jwst_read_single_slope,filename,exists,this_integration,$
                            image_xsize,image_ysize,stats_image,$
                            status,error_message
 
-print,'filename',filename
+;print,'filename',filename
 status = 0
 error_message = ''
 slope_data = 0
@@ -175,11 +175,11 @@ slope_data[*,*,0] = sdata
 slope_data[*,*,1] = edata
 slope_data[*,*,2] = float(dqdata)
 
-print,'slope data dq',slope_data[815,725,2]
+
 sdata=0 & dqdata = 0 & edata = 0 
 
 print,' Reading Slope data ',filename
-print,'size of science image',image_xsize,image_ysize
+;print,'size of science image',image_xsize,image_ysize
 ;_______________________________________________________________________
 
 image_zsize = 1

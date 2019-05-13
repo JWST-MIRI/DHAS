@@ -468,13 +468,9 @@ end
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
         jwst_mql_compare_update_images,info,graph_num-1
     end
-
-
 ;_______________________________________________________________________
    (strmid(event_name,0,7) EQ 'inspect') : begin
-       
        imageno = fix(strmid(event_name,7,1))-1
-
         info.jwst_cinspect[imageno].integrationNO = info.jwst_compare_image[imageno].jintegration
         info.jwst_cinspect[imageno].frameNO = info.jwst_compare_image[imageno].iframe
         frame_image = fltarr(info.jwst_compare_image[imageno].xsize,info.jwst_compare_image[imageno].ysize)

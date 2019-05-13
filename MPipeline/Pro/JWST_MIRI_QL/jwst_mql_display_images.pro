@@ -120,6 +120,7 @@ jwst_get_this_frame_stat,info  ; set up the image.stat and image.range values
 
 window,1,/pixmap
 wdelete,1
+; Clean up window already open
 if(XRegistered ('jwst_mql')) then begin
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
@@ -164,7 +165,6 @@ quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_mql_quit')
 hMenu = widget_button(menuBar,value=" Header",font = info.font2)
 hrMenu = widget_button(hmenu,value="Display Science Image Header",uvalue = 'rheader')
 hsMenu = widget_button(hmenu,value="Display Rate Header",uvalue='sheader')
-
 
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Statistics on Images",uvalue = 'Stat')

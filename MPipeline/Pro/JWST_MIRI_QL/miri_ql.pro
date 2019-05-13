@@ -89,7 +89,7 @@ jwst_control = {jwst_controli}
 ;edit_ywindowsize = 0
 
 ;_______________________________________________________________________
-version = "(v 1.0 Feb 08, 2019)"
+version = "(v 9.6.5 May 12, 2019)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -97,7 +97,7 @@ test = strmid(miri_dir,len-1,len-1)
 if(test ne '/') then miri_dir = miri_dir + '/'
 jwst_control.miri_dir = miri_dir
 
-jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v1.0.preferences'
+jwst_control.pref_filename = miri_dir + 'Preferences/JWST_MIRI_QL_v9.6.preferences'
 print,'  Preferences file ',jwst_control.pref_filename
 ;_______________________________________________________________________
 ; work out the fontname

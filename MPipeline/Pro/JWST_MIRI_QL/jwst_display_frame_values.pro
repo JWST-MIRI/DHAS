@@ -169,7 +169,7 @@ endif
 ;*********
 
 PixelInfo = widget_base(title=" Frame Values for Pixel",$
-                        col = 1,mbar = menuBar,group_leader = info.jwst_QuickLook,$
+                        col = 1,mbar = menuBar,group_leader = info.jwst_RawQuickLook,$
                         xsize = 1400,ysize = 500,/base_align_right,xoffset=550,yoffset=100,$
                         /scroll,x_scroll_size = 900,y_scroll_size = 500)
 

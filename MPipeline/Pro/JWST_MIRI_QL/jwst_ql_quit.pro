@@ -2,13 +2,13 @@
 pro jwst_ql_quit,event
 widget_control,event.top, Get_UValue = info
 
-
+print,'in jwst_ql_quit'
 if(XRegistered ('jwst_miql')) then begin
     widget_control,info.jwst_InspectImage,/destroy
 endif
 
 if(XRegistered ('jwst_misql')) then begin
-    widget_control,info.InspectSlope,/destroy
+    widget_control,info.jwst_InspectSlope,/destroy
 endif
 
 
@@ -23,7 +23,7 @@ if(XRegistered ('jwst_mql')) then begin
 endif
 
 
-if(XRegistered ('ql')) then begin
+if(XRegistered ('miri_ql')) then begin
     print,'Exiting MIRI QuickLook'
     widget_control,info.jwst_QuickLook,/destroy
 endif

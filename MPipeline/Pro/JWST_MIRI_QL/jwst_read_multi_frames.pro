@@ -11,8 +11,10 @@ if(info.jwst_data.read_all eq 0) then begin
 endif
 this_num_frames = info.jwst_data.ngroups
 
+
 image_cube = fltarr(this_integration,info.jwst_data.num_frames,info.jwst_data.image_xsize,info.jwst_data.image_ysize)
 image_stat = fltarr(this_integration,info.jwst_data.num_frames,6)
+;help,image_cube
 image_range = fltarr(this_integration,info.jwst_data.num_frames,2)
 
 
@@ -85,10 +87,18 @@ if(info.jwst_data.read_all eq 0) then begin ; only read a portion of the data in
     this_num_frames = info.jwst_control.frame_end - info.jwst_control.frame_start +1 
 
     ; read in data 
-    im_raw = readfits(info.jwst_control.filename_raw,exten_no=1)        
-    ; pull out what is needed - only 1 integration of frames: frame_start:frame_end
-    image_cube[0,*,*,*] = im_raw[*,*,info.jwst_control.frame_start:info.jwst_control.frame_end,$
-                                 info.jwst_control.int_num]
+    fits_open,info.jwst_control.filename_raw,fcb
+    fits_read,fcb,im_raw,header_raw,exten_no = 1
+
+    fits_close,fcb
+    ; pull out what is needed - only 1 integration 
+    ; frames: frame_start:frame_end
+    for j = 0,info.jwst_data.num_frames-1 do begin
+       image = im_raw[*,*,j+info.jwst_control.frame_start,0]
+       image_cube[0,j,*,*] = image
+       image = 0 
+    endfor
+    
     im_raw = 0 
     ; work on stats for each frame 
     for i = 0,this_num_frames-1 do begin

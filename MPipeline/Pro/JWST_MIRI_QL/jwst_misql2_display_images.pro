@@ -751,7 +751,7 @@ if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 
 info.jwst_InspectSlope2 = widget_base(title="JWST MIRI Quick Look- Inspect Rate Output  (Image 2) " + info.jwst_version,$
-                                mbar = menuBar,/row,group_leader = info.jwst_Quicklook,$
+                                mbar = menuBar,/row,group_leader = info.jwst_SlopeQuicklook,$
                                 xsize =  xwidget_size,$
                                 ysize=   ywidget_size,/scroll,$
                                 x_scroll_size= xsize_scroll,$
