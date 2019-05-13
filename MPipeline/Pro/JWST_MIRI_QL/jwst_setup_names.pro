@@ -83,7 +83,7 @@ if (type eq 1) then begin       ; working with rate file
 
    if(type_error ne 1 ) then begin
       flag = 1
-      error_message = ' You did NOT open a SLOPE file, input file name again '
+      error_message = ' You did not open a rate.fits file, input file name again '
       print,error_message
       status = 1
       return

@@ -43,6 +43,7 @@
 @jwst_mql_display_stat.pro
 @jwst_read_image_info.pro
 @jwst_difference_images.pro
+@jwst_ql_clean.pro
 
 @jwst_msql_display_slope.pro
 @jwst_msql_display_stat.pro
@@ -61,12 +62,10 @@
 ;@get_stat_single_image.pro
 ; astrolib routines
 ; misc
-;@xcolors.pro
-;@color6.pro
-;@dec2hex.pro
-;@hex2dec.pro
+@xcolors.pro
+@color6.pro
 ;@findhistogram.pro
-;@showprogress__define.pro
+@showprogress__define.pro
 
 ; reading data
 ;@read_single_cal.pro
@@ -86,8 +85,6 @@
 ;@get_slope_id_stat.pro
 
 ; slope quick look routines
-
-
 @jwst_msql_cleanup_widgets.pro
 @jwst_msql_moveframe.pro
 
@@ -107,4 +104,4 @@
 @jwst_print_images.pro
 ;@jwst_print_slopes_images.pro
 
-@jwst_ql.pro
+

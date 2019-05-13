@@ -302,9 +302,7 @@ endif
 	x = info.jwst_image.x_pos * info.jwst_image.binfactor
 	y = info.jwst_image.y_pos * info.jwst_image.binfactor
 
-
         ; check and see if read in all frame values for pixel
-; 
         if (ptr_valid(info.jwst_image.ppixeldata) eq 0) then begin ; has not been read in 
             jwst_mql_read_rampdata,x,y,pixeldata,info  
             info.jwst_image.ppixeldata = ptr_new(ppixeldata)
@@ -315,7 +313,6 @@ endif
         info.jwst_image_pixel.ppixeldata = ptr_new(pixeldata)
         pixeldata = 0
         
-
 ; fill in reference corrected data, if the file was written
         if(info.jwst_control.file_refpix_exist eq 1 ) then begin 
             if (ptr_valid(info.jwst_image.prefpix_pixeldata) eq 0) then begin ; has not been read in 

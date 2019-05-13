@@ -945,8 +945,6 @@ info.jwst_inspect_slope.slabelID[2] = widget_label(graphID2,value=info.jwst_insp
 info.jwst_inspect_slope.slabelID[3] = widget_label(graphID2,value=info.jwst_inspect_slope.sname[3] +blank10,/align_left)
 info.jwst_inspect_slope.slabelID[4] = widget_label(graphID2,value=info.jwst_inspect_slope.sname[4] +blank10,/align_left)
 
-
-
 ; stats on zoom window
 ;*****
 ;graph 1,2; Zoom window of reference image

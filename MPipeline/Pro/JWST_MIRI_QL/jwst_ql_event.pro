@@ -1,4 +1,4 @@
-; the event manager for the jwst_ql.pro (main base widget)
+; the event manager for the miri_ql.pro (main base widget)
 pro jwst_ql_event,event
 
 Widget_Control,event.id,Get_uValue=event_name
@@ -28,12 +28,17 @@ case 1 of
         endif
 
         if(XRegistered ('jwst_msql')) then begin
+           print,'Slope image open',sl_filename, info.jwst_control.filebase
             if(sl_filename ne info.jwst_control.filebase) then begin
                 jwst_ql_reset,info
                 widget_control,info.jwst_SlopeQuickLook,/destroy
                 print,'Closing Rate Look window'
             endif
         endif        
+
+        if(XRegistered ('jwst_misql')) then begin
+           widget_control,info.jwst_InspectSlope,/destroy
+        endif
 
         info.jwst_image.integrationNO = info.jwst_control.int_num
         info.jwst_control.int_num = info.jwst_control.int_num_save
@@ -73,14 +78,16 @@ case 1 of
          endif
 
         if(XRegistered ('jwst_mql')) then begin
-           print,sl_filename,info.jwst_control.filebase
             if(sl_filename ne info.jwst_control.filebase) then begin
                 jwst_ql_reset,info
-                widget_control,info.jwst_QuickLook,/destroy
+                widget_control,info.jwst_RawQuickLook,/destroy
                 print,'Closing JWST QuickLook window'
             endif
         endif    
 
+        if(XRegistered ('jwst_misql')) then begin
+           widget_control,info.jwst_InspectSlope,/destroy
+        endif
         jwst_setup_slope_final,info,1,status
         jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
         jwst_find_slope_binfactor,info

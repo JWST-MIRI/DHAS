@@ -226,8 +226,6 @@ if(imessage) then begin
 endif
 end
 ;_______________________________________________________________________
-
-;_______________________________________________________________________
 pro jwst_get_lin_pixeldata,info,num,x,y,pixeldata
 ; x,y start at 0 (included reference pixel values)
 
@@ -256,7 +254,7 @@ for integ = 0, info.jwst_data.nints -1 do begin
        for k = 0, num-1 do begin
            xvalue = x[k]        ; 
            yvalue = y[k] 
-           value  = im_raw[xvalue,yvalue]
+           value  = im_raw[xvalue,yvalue,iramp,integ]
            pixeldata[integ,iramp,k] = value
        endfor
    endfor
@@ -304,7 +302,7 @@ for integ = 0, info.jwst_data.nints -1 do begin
 ;           lastvalue  = long(firstvalue)
 ;           if(lastvalue le 1) then begin ; fits_read will fail for this case
 ;               im_raw = readfits(info.jwst_control.filename_dark,nslice = j,/silent) 
-               value  = im_raw[xvalue,yvalue]
+               value  = im_raw[xvalue,yvalue,iramp,integ]
                pixeldata[integ,iramp,k] = value
                
 ;           endif else begin 
@@ -359,7 +357,7 @@ for integ = 0, info.jwst_data.nints -1 do begin
        for k = 0, num-1 do begin
            xvalue = x[k]        ; 
            yvalue = y[k] 
-           value  = im_raw[xvalue,yvalue]
+           value  = im_raw[xvalue,yvalue,iramp,integ]
            pixeldata[integ,iramp,k] = value
        endfor
    endfor
@@ -407,7 +405,7 @@ for integ = 0, info.jwst_data.nints -1 do begin
        for k = 0, num-1 do begin
            xvalue = x[k]        ; 
            yvalue = y[k] 
-           value  = im_raw[xvalue,yvalue]
+           value  = im_raw[xvalue,yvalue,iramp,integ]
            pixeldata[integ,iramp,k] = value
        endfor
    endfor
@@ -420,8 +418,6 @@ if(imessage) then begin
 endif
 
 end
-
-
 
 ;_______________________________________________________________________
 pro jwst_get_lastframe_pixeldata,info,num,x,y,pixeldata
@@ -437,7 +433,7 @@ for integ = 0, info.jwst_data.nints -1 do begin
       xvalue = x[k]             ; 
       yvalue = y[k] 
       
-      value  = im[xvalue,yvalue]
+      value  = im[xvalue,yvalue,integ,info.jwst_data.ngroups-1]
       pixeldata[integ,k] = value
    endfor
 endfor
