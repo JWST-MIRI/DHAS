@@ -52,8 +52,8 @@ pro jwst_slope_image_print, event
              
              if(type eq 0) then jwst_msql_update_slope,info.slope.plane[0],0,info,/ps
              if(type eq 1) then jwst_msql_update_slope,info.slope.plane[1],1,info,/ps
-             if(type eq 2) then msql_update_zoom_image,info,/ps
-             if(type eq 3) then msql_update_slopepixel,info,/ps
+             if(type eq 2) then jwst_msql_update_zoom_image,info,/ps
+             if(type eq 3) then jwst_msql_update_slopepixel,info,/ps
              device,/close
              set_plot, 'x'
            end

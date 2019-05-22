@@ -70,8 +70,8 @@ endif
 ;_______________________________________________________________________
 ;Subarray Geometry 
     (strmid(event_name,0,9) EQ 'sgeometry') : begin
-
-        jwst_mql_plot_subarray_geo,info
+       print,'Geometry function not ported to miri_ql yet'
+;        jwst_mql_plot_subarray_geo,info
     end
 ;_______________________________________________________________________
 ; Compare to another data file
@@ -316,7 +316,7 @@ endif
 ; fill in reference corrected data, if the file was written
         if(info.jwst_control.file_refpix_exist eq 1 ) then begin 
             if (ptr_valid(info.jwst_image.prefpix_pixeldata) eq 0) then begin ; has not been read in 
-                jwst_mql_read_refcorrected_data,x,y,info
+                jwst_mql_read_refpix_data,x,y,info
             endif
             refcorrected_data = (*info.jwst_image.prefpix_pixeldata)
 
@@ -329,7 +329,7 @@ endif
 ; fill in the dark corrected data, if the file was written
         if(info.jwst_control.file_dark_exist eq 1) then begin
             if (ptr_valid(info.jwst_image.pdark_pixeldata) eq 0) then begin ; has not been read in 
-                jwst_mql_read_mdc_data,x,y,info
+                jwst_mql_read_dark_data,x,y,info
             endif
  
             mdc_data = (*info.jwst_image.pdark_pixeldata)
@@ -378,7 +378,7 @@ endif
 ; fill in the linearity corrected data, if the file was written
         if(info.jwst_control.file_linearity_exist eq 1) then begin 
             if (ptr_valid(info.jwst_image.plin_pixeldata) eq 0) then begin ; has not been read in 
-                jwst_mql_read_lc_data,x,y,info
+                jwst_mql_read_lin_data,x,y,info
             endif
             lc_data = (*info.jwst_image.plin_pixeldata)
 

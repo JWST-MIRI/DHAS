@@ -34,47 +34,47 @@ if(type eq 1 or type eq 0) then begin
             jwst_mql_update_zoom_image,info
         endif
 
-        if(XRegistered ('msql')) then begin
-            msql_update_slope,info.slope.plane[0],0,info
-            msql_update_slope,info.slope.plane[2],2,info
-            msql_update_zoom_image,info
+        if(XRegistered ('jwst_msql')) then begin
+            jwst_msql_update_slope,info.slope.plane[0],0,info
+            jwst_msql_update_slope,info.slope.plane[2],2,info
+            jwst_msql_update_zoom_image,info
         endif
 
-        if(XRegistered ('miql')) then begin
-            miql_update_images,info
+        if(XRegistered ('jwst_miql')) then begin
+            jwst_miql_update_images,info
         endif
 
-        if(XRegistered ('misql')) then begin
-            misql_update_images,info
+        if(XRegistered ('jwst_misql')) then begin
+            jwst_misql_update_images,info
         endif
 
-        if(XRegistered ('misql2')) then begin
-            misql2_update_images,info
+        if(XRegistered ('jwst_misql2')) then begin
+            jwst_misql2_update_images,info
         endif
 
-        if(XRegistered ('mirql')) then begin
-            mirql_update_images,info
-        endif
+       ; if(XRegistered ('jwst_mirql')) then begin
+       ;     mirql_update_images,info
+       ; endif
 
 
 
-        if(XRegistered ('mqldchr')) then begin ; channel display
-            for i = 0,4 do begin
-                mql_update_Channel,i,info
-            endfor
-        endif
+;        if(XRegistered ('mqldchr')) then begin ; channel display
+;            for i = 0,4 do begin
+;                mql_update_Channel,i,info
+;            endfor
+;        endif
 
-        if(XRegistered ('mqldschr')) then begin ; channel display
-            for i = 0,4 do begin
-                mql_update_SlopeChannel,i,info
-            endfor
-        endif
+;        if(XRegistered ('mqldschr')) then begin ; channel display
+;            for i = 0,4 do begin
+;                jwst_mql_update_SlopeChannel,i,info
+;            endfor
+;        endif
 
 
         if(XRegistered ('mql_compare')) then begin ; compare raw images
 
             for i = 0,2 do begin
-                mql_compare_update_images,info,i
+                jwst_mql_compare_update_images,info,i
             endfor
         endif
 
