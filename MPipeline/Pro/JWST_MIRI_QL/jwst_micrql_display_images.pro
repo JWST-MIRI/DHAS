@@ -30,9 +30,9 @@ endif
     case 1 of
 ;_______________________________________________________________________
 
-    (strmid(event_name,0,5) EQ 'print') : begin
-        print_crinspect_images,info,imageno
-    end    
+;    (strmid(event_name,0,5) EQ 'print') : begin
+;        print_crinspect_images,info,imageno
+;    end    
 ;_______________________________________________________________________
 ; scaling image
 ;_______________________________________________________________________

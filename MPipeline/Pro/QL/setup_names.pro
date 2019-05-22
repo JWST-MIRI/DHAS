@@ -16,7 +16,6 @@ status = 0
 
 ; The user did not provided the file name file on the command line- so
 ; pop up a box and let the user slect it
-
 ; When the user selects the file from the pop up box - result includes
 ;                                                      directory
 

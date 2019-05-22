@@ -62,10 +62,10 @@ pro jwst_image_print, event
 	     filename = disk + path + name + '.eps'
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
              device,  file=filename, /color,/landscape, encapsulated=1
-             if(type eq 0 ) then mql_update_images,info,/ps
-             if(type eq 1) then mql_update_zoom_image,info,/ps
-             if(type eq 2) then mql_update_slope,info,/ps
-             if(type eq 3) then mql_update_rampread,info,/ps
+             if(type eq 0 ) then jwst_mql_update_images,info,/ps
+             if(type eq 1) then jwst_mql_update_zoom_image,info,/ps
+             if(type eq 2) then jwst_mql_update_slope,info,/ps
+             if(type eq 3) then jwst_mql_update_rampread,info,/ps
              device,/close
              set_plot, 'x'
          end

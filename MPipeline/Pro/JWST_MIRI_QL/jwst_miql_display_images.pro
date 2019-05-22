@@ -28,9 +28,9 @@ if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
 endif
     case 1 of
 ;_______________________________________________________________________
-    (strmid(event_name,0,5) EQ 'print') : begin
-        print_inspect_images,info
-    end    
+;    (strmid(event_name,0,5) EQ 'print') : begin
+;        print_inspect_images,info
+;    end    
 ;_______________________________________________________________________
 ; scaling image
 ;_______________________________________________________________________

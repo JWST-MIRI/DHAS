@@ -42,7 +42,7 @@ widget_control,info.jwst_image.IrangeID[1],set_value=info.jwst_image.int_range[1
 num_int = info.jwst_image.int_range[1] - info.jwst_image.int_range[0] + 1
 
 if( ptr_valid(info.jwst_image.ppixeldata) eq 0) then  begin
-    mql_read_rampdata,xvalue,yvalue,pixeldata,info  
+    jwst_mql_read_rampdata,xvalue,yvalue,pixeldata,info  
 
     if ptr_valid (info.jwst_image.ppixeldata) then ptr_free,info.jwst_image.ppixeldata
     info.jwst_image.ppixeldata = ptr_new(pixeldata)    

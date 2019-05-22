@@ -100,8 +100,8 @@ if(imove eq 1) then begin
         frame_image = 0
         Widget_Control,info.jwst_QuickLook,Set_UValue=info
 
-        miql_update_images,info
-        miql_update_pixel_location,info
+        jwst_miql_update_images,info
+        jwst_miql_update_pixel_location,info
         Widget_Control,info.jwst_QuickLook,Set_UValue=info
     endif
 
@@ -171,8 +171,8 @@ if(fmove eq 1) then begin
         frame_image = 0
         Widget_Control,info.jwst_QuickLook,Set_UValue=info
 
-        miql_update_images,info
-        miql_update_pixel_location,info
+        jwst_miql_update_images,info
+        jwst_miql_update_pixel_location,info
         Widget_Control,info.jwst_QuickLook,Set_UValue=info
     endif
 

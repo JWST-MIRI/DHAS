@@ -27,7 +27,6 @@
 
 @jwst_read_single_cal.pro
 ;Raw and slope image display
-;@mql_cleanup_widgets.pro
 
 @jwst_mql_display_images.pro
 @jwst_mql_event.pro
@@ -43,7 +42,7 @@
 @jwst_mql_display_stat.pro
 @jwst_read_image_info.pro
 @jwst_difference_images.pro
-@jwst_ql_clean.pro
+;@jwst_ql_clean.pro
 
 @jwst_msql_display_slope.pro
 @jwst_msql_display_stat.pro

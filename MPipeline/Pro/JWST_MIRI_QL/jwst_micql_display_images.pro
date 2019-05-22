@@ -35,7 +35,7 @@ endif
 ;_______________________________________________________________________
 
     (strmid(event_name,0,5) EQ 'print') : begin
-        print_cinspect_images,info,imageno
+       ; print_cinspect_images,info,imageno
     end    
 ;_______________________________________________________________________
 ; scaling image
