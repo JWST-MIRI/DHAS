@@ -544,7 +544,7 @@ int main(int argc, char* argv[])
 
 	  if(control.subtract_dark==1)ms_setup_dark(i,isubset,this_nrow,control,data_info,CDP,dark);
 	  
-	  ms_read_prcess_data(i,isubset,this_nrow,refimage,
+	  ms_read_process_data(i,isubset,this_nrow,refimage,
 			       reset,
 			       RSCD,
 			       MULT,
