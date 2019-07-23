@@ -467,98 +467,114 @@ void ms_read_process_data( const int iter,
 	}      
     //-----------------------------------------------------------------------
 	// Multiple integration correction 
+	//	if( (control.apply_mult_cor == 1 && iter ==0 )  || 
+	//	    (control.apply_rscd_cor == 1 && iter == 0)){ 
+	    
+	  //	  float firstframe = 0; 
+	//	}
+
+
 	if(control.apply_mult_cor == 1) {
-	  if(iter== 0) {
-	     pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
-	  } else { // interation = 2,3...
+	  float datamult = 0;
+	  int sat_flag = 0;
+
+	  //	  if(iter== 0) {
+	    // pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
+	  //	  } else { // interation = 2,3...
 	    float lastint_lastframe= lastframe_rscd[pixel_index];
 	    float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
+	    datamult = lastint_lastframe;
 
-	    float datamult = lastint_lastframe;
-	    int sat_flag = 0;
 	    if (lastint_lastframe > 65000.0){
 	      datamult = lastint_lastframe_sat; 
 	      sat_flag = 1;
 	    }
-	    float min_tol = mult_min_tol_even;
-	    float mult_alpha  = mult_alpha_even;
-	    float mult_scale = (mult_a0_even + mult_a1_even*datamult)/data_info.NRamps;
-	    float mult_offset = -(mult_b0_even + mult_b1_even*datamult)/data_info.NRamps;
-	    float mult_sat_scale = mult_sat_param_even/data_info.NRamps;
-	    float mult_sat_offset = mult_offset;
+	    //	  }
+
+	  float min_tol = mult_min_tol_even;
+	  float mult_alpha  = mult_alpha_even;
+	  float mult_scale = (mult_a0_even + mult_a1_even*datamult)/data_info.NRamps;
+	  float mult_offset = -(mult_b0_even + mult_b1_even*datamult)/data_info.NRamps;
+	  float mult_sat_scale = mult_sat_param_even/data_info.NRamps;
+	  float mult_sat_offset = mult_offset;
 	    
-	    if(is_even ==0) {
-	      min_tol = mult_min_tol_odd;
-	      mult_alpha = mult_alpha_odd;
-	      mult_scale = (mult_a0_odd + mult_a1_odd*datamult)/data_info.NRamps;
-	      mult_offset = 0.0;
-	      mult_sat_scale =  (mult_b0_odd + mult_b1_odd*datamult)/data_info.NRamps;
-	      mult_sat_offset = 0.0;
-	    }
-		  
-	    pixel[ik].ApplyMULT(control.write_output_rscd_correction,
-				datamult,
-				min_tol,
-				mult_scale,
-	    			mult_offset,
-				mult_sat_scale,
-	    			mult_sat_offset,
-				sat_flag,
-				mult_alpha);
+	  if(is_even ==0) {
+	    min_tol = mult_min_tol_odd;
+	    mult_alpha = mult_alpha_odd;
+	    mult_scale = (mult_a0_odd + mult_a1_odd*datamult)/data_info.NRamps;
+	    mult_offset = 0.0;
+	    mult_sat_scale =  (mult_b0_odd + mult_b1_odd*datamult)/data_info.NRamps;
+	    mult_sat_offset = 0.0;
 	  }
+		  
+	  pixel[ik].ApplyMULT(control.write_output_rscd_correction,
+			      datamult,
+			      min_tol,
+			      mult_scale,
+			      mult_offset,
+			      mult_sat_scale,
+			      mult_sat_offset,
+			      sat_flag,
+			      mult_alpha);
 	}
 
 	// Subtract RSCD Correction 
 	if(control.apply_rscd_cor ==1 ) {
-	  if(iter== 0) {
-	    if(control.apply_mult_cor == 0) pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
-	  } else { // interation = 2,3...
-	    float lastint_lastframe= lastframe_rscd[pixel_index];
-	    float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
-	    float counts1 = (lastint_lastframe - rscd_crossopt_even)*rscd_mscale_even;
-	    float counts_sat = (lastint_lastframe_sat- rscd_crossopt_even)*rscd_mscale_even;
-	    float tau = rscd_tau_even;
-	    float scaler_const = rscd_scaler_const_even;
-	    float scaler_mult = rscd_scaler_mult_even;
-	    float sigma0 = rscd_sigma0_even;
-	    float sigma_mult = rscd_sigma_mult_even;
-	    float const_d = rscd_const_d_even;
-	    float sat_crossopt = rscd_sat_crossopt_even;
-	    float mu = rscd_mu_even;
-	    
-	    if(is_even ==0) {
-	      counts1 = (lastint_lastframe - rscd_crossopt_odd)*rscd_mscale_odd;
-	      counts_sat = (lastint_lastframe_sat - rscd_crossopt_odd)*rscd_mscale_odd;
-	      tau = rscd_tau_odd;
-	      scaler_const = rscd_scaler_const_odd;
-	      scaler_mult = rscd_scaler_mult_odd;
-	      sigma0 = rscd_sigma0_odd;
-	      sigma_mult = rscd_sigma_mult_odd;
-	      const_d = rscd_const_d_odd;
-	      sat_crossopt = rscd_sat_crossopt_odd;
-	      mu = rscd_mu_odd;
+	  float lastint_lastframe = 0;
+	  float lastint_lastframe_sat = 0;
+	  //	  if(iter== 0) {
+	  //	    if(control.apply_mult_cor == 0) pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
+	  //	  } else { // interation = 2,3...
+	    lastint_lastframe= lastframe_rscd[pixel_index];
+	    lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
+	    //	  }
 
-	    }
+	  float counts1 = (lastint_lastframe - rscd_crossopt_even)*rscd_mscale_even;
+	  float counts_sat = (lastint_lastframe_sat- rscd_crossopt_even)*rscd_mscale_even;
+	  float tau = rscd_tau_even;
+	  float scaler_const = rscd_scaler_const_even;
+	  float scaler_mult = rscd_scaler_mult_even;
+	  float sigma0 = rscd_sigma0_even;
+	  float sigma_mult = rscd_sigma_mult_even;
+	  float const_d = rscd_const_d_even;
+	  float sat_crossopt = rscd_sat_crossopt_even;
+	  float mu = rscd_mu_even;
 	    
-	    float framescale  = scaler_const + scaler_mult*data_info.NRamps*0.05;
-	    float sigma = sigma0 - sigma_mult*data_info.NRamps*0.05;
-	    float scale = 0.0;
-	    if(counts1 > 0){
-		if(lastint_lastframe > sat_crossopt) counts1 = counts_sat;
-		float val1 = log(counts1) - mu;
-		float val2 = counts1 * const_d;
-		float evalue = -0.5*sigma*sigma* val1*val1 + val2;
-		scale = 0.01*framescale*pi_value*sigma*exp(evalue);
-	      }
-		  
-	    pixel[ik].ApplyRSCD(control.write_output_rscd_correction,
-				control.n_reads_start_fit,
-				counts1,
-	    			tau,
-				scale,
-	    			lastint_lastframe);
+	  if(is_even ==0) {
+	    counts1 = (lastint_lastframe - rscd_crossopt_odd)*rscd_mscale_odd;
+	    counts_sat = (lastint_lastframe_sat - rscd_crossopt_odd)*rscd_mscale_odd;
+	    tau = rscd_tau_odd;
+	    scaler_const = rscd_scaler_const_odd;
+	    scaler_mult = rscd_scaler_mult_odd;
+	    sigma0 = rscd_sigma0_odd;
+	    sigma_mult = rscd_sigma_mult_odd;
+	    const_d = rscd_const_d_odd;
+	    sat_crossopt = rscd_sat_crossopt_odd;
+	    mu = rscd_mu_odd;
+
 	  }
+	    
+	  float framescale  = scaler_const + scaler_mult*data_info.NRamps*0.05;
+	  float sigma = sigma0 - sigma_mult*data_info.NRamps*0.05;
+	  float scale = 0.0;
+	  if(counts1 > 0){
+	    if(lastint_lastframe > sat_crossopt) counts1 = counts_sat;
+	    float val1 = log(counts1) - mu;
+	    float val2 = counts1 * const_d;
+	    float evalue = -0.5*sigma*sigma* val1*val1 + val2;
+	    scale = 0.01*framescale*pi_value*sigma*exp(evalue);
+	  }
+		  
+	  pixel[ik].ApplyRSCD(iter,
+			      control.rscd_int1_scale,
+			      control.write_output_rscd_correction,
+			      control.n_reads_start_fit,
+			      counts1,
+			      tau,
+			      scale,
+			      lastint_lastframe);
 	}
+	
     //-----------------------------------------------------------------------
       } // end process flag - then re-check it 
 

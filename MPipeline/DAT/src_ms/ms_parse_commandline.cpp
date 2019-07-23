@@ -544,7 +544,9 @@ void ms_parse_commandline(int& argc,
 
 
       // following options are either true or false
-      // rn, rx, rc rd, rdf, rs, rb,r6,r7
+      // rn, rx, rc rd, rdf, rs, rb, r6,r7
+      // ra & rz frame a, frame z for 1st int rscd correction frames to use
+      // to extrapolate to find first frame value
       //_______________________________________________________________________
     case 'r':
 
@@ -601,6 +603,53 @@ void ms_parse_commandline(int& argc,
 	}
 	break;
 	
+	//**********************************************************************
+	//parameter used in RSCD 1st int. frame_a, frame_z used to extrapolate
+	// linear fit to find what frame 1 would be with no reset effects. 
+      case 'z' :
+	if ( argc <= 2   ) {
+	  cout << " Ending  frame #  not given after -rz " << endl;
+	  cout << " Run again and provide number after rz" << endl;
+	  cout << " Printing Help screen" << endl;
+	  ms_usage();
+	  exit(EXIT_FAILURE);
+		}
+	control.rscd_int1_frame_z = atof(argv[2]);
+	control.rscd_int1_frame_z = control.rscd_int1_frame_z -1;
+	++argv;
+	--argc;
+	break;
+	//**********************************************************************
+      case 'a' :
+	//parameter used in RSCD 1st int. frame_a, frame_z used to extrapolate
+	// linear fit to find what frame 1 would be with no reset effects. 
+	if ( argc <= 2   ) {
+	  cout << "Starting frame #  not given after -ra " << endl;
+	  cout << " Run again and provide number after ra" << endl;
+	  cout << " Printing Help screen" << endl;
+	  ms_usage();
+	  exit(EXIT_FAILURE);
+		}
+	control.rscd_int1_frame_a = atof(argv[2]);
+	control.rscd_int1_frame_a = control.rscd_int1_frame_a -1 ;
+	++argv;
+	--argc;
+	break;
+	//**********************************************************************
+      case 'e' :
+	//parameter used in RSCD 1st int. 
+	//  experimental scaling factor 
+	if ( argc <= 2   ) {
+	  cout << "Scaling factor not given after -re " << endl;
+	  cout << " Run again and provide number after re" << endl;
+	  cout << " Printing Help screen" << endl;
+	  ms_usage();
+	  exit(EXIT_FAILURE);
+		}
+	control.rscd_int1_scale = atof(argv[2]);
+	++argv;
+	--argc;
+	break;
 	//**********************************************************************
       case 's' :
 	if ( argc <= 2   ) {
