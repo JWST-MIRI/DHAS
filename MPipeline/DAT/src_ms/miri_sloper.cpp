@@ -536,7 +536,6 @@ int main(int argc, char* argv[])
 	  ts = time(NULL);	
 	  if(control.do_verbose_time == 1) cout << " Time to Create pixel  " << ts - tv << endl;
 	  vector<miri_pixel> pixel(data_info.numpixels);
-
 	  // set up dark class
 	  int ND = data_info.numpixels;
 	  if(control.apply_dark_cor ==0) ND = 1; 
