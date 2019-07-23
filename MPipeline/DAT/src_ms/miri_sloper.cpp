@@ -177,10 +177,8 @@ int main(int argc, char* argv[])
     // Determine reset filename, max ints and nplanes for reset correction
     // Detemine the lastframe filename
 
-
     miri_CDP  CDP;
     ms_setup_processing(control,data_info,preference,CDP);
-
 
     // Read in lastframe file 
     if(control.apply_lastframe_cor == 1 ) {
@@ -246,14 +244,12 @@ int main(int argc, char* argv[])
      // use frame time in the header unless the user has set the frame time
      // Changing the frame time is an expert user situation.
 
-    //    data_info.frame_time_to_use = data_info.FrameTime; 
     data_info.frame_time_to_use = data_info.GroupTime; 
 
   // set up the name of the output header and the primary header
     // This program also sets up the intermediate files 
 
     ms_write_reduced_header(control,preference.preference_filename_used,data_info,CDP);
-
 
     // If the option to write an ascii file of reference pixel corrections is used -
     // this program sets up the file
@@ -277,7 +273,6 @@ int main(int argc, char* argv[])
     vector<float> Final_ID(tsize2);
     vector<float> Final_RMS(tsize2);
 
-
   // reference image (5th channel) data
     int xr_size = data_info.ref_naxes[0];
     int yr_size = data_info.ref_naxes[1];
@@ -291,7 +286,6 @@ int main(int argc, char* argv[])
     
     int Total_NFramesBad = 0; 
 
-
     long NLF = 1;
     if(do_multiple_int_cor == 1 && data_info.NInt > 1 ) NLF = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
     vector<float> lastframe_rscd(NLF,0.0);
@@ -301,6 +295,8 @@ int main(int argc, char* argv[])
     // and is filled in and the end of the loop over the integrations
     // 2. -rx: extrapolated absolute last frame using (second to last and third to last frames). 
 
+    // The firstframe_rscd is the first frame extrapolated forward using the last two frames in the integration
+    // The last two frames are used to avoid the initial frames affected by the reset effects
     // _______________________________________________________________________
     // Starting New Integration
     // _______________________________________________________________________
@@ -362,9 +358,9 @@ int main(int argc, char* argv[])
       // Set up the extrapolated last frame using the second and third to last frames
       // from the previous integration
       if (do_multiple_int_cor ==1 &&   i > 0 ){
-	//--------------------------------------------------------------------------------
-	if(control.rscd_lastframe_extrap ==1) {
-	  // Then read 2nd and 3rd to last frame 
+	  
+	if (control.rscd_lastframe_extrap ==1) {
+	  //  Read in second to last and third to last frames from previous integration
 	  // Find difference and add to 2nd to last frame
 	  // We want to do this to data not corrected by linearity correction
 	  int isecond_lastframe = data_info.NRamps -1;
@@ -382,9 +378,53 @@ int main(int argc, char* argv[])
 	      ik++;
 	    } 
 	  }
-	
 	}  // end control.rscd_lastframe_extrap ==1
-      }  //   end do_multiple_int_cor ==1 &&  i > 0 
+      }  //   end do_multiple_int_cor ==1  
+
+
+      // For the first integration find find 1 frames worth of counts but not affected by 
+      // the reset. Use two frames not affected by reset and extrapolate forward 
+      if (do_multiple_int_cor ==1 &&  i == 0){
+	
+	// Read in frame a, frame b (default 4 and 5). The user can change the frames
+
+	// Find difference and add to 2nd to last frame
+	// We want to do this to data not corrected by linearity correction
+	int iframea = control.rscd_int1_frame_a;
+	int iframez = control.rscd_int1_frame_z;
+	cout << " Frames using to approximate first frame value for RSCD first int" << " " <<
+	  iframea+1 << " " << iframez+1 << endl;
+	if(iframez == data_info.NRamps){
+	  cout << " Problem determining extrapolated first frame for first int RSCD correction" << endl;
+	  cout << " The last frame to be used to find first frame is too large" << endl;
+	  cout << " The last frame number is " << " " << iframez+1 << endl;
+	  cout << " Number of frames in integration" << " " << data_info.NRamps << endl;
+	  cout << " Run again and set frame range with -rda #, -rdz #" << endl;
+	  exit(EXIT_FAILURE);
+	}
+	 
+	long NLAST = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
+	vector<float> frame_a(NLAST,0.0);
+	vector<float> frame_z(NLAST,0.0);
+	ms_read_frame_from_int(data_info,i,iframea, frame_a);
+	ms_read_frame_from_int(data_info,i,iframez, frame_z);
+
+	long ik = 0; 
+	for (long i = 0; i< data_info.ramp_naxes[1] ; i++){
+	  for (long j = 0; j < data_info.ramp_naxes[0]; j++){
+	    float diff = float(frame_z[ik] - frame_a[ik]) / (iframez - iframea);
+	    lastframe_rscd[ik] = float(frame_a[ik]) - (diff* iframea);
+	    lastframe_rscd_sat[ik] = lastframe_rscd[ik];
+	    ik++;
+	  } 
+	}
+
+	int index  =  (184-1)+  (166-1)*data_info.ramp_naxes[0];
+	//	cout << "index for 183, 165" << index << endl;
+
+	cout << "miri_sloper: frame info  " << frame_a[index] << " " << frame_z[index] << " " << lastframe_rscd[index] << endl;
+
+      }  //   end do_multiple_int_cor ==1  
 
       //________________________________________________________________________________
       if (control.apply_lastframe_cor ==1 ){
@@ -504,7 +544,7 @@ int main(int argc, char* argv[])
 
 	  if(control.subtract_dark==1)ms_setup_dark(i,isubset,this_nrow,control,data_info,CDP,dark);
 	  
-	  ms_read_process_data(i,isubset,this_nrow,refimage,
+	  ms_read_prcess_data(i,isubset,this_nrow,refimage,
 			       reset,
 			       RSCD,
 			       MULT,

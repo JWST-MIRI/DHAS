@@ -63,8 +63,6 @@ miri_pixel::miri_pixel(): quality_flag(), is_ref(),signal(0), signal_unc(0),zero
 //Default destructor
 miri_pixel::~miri_pixel() {}
 
-
-
 //_______________________________________________________________________
 //_______________________________________________________________________
 
@@ -292,7 +290,6 @@ void miri_pixel::Get2ptDiffIndexP(const int start_fit,
   }
 }
        
-
 
 // 
 
@@ -554,11 +551,6 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
 
 }
 
-
-
-
-//_______________________________________________________________________
-
 //_______________________________________________________________________
 void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
 					 short dq_flag, 
@@ -620,8 +612,6 @@ void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
     if(dq_flag & CDP_NORESET)     quality_flag = quality_flag + UNRELIABLE_RESET ;
 }
 
-
-
 //_______________________________________________________________________
 void miri_pixel::RSCD_UpdateInt1(const int write_corrected_data){
 
@@ -637,14 +627,15 @@ void miri_pixel::RSCD_UpdateInt1(const int write_corrected_data){
   return;
 }
 //_______________________________________________________________________
-void miri_pixel::ApplyRSCD(const int write_corrected_data,
+void miri_pixel::ApplyRSCD(int inter,
+			   float int1_scale,
+			   const int write_corrected_data,
 			   int frame_start,
 			   float counts,
 			   float tau,
 			   float scale,
 			   float lastframeDN){
 			
-
 
   if(is_ref) { //Reference Pixel (no  correction determined)
     if(write_corrected_data==1) {
@@ -660,22 +651,18 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
     process_flag = 0;
     quality_flag = quality_flag + NO_RSCD_CORRECTION ;
     return;
-
   }
 
   int debug = 0;
   
   if(pix_x == -184 && pix_y == 166) debug = 1;
   if(debug==1)  {
-    cout << " lastframeDN " << lastframeDN << endl;
+    cout << " RSCD frame value " << lastframeDN << endl;
     cout << " counts " << counts << endl;
     cout << " scale " << scale << endl;
     cout << "first 3 ramp values" << raw_data[0] << " " << raw_data[1] << " " << raw_data[2] << endl;
   }
   
-
-  
-
   if(counts <= 0){
     // make no correction for this type of data
     quality_flag = quality_flag + NO_RSCD_CORRECTION ;
@@ -692,6 +679,12 @@ void miri_pixel::ApplyRSCD(const int write_corrected_data,
 	    corr <<  " " << counts << " "   << lastframeDN << " " << raw_data[i] << " " <<
 	    raw_data[i] + corr  << endl;
 
+	}
+	if(inter == 0){
+	  corr = corr* int1_scale;
+	  if(debug == 1) {
+	    cout << " New corr " << corr << endl;
+	  }
 	}
 	raw_data[i] = raw_data[i] +corr;
 	if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
@@ -745,7 +738,6 @@ void miri_pixel::ApplyMULT(const int write_corrected_data,
     cout << "first 3 ramp values" << raw_data[0] << " " << raw_data[1] << " " << raw_data[2] << endl;
   }
 
-
   if(datamult > min_tol){ // only correct data if lastframe last in > minimum tolerance
     vector<float> correct;
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
@@ -757,7 +749,6 @@ void miri_pixel::ApplyMULT(const int write_corrected_data,
 	correct.push_back(corr);
     }
 
-    //    vector<float> new_correct(raw_data.size()-1,0.0);
     vector<float> new_correct(raw_data.size(),0.0);
     for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- correct[raw_data.size()-2-i];
@@ -794,7 +785,6 @@ void miri_pixel::ApplyLastFrameCorrection(const int write_corrected_data,
 					  int dq_row_below,
 					  vector<float> a_even, vector<float> b_even,
 					  vector<float> a_odd, vector<float> b_odd){
-
 
   // frame to correct						  
   int iframe = raw_data.size() -1 ;
@@ -888,9 +878,7 @@ void miri_pixel::SubtractDarkCorrection(const int write_corrected_data,
     if(dq_flag & CDP_NODARK)     quality_flag = quality_flag + UNRELIABLE_DARK ;
 
 }
-
 //*****************************************************************************************
-
 
 void miri_pixel::PrintData(){
   cout << " Data for pixel (1032 X 1024) " << pix_x << " " << pix_y << endl;
@@ -911,8 +899,6 @@ void miri_pixel::PrintData(){
     cout << " Segment Flag " << seg_flag[i] << endl;
     cout << " Segment Slope " << seg_slope[i] << endl;
   }
-
-
 }
 
 //_______________________________________________________________________
@@ -1031,7 +1017,6 @@ void miri_pixel::CalculateSlopeNoErrors(int start_fit,int xdebug, int ydebug){
     }
 
     float SxS = sx/s;
-
     float stt(0.0);
     float ty(0.0);
     for (int k = seg_begin[i] ; k <= seg_end[i]; k++){

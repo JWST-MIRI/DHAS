@@ -108,6 +108,12 @@ void ms_usage()
   cout << " -rdf filename rscd file to use. (Default provided in MIRI_CDP list found preferences file" << endl;
   cout << "     ATTENTION: miri_sloper will figure out the correct  file to use that is found in the calibration directory" << endl;
   cout << "     ONLY provide the filename if you are using a special user modified file" << endl;
+  cout << " ---- parameters used for correcting the first integtation for the RSCD effect ---------" << endl;
+  cout << " ---- The expected first frame is estimated by extrapolating back using 2 frames (feel of reset effect)" << endl;
+  cout << " -ra # frame 1  (default is frame 4)" << endl;
+  cout << " -rz # frame 5  (default is frame 5)" << endl;
+  cout << " -re # scaling factor for RSCD first int (experimental - default 1)" << endl;
+    
 
 
   cout << "   " << endl;

@@ -87,6 +87,9 @@ struct miri_control {
   int flag_apply_lastframe_cor;
 
 
+  int rscd_int1_frame_a;
+  int rscd_int1_frame_z;
+  int rscd_int1_scale; 
   int do_cr_id;             // do cosmic ray identification
 
   int do_verbose;           // output various status messages during reduction

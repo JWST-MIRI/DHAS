@@ -135,7 +135,10 @@ void ms_initialize_control(miri_control &control)
   control.dark_cor_file = "";
 
   control.apply_rscd_cor = 0;             // +/- rd do (not do) RSCD correction
-  control.flag_apply_rscd_cor = 0; 
+  control.flag_apply_rscd_cor = 0;
+  control.rscd_int1_frame_a = 4;
+  control.rscd_int1_frame_z = 5;
+  control.rscd_int1_scale= 1.0;
   control.write_output_rscd_correction = 0;
   control.flag_write_output_rscd_correction = 0;
   control.rscd_lastframe_corrected = 0;

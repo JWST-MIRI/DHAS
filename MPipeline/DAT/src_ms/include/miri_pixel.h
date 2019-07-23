@@ -76,7 +76,9 @@ class  miri_pixel {
 				vector<float>, vector<float>,
 				vector<float>, vector<float>);
   void RSCD_UpdateInt1(const int write_corrected_data);
-  void ApplyRSCD(const int write_corrected_data,
+  void ApplyRSCD(int inter,
+		 float int1_sscale_factor,
+		 const int write_corrected_data,
 		 int StartFrame,
 		 float counts, 
 		 float tau,
