@@ -4,7 +4,6 @@ color6
 !p.multi = 0
 
 
-
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 stitle = ' '
@@ -98,20 +97,31 @@ endif
 
 if(info.control.file_mdc_exist eq 0) then info.image.overplot_mdc = 0
 if(info.image.overplot_mdc eq 1 ) then begin
+   if(ptr_valid(info.image.pmdc_pixeldata) eq 0) then begin
+      mql_read_mdc_data,xvalue,yvalue,info
+   endif
     mdc_data = (*info.image.pmdc_pixeldata)[ii:ij,*,0]
  endif
 
 if(info.control.file_reset_exist eq 0) then info.image.overplot_reset = 0
 if(info.image.overplot_reset eq 1 ) then begin
+   if(ptr_valid(info.image.preset_pixeldata) eq 0) then begin
+      mql_read_reset_data,xvalue,yvalue,info
+   endif
    reset_data = (*info.image.preset_pixeldata)[ii:ij,*,0]
 endif
 
 if(info.control.file_rscd_exist eq 0) then info.image.overplot_rscd = 0
 if(info.image.overplot_rscd eq 1 ) then begin
+   if(ptr_valid(info.image.prscd_pixeldata) eq 0) then begin
+      mql_read_rscd,xvalue,yvalue,info
+   endif
+
    rscd_data = (*info.image.prscd_pixeldata)[ii:ij,*,0]
 endif
 
 if(info.control.file_lastframe_exist eq 0) then info.image.overplot_lastframe = 0
+
 if(info.image.overplot_lastframe eq 1 ) then begin
     lastframe_data = (*info.image.plastframe_pixeldata)[ii:ij,0]
 endif

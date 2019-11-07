@@ -887,7 +887,7 @@ endif
             mql_read_mdc_data,pixel_xvalue,pixel_yvalue,info
         endif
 
-         mql_update_rampread,info                     
+         ;mql_update_rampread,info                     
 
 ; fill in the reset, if the file was written
         if(info.control.file_reset_exist eq 1)then begin
