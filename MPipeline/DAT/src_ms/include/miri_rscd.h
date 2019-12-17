@@ -18,6 +18,7 @@ using namespace std;
 // Class holding linearit correction
 
 class  miri_rscd {
+  
  public:
   miri_rscd();            // default constructor
   ~miri_rscd();
@@ -25,91 +26,84 @@ class  miri_rscd {
 //_______________________________________________________________________
   // RSCD
 
-    inline void SetParameters(float Ttau_even, float Tmscale_even, float Tscaler_const_even,
-			      float Tscaler_mult_even, float Tsigma0_even,
-			      float Tsigma_mult_even, float Tmu_even, float Tsat_cross_even,
-			      float Tcross_even, float Tconst_d_even,
-			      float Ttau_odd, float Tmscale_odd, float Tscaler_const_odd,
-			      float Tscaler_mult_odd, float Tsigma0_odd,
-			      float Tsigma_mult_odd, float Tmu_odd, float Tsat_cross_odd,
-			      float Tcross_odd, float Tconst_d_odd){
-      tau_even = Ttau_even;
-      mscale_even = Tmscale_even;
-      scaler_const_even = Tscaler_const_even;
-      scaler_mult_even = Tscaler_mult_even;
-      sigma0_even = Tsigma0_even;
-      sigma_mult_even = Tsigma_mult_even;
-      mu_even = Tmu_even;
-      crossopt_even = Tcross_even;
-      sat_crossopt_even = Tsat_cross_even;
-      const_d_even = Tconst_d_even;
+    inline void SetParametersGen(float Tlower_cutoff, float Talpha_even, 
+			      float Talpha_odd){
 
-      tau_odd = Ttau_odd;
-      mscale_odd = Tmscale_odd;
-      scaler_const_odd = Tscaler_const_odd;
-      scaler_mult_odd = Tscaler_mult_odd;
-      sigma0_odd = Tsigma0_odd;
-      sigma_mult_odd = Tsigma_mult_odd;
-      mu_odd = Tmu_odd;
-      crossopt_odd = Tcross_odd;
-      sat_crossopt_odd = Tsat_cross_odd;
-      const_d_odd = Tconst_d_odd;
+      lower_cutoff = Tlower_cutoff;
+      alpha_even = Talpha_even;
+      alpha_odd = Talpha_odd;
+
     }
 
-  inline void GetParams(float &rscd_tau_even,
-			float &rscd_tau_odd,
-			float &rscd_mscale_even,
-			float &rscd_mscale_odd,
-			float &rscd_scaler_const_even,
-			float &rscd_scaler_const_odd,
-			float &rscd_scaler_mult_even,
-			float &rscd_scaler_mult_odd,
-			float &rscd_sigma0_even,
-			float &rscd_sigma0_odd,
-			float &rscd_sigma_mult_even,
-			float &rscd_sigma_mult_odd,
-			float &rscd_mu_even,
-			float &rscd_mu_odd,
-			float &rscd_crossopt_even,
-			float &rscd_crossopt_odd,
-			float &rscd_sat_crossopt_even,
-			float &rscd_sat_crossopt_odd,
-			float &rscd_const_d_even,
-			float &rscd_const_d_odd) {
+    inline void SetParameters(float Ta0_even, float Ta1_even,
+			      float Ta2_even, float Ta3_even,
+			      float Ta0_odd, float Ta1_odd,
+			      float Ta2_odd, float Ta3_odd){
+      
+      a0_even.push_back(Ta0_even);
+      a1_even.push_back(Ta1_even);
+      a2_even.push_back(Ta2_even);
+      a3_even.push_back(Ta3_even);
+
+      a0_odd.push_back(Ta0_odd);
+      a1_odd.push_back(Ta1_odd);
+      a2_odd.push_back(Ta2_odd);
+      a3_odd.push_back(Ta3_odd);
+    }
+
+    inline void GetParams(int i,
+			  float &rscd_lower_cutoff,
+			  float &rscd_alpha_even,
+			  float &rscd_alpha_odd,
+			  float &rscd_a0_even,
+			  float &rscd_a0_odd,
+			  float &rscd_a1_even,
+			  float &rscd_a1_odd,
+			  float &rscd_a2_even,
+			  float &rscd_a2_odd,
+			  float &rscd_a3_even,
+			  float &rscd_a3_odd){
 
 
-    rscd_tau_even = tau_even ;
-    rscd_tau_odd  = tau_odd; 
-    rscd_mscale_even= mscale_even ;
-    rscd_mscale_odd=  mscale_odd;
-    rscd_scaler_const_even= scaler_const_even;
-    rscd_scaler_const_odd= scaler_const_odd;
-    rscd_scaler_mult_even= scaler_mult_even;
-    rscd_scaler_mult_odd= scaler_mult_odd;
-    rscd_sigma0_even= sigma0_even;
-    rscd_sigma0_odd= sigma0_odd;
-    rscd_sigma_mult_even= sigma_mult_even;
-    rscd_sigma_mult_odd= sigma_mult_odd;
-    rscd_mu_even = mu_even;
-    rscd_mu_odd = mu_odd;
-    rscd_crossopt_even  = crossopt_even;
-    rscd_crossopt_odd =     crossopt_odd;
-    rscd_sat_crossopt_even  = sat_crossopt_even;
-    rscd_sat_crossopt_odd =   sat_crossopt_odd;
-    rscd_const_d_even =  const_d_even;
-    rscd_const_d_odd =  const_d_odd;
+    rscd_lower_cutoff = lower_cutoff ;
+    rscd_alpha_odd  = alpha_odd; 
+    rscd_alpha_even  = alpha_even;
+
+    cout << "rscd parameters" << rscd_lower_cutoff << " " << 
+      rscd_alpha_odd << " " << rscd_alpha_even << endl;
+
+    rscd_a0_even = a0_even[i];
+    rscd_a0_odd = a0_odd[i];
+	
+    rscd_a1_even = a1_even[i];
+    rscd_a1_odd = a1_odd[i];
+	
+    rscd_a2_even = a2_even[i];
+    rscd_a2_odd = a2_odd[i];
+
+    rscd_a3_even = a3_even[i];
+    rscd_a3_odd = a3_odd[i];
+    cout << i << " " << rscd_a0_even << " "  << rscd_a1_even << " " << rscd_a2_even << " " << rscd_a3_even  << endl;
+
   }
 //_______________________________________________________________________
      private:
 
-  float tau_even,mscale_even,scaler_const_even,scaler_mult_even,
-    sigma0_even,mu_even,const_d_even,sigma_mult_even,
-    sat_crossopt_even,crossopt_even;
+  float lower_cutoff;
+  float alpha_even;
+  float alpha_odd;
+  
+  vector<float> a0_even;
+  vector<float> a0_odd;
 
-  float tau_odd,mscale_odd,scaler_const_odd,scaler_mult_odd,
-    sigma0_odd,mu_odd,const_d_odd, sigma_mult_odd,
-    sat_crossopt_odd,crossopt_odd;
+  vector<float> a1_even;
+  vector<float> a1_odd;
 
+  vector<float> a2_even;
+  vector<float> a2_odd;
+
+  vector<float> a3_even;
+  vector<float> a3_odd;
 
 };
 

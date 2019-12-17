@@ -232,8 +232,8 @@ void ms_usage()
   cout << "      This is used if number of frames is over the -FL limit (see above) " << endl;
 
 
-  cout << " -run # <integer> JPL Run #, valid values are 1-8" << endl;
-  cout << " -jdet # string  Detector to use for JPL Run 8, valid values are 101, 106 or 124" << endl;
+  cout << " -run # <integer> JPL Run #, valid values are 1-9" << endl;
+  cout << " -jdet # string  Detector to use for JPL Run 8 & 9, valid values are 101, 106 or 124" << endl;
 
 
 

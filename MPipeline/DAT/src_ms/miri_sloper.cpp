@@ -185,6 +185,7 @@ int main(int argc, char* argv[])
       ms_read_lastframe_file(control,data_info,CDP); 
     }
 
+    
     // Read in RSCD file 
     miri_rscd RSCD;
     if(control.apply_rscd_cor == 1) {
@@ -394,6 +395,7 @@ int main(int argc, char* argv[])
 	int iframez = control.rscd_int1_frame_z;
 	cout << " Frames using to approximate first frame value for RSCD first int" << " " <<
 	  iframea+1 << " " << iframez+1 << endl;
+
 	if(iframez == data_info.NRamps){
 	  cout << " Problem determining extrapolated first frame for first int RSCD correction" << endl;
 	  cout << " The last frame to be used to find first frame is too large" << endl;
@@ -410,7 +412,7 @@ int main(int argc, char* argv[])
 	ms_read_frame_from_int(data_info,i,iframez, frame_z);
 
 	long ik = 0; 
-	for (long i = 0; i< data_info.ramp_naxes[1] ; i++){
+	for (long m = 0; m< data_info.ramp_naxes[1] ; m++){
 	  for (long j = 0; j < data_info.ramp_naxes[0]; j++){
 	    float diff = float(frame_z[ik] - frame_a[ik]) / (iframez - iframea);
 	    lastframe_rscd[ik] = float(frame_a[ik]) - (diff* iframea);
@@ -419,10 +421,26 @@ int main(int argc, char* argv[])
 	  } 
 	}
 
-	int index  =  (184-1)+  (166-1)*data_info.ramp_naxes[0];
-	//	cout << "index for 183, 165" << index << endl;
+	int index  =  (600-1)+  (400-1)*data_info.ramp_naxes[0];
 
-	cout << "miri_sloper: frame info  " << frame_a[index] << " " << frame_z[index] << " " << lastframe_rscd[index] << endl;
+	cout << "miri_sloper: frame info  " << frame_a[index] << " " << frame_z[index] << " " <<
+	   lastframe_rscd[index] << endl;
+	cout << " Using first frame for RSCD 1st int correction " << endl;
+	long NFIRST = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
+	vector<float> frame_1(NFIRST,0.0);
+	ms_read_frame_from_int(data_info,i,1, frame_1);
+
+	long ikk = 0; 
+	for (long m = 0; m< data_info.ramp_naxes[1] ; m++){
+	  for (long j = 0; j < data_info.ramp_naxes[0]; j++){
+	    lastframe_rscd[ikk] = float(frame_1[ikk]) ;
+	    lastframe_rscd_sat[ikk] = lastframe_rscd[ikk];
+	    ikk++;
+	  } 
+	}
+
+
+	cout << "miri_sloper: frame 1 info  "  << " " << frame_1[index]  << endl;
 
       }  //   end do_multiple_int_cor ==1  
 
@@ -578,6 +596,7 @@ int main(int argc, char* argv[])
 				       control.write_output_rscd_correction,
 				       i,isubset,this_nrow,
 				       control.n_reads_start_fit,
+				       control.video_offset,
 				       data_info,pixel);
 	  }
 
@@ -725,6 +744,7 @@ int main(int argc, char* argv[])
 			  control.dn_high_sat,
 			  control.gain,
 			  control.read_noise_electrons,
+			  control.video_offset,
 			  data_info,refpixel); 
   // **********************************************************************
 	  // flag bad pixels- will there be bad pixels in reference output

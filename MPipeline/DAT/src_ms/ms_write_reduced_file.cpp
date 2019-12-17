@@ -66,6 +66,10 @@
 //      http://tiamat.as.arizona.edu/dhas/
 
 #include "miri_sloper.h"
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <functional>
 // open and setup the reduced FITS file: control.raw_bitsbase + ".red.fits";
 
 void ms_write_reduced_file(const int intnum,
@@ -150,6 +154,9 @@ void ms_write_reduced_file(const int intnum,
 
   if(control.do_diagnostic ==1)  nelements = tsize*12;
   vector<float> data(nelements);
+
+  transform(ZeroPt.begin(), ZeroPt.end(), ZeroPt.begin(), bind2nd(minus<double>(), control.video_offset));
+
   // _______________________________________________________________________
   // Write only Slope and Zero Pt
 

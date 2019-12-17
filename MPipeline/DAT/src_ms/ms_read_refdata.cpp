@@ -74,6 +74,7 @@ void ms_read_refdata(const int iter,
 		     const float dn_high_sat,
 		     const float gain,
 		     const float read_noise,
+		     const float video_offset,
 		     miri_data_info &data_info,
 		     vector<miri_pixel> &refpixel)
 
@@ -155,7 +156,7 @@ void ms_read_refdata(const int iter,
 
 	for(; Iter < Iter_end; Iter=Iter+incr){
 	  short id = 0;
-	  refpixel[ik].SetRampData(*Iter,id,gain,read_noise_factor);
+	  refpixel[ik].SetRampData(*Iter,id,gain,read_noise_factor,video_offset);
 	}
 
 

@@ -203,82 +203,53 @@ void ms_read_process_data( const int iter,
   }
   //***********************************************************************
   // Set up parameters for RSCD correction
-  float rscd_mscale_even =0.0;
-  float rscd_mscale_odd=0.0;
-  float rscd_tau_even=0.0;
-  float rscd_tau_odd=0.0;
-  float rscd_scaler_const_even=0.0;
-  float rscd_scaler_const_odd=0.0;
-  float rscd_scaler_mult_even=0.0;
-  float rscd_scaler_mult_odd=0.0;
-  float rscd_crossopt_even=0.0;
-  float rscd_crossopt_odd=0.0;
-  float rscd_sat_crossopt_even=0.0;
-  float rscd_sat_crossopt_odd=0.0;
-  float rscd_sigma0_even=0.0;
-  float rscd_sigma0_odd=0.0;
-  float rscd_sigma_mult_even=0.0;
-  float rscd_sigma_mult_odd=0.0;
-  float rscd_mu_even=0.0;
-  float rscd_mu_odd=0.0;
-  float rscd_const_d_even=0.0;
-  float rscd_const_d_odd=0.0;
+  float rscd_lower_cutoff = 0;
+  float rscd_alpha_even=0;
+  float rscd_alpha_odd=0;
+  float rscd_a0_even=0;
+  float rscd_a0_odd=0;
+  float rscd_a1_even=0;
+  float rscd_a1_odd=0;
+  float rscd_a2_even=0;
+  float rscd_a2_odd=0;
+  float rscd_a3_even=0;
+  float rscd_a3_odd=0;
 
   if(control.apply_rscd_cor ==1 ) {
-    RSCD.GetParams(rscd_tau_even,
-		   rscd_tau_odd,
-		   rscd_mscale_even,
-		   rscd_mscale_odd,
-		   rscd_scaler_const_even,
-		   rscd_scaler_const_odd,
-		   rscd_scaler_mult_even,
-		   rscd_scaler_mult_odd,
-		   rscd_sigma0_even,
-		   rscd_sigma0_odd,
-		   rscd_sigma_mult_even,
-		   rscd_sigma_mult_odd,
-		   rscd_mu_even,
-		   rscd_mu_odd,
-		   rscd_crossopt_even,
-		   rscd_crossopt_odd,
-		   rscd_sat_crossopt_even,
-		   rscd_sat_crossopt_odd,
-		   rscd_const_d_even,
-		   rscd_const_d_odd);
+
+    RSCD.GetParams(iter, rscd_lower_cutoff,
+		   rscd_alpha_even, rscd_alpha_odd,
+		   rscd_a0_even, rscd_a0_odd,
+		   rscd_a1_even, rscd_a1_odd,
+		   rscd_a2_even, rscd_a2_odd,
+		   rscd_a3_even, rscd_a3_odd);
   }
 
   // set up parameters for multiple integration correction
 
   float mult_min_tol_even = 0.0;
   float mult_min_tol_odd= 0.0;
-  float mult_a0_even = 0.0;
-  float mult_a1_even= 0.0;
-  float mult_b0_even = 0.0;
-  float mult_b1_even= 0.0;
-  float mult_a0_odd = 0.0;
-  float mult_a1_odd= 0.0;
-  float mult_b0_odd = 0.0;
-  float mult_b1_odd= 0.0;
   float mult_alpha_even = 0.0;
   float mult_alpha_odd= 0.0;
-  float mult_sat_param_even = 0.0;
-  float mult_sat_param_odd= 0.0;
+
+  vector<float> mult_a_even(2);
+  vector<float> mult_a_odd(2);
+  vector<float> mult_b_even(2);
+  vector<float> mult_b_odd(2);
+  vector<float> mult_c_even(2);
+  vector<float> mult_c_odd(2);
+  vector<float> mult_d_even(2);
+  vector<float> mult_d_odd(2);
 
   if(control.apply_mult_cor ==1 ) {
     MULT.GetParams(mult_min_tol_even,
 		   mult_min_tol_odd,
-		   mult_a0_even,
-		   mult_a0_odd,
-		   mult_a1_even,
-		   mult_a1_odd,
-		   mult_b0_even,
-		   mult_b0_odd,
-		   mult_b1_even,
-		   mult_b1_odd,
 		   mult_alpha_even,
 		   mult_alpha_odd,
-		   mult_sat_param_even,
-		   mult_sat_param_odd);
+		   mult_a_even, mult_a_odd,
+		   mult_b_even, mult_b_odd,
+		   mult_c_even, mult_c_odd,
+		   mult_d_even, mult_d_odd);
   }
   //***********************************************************************
   time_t t0; 
@@ -361,7 +332,7 @@ void ms_read_process_data( const int iter,
 	  id = BADFRAME;
 	}
 
-	pixel[ik].SetRampData(*Iter,id,control.gain,read_noise_dn2);
+	pixel[ik].SetRampData(*Iter,id,control.gain,read_noise_dn2,control.video_offset);
 
       }
 
@@ -461,119 +432,91 @@ void ms_read_process_data( const int iter,
 	    lin[kp] = linearity[pixel_index].GetCorrection(kp);
 	  }
 	  pixel[ik].CorrectNonLinearity(control.write_output_lc_correction,
-					control.apply_lin_offset,
-					control.n_reads_start_fit,
-					lin_dq,lin_order,lin);
+					lin_dq,
+					lin_order,
+					lin);
 	}      
     //-----------------------------------------------------------------------
-	// Multiple integration correction 
-	//	if( (control.apply_mult_cor == 1 && iter ==0 )  || 
-	//	    (control.apply_rscd_cor == 1 && iter == 0)){ 
-	    
-	  //	  float firstframe = 0; 
-	//	}
+	if(control.apply_mult_cor == 1 || control.apply_rscd_cor) {
 
+	  float lastint_lastframe= lastframe_rscd[pixel_index];
+	  float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
 
-	if(control.apply_mult_cor == 1) {
-	  float datamult = 0;
-	  int sat_flag = 0;
+	    // mult terms
+	  vector<float> mult_a;
+	  vector<float> mult_b;
+	  vector<float> mult_c;
+	  vector<float> mult_d;
 
-	  //	  if(iter== 0) {
-	    // pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
-	  //	  } else { // interation = 2,3...
-	    float lastint_lastframe= lastframe_rscd[pixel_index];
-	    float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
-	    datamult = lastint_lastframe;
-
-	    if (lastint_lastframe > 65000.0){
-	      datamult = lastint_lastframe_sat; 
-	      sat_flag = 1;
-	    }
-	    //	  }
-
-	  float min_tol = mult_min_tol_even;
 	  float mult_alpha  = mult_alpha_even;
-	  float mult_scale = (mult_a0_even + mult_a1_even*datamult)/data_info.NRamps;
-	  float mult_offset = -(mult_b0_even + mult_b1_even*datamult)/data_info.NRamps;
-	  float mult_sat_scale = mult_sat_param_even/data_info.NRamps;
-	  float mult_sat_offset = mult_offset;
-	    
+	  float mult_min_tol = mult_min_tol_even;
+
+	  mult_a = mult_a_even;
+	  mult_b = mult_b_even;
+	  mult_c = mult_c_even;
+	  mult_d = mult_d_even;
+	  if(iter ==0){
+	    mult_min_tol = 70000; // do not apply to first int
+	  }
+	      
+	    // rscd terms
+	  float rscd_alpha = rscd_alpha_even;
+	  float rscd_min_tol = rscd_lower_cutoff;
+	  int ii = iter;
+	  if (iter >3)
+	    ii = 3;
+
+	  float rscd_a0 = rscd_a0_even;
+	  float rscd_a1 = rscd_a1_even;
+	  float rscd_a2 = rscd_a2_even;
+	  float rscd_a3 = rscd_a3_even;
+
+
 	  if(is_even ==0) {
-	    min_tol = mult_min_tol_odd;
 	    mult_alpha = mult_alpha_odd;
-	    mult_scale = (mult_a0_odd + mult_a1_odd*datamult)/data_info.NRamps;
-	    mult_offset = 0.0;
-	    mult_sat_scale =  (mult_b0_odd + mult_b1_odd*datamult)/data_info.NRamps;
-	    mult_sat_offset = 0.0;
+	    mult_min_tol = mult_min_tol_odd;
+	    rscd_alpha = rscd_alpha_odd;
+
+	    mult_a = mult_a_odd;
+	    mult_b = mult_b_odd;
+	    mult_c = mult_c_odd;
+	    mult_d = mult_d_odd;
+
+	    rscd_a0 = rscd_a0_odd;
+	    rscd_a1 = rscd_a1_odd;
+	    rscd_a2 = rscd_a2_odd;
+	    rscd_a3 = rscd_a3_odd;
+	  }
+
+	  if (iter == 0){  // first integration, first frame
+	    if(lastint_lastframe < sat){ // not a hot pixel
+	      rscd_min_tol = 0;
+	    } else { // a hot pixel do not apply correction
+	      rscd_min_tol = 700000;
+	    }
 	  }
 		  
-	  pixel[ik].ApplyMULT(control.write_output_rscd_correction,
-			      datamult,
-			      min_tol,
-			      mult_scale,
-			      mult_offset,
-			      mult_sat_scale,
-			      mult_sat_offset,
-			      sat_flag,
-			      mult_alpha);
+	  pixel[ik].ApplyMULTRSCD(control.write_output_rscd_correction,
+				  control.n_reads_start_fit,
+				  data_info.NRampsRead,
+				  lastint_lastframe,
+				  lastint_lastframe_sat,
+				  sat,
+				  mult_alpha,
+				  mult_min_tol,
+				  mult_a,
+				  mult_b,
+				  mult_c,
+				  mult_d,
+				  rscd_alpha,
+				  rscd_min_tol,
+				  rscd_a0,
+				  rscd_a1,
+				  rscd_a2,
+				  rscd_a3);
+
 	}
 
-	// Subtract RSCD Correction 
-	if(control.apply_rscd_cor ==1 ) {
-	  float lastint_lastframe = 0;
-	  float lastint_lastframe_sat = 0;
-	  //	  if(iter== 0) {
-	  //	    if(control.apply_mult_cor == 0) pixel[ik].RSCD_UpdateInt1(control.write_output_rscd_correction);
-	  //	  } else { // interation = 2,3...
-	    lastint_lastframe= lastframe_rscd[pixel_index];
-	    lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
-	    //	  }
-
-	  float counts1 = (lastint_lastframe - rscd_crossopt_even)*rscd_mscale_even;
-	  float counts_sat = (lastint_lastframe_sat- rscd_crossopt_even)*rscd_mscale_even;
-	  float tau = rscd_tau_even;
-	  float scaler_const = rscd_scaler_const_even;
-	  float scaler_mult = rscd_scaler_mult_even;
-	  float sigma0 = rscd_sigma0_even;
-	  float sigma_mult = rscd_sigma_mult_even;
-	  float const_d = rscd_const_d_even;
-	  float sat_crossopt = rscd_sat_crossopt_even;
-	  float mu = rscd_mu_even;
-	    
-	  if(is_even ==0) {
-	    counts1 = (lastint_lastframe - rscd_crossopt_odd)*rscd_mscale_odd;
-	    counts_sat = (lastint_lastframe_sat - rscd_crossopt_odd)*rscd_mscale_odd;
-	    tau = rscd_tau_odd;
-	    scaler_const = rscd_scaler_const_odd;
-	    scaler_mult = rscd_scaler_mult_odd;
-	    sigma0 = rscd_sigma0_odd;
-	    sigma_mult = rscd_sigma_mult_odd;
-	    const_d = rscd_const_d_odd;
-	    sat_crossopt = rscd_sat_crossopt_odd;
-	    mu = rscd_mu_odd;
-
-	  }
-	    
-	  float framescale  = scaler_const + scaler_mult*data_info.NRamps*0.05;
-	  float sigma = sigma0 - sigma_mult*data_info.NRamps*0.05;
-	  float scale = 0.0;
-	  if(counts1 > 0){
-	    if(lastint_lastframe > sat_crossopt) counts1 = counts_sat;
-	    float val1 = log(counts1) - mu;
-	    float val2 = counts1 * const_d;
-	    float evalue = -0.5*sigma*sigma* val1*val1 + val2;
-	    scale = 0.01*framescale*pi_value*sigma*exp(evalue);
-	  }
-		  
-	  pixel[ik].ApplyRSCD(iter,
-			      control.rscd_int1_scale,
-			      control.write_output_rscd_correction,
-			      control.n_reads_start_fit,
-			      counts1,
-			      tau,
-			      scale,
-			      lastint_lastframe);
-	}
 	
     //-----------------------------------------------------------------------
       } // end process flag - then re-check it 

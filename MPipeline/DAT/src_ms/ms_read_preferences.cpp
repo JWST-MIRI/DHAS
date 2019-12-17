@@ -95,7 +95,7 @@ void ms_read_preferences(miri_control &control,
   cout << " Calibration directory: " << control.calib_dir << endl;
 
 //_______________________________________________________________________
-  string Name ("MIRI_DHAS_v9.6.preferences");
+  string Name ("MIRI_DHAS_v9.7.preferences");
   string param_filename = control.miri_dir + "Preferences/" + Name ;
 
   preference.preference_filename_used = Name;

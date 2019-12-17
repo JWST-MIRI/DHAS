@@ -106,6 +106,9 @@ void ms_setup_processing(miri_control &control,
     
   } 
 //_______________________________________________________________________
+//For JPL Run 9 video offset changed in testing. Linearity and saturation files determined from higher value
+// If data is not at higher vlaues then add 5000 
+
 
 //check if data is a test pattern
   if(data_info.detmode == "TEST_PATTERN"){
@@ -156,9 +159,9 @@ void ms_setup_processing(miri_control &control,
       cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
       data_info.ColStart = corrected_value;
 
-      if(control.jpl_run == "8") {
+      if(control.jpl_run == "8" || control.jpl_run == "9") {
 	if(control.jpl_detector_flag ==0) {
-	  cout << " This is JPL Run 8, you must also set which detector the data is from, use option -jdet 101,106,124 " << endl;
+	  cout << " This is JPL Run 8 or 9 , you must also set which detector the data is from, use option -jdet 101,106,124 " << endl;
 	  cout << "  -jdet 101 is for FPM-101 data " << endl;
 	  cout << "  -jdet 106 is for SCA-106 data " << endl;
 	  cout << "  -jdet 124 is for SCA-124 data " << endl;
@@ -168,6 +171,26 @@ void ms_setup_processing(miri_control &control,
 	  cout << " Using " << preference.CDP_file;
 	  found = 1;
 	}
+
+	if(control.jpl_run == "9" && control.jpl_detector == "106" && control.flag_video_offset == 0) {
+	  if( data_info.obs_id <= 5707) {
+	    control.video_offset = 5028;
+	    cout << " Data is from SCA 106 before the video offset was changed. Adding video off of 5028" << endl;
+	  }
+	}
+
+	if(control.jpl_run == "9" && control.jpl_detector == "101" && control.flag_video_offset == 0) {
+	  if( data_info.obs_id < 5692) {
+	    control.video_offset = 4900;
+	    cout << " Data is from SCA 101 before the video offset was changed. Adding video off of 5028" << endl;
+	  }
+	
+	  if( data_info.obs_id == 5692 && data_info.exp_id < 17) {
+	    control.video_offset = 4900;
+	    cout << " Data is from SCA 101 before the video offset was changed. Adding video off of 5028" << endl;
+	  }
+	}
+      
 
       } else {
 	preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run +".list";	

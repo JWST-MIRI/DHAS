@@ -307,15 +307,24 @@ void ms_parse_commandline(int& argc,
       break;
 
       //_______________________________________________________________________
-      // VM old option
+      //  video offset parameter
       //_______________________________________________________________________
     case 'V':
-       cout << " -VM is an old command line option" << endl;
-       	cout << " You can not apply any calibration data products to VM data" << endl;
-	cout << " If you want to apply calibration data products you must use version 6.1.1" << endl;
-	cout << " You can use this version to process the data but run again and remove -VM, and remove applying any calibration products " << endl;
-	cout << " To turn off apply calibration products use -b, -D, -p, -L" << endl;
-      	exit(EXIT_FAILURE);
+	if ( argc <= 2   ) {
+	  cout << "Video Offset DN value not given after V" << endl;
+	  cout << " Run again and provide  number after V" << endl;
+	  cout << " Printing Help screen" << endl;
+	  ms_usage();
+	  exit(EXIT_FAILURE);
+	}
+	control.video_offset = atof(argv[2]);
+	control.flag_video_offset = 1;
+	++argv;
+	--argc;
+	++argv;
+	--argc;
+	break;
+
       break;
 
       //_______________________________________________________________________
@@ -636,21 +645,6 @@ void ms_parse_commandline(int& argc,
 	--argc;
 	break;
 	//**********************************************************************
-      case 'e' :
-	//parameter used in RSCD 1st int. 
-	//  experimental scaling factor 
-	if ( argc <= 2   ) {
-	  cout << "Scaling factor not given after -re " << endl;
-	  cout << " Run again and provide number after re" << endl;
-	  cout << " Printing Help screen" << endl;
-	  ms_usage();
-	  exit(EXIT_FAILURE);
-		}
-	control.rscd_int1_scale = atof(argv[2]);
-	++argv;
-	--argc;
-	break;
-	//**********************************************************************
       case 's' :
 	if ( argc <= 2   ) {
 	  cout << "Reference Pixel standard deviation not given after -rs " << endl;
@@ -699,8 +693,6 @@ void ms_parse_commandline(int& argc,
 	if(minus) control.do_refpixel_options[1]= 0;
 	
 	break;
-
-
 
 	// JPL run#
       case 'u' :

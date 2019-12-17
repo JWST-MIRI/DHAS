@@ -86,10 +86,9 @@ struct miri_control {
   int flag_apply_reset_cor;
   int flag_apply_lastframe_cor;
 
-
   int rscd_int1_frame_a;
   int rscd_int1_frame_z;
-  int rscd_int1_scale; 
+
   int do_cr_id;             // do cosmic ray identification
 
   int do_verbose;           // output various status messages during reduction
@@ -126,6 +125,8 @@ struct miri_control {
   string preferences_file; // user provided preferences file name
   int flag_pfile;
 
+  float video_offset;      // video offset value to ADD
+  int flag_video_offset;   
   float gain;              // gain to use instead of the one in the preferences file
   int flag_gain;           // only used if converting from dn/s to e/s
 
