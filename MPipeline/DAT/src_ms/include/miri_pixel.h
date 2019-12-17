@@ -49,6 +49,7 @@ class  miri_pixel {
   void PrintPixel();
   void PrintResults();
 
+
   void FindSegments();
   void CoAddData();
   void CalculateSlopeNoErrors(int,int,int);
@@ -57,11 +58,17 @@ class  miri_pixel {
   void FinalSlope(float,int,int,int,int,int,ofstream&,int,int );
   void CalculatePixelFlag( );
 
+  void CorrectNonLinearityOld(const int write_corrected_data,
+					  const int apply_lin_offset,
+					  const int istart_fit,
+					  int linflag,
+					  int lin_order,vector<float> lin);
   void CorrectNonLinearity(const int,
-			   const int, 
-			   const int, 
 			   int linflag,
-			    int lin_order,vector<float> lin);
+			   int lin_order,
+			   vector<float> lin);
+
+  float poly_ave(float a, float b, vector<float> coeff);
 
   void CorrectNonLinearityold(const int,
 			   const int, 
@@ -75,25 +82,26 @@ class  miri_pixel {
   void ApplyLastFrameCorrection(const int, float, int, 
 				vector<float>, vector<float>,
 				vector<float>, vector<float>);
-  void RSCD_UpdateInt1(const int write_corrected_data);
-  void ApplyRSCD(int inter,
-		 float int1_sscale_factor,
-		 const int write_corrected_data,
-		 int StartFrame,
-		 float counts, 
-		 float tau,
-		 float scale,
-		 float lastframeDN);
 
-  void ApplyMULT(const int write_corrected_data,
-		 float datamult,
-		 float min_tol,
-		 float mult_scale,
-		 float mult_offset,
-		 float mult_sat_scale,
-		 float mult_sat_offset,
-		 int sat_flag,
-		 float mult_alpha);
+
+  void ApplyMULTRSCD(const int write_output_rscd_correction,
+		     int n_reads_start_fit,
+		     int nframes,
+		     float lastframeDN,
+		     float lastframeDN_sat,
+		     float sat,
+		     float mult_alpha,
+		     float mult_min_tol,
+		     vector<float> mult_a,
+		     vector<float> mult_b,
+		     vector<float> mult_c,
+		     vector<float> mult_d,
+		     float rscd_alpha,
+		     float rscd_min_tol,
+		     float rscd_a0,
+		     float rscd_a1,
+		     float rscd_a2,
+		     float rscd_a3);
 
 
   vector<int> GetFlags(int &, int &);
@@ -136,11 +144,15 @@ class  miri_pixel {
     raw_data_var.reserve(nramps);
       }
 
-  inline void SetRampData(int DATA,int ID, float gain,float read_noise_dn2){
-    raw_data.push_back(float(DATA));
+  inline void SetRampData(int DATA,int ID, float gain,float read_noise_dn2, float video_offset){
+    float dn = float(DATA) + video_offset;
+    
+    raw_data.push_back(dn);
+    //    raw_data.push_back(float(DATA));
     id_data.push_back(ID);
 
-    float var = float(DATA) + read_noise_dn2;
+    //float var = float(DATA) + read_noise_dn2;
+    float var = dn + read_noise_dn2;
     raw_data_var.push_back(var);
   }
 

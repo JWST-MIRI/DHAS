@@ -22,69 +22,92 @@ class  miri_mult {
 //_______________________________________________________________________
   // MULT
 
-    inline void SetParameters(float Tmin_tol_even, float Ta0_even, float Ta1_even,
-			      float Tb0_even, float Tb1_even,
-			      float Talpha_even, float Tsat_param_even, 
-			      float Tmin_tol_odd, float Ta0_odd, float Ta1_odd,
-			      float Tb0_odd, float Tb1_odd,
-			      float Talpha_odd, float Tsat_param_odd){
+      inline void SetParameters(float Talpha_even, float B_even, float A_even,
+				float D_even, float C_even,
+				float Fsat_even, float Esat_even, 
+				float Hsat_even, float Gsat_even, float low_tol_even,
+				float Talpha_odd, float B_odd, float A_odd,
+				float D_odd, float C_odd,
+				float Fsat_odd, float Esat_odd, 
+				float Hsat_odd, float Gsat_odd, float low_tol_odd){
 
-      min_tol_even = Tmin_tol_even;
-      a0_even = Ta0_even;
-      a1_even = Ta1_even;
-      b0_even = Tb0_even;
-      b1_even = Tb1_even;
-      alpha_even = Talpha_even;
-      sat_param_even = Tsat_param_even;
 
-      min_tol_odd = Tmin_tol_odd;
-      a0_odd = Ta0_odd;
-      a1_odd = Ta1_odd;
-      b0_odd = Tb0_odd;
-      b1_odd = Tb1_odd;
-      alpha_odd = Talpha_odd;
-      sat_param_odd = Tsat_param_odd;
+	
+	min_tol_even = low_tol_even;
+	alpha_even = Talpha_even;
+	a_even.push_back(B_even);
+	a_even.push_back(A_even);
+	b_even.push_back(D_even);
+	b_even.push_back(C_even);
+	c_even.push_back(Fsat_even);
+	c_even.push_back(Esat_even);
+	d_even.push_back(Gsat_even);
+	d_even.push_back(Hsat_even);
+
+	min_tol_odd = low_tol_odd;
+	alpha_odd = Talpha_odd;
+	a_odd.push_back(B_odd);
+	a_odd.push_back(A_odd);
+	b_odd.push_back(D_odd);
+	b_odd.push_back(C_odd);
+	c_odd.push_back(Fsat_odd);
+	c_odd.push_back(Esat_odd);
+	d_odd.push_back(Gsat_odd);
+	d_odd.push_back(Hsat_odd);
     }
 
   inline void GetParams(float &mult_min_tol_even,
 			float &mult_min_tol_odd,
-			float &mult_a0_even,
-			float &mult_a0_odd,
-			float &mult_a1_even,
-			float &mult_a1_odd,
-			float &mult_b0_even,
-			float &mult_b0_odd,
-			float &mult_b1_even,
-			float &mult_b1_odd,
 			float &mult_alpha_even,
 			float &mult_alpha_odd,
-			float &mult_sat_param_even,
-			float &mult_sat_param_odd) {
+			vector <float> A_even,
+			vector <float> A_odd,
+			vector <float> B_even,
+			vector <float> B_odd,
+			vector <float> C_even,
+			vector <float> C_odd,
+			vector <float> D_even,
+			vector <float> D_odd){
+
 
 
     mult_min_tol_even = min_tol_even;
     mult_min_tol_odd = min_tol_odd ;
-    mult_a0_even = a0_even;
-    mult_a0_odd = a0_odd ;
-    mult_a1_even = a1_even;
-    mult_a1_odd = a1_odd ;
-    mult_b0_even = b0_even;
-    mult_b0_odd = b0_odd ;
-    mult_b1_even = b1_even;
-    mult_b1_odd = b1_odd ;
     mult_alpha_even = alpha_even;
     mult_alpha_odd = alpha_odd ;
-    mult_sat_param_even = sat_param_even;
-    mult_sat_param_odd = sat_param_odd ;
+
+    for (int i = 0; i< 2; i++){
+      A_even[i] = a_even[i];
+      A_odd[i] = a_odd[i];
+      B_even[i] = b_even[i];
+      B_odd[i] = b_odd[i];
+      C_even[i] = c_even[i];
+      C_odd[i] = c_odd[i];
+      D_even[i] = d_even[i];
+      D_odd[i] = d_odd[i];
+    }
+
+
+
+
   }
 //_______________________________________________________________________
      private:
 
-  float min_tol_even,a0_even,a1_even,
-    b0_even,b1_even,alpha_even,sat_param_even;
+  float alpha_even,min_tol_even;
+  float alpha_odd,min_tol_odd;
 
-  float min_tol_odd,a0_odd,a1_odd,
-    b0_odd,b1_odd,alpha_odd,sat_param_odd;
+  vector<float> a_even;
+  vector<float> a_odd;
+
+  vector<float> b_even;
+  vector<float> b_odd;
+
+  vector<float> c_even;
+  vector<float> c_odd;
+
+  vector<float> d_even;
+  vector<float> d_odd;
 
 };
 

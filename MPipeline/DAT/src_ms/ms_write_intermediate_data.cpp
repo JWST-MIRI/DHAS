@@ -74,6 +74,7 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
 				 const int isubset,
 				 const int this_nrow,
 				 const int ramp_start,
+				 const float video_offset,
 				 miri_data_info &data_info,
 				 vector<miri_pixel> &pixel)
 
@@ -149,7 +150,7 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
   vector<float> ddata(idxyz); // dark correction
   vector<float> rscddata(irsxyz); // rscd correction
   vector<float> rdata(itxyz); // reset correction
- vector<float> ldata(ixy); //last frame correction
+  vector<float> ldata(ixy); //last frame correction
 
 
   long ip = 0;
@@ -163,34 +164,36 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
 	
 	if(write_output_refpixel_corrections ==1) {
 	  float RampPt = pixel[ik].GetRefData(m);
-	  data[ip] = (RampPt);
+	  data[ip] = (RampPt) - video_offset;
+
+	  
 	}
 	if(write_output_ids ==1){
 	  short IDPt = -1;
 	  IDPt = pixel[ik].GetIDData(m);
-	  idata[ip] = int(IDPt);
+	  idata[ip] = int(IDPt)- video_offset;
 	}
 
 	if(write_output_lc_correction ==1){
 	  float Cdata = pixel[ik].GetLinData(m);
-	  cdata[ip] = Cdata;
+	  cdata[ip] = Cdata- video_offset;
 	}
 
 	if(write_output_dark_correction ==1 && subtract_dark == 1) {
 	  float dcorr = pixel[ik].GetDarkData(m);
-	  ddata[ip] = (dcorr);
+	  ddata[ip] = (dcorr) - video_offset;
 	}
 
 	if(write_output_reset_correction ==1) {
 	  float rcorr = pixel[ik].GetResetData(m);
-	  rdata[ip] = (rcorr);
+	  rdata[ip] = (rcorr) - video_offset;
 	  //	  cout << ik << " " << rdata[ip] << endl;
 	}
 
 
 	if(write_output_rscd_correction ==1) {
 	  float rcorr = pixel[ik].GetRSCDData(m);
-	  rscddata[ip] = (rcorr);
+	  rscddata[ip] = (rcorr) - video_offset;
 	  
 
 	}

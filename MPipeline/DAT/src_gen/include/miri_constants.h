@@ -25,7 +25,7 @@
 #define CDP_DONOT_USE 1
 #define CDP_NODARK 2
 #define CDP_NORESET 2
-#define CDP_NOLINEARITY 6 // does not exist at the moment
+#define CDP_NOLINEARITY 2 // does not exist at the moment
 
 
 #define BAD_PIXEL_ID 1  // set DEAD_PIXEL_ID & HOT_PIXEL_ID DO_NOT_PROCESS 

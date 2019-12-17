@@ -120,10 +120,8 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
     cout << " Applying RSCD  correction" << endl;
     if(control.rscd_lastframe_corrected ==1) cout << " RSCD correction uses the corrected last frame " << endl;
     if(control.rscd_lastframe_extrap ==1) cout << " RSCD correction extrapolates to find last(first) frame " << endl;
-    cout << " RSCD frame a to use in estimating frame 1 for RSCD 1st int " << control.rscd_int1_frame_a  << endl;
-    cout << " RSCD frame z to use in estimating frame 1 for RSCD 1st int " << control.rscd_int1_frame_z  << endl;
-    cout << " RSCD int 1 scaling factor " << control.rscd_int1_scale  << endl;
-
+    //cout << " RSCD frame a to use in estimating frame 1 for RSCD 1st int " << control.rscd_int1_frame_a  << endl;
+    //cout << " RSCD frame z to use in estimating frame 1 for RSCD 1st int " << control.rscd_int1_frame_z  << endl;
   }
 
   if (control.apply_lastframe_cor==1)cout << " Applying Lastframe  correction" << endl;
@@ -132,6 +130,7 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
   cout << " Frame number to end slope fit:   " << control.n_reads_end_fit+1 << endl;
   cout << " Hi dn saturation:            " <<control.dn_high_sat << endl;
 
+  if(control.flag_video_offset ==1) cout <<" Video offset to add to data (in DN) = " << control.video_offset << endl;
   if(control.flag_gain ==1) cout <<" The gain (in electrons/DN) = " << control.gain << endl;
   if(control.flag_read_noise ==1) cout << " The read noise (in electrons) = " << control.read_noise_electrons << endl;
   if(control.UncertaintyMethod == 0)cout<<" The slope is determined by setting uncertainty in the measurements =1 "<<endl;

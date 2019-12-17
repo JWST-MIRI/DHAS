@@ -122,6 +122,15 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
 
 
   status = 0; 
+  fits_read_key(data_info.raw_file_ptr, TINT, "OBS_ID", &data_info.obs_id, comment, &status); 
+  if(status == 0) data_info.Flag_obs_id = 1;
+
+  status = 0; 
+  fits_read_key(data_info.raw_file_ptr, TINT, "EXP_ID", &data_info.exp_id, comment, &status); 
+  if(status == 0) data_info.Flag_exp_id = 1;
+
+
+  status = 0; 
   fits_read_key(data_info.raw_file_ptr, TFLOAT, "TGROUP", &data_info.GroupTime, comment, &status); 
 
 

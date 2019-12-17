@@ -169,6 +169,7 @@ extern void ms_read_refdata(const int,
 			    const float,
 			    const float,
 			    const float,
+			    const float,
 			    miri_data_info &,
 			    vector<miri_pixel> &); 
 
@@ -389,6 +390,7 @@ extern void ms_write_intermediate_data( const int write_output_refpixel_correcti
 					const int isubset,
 					const int this_nrow,
 					const int ramp_start,
+					const float video_offset,
 					miri_data_info &data_info,
 					vector<miri_pixel> &pixel);
 

@@ -120,7 +120,7 @@ edit_ywindowsize = 0
 
 ;_______________________________________________________________________
 
-version = "(v 9.6.7 July 18, 2019)"
+version = "(v 9.7.0 Dec 17, 2019)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -128,7 +128,7 @@ test = strmid(miri_dir,len-1,len-1)
 if(test ne '/') then miri_dir = miri_dir + '/'
 control.miri_dir = miri_dir
 
-control.pref_filename = miri_dir + 'Preferences/MIRI_DHAS_v9.6.preferences'
+control.pref_filename = miri_dir + 'Preferences/MIRI_DHAS_v9.7.preferences'
 
 control.user_pref_file = 0
 if(N_elements(prefnamein)) then begin

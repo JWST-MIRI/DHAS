@@ -51,6 +51,11 @@ void ms_initialize_data_info(miri_data_info &data_info)
   data_info.NReset=0;        // number of  resets 
   data_info.Flag_FrameTime = 0;
 
+  data_info.Flag_obs_id = 0;
+  data_info.obs_id = 0;
+  data_info.Flag_exp_id = 0;
+  data_info.exp_id = 0;
+
   data_info.ColStart = 1;
   data_info.RowStart = 1;
   data_info.FrameDiv = 1; 

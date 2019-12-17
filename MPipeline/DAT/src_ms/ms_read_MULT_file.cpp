@@ -211,9 +211,9 @@ int ms_read_MULT_file(miri_data_info &data_info,
 
     //    cout << "number of rows and cols in MULT table " << nrows <<" " << ncols << endl;
 
-    string col_name[] = {"SUBARRAY","READPATT","ROWS","MIN_TOL",
-			 "A0", "A1", "B0","B1","ALPHA", "SAT_PARAM"};
-    int col_num[] = {0,0,0,0,0,0,0,0,0,0};
+    string col_name[] = {"SUBARRAY","READPATT","ROWS","ALPHA",
+			 "B", "A", "D","C","FSAT", "ESAT", "HSAT" , "GSAT" , "LOW_TOL" };
+    int col_num[] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     int num_elements = sizeof(col_name)/sizeof(col_name[0]);
     char comment[72];
@@ -261,42 +261,55 @@ int ms_read_MULT_file(miri_data_info &data_info,
     status = 0; 
     ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,subarray_table,status);
 
-    vector<float> min_tol(nrows);
-    name_search = "MIN_TOL";
-    status = 0; 
-    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,min_tol,status);
-
-    vector<float> a0(nrows);
-    name_search= "A0";
-    status = 0; 
-    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,a0,status);
-    
-    vector<float> a1(nrows);
-    name_search= "A1";
-    status = 0; 
-    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,a1,status);
-
-    vector<float> b0(nrows);
-    name_search= "B0";
-    status = 0; 
-    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,b0,status);
-
-    vector<float> b1(nrows);
-    name_search= "B1";
-    status = 0; 
-    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,b1,status);
-
     vector<float> alpha(nrows);
     name_search = "ALPHA";
     status = 0; 
-    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,alpha,status);
+    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,alpha,status);
 
-    vector<float> sat_param(nrows);
-    name_search = "SAT_PARAM";
+    vector<float> B(nrows);
+    name_search= "B";
     status = 0; 
-    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,sat_param,status);
+    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,B,status);
+    
+    vector<float> A(nrows);
+    name_search= "A";
+    status = 0; 
+    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,A,status);
 
+    vector<float> D(nrows);
+    name_search= "D";
+    status = 0; 
+    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,D,status);
 
+    vector<float> C(nrows);
+    name_search= "C";
+    status = 0; 
+    ms_MULT_readtable(fptr, name_search,num_elements,nrows, col_name,col_num,C,status);
+
+    vector<float> Fsat(nrows);
+    name_search = "FSAT";
+    status = 0; 
+    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,Fsat,status);
+
+    vector<float> Esat(nrows);
+    name_search = "ESAT";
+    status = 0; 
+    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,Esat,status);
+
+    vector<float> Hsat(nrows);
+    name_search = "HSAT";
+    status = 0; 
+    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,Hsat,status);
+
+    vector<float> Gsat(nrows);
+    name_search = "GSAT";
+    status = 0; 
+    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,Gsat,status);
+
+    vector<float> low_tol(nrows);
+    name_search = "LOW_TOL";
+    status = 0; 
+    ms_MULT_readtable(fptr,name_search,num_elements,nrows, col_name,col_num,low_tol,status);
     fits_close_file(fptr,&status);
 
     int ifound_even = -1;      
@@ -330,22 +343,26 @@ int ms_read_MULT_file(miri_data_info &data_info,
     }
 
     if(ifound_odd != -1 && ifound_even !=-1) {
-      MULT.SetParameters(min_tol[ifound_even],a0[ifound_even],a1[ifound_even],
-			 b0[ifound_even],b1[ifound_even],alpha[ifound_even],
-			 sat_param[ifound_even],
-			 min_tol[ifound_odd],a0[ifound_odd],a1[ifound_odd],
-			 b0[ifound_odd],b1[ifound_odd],alpha[ifound_odd],
-			 sat_param[ifound_odd]);
+      MULT.SetParameters(alpha[ifound_even],B[ifound_even],A[ifound_even],
+			 D[ifound_even],C[ifound_even],Fsat[ifound_even],
+			 Esat[ifound_even], Hsat[ifound_even],Gsat[ifound_even],
+			 low_tol[ifound_even],
+			 alpha[ifound_odd],B[ifound_odd],A[ifound_odd],
+			 D[ifound_odd],C[ifound_odd],Fsat[ifound_odd],
+			 Esat[ifound_odd], Hsat[ifound_odd],Gsat[ifound_odd],
+			 low_tol[ifound_odd]);
 
-      cout << "MULT parameters even : "<< min_tol[ifound_even] << " " << a0[ifound_even]
-	   << " " << a1[ifound_even] << " " << b0[ifound_even] 
-	   << " " << b1[ifound_even] << " " << alpha[ifound_even] 
-	   << " " << sat_param[ifound_even]  << endl; 
+      // cout << "MULT parameters even : "<< alpha[ifound_even] << " " << B[ifound_even]
+      //   << " " << A[ifound_even]    << " " << D[ifound_even] 
+      //   << " " << C[ifound_even]    << " " << Fsat[ifound_even] 
+      //   << " " << Esat[ifound_even] << " " << Hsat[ifound_even] 
+      //   << " " << Gsat[ifound_even] << " " << low_tol[ifound_even] << endl; 
 
-      cout << "MULT parameters odd : "<< min_tol[ifound_odd] << " " << a0[ifound_odd]
-	   << " " << a1[ifound_odd] << " " << b0[ifound_odd] 
-	   << " " << b1[ifound_odd] << " " << alpha[ifound_odd] 
-	   << " " << sat_param[ifound_odd]  << endl; 
+      //cout << "MULT parameters odd : "<< alpha[ifound_odd] << " " << B[ifound_odd]
+      //   << " " << A[ifound_odd]    << " " << D[ifound_odd] 
+      //   << " " << C[ifound_odd]    << " " << Fsat[ifound_odd] 
+      //   << " " << Esat[ifound_odd] << " " << Hsat[ifound_odd]
+      //   << " " << Gsat[ifound_odd] << " " <<  low_tol[ifound_odd] << endl; 
 	   
     } else{
       cout << " Could not find the correct row in the MULT table " << endl;

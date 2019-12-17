@@ -1,4 +1,4 @@
-VER             = 9.6				  : Version of Preferences file
+VER             = 9.7				  : Version of Preferences file
 SCIDIR          = . 			    	  : Input directory  for Raw science data
 LVL2DIR         = . 			    	  : Output  directory for  Reduced (LVL2 & LVL3)  data
 TELDIR          = .			    	  : Input directory for telemetry data        
@@ -9,7 +9,7 @@ CALLW_RAL1	= MIRI_CDP_MIRIFULONG_RAL1.list   : Names of calibration files to use
 CALLW_JPL3	= MIRI_CDP_MIRIFULONG_JPL3.list   : Names of calibration files to use for LW CV3 data
 CALSW_RAL1	= MIRI_CDP_MIRIFUSHORT_RAL1.list  : Names of calibration files to use for SW RAL data                   
 CALSW_JPL3	= MIRI_CDP_MIRIFUSHORT_JPL3.list  : Names of calibration files to use for SW CV3 data
-JPLRUN          = 8                               : Default JPL Run  
+JPLRUN          = 9                               : Default JPL Run  
 FIT_A	        = 2 			 	  : Frame number to start slope fit
 FIT_N	        = 1 			  	  : Number of frames before last frame to end fit on 
 HIGH_SAT        = 64000			  	  :  High Saturation Value                             
