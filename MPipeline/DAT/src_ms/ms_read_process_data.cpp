@@ -332,6 +332,7 @@ void ms_read_process_data( const int iter,
 	  id = BADFRAME;
 	}
 
+
 	pixel[ik].SetRampData(*Iter,id,control.gain,read_noise_dn2,control.video_offset);
 
       }

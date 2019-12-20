@@ -521,6 +521,7 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
   // Lin order = 3 only solution now, 
   //  lin[0] = 1
 
+  
   vector <float> coeff;
   coeff.push_back(lin[1]);
   coeff.push_back(lin[2]);
@@ -529,22 +530,24 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
   if(pix_x == -144 && pix_y == 133) {
     cout << coeff[0] << " " << coeff[1] <<  " " << coeff[2] << endl;
   }
-  lin_cor_data[0] = raw_data[0];
+
+  vector<float> lin_cor(raw_data.size());
+  lin_cor[0] = raw_data[0];
   
   for (unsigned int i = 1 ; i < raw_data.size() ; i++){
     if(id_data[i] == 0){
       float aveqe = poly_ave(raw_data[i-1], raw_data[i],coeff);
-      lin_cor_data[i] = lin_cor_data[i-1] + (raw_data[i] - raw_data[i-1]) /aveqe;
+      lin_cor[i] = lin_cor[i-1] + (raw_data[i] - raw_data[i-1]) /aveqe;
 
       if(pix_x == -144 && pix_y == 133) {
-	cout << "raw " << i << " " << raw_data[i] << " " << lin_cor_data[i] << endl;
+	cout << "raw " << i << " " << raw_data[i] << " " << lin_cor[i] << endl;
       }
     }
   }// end loop over raw_data
   for (unsigned int i = 1 ; i < raw_data.size() ; i++){
     if(id_data[i] == 0){
-      raw_data[i] = lin_cor_data[i];
-
+      raw_data[i] = lin_cor[i];
+      if(write_corrected_data) lin_cor_data[i] = lin_cor[i];
     } else {
       if(write_corrected_data) lin_cor_data[i] = strtod("NaN",NULL); //  
     }
