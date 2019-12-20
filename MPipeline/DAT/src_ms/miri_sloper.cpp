@@ -354,6 +354,7 @@ int main(int argc, char* argv[])
       vector<float> lastframe(NSCD,0.0);  // last frame of current integration (to be used in lastframe correction)
       vector<float> lastframe_corr(NSCD,0.0); // corrected last frame
 
+
 	//--------------------------------------------------------------------------------
       // Applying the rscd correction
       // Set up the extrapolated last frame using the second and third to last frames
@@ -382,7 +383,6 @@ int main(int argc, char* argv[])
 	}  // end control.rscd_lastframe_extrap ==1
       }  //   end do_multiple_int_cor ==1  
 
-
       // For the first integration find find 1 frames worth of counts but not affected by 
       // the reset. Use two frames not affected by reset and extrapolate forward 
       if (do_multiple_int_cor ==1 &&  i == 0){
@@ -404,7 +404,8 @@ int main(int argc, char* argv[])
 	  cout << " Run again and set frame range with -rda #, -rdz #" << endl;
 	  exit(EXIT_FAILURE);
 	}
-	 
+
+
 	long NLAST = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
 	vector<float> frame_a(NLAST,0.0);
 	vector<float> frame_z(NLAST,0.0);
@@ -528,7 +529,7 @@ int main(int argc, char* argv[])
       
       for (int isubset = 0; isubset < subset_number ; isubset++){
 
-	  //cout << " Working on subset # " << subnum  <<  " " << isubset << " " << subset_number << endl ;
+	//  cout << " Working on subset # " << subnum  <<  " " << isubset << " " << subset_number << endl ;
 	cout << " Working on subset # " << subnum   << " \r" ;
 	cout.flush();
 
@@ -560,7 +561,7 @@ int main(int argc, char* argv[])
 	  vector<miri_dark> dark(ND);
 
 	  if(control.subtract_dark==1)ms_setup_dark(i,isubset,this_nrow,control,data_info,CDP,dark);
-	  
+
 	  ms_read_process_data(i,isubset,this_nrow,refimage,
 			       reset,
 			       RSCD,
