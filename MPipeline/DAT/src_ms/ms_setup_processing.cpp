@@ -173,20 +173,25 @@ void ms_setup_processing(miri_control &control,
 	}
 
 	if(control.jpl_run == "9" && control.jpl_detector == "106" && control.flag_video_offset == 0) {
+	  control.video_offset_rscd = 5028;
 	  if( data_info.obs_id <= 5707) {
 	    control.video_offset = 5028;
+	    control.video_offset_rscd = 0;
 	    cout << " Data is from SCA 106 before the video offset was changed. Adding video off of 5028" << endl;
 	  }
 	}
 
 	if(control.jpl_run == "9" && control.jpl_detector == "101" && control.flag_video_offset == 0) {
+	  control.video_offset_rscd = 4900;
 	  if( data_info.obs_id < 5692) {
 	    control.video_offset = 4900;
+	    control.video_offset_rscd = 0;
 	    cout << " Data is from SCA 101 before the video offset was changed. Adding video off of 5028" << endl;
 	  }
 	
 	  if( data_info.obs_id == 5692 && data_info.exp_id < 17) {
 	    control.video_offset = 4900;
+	    control.video_offset_rscd = 0;
 	    cout << " Data is from SCA 101 before the video offset was changed. Adding video off of 5028" << endl;
 	  }
 	}

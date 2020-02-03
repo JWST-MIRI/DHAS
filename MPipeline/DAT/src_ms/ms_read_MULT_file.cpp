@@ -352,17 +352,17 @@ int ms_read_MULT_file(miri_data_info &data_info,
 			 Esat[ifound_odd], Hsat[ifound_odd],Gsat[ifound_odd],
 			 low_tol[ifound_odd]);
 
-      // cout << "MULT parameters even : "<< alpha[ifound_even] << " " << B[ifound_even]
-      //   << " " << A[ifound_even]    << " " << D[ifound_even] 
-      //   << " " << C[ifound_even]    << " " << Fsat[ifound_even] 
-      //   << " " << Esat[ifound_even] << " " << Hsat[ifound_even] 
-      //   << " " << Gsat[ifound_even] << " " << low_tol[ifound_even] << endl; 
+      cout << "MULT parameters even : "<< alpha[ifound_even] << " " << B[ifound_even]
+	   << " " << A[ifound_even]    << " " << D[ifound_even] 
+	   << " " << C[ifound_even]    << " " << Fsat[ifound_even] 
+	   << " " << Esat[ifound_even] << " " << Hsat[ifound_even] 
+	   << " " << Gsat[ifound_even] << " " << low_tol[ifound_even] << endl; 
 
-      //cout << "MULT parameters odd : "<< alpha[ifound_odd] << " " << B[ifound_odd]
-      //   << " " << A[ifound_odd]    << " " << D[ifound_odd] 
-      //   << " " << C[ifound_odd]    << " " << Fsat[ifound_odd] 
-      //   << " " << Esat[ifound_odd] << " " << Hsat[ifound_odd]
-      //   << " " << Gsat[ifound_odd] << " " <<  low_tol[ifound_odd] << endl; 
+      cout << "MULT parameters odd : "<< alpha[ifound_odd] << " " << B[ifound_odd]
+	   << " " << A[ifound_odd]    << " " << D[ifound_odd] 
+	   << " " << C[ifound_odd]    << " " << Fsat[ifound_odd] 
+	   << " " << Esat[ifound_odd] << " " << Hsat[ifound_odd]
+	   << " " << Gsat[ifound_odd] << " " <<  low_tol[ifound_odd] << endl; 
 	   
     } else{
       cout << " Could not find the correct row in the MULT table " << endl;

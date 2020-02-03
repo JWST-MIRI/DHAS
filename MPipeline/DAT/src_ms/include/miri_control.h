@@ -127,6 +127,10 @@ struct miri_control {
 
   float video_offset;      // video offset value to ADD
   int flag_video_offset;   
+
+  float video_offset_rscd;      // video offset value to ADD
+
+
   float gain;              // gain to use instead of the one in the preferences file
   int flag_gain;           // only used if converting from dn/s to e/s
 
