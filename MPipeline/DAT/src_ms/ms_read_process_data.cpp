@@ -124,6 +124,7 @@ void ms_read_process_data( const int iter,
 			   vector<float> &lastframe_corr, // last frame corrected
 			   vector<float> lastframe_rscd, // last frame of last integration 
 			   vector<float> lastframe_rscd_sat, // last frame of last integration to use for saturating data 
+			   vector<float> &lastframe_lincor,
 			   vector<miri_dark> &dark,
 			   vector<miri_lin> &linearity,
 			   miri_control &control,
@@ -162,8 +163,8 @@ void ms_read_process_data( const int iter,
   //       
   //_______________________________________________________________________
 
-  const long double PI = 3.141592653589793238L;
-  float pi_value = 1.0 /sqrt(PI*2.0);
+  //  const long double PI = 3.141592653589793238L;
+  // float pi_value = 1.0 /sqrt(PI*2.0);
   long inc[3]={1,1,1};
   int anynul = 0;  // null values
   int status = 0;
@@ -191,7 +192,6 @@ void ms_read_process_data( const int iter,
   vector<float> lastf_a_odd;
   vector<float> lastf_b_even;
   vector<float> lastf_b_odd;
-
 
   if(control.apply_lastframe_cor ==1){
     for (int ic =0 ; ic < 4; ic ++){
@@ -224,6 +224,7 @@ void ms_read_process_data( const int iter,
 		   rscd_a2_even, rscd_a2_odd,
 		   rscd_a3_even, rscd_a3_odd);
   }
+
 
   // set up parameters for multiple integration correction
 
@@ -302,6 +303,7 @@ void ms_read_process_data( const int iter,
   int mrow = 0; 
   for (register int k = 0; k < this_nrow ; k++){
     int yy = ystart + k;
+
     for (register int j = 0; j< xsize ; j++,ik++){
       pixel[ik].ReserveRampData(data_info.NRampsRead);
       int badpixel = 0;
@@ -311,6 +313,9 @@ void ms_read_process_data( const int iter,
       PixelXY_PixelIndex(xsize,
 			 j+1,yy+1,
 			 pixel_index);
+
+      int pix_x = pixel[ik].GetX();
+      int pix_y = pixel[ik].GetY();
 
       if(control.apply_pixel_saturation) sat = CDP.GetPixelSat(pixel_index);
       if(control.apply_badpix) badpixel = CDP.GetBadPixel(pixel_index); 
@@ -331,12 +336,8 @@ void ms_read_process_data( const int iter,
 	if(NFramesBad !=0 && FrameBad[iread] ==1) { // corrupt frame
 	  id = BADFRAME;
 	}
-
-
 	pixel[ik].SetRampData(*Iter,id,control.gain,read_noise_dn2,control.video_offset);
-
       }
-
       //_______________________________________________________________________
       if(read_num_first_saturated == 50000){
       	read_num_first_saturated = -1;
@@ -354,13 +355,13 @@ void ms_read_process_data( const int iter,
       int is_ref = pixel[ik].GetIsRef();
 
       if(control.write_output_refpixel_corrections ==1)pixel[ik].InitializeRefCorData();
-      if(control.write_output_lc_correction ==1 )pixel[ik].InitializeLinCorData();
+      if(control.write_output_lc_correction ==1 || control.apply_rscd_cor )pixel[ik].InitializeLinCorData();
       if(control.write_output_dark_correction ==1 )pixel[ik].InitializeDarkCorData();
       if(control.write_output_rscd_correction ==1 )pixel[ik].InitializeRSCDCorData();
       if(control.write_output_reset_correction ==1 )pixel[ik].InitializeResetCorData();
 
       int is_even = pixel[ik].GetIsEven();
-
+      
       float max2ptdiff = 0.0;
       float imax2ptdiff = 0.0;
       float stddev2ptdiff = 0.0;
@@ -394,8 +395,7 @@ void ms_read_process_data( const int iter,
 	// Last Frame Correction
 
 	if(control.apply_lastframe_cor ==1){
-	  int pix_x = pixel[ik].GetX();
-	  int pix_y = pixel[ik].GetY();
+
 	  float data_row_below = 0.0;
 	  int dq_row_below = 0;
 	  int is_ref = pixel[ik].GetIsRef(); 
@@ -422,7 +422,7 @@ void ms_read_process_data( const int iter,
 	}      
       //_______________________________________________________________________
 
-	if(control.apply_lin_cor ==1) { 
+	if(control.apply_lin_cor ==1 || control.apply_rscd_cor) { // need lin corrected data for RSCD 
 	
 	  int  lin_dq =linearity[pixel_index].GetDQ();
 	  int lin_order = CDP.GetLinOrder(); 
@@ -433,6 +433,7 @@ void ms_read_process_data( const int iter,
 	    lin[kp] = linearity[pixel_index].GetCorrection(kp);
 	  }
 	  pixel[ik].CorrectNonLinearity(control.write_output_lc_correction,
+					control.apply_rscd_cor,
 					lin_dq,
 					lin_order,
 					lin);
@@ -452,6 +453,15 @@ void ms_read_process_data( const int iter,
 	  float mult_alpha  = mult_alpha_even;
 	  float mult_min_tol = mult_min_tol_even;
 
+	  //	  cout << "check a e" << mult_a_even[0] << " " << mult_a_even[1] << endl;
+	  //cout << "check b e" << mult_b_even[0] << " " << mult_b_even[1] << endl;
+	  //cout << "check c e" << mult_c_even[0] << " " << mult_c_even[1] << endl;
+	  //cout << "check d e" << mult_d_even[0] << " " << mult_d_even[1] << endl;
+
+	  //cout << "check a o" << mult_a_odd[0] << " " << mult_a_odd[1] << endl;
+	  //cout << "check b o" << mult_b_odd[0] << " " << mult_b_odd[1] << endl;
+	  //cout << "check c o" << mult_c_odd[0] << " " << mult_c_odd[1] << endl;
+	  //cout << "check d o" << mult_d_odd[0] << " " << mult_d_odd[1] << endl;
 	  mult_a = mult_a_even;
 	  mult_b = mult_b_even;
 	  mult_c = mult_c_even;
@@ -463,9 +473,7 @@ void ms_read_process_data( const int iter,
 	    // rscd terms
 	  float rscd_alpha = rscd_alpha_even;
 	  float rscd_min_tol = rscd_lower_cutoff;
-	  int ii = iter;
-	  if (iter >3)
-	    ii = 3;
+	  if( iter == 0) rscd_min_tol = 0;
 
 	  float rscd_a0 = rscd_a0_even;
 	  float rscd_a1 = rscd_a1_even;
@@ -489,9 +497,23 @@ void ms_read_process_data( const int iter,
 	    rscd_a3 = rscd_a3_odd;
 	  }
 
+
+	  if(pix_x == 181 && pix_y == 161) {
+	    cout << " sign of data " << is_even << endl;
+	    cout << "rscd terms" << rscd_a0 << " " << rscd_a1 << " " << rscd_a2 <<  " " << rscd_a3 << " " <<
+	      rscd_alpha_even << " " << rscd_lower_cutoff << endl;
+	    cout << " mult terms " << mult_a[0]  << " " << mult_a[1] << " " << 
+	      mult_b[0] << " " << mult_b[1]  << " " << 
+	      mult_c[0]  << " " << mult_c[1] << " " << 
+	      mult_d[0] << " " << mult_d[1]  << endl;
+
+ 
+	    
+	  }
+
 	  if (iter == 0){  // first integration, first frame
 	    if(lastint_lastframe < sat){ // not a hot pixel
-	      rscd_min_tol = 0;
+	      //rscd_min_tol = 0;
 	    } else { // a hot pixel do not apply correction
 	      rscd_min_tol = 700000;
 	    }
@@ -499,7 +521,8 @@ void ms_read_process_data( const int iter,
 		  
 	  pixel[ik].ApplyMULTRSCD(control.write_output_rscd_correction,
 				  control.n_reads_start_fit,
-				  data_info.NRampsRead,
+				  data_info.NRamps,
+				  control.video_offset_rscd,
 				  lastint_lastframe,
 				  lastint_lastframe_sat,
 				  sat,
@@ -621,15 +644,24 @@ void ms_read_process_data( const int iter,
 			     data_info.output_cr,
 			     control.xdebug,control.ydebug);
 	  //________________________________________________________________________________
-	  //	  if(control.apply_rscd_cor ==1 && control.rscd_lastframe_corrected ==1) {
+	  //pull out the linearity corrected data and fill in lastframe_lin_co
+	if(control.apply_rscd_cor ==1) {
 
-	  //float signal  = pixel[ik].GetSignal(); // signal here is in dn/frame
-	  //if(signal != NO_SLOPE_FOUND){
-	  //} else{
-	  //  lastframe_corr[pixel_index] = NO_SLOPE_FOUND;
-	  //}
-	  //}
-
+	  int ilast2 = data_info.NRampsRead-1;
+	  // make sure that we are not using the last frame in the fit 
+	  if(control.n_reads_end_fit== data_info.NRampsRead) ilast2 = data_info.NRampsRead -1;
+	  int ilast3 = ilast2 - 1;
+	  float second_lastframe = 0;
+	  float third_lastframe = 0;
+	  pixel[ik].GetLast2Frames(ilast2,ilast3,second_lastframe,third_lastframe);
+	  float lastframe= second_lastframe + (second_lastframe  - third_lastframe);
+	  if(pix_x == 181 && pix_y == 161) {
+	    cout << " Linearity corrected last frame is determined using " << ilast2 << " " << ilast3 << endl;
+	    cout << "LASTFRAME "<< second_lastframe<< " " << third_lastframe << " " <<
+	      lastframe << endl;
+	  }
+	  lastframe_lincor[pixel_index] = lastframe;
+	}
 	  //________________________________________________________________________________
 	int nseg = pixel[ik].GetNumGoodSegments();
 

@@ -64,27 +64,26 @@ class  miri_rscd {
 			  float &rscd_a3_even,
 			  float &rscd_a3_odd){
 
+      int iuse = i;
+      rscd_lower_cutoff = lower_cutoff ;
+      rscd_alpha_odd  = alpha_odd; 
+      rscd_alpha_even  = alpha_even;
 
-    rscd_lower_cutoff = lower_cutoff ;
-    rscd_alpha_odd  = alpha_odd; 
-    rscd_alpha_even  = alpha_even;
+      //cout << "rscd parameters: " << rscd_lower_cutoff << " " << 
+      //	rscd_alpha_odd << " " << rscd_alpha_even << endl;
 
-    cout << "rscd parameters" << rscd_lower_cutoff << " " << 
-      rscd_alpha_odd << " " << rscd_alpha_even << endl;
-
-    rscd_a0_even = a0_even[i];
-    rscd_a0_odd = a0_odd[i];
+      if(i > 2)  iuse = 2;
+      rscd_a0_even = a0_even[iuse];
+      rscd_a0_odd = a0_odd[iuse];
 	
-    rscd_a1_even = a1_even[i];
-    rscd_a1_odd = a1_odd[i];
+      rscd_a1_even = a1_even[iuse];
+      rscd_a1_odd = a1_odd[iuse];
 	
-    rscd_a2_even = a2_even[i];
-    rscd_a2_odd = a2_odd[i];
+      rscd_a2_even = a2_even[iuse];
+      rscd_a2_odd = a2_odd[iuse];
 
-    rscd_a3_even = a3_even[i];
-    rscd_a3_odd = a3_odd[i];
-    cout << i << " " << rscd_a0_even << " "  << rscd_a1_even << " " << rscd_a2_even << " " << rscd_a3_even  << endl;
-
+      rscd_a3_even = a3_even[iuse];
+      rscd_a3_odd = a3_odd[iuse];
   }
 //_______________________________________________________________________
      private:

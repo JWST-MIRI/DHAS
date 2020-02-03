@@ -58,12 +58,17 @@ class  miri_pixel {
   void FinalSlope(float,int,int,int,int,int,ofstream&,int,int );
   void CalculatePixelFlag( );
 
+
+  void GetLast2Frames(const int isecond, const int ithird,
+		      float &lastframe_second, float  &lastframe_third);
+
   void CorrectNonLinearityOld(const int write_corrected_data,
 					  const int apply_lin_offset,
 					  const int istart_fit,
 					  int linflag,
 					  int lin_order,vector<float> lin);
   void CorrectNonLinearity(const int,
+			   const int,
 			   int linflag,
 			   int lin_order,
 			   vector<float> lin);
@@ -87,6 +92,7 @@ class  miri_pixel {
   void ApplyMULTRSCD(const int write_output_rscd_correction,
 		     int n_reads_start_fit,
 		     int nframes,
+		     int video_offset,
 		     float lastframeDN,
 		     float lastframeDN_sat,
 		     float sat,
@@ -288,7 +294,7 @@ class  miri_pixel {
 
 
   vector<float>  lin_cor_data;     // raw_data corrected for linearity correction.
-                        // stored as seperate varible only with writing out
+                        // stored as seperate varible for writing out and rscd correction
 
   vector<float>  dark_cor_data;     // raw_data corrected for dark correction.
                         // stored as seperate varible only with writing out

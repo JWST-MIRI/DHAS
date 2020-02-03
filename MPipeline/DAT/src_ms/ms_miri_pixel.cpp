@@ -63,8 +63,6 @@ miri_pixel::miri_pixel(): quality_flag(), is_ref(),signal(0), signal_unc(0),zero
 //Default destructor
 miri_pixel::~miri_pixel() {}
 
-
-
 //_______________________________________________________________________
 //_______________________________________________________________________
 
@@ -90,7 +88,6 @@ void miri_pixel::SetPixel(int X, int Y, const int ColStart,int  IREAD,int BADPIX
   }else{
     is_even = 0;
   }
-
 
     // If reference pixels exist - redefine where X starts
     // X = 1,2,3,4 & 1029,1030,1031,1032 are reference pixels,
@@ -183,6 +180,16 @@ void miri_pixel::InitializeRefCorData(){
   }
 }
 
+//_______________________________________________________________________
+void miri_pixel::GetLast2Frames(const int isecond, const int ithird,
+			       float &lastframe_second, float  &lastframe_third){
+  lastframe_second = lin_cor_data[isecond];
+  lastframe_third = lin_cor_data[ithird];
+
+  //for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+  //  cout<< i<< " " << lin_cor_data[i] << endl;; // initialize 
+  // }
+}
 
 //_______________________________________________________________________
 // in a pixel's sample up the ramp values = find the 2 point difference
@@ -478,15 +485,14 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
 
   //-----------------------------------------------------------------------
 void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
-					 int linflag,
-					 int lin_order,
-					 vector<float> lin){
-
-
+				     const int apply_rscd_cor,
+				     int linflag,
+				     int lin_order,
+				     vector<float> lin){
 
 
   if(is_ref) { //Reference Pixe (no  correction determined)
-    if(write_corrected_data==1) {
+    if(write_corrected_data==1 || apply_rscd_cor == 1) {
       for (unsigned int i = 0 ; i < raw_data.size() ; i++){
 	lin_cor_data[i]= raw_data[i]; // initialize 
       }
@@ -508,7 +514,7 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
 
     quality_flag = quality_flag + UNRELIABLE_LIN ;
 
-    if(write_corrected_data==1) { // pixel either is a bad pixel or has no non-linearity correction
+    if(write_corrected_data==1 || apply_rscd_cor == 1) { // pixel either is a bad pixel or has no non-linearity correction
       for (unsigned int i = 0 ; i < raw_data.size() ; i++){
 	lin_cor_data[i] = (strtod("NaN",NULL)); //  
       }
@@ -517,11 +523,9 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
     return;
   }
   //-----------------------------------------------------------------------
-
   // Lin order = 3 only solution now, 
   //  lin[0] = 1
 
-  
   vector <float> coeff;
   coeff.push_back(lin[1]);
   coeff.push_back(lin[2]);
@@ -547,9 +551,9 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
   for (unsigned int i = 1 ; i < raw_data.size() ; i++){
     if(id_data[i] == 0){
       raw_data[i] = lin_cor[i];
-      if(write_corrected_data) lin_cor_data[i] = lin_cor[i];
+      if(write_corrected_data || apply_rscd_cor == 1 ) lin_cor_data[i] = lin_cor[i];
     } else {
-      if(write_corrected_data) lin_cor_data[i] = strtod("NaN",NULL); //  
+      if(write_corrected_data || apply_rscd_cor == 1) lin_cor_data[i] = strtod("NaN",NULL); //  
     }
   }
 }
@@ -644,6 +648,7 @@ void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
 void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
 			       int n_reads_start_fit,
 			       int nframes,
+			       int video_offset_rscd,
 			       float lastframeDN,
 			       float lastframeDN_sat,
 			       float sat,
@@ -661,6 +666,8 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
 			       float rscd_a3){
 
 
+  lastframeDN = lastframeDN - video_offset_rscd;
+  lastframeDN_sat = lastframeDN_sat - video_offset_rscd;
 
   if(is_ref) { //Reference Pixel (no  correction determined)
     if(write_corrected_data==1) {
@@ -676,41 +683,49 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     process_flag = 0;
     quality_flag = quality_flag + NO_RSCD_CORRECTION ;
     return;
-
   }
 
   int debug = 0;
-  if(pix_x == -600 && pix_y == 400) debug = 1;
-
+  if(pix_x == 181 && pix_y == -161) debug = 1;
+  
   // ______________________________________________________________________
   // mult correction (secondard correction) 
   vector<float> mult_correct(raw_data.size(),0);
-  if(lastframeDN >mult_min_tol){ // only correct data if lastframe last in > minimum tolerance
+  if(lastframeDN > mult_min_tol){ // only correct data if lastframe last in > minimum tolerance
     float A = 0;
     float B = 0;
 
-    if(lastframeDN < sat) { 
-      A = (mult_a[1] * lastframeDN + mult_a[0])/nframes;
-      B = (mult_b[1] * lastframeDN + mult_b[0])/nframes;
+    if(lastframeDN < (sat - video_offset_rscd)) { 
+      A = (mult_a[1] * lastframeDN + mult_a[0])/(nframes);
+      B = (mult_b[1] * lastframeDN + mult_b[0])/(nframes);
     } else {
-      A = (mult_c[1] * lastframeDN_sat + mult_c[0])/nframes;
-      B = (mult_d[1] * lastframeDN_sat + mult_d[0])/nframes;
+      A = (mult_c[1] * lastframeDN_sat + mult_c[0])/(nframes);
+      B = (mult_d[1] * lastframeDN_sat + mult_d[0])/(nframes);
     }
 
+    if(debug == 1) cout << "Terms" << A << " " <<B <<  " " << mult_a[0] << " " << mult_a[1] << " " <<
+		     mult_b[0] << " " << mult_b[1] << " " << mult_alpha << endl;
+
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
-	float eterm = exp(0.0001 * mult_alpha * raw_data[i]);
-	float corr =  A*eterm + B;
-	mult_correct[i]= corr;
+      float eterm = exp(0.0001 * mult_alpha *  (raw_data[i]-video_offset_rscd));
+      float corr =  A*eterm + B;
+      mult_correct[i]= corr;
+      if(debug == 1) cout << "Mult corr" << i+1 << " " << mult_correct[i] << " " <<
+		       A << " " << B << " " << eterm << " " << mult_alpha << " " <<
+		       raw_data[i] - video_offset_rscd << endl;
     }
+
+    if(debug == 1) cout  << " mult corr" << lastframeDN << " " << sat-video_offset_rscd <<  " " 
+			 << mult_min_tol << " " << nframes <<  endl;
 
   }
   // ______________________________________________________________________
   // rscd correction   
   vector<float> rscd_correct(raw_data.size(),0);
 
-  if(debug == 1) cout<< "rscd int 1 parms" << rscd_min_tol << " " << lastframeDN << endl;
-
-  if(lastframeDN >rscd_min_tol){ // only correct data if lastframe last in > minimum tolerance
+  if(debug == 1) cout<< "rscd int 1 parms" << rscd_min_tol << " " << video_offset_rscd << " " << lastframeDN << endl;
+  
+  if(lastframeDN >(rscd_min_tol)){ // only correct data if lastframe last in > minimum tolerance
 
     float scale = 0;
     float lastframeDN2 = lastframeDN * lastframeDN;
@@ -720,34 +735,42 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       cout << rscd_alpha << " " << rscd_a0 << " " << rscd_a1 << " " << rscd_a2 << " " << rscd_a3 << endl;      
     }
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
-      float eterm = exp(rscd_alpha * (n_reads_start_fit+ i)) ;
+      float eterm = exp(rscd_alpha * (n_reads_start_fit+ i + 1)) ;
       float corr = 0;
       if(scale > 0){ 
 	corr =  scale*eterm;
       }
       rscd_correct[i]= corr;
+      if(debug == 1) cout << " rscd_correct " << scale << " " << eterm << " " << rscd_correct[i] << endl;
     }
     
     vector<float> total_correct(raw_data.size(),0.0);
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames
       total_correct[i] = rscd_correct[i] + mult_correct[i];
-      //cout << "total" << total_correct[i] << endl; 
+      if(debug ==1) {
+	cout << "total" << i << " " << total_correct[i] << " " << rscd_correct[i] << " " << mult_correct[i]  << endl; 
+      }
     }
     vector<float> new_correct(raw_data.size(),0.0);
-    
+    new_correct[raw_data.size()-1] = -total_correct[raw_data.size()-1];
+    if(debug == 1) cout << "set up" << raw_data.size() -1 << " " << new_correct[raw_data.size()-1] << endl;
     for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- total_correct[raw_data.size()-2-i];
+      if(debug == 1) cout << "applying " << raw_data.size() << " " << raw_data.size()-2-i << " " <<  raw_data.size()-1-i << endl;
     }
+    // for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
+    //  new_correct[raw_data.size()-1-i] = new_correct[raw_data.size()-i]- total_correct[raw_data.size()-1-i];
+    //}
 
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
       if(debug == 1 || fabs(new_correct[i]) > 5000 ) {
 	cout << " RSCD correction " << pix_x << " " << pix_y << " " << i << " " <<  
-	  new_correct[i] <<  " " << raw_data[i] << " " <<
+	  raw_data[i] << " " << new_correct[i]  << " " <<
 	  raw_data[i] - new_correct[i]  << endl;
+	cout << rscd_correct[i] << " "  << mult_correct[i] << endl;
 	debug = 1;
 	
       }
-
       raw_data[i] = raw_data[i] - new_correct[i];
       if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
     }// end loop over raw_data.size: number of frames in integration

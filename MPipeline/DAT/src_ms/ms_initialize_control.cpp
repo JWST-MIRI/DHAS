@@ -224,6 +224,7 @@ void ms_initialize_control(miri_control &control)
 
   control.video_offset = 0;
   control.flag_video_offset = 0;
+  control.video_offset_rscd = 0;
 
   control.gain = 1;      //e/DN
   control.flag_gain = 0;

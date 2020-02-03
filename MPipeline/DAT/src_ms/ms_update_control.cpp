@@ -53,8 +53,6 @@ void ms_update_control( miri_control &control,
 
 {
 
-
-
   if(control.flag_dir ==0)
     control.scidata_dir = preference.scidata_dir;
 
@@ -73,9 +71,8 @@ void ms_update_control( miri_control &control,
   control.UncertaintyMethod = 0; // set to NoUncertainty 
   if(control.UseUncertainty ==1) control.UncertaintyMethod = 1;
   if(control.UseCorrelatedUnc ==1) control.UncertaintyMethod = 2;
-
   
-   if(control.flag_Uncertainty ==0)
+  if(control.flag_Uncertainty ==0)
     control.UncertaintyMethod = preference.UncertaintyMethod;
 
   if(control.UncertaintyMethod < 0 || control.UncertaintyMethod > 2) {
@@ -83,7 +80,6 @@ void ms_update_control( miri_control &control,
     cout << " Current Method set to " << control.UncertaintyMethod << endl;
     exit(EXIT_FAILURE);
   }
-
 
   if(control.flag_n_reads_start_fit ==0) 
     control.n_reads_start_fit = preference.n_reads_start_fit;
@@ -97,16 +93,10 @@ void ms_update_control( miri_control &control,
     control.n_reads_start_fit = control.n_reads_start_fit -1;
   if(control.n_reads_end_fit !=0) 
     control.n_reads_end_fit = control.n_reads_end_fit -1;
-
- 
-
   //_______________________________________________________________________
-  
-
 
   if(control.flag_do_refpixel_option ==0) 
     control.do_refpixel_option = preference.do_refpixel_option;
-
 
   if(control.do_refpixel_option ==0 && 
     control.write_output_refpixel_corrections ==1){ 
@@ -122,11 +112,9 @@ void ms_update_control( miri_control &control,
 
  if( control.flag_write_detailed_cr == 0)
 	control.write_detailed_cr = preference.write_detailed_cr;
-
 	
  if( control.flag_write_output_lc_correction == 0)
 	control.write_output_lc_correction = preference.write_output_lc_correction;
-
 
  if( control.flag_write_output_rscd_correction == 0)
 	control.write_output_rscd_correction = preference.write_output_rscd_correction;
@@ -155,11 +143,9 @@ void ms_update_control( miri_control &control,
 
   control.n_frames_reject_after_cr_small_frameno = preference.n_frames_reject_after_cr_small_frameno;
 
-
   if(control.flag_max_iterations_cr ==0) 
     control.max_iterations_cr = preference.max_iterations_cr;
   
-
   if(control.flag_dn_high_sat == 0) 
     control.dn_high_sat = preference.dn_high_sat;
       
@@ -169,14 +155,11 @@ void ms_update_control( miri_control &control,
   if(control.flag_slope_seg_cr_sigma_reject ==0) 
     control.slope_seg_cr_sigma_reject = preference.slope_seg_cr_sigma_reject;
 
-
   if(control.flag_cr_min_good_diffs ==0) 
     control.cr_min_good_diffs = preference.cr_min_good_diffs;
 
-
   if(control.flag_cosmic_ray_noise_level ==0) 
     control.cosmic_ray_noise_level = preference.cosmic_ray_noise_level;
-
 
   if(control.flag_frame_limit ==0)
     control.frame_limit = preference.frame_limit;
@@ -218,7 +201,11 @@ void ms_update_control( miri_control &control,
     cout << " Reset the number of rows to read in and process at one time to " << control.subset_nrow << endl;
   }
 
-
+  if(control.apply_rscd_cor == 1) {
+    cout << " Applying RSCD correction requirs the linearity correction to be applied " << endl;
+    cout << " Turning on Apply Linearity Correction " << endl;
+    control.apply_lin_cor = 1;
+  }
   if(control.do_cr_id ==0 ) control.write_detailed_cr =0;
   if(control.apply_dark_cor ==0) control.write_output_dark_correction = 0;   		
   if(control.apply_rscd_cor ==0 && control.apply_mult_cor==0) control.write_output_rscd_correction = 0;   		
@@ -227,9 +214,9 @@ void ms_update_control( miri_control &control,
   if(control.apply_lin_cor ==0) control.write_output_lc_correction = 0;   		
   if(control.do_refpixel_option ==0)control.write_output_refpixel_corrections = 0;
 
-  cout << "ms_update_control: RSCD" << control.apply_rscd_cor <<endl;
-  cout << "ms_update_control: MULT" << control.apply_mult_cor <<endl;
-  cout << control.write_output_rscd_correction << endl;
+  cout << "ms_update_control: Apply RSCD" << control.apply_rscd_cor <<endl;
+  cout << "ms_update_control: Apply MULT" << control.apply_mult_cor <<endl;
+  cout << " Write RSCD " <<control.write_output_rscd_correction << endl;
 
 
   

@@ -41,9 +41,10 @@ class  miri_mult {
 	b_even.push_back(C_even);
 	c_even.push_back(Fsat_even);
 	c_even.push_back(Esat_even);
-	d_even.push_back(Gsat_even);
 	d_even.push_back(Hsat_even);
+	d_even.push_back(Gsat_even);
 
+	cout << " in set parameters" << a_even[0] << " " << a_even[1] << endl;
 	min_tol_odd = low_tol_odd;
 	alpha_odd = Talpha_odd;
 	a_odd.push_back(B_odd);
@@ -52,22 +53,22 @@ class  miri_mult {
 	b_odd.push_back(C_odd);
 	c_odd.push_back(Fsat_odd);
 	c_odd.push_back(Esat_odd);
-	d_odd.push_back(Gsat_odd);
 	d_odd.push_back(Hsat_odd);
+	d_odd.push_back(Gsat_odd);
     }
 
   inline void GetParams(float &mult_min_tol_even,
 			float &mult_min_tol_odd,
 			float &mult_alpha_even,
 			float &mult_alpha_odd,
-			vector <float> A_even,
-			vector <float> A_odd,
-			vector <float> B_even,
-			vector <float> B_odd,
-			vector <float> C_even,
-			vector <float> C_odd,
-			vector <float> D_even,
-			vector <float> D_odd){
+			vector <float> &A_even,
+			vector <float> &A_odd,
+			vector <float> &B_even,
+			vector <float> &B_odd,
+			vector <float> &C_even,
+			vector <float> &C_odd,
+			vector <float> &D_even,
+			vector <float> &D_odd){
 
 
 
@@ -86,8 +87,6 @@ class  miri_mult {
       D_even[i] = d_even[i];
       D_odd[i] = d_odd[i];
     }
-
-
 
 
   }

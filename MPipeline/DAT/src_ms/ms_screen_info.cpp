@@ -86,7 +86,6 @@ void ms_screen_info(miri_control control, miri_data_info &data_info)
   
   cout << "Processing options " << endl;
     
-  
   if(control.do_refpixel_option ==0) cout << " Not using border reference pixels to correct data " << endl; 
 
   if(control.do_refpixel_option ==6) {
