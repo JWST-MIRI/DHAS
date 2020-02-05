@@ -107,7 +107,11 @@ class  miri_pixel {
 		     float rscd_a0,
 		     float rscd_a1,
 		     float rscd_a2,
-		     float rscd_a3);
+		     float rscd_a3,
+		     float first_a0,
+		     float first_a1,
+		     float first_a2,
+		     float first_a3);
 
 
   vector<int> GetFlags(int &, int &);
