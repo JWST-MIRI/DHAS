@@ -190,6 +190,8 @@ int main(int argc, char* argv[])
     miri_rscd RSCD;
     if(control.apply_rscd_cor == 1) {
       ms_read_RSCD_file(data_info,control,CDP,RSCD); 
+      cout << " going to read in RSCD first frame parameters" << endl;
+      RSCD.SetFirstFrameParams();
     }
 
     // Read in MULT file 

@@ -254,7 +254,7 @@ endif
 
 ;_______________________________________________________________________
 
-version = "(v 9.7.1 Jan 16, 2020)"
+version = "(v 9.7.2 Feb 04, 2020)"
 if(cube.TestModel eq 0) then begin
     Print,' VM option in CV is no longer possible, you can view/analyze data but use FM preferences file'
     stop

@@ -215,6 +215,16 @@ void ms_read_process_data( const int iter,
   float rscd_a3_even=0;
   float rscd_a3_odd=0;
 
+  float first_a0_even;
+  float first_a1_even;
+  float first_a2_even;
+  float first_a3_even;
+
+  float first_a0_odd;
+  float first_a1_odd;
+  float first_a2_odd;
+  float first_a3_odd;
+
   if(control.apply_rscd_cor ==1 ) {
 
     RSCD.GetParams(iter, rscd_lower_cutoff,
@@ -223,6 +233,11 @@ void ms_read_process_data( const int iter,
 		   rscd_a1_even, rscd_a1_odd,
 		   rscd_a2_even, rscd_a2_odd,
 		   rscd_a3_even, rscd_a3_odd);
+
+    RSCD.GetFirstParams(iter, first_a0_even, first_a1_even,
+			first_a2_even, first_a3_even,
+		        first_a0_odd, first_a1_odd,
+			first_a2_odd, first_a3_odd);
   }
 
 
@@ -480,6 +495,10 @@ void ms_read_process_data( const int iter,
 	  float rscd_a2 = rscd_a2_even;
 	  float rscd_a3 = rscd_a3_even;
 
+	  float first_a0 = first_a0_even;
+	  float first_a1 = first_a1_even;
+	  float first_a2 = first_a2_even;
+	  float first_a3 = first_a3_even;
 
 	  if(is_even ==0) {
 	    mult_alpha = mult_alpha_odd;
@@ -495,6 +514,11 @@ void ms_read_process_data( const int iter,
 	    rscd_a1 = rscd_a1_odd;
 	    rscd_a2 = rscd_a2_odd;
 	    rscd_a3 = rscd_a3_odd;
+
+	    first_a0 = first_a0_odd;
+	    first_a1 = first_a1_odd;
+	    first_a2 = first_a2_odd;
+	    first_a3 = first_a3_odd;
 	  }
 
 
@@ -506,9 +530,8 @@ void ms_read_process_data( const int iter,
 	      mult_b[0] << " " << mult_b[1]  << " " << 
 	      mult_c[0]  << " " << mult_c[1] << " " << 
 	      mult_d[0] << " " << mult_d[1]  << endl;
-
- 
-	    
+	    cout << " first frame terms " << first_a0 << " " << first_a1 << " " << first_a2 << " " << 
+	      first_a3 << endl;
 	  }
 
 	  if (iter == 0){  // first integration, first frame
@@ -537,7 +560,11 @@ void ms_read_process_data( const int iter,
 				  rscd_a0,
 				  rscd_a1,
 				  rscd_a2,
-				  rscd_a3);
+				  rscd_a3,
+				  first_a0,
+				  first_a1,
+				  first_a2,
+				  first_a3);
 
 	}
 

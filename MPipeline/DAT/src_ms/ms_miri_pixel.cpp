@@ -663,7 +663,11 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
 			       float rscd_a0,
 			       float rscd_a1,
 			       float rscd_a2,
-			       float rscd_a3){
+			       float rscd_a3,
+			       float first_a0,
+			       float first_a1,
+			       float first_a2,
+			       float first_a3){
 
 
   lastframeDN = lastframeDN - video_offset_rscd;
@@ -711,24 +715,18 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       float corr =  A*eterm + B;
       mult_correct[i]= corr;
       if(debug == 1) cout << "Mult corr" << i+1 << " " << mult_correct[i] << " " <<
-		       A << " " << B << " " << eterm << " " << mult_alpha << " " <<
-		       raw_data[i] - video_offset_rscd << endl;
+		       eterm << " " << raw_data[i] - video_offset_rscd << endl;
     }
-
-    if(debug == 1) cout  << " mult corr" << lastframeDN << " " << sat-video_offset_rscd <<  " " 
-			 << mult_min_tol << " " << nframes <<  endl;
-
   }
   // ______________________________________________________________________
   // rscd correction   
   vector<float> rscd_correct(raw_data.size(),0);
-
+  float lastframeDN2 = lastframeDN * lastframeDN;
   if(debug == 1) cout<< "rscd int 1 parms" << rscd_min_tol << " " << video_offset_rscd << " " << lastframeDN << endl;
   
   if(lastframeDN >(rscd_min_tol)){ // only correct data if lastframe last in > minimum tolerance
 
     float scale = 0;
-    float lastframeDN2 = lastframeDN * lastframeDN;
     scale = rscd_a0 + rscd_a1*lastframeDN + rscd_a2*lastframeDN2 + rscd_a3* lastframeDN2*lastframeDN;
     if(debug == 1) {
       cout << "scale " << scale << endl;
@@ -744,6 +742,21 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       if(debug == 1) cout << " rscd_correct " << scale << " " << eterm << " " << rscd_correct[i] << endl;
     }
     
+  // ______________________________________________________________________
+  // rscd correction first frame correction for integrations > 1
+
+    float first_corr = 0;
+    first_corr = first_a0 + first_a1*lastframeDN + first_a2*lastframeDN2 + 
+      first_a3*lastframeDN* lastframeDN2;
+
+    if(debug == 1) {
+      cout << " first frame parameters" << pix_x << " " << pix_y << " " << first_a0 << " " << first_a1 << " " <<
+	first_a2 << " " << first_a3 << endl;
+      cout <<"first corr" << first_corr << endl;
+    }
+    
+  // ______________________________________________________________________
+  // add corrections together
     vector<float> total_correct(raw_data.size(),0.0);
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames
       total_correct[i] = rscd_correct[i] + mult_correct[i];
@@ -751,25 +764,26 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
 	cout << "total" << i << " " << total_correct[i] << " " << rscd_correct[i] << " " << mult_correct[i]  << endl; 
       }
     }
+
     vector<float> new_correct(raw_data.size(),0.0);
     new_correct[raw_data.size()-1] = -total_correct[raw_data.size()-1];
-    if(debug == 1) cout << "set up" << raw_data.size() -1 << " " << new_correct[raw_data.size()-1] << endl;
+
     for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- total_correct[raw_data.size()-2-i];
-      if(debug == 1) cout << "applying " << raw_data.size() << " " << raw_data.size()-2-i << " " <<  raw_data.size()-1-i << endl;
     }
+
     // for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
     //  new_correct[raw_data.size()-1-i] = new_correct[raw_data.size()-i]- total_correct[raw_data.size()-1-i];
     //}
+
+    // now apply the first frame correction
+    new_correct[0] = new_correct[0] - first_corr;
 
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
       if(debug == 1 || fabs(new_correct[i]) > 5000 ) {
 	cout << " RSCD correction " << pix_x << " " << pix_y << " " << i << " " <<  
 	  raw_data[i] << " " << new_correct[i]  << " " <<
-	  raw_data[i] - new_correct[i]  << endl;
-	cout << rscd_correct[i] << " "  << mult_correct[i] << endl;
-	debug = 1;
-	
+	  rscd_correct[i] << " "  << mult_correct[i] << endl;
       }
       raw_data[i] = raw_data[i] - new_correct[i];
       if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
