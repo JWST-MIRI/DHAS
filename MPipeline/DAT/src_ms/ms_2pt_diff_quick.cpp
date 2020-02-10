@@ -34,7 +34,6 @@
 //
 //void ms_2pt_diff_quick(const int verbose_jump,
 //		       const int do_cosmic_id,
-//		       const int istart_fit,
 //		       miri_pixel &pixel,
 //		       const float cr_sigma_reject,       
 //		       const int  cr_min_good_diffs,      
@@ -50,7 +49,6 @@
 // Arguments:
 //      verbose: print extra information to the screen- a special verbose for Jumps on Ramp
 //      do_cosmic_id: do cosmic ray testing.
-//      istart_fit: frame number to start the fit on
 //      pixel (class miri_pixel): holds information on each pixel
 //      cr_sigma_reject (control.cr_sigma_reject): # of sigmas 
 //          away from the median for which a jump is a cosmic ray
@@ -99,18 +97,14 @@
 #include "miri_constants.h"
 #include "miri_pixel.h"
 #include "miri_sloper.h"
-
-
   
 void FindMedian3(vector<float> flux,int istart, int iend, float& Median); // finds the median of a vector
 
 void piksrt3(vector <float> &arr, vector <long> &indx); // sorting routine
 
-
 // 2 pt difference routine 
 void ms_2pt_diff_quick(const int verbose_jump,
 		       const int do_cosmic_id,
-		       const int istart_fit,
 		       const int NRamps,
 		       miri_pixel &pixel,
 		       const float cr_sigma_reject,       // cosmic ray rejection sigma
@@ -151,11 +145,10 @@ void ms_2pt_diff_quick(const int verbose_jump,
   int debug = 0;
   //   if(xtemp == 285 && ytemp == 57) debug = 1;
 
-
   // find 2 pt differences  for only the good data points 
   // also finds the max 2pt difference
 
-  pixel.Get2ptDiffIndexP(istart_fit,diff,true_diff,index,ipixel,n_good);
+  pixel.Get2ptDiffIndexP(diff,true_diff,index,ipixel,n_good);
 
   // true_diff = 2 pt difference
   // diff = absolute value of tru_diff - used for sorting and finding largest differences
@@ -611,7 +604,7 @@ void ms_2pt_diff_quick(const int verbose_jump,
     true_diff.erase(true_diff.begin(),true_diff.end());
     diff_org.erase(diff_org.begin(),diff_org.end());
     
-    pixel.Get2ptDiffIndex(istart_fit,diff,true_diff,index_new,n_good);
+    pixel.Get2ptDiffIndex(diff,true_diff,index_new,n_good);
     diff_org.assign(true_diff.begin(),true_diff.end()); 
 
   }

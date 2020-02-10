@@ -100,10 +100,9 @@ void ms_process_refimage_data( miri_control control,
   for (long j = 0; j < data_info.ref_numpixels; j++) {
     debug_flag = 0;
     refpixel[j].FindSegments();
-    refpixel[j].CalculateSlopeNoErrors(control.n_reads_start_fit,0,0);       // Find Slopes for each segment dn/read
+    refpixel[j].CalculateSlopeNoErrors(0,0);       // Find Slopes for each segment dn/read
 
     refpixel[j].FinalSlope(control.slope_seg_cr_sigma_reject,
-			   control.n_reads_start_fit, 
 			   control.n_frames_reject_after_cr,
 			   control.cr_min_good_diffs,
 			   control.write_detailed_cr,

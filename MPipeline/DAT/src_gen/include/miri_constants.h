@@ -42,7 +42,7 @@
 #define MIN_FRAME_FAILURE 512
 #define UNRELIABLE_RESET 1024
 
-
+#define SKIP_FRAME -1 // Skip frames in beginning or end of integration
 #define BADFRAME -2 // electric problem with Frame
 #define REJECT_AFTER_NOISE_SPIKE -8 // not used in determining DATA QUALITY FLAG 
 #define REJECT_AFTER_CR -4 // not used in determining DATA QUALITY FLAG 

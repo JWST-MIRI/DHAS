@@ -64,11 +64,9 @@ miri_pixel::miri_pixel(): quality_flag(), is_ref(),signal(0), signal_unc(0),zero
 miri_pixel::~miri_pixel() {}
 
 //_______________________________________________________________________
-//_______________________________________________________________________
 
 void miri_pixel::SetPixel(int X, int Y, const int ColStart,int  IREAD,int BADPIXEL){
 
-    //-----------------------------------------------------------------------
   // find channel number and correct X, Y
   int chan = (X-1) /4;
   channel = short(  (X) - (chan*4));
@@ -122,12 +120,6 @@ void miri_pixel::SetPixel(int X, int Y, const int ColStart,int  IREAD,int BADPIX
   }
 }
 
-//_______________________________________________________________________
-void miri_pixel::InitializeLinCorData(){
-  for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-    lin_cor_data.push_back(raw_data[i]); // initialize 
-  }
-}
 
 void miri_pixel::InitializeDarkCorData(){
   if(process_flag ==0){
@@ -185,38 +177,13 @@ void miri_pixel::GetLast2Frames(const int isecond, const int ithird,
 			       float &lastframe_second, float  &lastframe_third){
   lastframe_second = lin_cor_data[isecond];
   lastframe_third = lin_cor_data[ithird];
-
-  //for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-  //  cout<< i<< " " << lin_cor_data[i] << endl;; // initialize 
-  // }
 }
 
 //_______________________________________________________________________
-// in a pixel's sample up the ramp values = find the 2 point difference
-// between adjacent frame values-
-// Also find the max_2pt_difference value and frame # that goes with it
-//
-void miri_pixel::Get2ptDiff(const int start_fit,
-			    vector<float> &diff, 
-			    vector<float> &weight, int &ngood){
-  int num = raw_data.size();
-  max_2pt_diff = 0.0;
-  read_num_max_2pt_diff =0;
-  for (int i =0; i< num-1; i++){
-    diff[i] = raw_data[i+1] - raw_data[i];
-    if(fabs(diff[i]) > fabs(max_2pt_diff)) {
-      max_2pt_diff = diff[i];
-      read_num_max_2pt_diff = i +start_fit + 1 ;
-    }
-    
-    diff[i] = fabs(diff[i]);
-    if( (id_data[i] + id_data[i+1]) == 0){
-      weight[i] = 1.0;
-      ngood++;
-    }
-  }
+float miri_pixel::GetFirstFrame(){
+  float firstframe= lin_cor_data[0];
+  return firstframe;
 }
-
 
 //_______________________________________________________________________
 // in a pixel's sample up the ramp values = find the 2 point difference
@@ -225,14 +192,17 @@ void miri_pixel::Get2ptDiff(const int start_fit,
 // Also find the max_2pt_difference value and frame # that goes with it
 // - ngood - number values where id_data of both frames  = 0
 
-void miri_pixel::Get2ptDiffIndex(const int start_fit,
-				 vector<float> &diff,
+void miri_pixel::Get2ptDiffIndex(vector<float> &diff,
 				 vector<float> &true_diff, 
 				 vector<long> &index, int &ngood){
+
+  
   long num = raw_data.size();
   max_2pt_diff = 0.0;
   read_num_max_2pt_diff =0;
   ngood = 0;
+
+  
   for (long i =0; i< num-1; i++){
     if( (id_data[i] + id_data[i+1]) == 0){
       diff.push_back( raw_data[i+1] - raw_data[i]);
@@ -240,7 +210,7 @@ void miri_pixel::Get2ptDiffIndex(const int start_fit,
 
       if(fabs(diff[ngood]) > fabs(max_2pt_diff)) {
 	max_2pt_diff = diff[ngood];
-	read_num_max_2pt_diff = int(i) +start_fit + 1 ;
+	read_num_max_2pt_diff = int(i)  + 1 ;
       }
       true_diff.push_back(diff[ngood]);
       diff[ngood] = fabs(diff[ngood]);
@@ -260,12 +230,12 @@ void miri_pixel::Get2ptDiffIndex(const int start_fit,
 // Also find the max_2pt_difference value and frame # that goes with it
 // - ngood - number values where id_data of both frames  = 0
 
-void miri_pixel::Get2ptDiffIndexP(const int start_fit,
-				  vector<float> &diff,
+void miri_pixel::Get2ptDiffIndexP(vector<float> &diff,
 				  vector<float> &true_diff, 
 				  vector<long> &index, 
 				  vector<long> &ipixel, 
 				  int &ngood){
+
   long num = raw_data.size();
   max_2pt_diff = 0.0;
   read_num_max_2pt_diff =0;
@@ -283,7 +253,7 @@ void miri_pixel::Get2ptDiffIndexP(const int start_fit,
 
       if(fabs(diff[ngood]) > fabs(max_2pt_diff)) {
 	max_2pt_diff = diff[ngood];
-	read_num_max_2pt_diff = int(i) +start_fit + 1 ;
+	read_num_max_2pt_diff = int(i)  + 1 ;
       }
 
       j++;
@@ -299,15 +269,12 @@ void miri_pixel::Get2ptDiffIndexP(const int start_fit,
 
 // 
 
-void miri_pixel::RejectAfterEvent(const int frame, const int FLAG, const int nreject_noise, const int nreject_cr){
-
+void miri_pixel::RejectAfterEvent(const int frame, const int FLAG, const int nreject_noise, 
+				  const int nreject_cr){
  
   int num = raw_data.size(); 
   int iframe = frame; 
-
-
     //-----------------------------------------------------------------------
-
   if(FLAG == NOISE_SPIKE_UP_ID || FLAG == NOISE_SPIKE_DOWN_ID) {
     int j = 0;
     while(j < nreject_noise && (iframe+1) < num) {
@@ -316,7 +283,6 @@ void miri_pixel::RejectAfterEvent(const int frame, const int FLAG, const int nre
       j++;
     }
   }
-
     //-----------------------------------------------------------------------
   if(FLAG == COSMICRAY_ID || FLAG == COSMICRAY_NEG_ID ) {
     int j = 0;
@@ -326,26 +292,21 @@ void miri_pixel::RejectAfterEvent(const int frame, const int FLAG, const int nre
       j++;
     }
   }
-
 }
-        
 
 //_______________________________________________________________________
 void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
 				     const int apply_lin_offset,
-				     const int istart_fit,
 				     int linflag,
 				     int lin_order,vector<float> lin){
 
 
 
   //-----------------------------------------------------------------------
-  if(is_ref) { //Reference Pixe (no  correction determined)
+  if(is_ref) { //Reference Pixel (no  correction determined)
 
-    if(write_corrected_data==1) {
-      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+    for (unsigned int i = 0 ; i < raw_data.size() ; i++){
 	lin_cor_data[i]= raw_data[i]; // initialize 
-      }
     }
     return;
   } 
@@ -361,12 +322,9 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
 
     quality_flag = quality_flag + UNRELIABLE_LIN ;
 
-    if(write_corrected_data==1) { // pixel either is a bad pixel or has no non-linearity correction
-      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-	lin_cor_data[i] = (strtod("NaN",NULL)); //  
-      }
+    for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+      lin_cor_data[i] = (strtod("NaN",NULL)); //  
     }
-
     return;
   }
   //-----------------------------------------------------------------------
@@ -402,7 +360,7 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
     // rate ==0 can occur when raw data = 0 in multiple integration data after bright previous exposure
     if(n > 0  && rate !=0){ 
       rate = rate/n;
-      startVal_estimate = raw_data[0] - rate*(istart_fit+1);
+      startVal_estimate = raw_data[0];
       iflag_estimate = 1; 
     }
   //-----------------------------------------------------------------------
@@ -415,7 +373,7 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
     for (unsigned int ii = 0; ii < raw_data.size(); ii++){
       if(id_data[ii] == 0 && raw_data[ii] !=0) { 
 	yobs.push_back(double(raw_data[ii]));
-	xobs.push_back(double(ii + istart_fit+1));
+	xobs.push_back(double(ii ));
 	igood++;
       }
     }
@@ -472,10 +430,10 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
       raw_data[i] = (raw_data[i]*coorFactor + lin[0])  - DN_0 + startVal;
       
 
-      if(write_corrected_data) lin_cor_data[i] = raw_data[i]; 
+      lin_cor_data[i] = raw_data[i]; 
 	//_______________________________________________________________________
     } else {
-      if(write_corrected_data) lin_cor_data[i] = strtod("NaN",NULL); //  
+      lin_cor_data[i] = strtod("NaN",NULL); //  
     }
   }// end loop over raw_data
 
@@ -490,19 +448,15 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
 				     int lin_order,
 				     vector<float> lin){
 
+  // initialize the lin_cor_data = raw data (raw + any corrections up to this point)
+  for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+    lin_cor_data[i]= raw_data[i]; // initialize 
+  }
 
   if(is_ref) { //Reference Pixe (no  correction determined)
-    if(write_corrected_data==1 || apply_rscd_cor == 1) {
-      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-	lin_cor_data[i]= raw_data[i]; // initialize 
-      }
-    }
     return;
   }
 
-  if (pix_x == -144 && pix_y == 133) {
-    cout << "linflag " << linflag << endl;
-  } 
   //-----------------------------------------------------------------------
   if(linflag & CDP_NOLINEARITY    ) { //  no linearity correction
 
@@ -514,10 +468,8 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
 
     quality_flag = quality_flag + UNRELIABLE_LIN ;
 
-    if(write_corrected_data==1 || apply_rscd_cor == 1) { // pixel either is a bad pixel or has no non-linearity correction
-      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-	lin_cor_data[i] = (strtod("NaN",NULL)); //  
-      }
+    for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+      lin_cor_data[i] = (strtod("NaN",NULL)); //  
     }
 
     return;
@@ -531,30 +483,18 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
   coeff.push_back(lin[2]);
   coeff.push_back(lin[3]);
 
-  if(pix_x == -144 && pix_y == 133) {
-    cout << coeff[0] << " " << coeff[1] <<  " " << coeff[2] << endl;
-  }
-
   vector<float> lin_cor(raw_data.size());
   lin_cor[0] = raw_data[0];
   
   for (unsigned int i = 1 ; i < raw_data.size() ; i++){
-    if(id_data[i] == 0){
+    //    if(id_data[i] == 0){
       float aveqe = poly_ave(raw_data[i-1], raw_data[i],coeff);
       lin_cor[i] = lin_cor[i-1] + (raw_data[i] - raw_data[i-1]) /aveqe;
-
-      if(pix_x == -144 && pix_y == 133) {
-	cout << "raw " << i << " " << raw_data[i] << " " << lin_cor[i] << endl;
-      }
-    }
+      //}
   }// end loop over raw_data
   for (unsigned int i = 1 ; i < raw_data.size() ; i++){
-    if(id_data[i] == 0){
       raw_data[i] = lin_cor[i];
-      if(write_corrected_data || apply_rscd_cor == 1 ) lin_cor_data[i] = lin_cor[i];
-    } else {
-      if(write_corrected_data || apply_rscd_cor == 1) lin_cor_data[i] = strtod("NaN",NULL); //  
-    }
+      lin_cor_data[i] = lin_cor[i];
   }
 }
 
@@ -588,23 +528,21 @@ float miri_pixel::poly_ave(float a, float b, vector<float> coeff){
 void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
 					 short dq_flag, 
 					 vector<float> areset){
-						  
 
-  if(is_ref) { //Reference Pixel (no  correction determined)
-    if(write_corrected_data==1) {
-      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-	reset_cor_data[i]= raw_data[i]; // initialize 
-      }
+  if(write_corrected_data==1) {
+    for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+      reset_cor_data[i]= raw_data[i]; // initialize 
     }
-    return;
   } 
+  if(is_ref) { //Reference Pixel (no  correction determined)
+    return;
+  }
 
   //-----------------------------------------------------------------------
   if(dq_flag & CDP_DONOT_USE) { // pixel does not have a valid reset  correction
     if(write_corrected_data==1) { 
       for (unsigned int i = 0 ; i < raw_data.size() ; i++){
 	reset_cor_data[i] = (strtod("NaN",NULL)); //
-
       }
     }
 
@@ -622,31 +560,21 @@ void miri_pixel::SubtractResetCorrection(const int write_corrected_data,
 //-----------------------------------------------------------------------
   // Valid data to correct
   unsigned int dsize =  areset.size(); // planes of reset read in 
-    for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-      // Do not check id_data because we use the reset corrected
-      // data to derive the linearity correction - only step
-      // that we need all the data corrected. 
-      //      if(id_data[i] == 0){
-	float ycorr = 0;
-	if(i < dsize ) ycorr = areset[i];
-	if(i >= dsize) {
-	  ycorr = areset[dsize-1];
-	}
+  for (unsigned int i = 0 ; i < raw_data.size() ; i++){
+    float ycorr = 0;
+    if(i < dsize ) ycorr = areset[i];
+    if(i >= dsize) {
+      ycorr = areset[dsize-1];
+    }
 
-	raw_data[i] = raw_data[i] - ycorr;
-
-	if(write_corrected_data) reset_cor_data[i] = raw_data[i];
-	//      } else {
-	//if(write_corrected_data) reset_cor_data[i] = strtod("NaN",NULL); //  
-	// }
-
-    }// end loop over raw_data
-    if(dq_flag & CDP_NORESET)     quality_flag = quality_flag + UNRELIABLE_RESET ;
+    raw_data[i] = raw_data[i] - ycorr;
+    if(write_corrected_data) reset_cor_data[i] = raw_data[i];
+  }// end loop over raw_data
+  if(dq_flag & CDP_NORESET)     quality_flag = quality_flag + UNRELIABLE_RESET ;
 }
 //_______________________________________________________________________
 
 void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
-			       int n_reads_start_fit,
 			       int nframes,
 			       int video_offset_rscd,
 			       float lastframeDN,
@@ -690,7 +618,7 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
   }
 
   int debug = 0;
-  if(pix_x == 181 && pix_y == -161) debug = 1;
+  if(pix_x == 181 && pix_y == 161) debug = 1;
   
   // ______________________________________________________________________
   // mult correction (secondard correction) 
@@ -699,7 +627,7 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     float A = 0;
     float B = 0;
 
-    if(lastframeDN < (sat - video_offset_rscd)) { 
+    if(lastframeDN < (sat - video_offset_rscd)) {       
       A = (mult_a[1] * lastframeDN + mult_a[0])/(nframes);
       B = (mult_b[1] * lastframeDN + mult_b[0])/(nframes);
     } else {
@@ -707,22 +635,33 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       B = (mult_d[1] * lastframeDN_sat + mult_d[0])/(nframes);
     }
 
-    if(debug == 1) cout << "Terms" << A << " " <<B <<  " " << mult_a[0] << " " << mult_a[1] << " " <<
-		     mult_b[0] << " " << mult_b[1] << " " << mult_alpha << endl;
+    if(debug == 1){
+      cout << "lastframeDN " << " " << lastframeDN << " " <<  sat-video_offset_rscd << endl; 
+      cout << "lastframe_sat" << lastframeDN_sat << " " << video_offset_rscd << endl;
+      cout << "Terms" << A << " " <<B <<  " " << mult_a[0] << " " << mult_a[1] << " " <<
+	mult_b[0] << " " << mult_b[1] << " " << mult_alpha << endl;
+
+      cout << "Sat Terms" << mult_c[0] << " " << mult_c[1] << " " <<
+	mult_d[0] << " " << mult_d[1]  << endl;
+
+      cout << " number frames" << nframes << endl;
+    }
 
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
       float eterm = exp(0.0001 * mult_alpha *  (raw_data[i]-video_offset_rscd));
       float corr =  A*eterm + B;
       mult_correct[i]= corr;
       if(debug == 1) cout << "Mult corr" << i+1 << " " << mult_correct[i] << " " <<
-		       eterm << " " << raw_data[i] - video_offset_rscd << endl;
+		       eterm << " " << raw_data[i] - video_offset_rscd  << " " <<
+		       raw_data[i] << endl;
     }
   }
   // ______________________________________________________________________
   // rscd correction   
   vector<float> rscd_correct(raw_data.size(),0);
   float lastframeDN2 = lastframeDN * lastframeDN;
-  if(debug == 1) cout<< "rscd int 1 parms" << rscd_min_tol << " " << video_offset_rscd << " " << lastframeDN << endl;
+  if(debug == 1) cout<< "rscd int 1 parms" << rscd_min_tol << " " << 
+		   video_offset_rscd << " " << lastframeDN << " " << video_offset_rscd +lastframeDN << endl;
   
   if(lastframeDN >(rscd_min_tol)){ // only correct data if lastframe last in > minimum tolerance
 
@@ -733,13 +672,14 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       cout << rscd_alpha << " " << rscd_a0 << " " << rscd_a1 << " " << rscd_a2 << " " << rscd_a3 << endl;      
     }
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
-      float eterm = exp(rscd_alpha * (n_reads_start_fit+ i + 1)) ;
+      float eterm = exp(rscd_alpha * ( i + 1)) ;
       float corr = 0;
       if(scale > 0){ 
 	corr =  scale*eterm;
       }
       rscd_correct[i]= corr;
-      if(debug == 1) cout << " rscd_correct " << scale << " " << eterm << " " << rscd_correct[i] << endl;
+      if(debug == 1) cout << " rscd_correct " << rscd_correct[i] << " " 
+			  << raw_data.size() << " " << raw_data[i] << endl;
     }
     
   // ______________________________________________________________________
@@ -759,6 +699,7 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
   // add corrections together
     vector<float> total_correct(raw_data.size(),0.0);
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames
+      rscd_correct[i] = 0;
       total_correct[i] = rscd_correct[i] + mult_correct[i];
       if(debug ==1) {
 	cout << "total" << i << " " << total_correct[i] << " " << rscd_correct[i] << " " << mult_correct[i]  << endl; 
@@ -766,9 +707,9 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     }
 
     vector<float> new_correct(raw_data.size(),0.0);
-    new_correct[raw_data.size()-1] = -total_correct[raw_data.size()-1];
+    //new_correct[raw_data.size()-1] = -total_correct[raw_data.size()-1];
 
-    for (unsigned int i = 0 ; i < raw_data.size() -1 ; i++){ // loop over the number of frames 
+    for (unsigned int i = 0 ; i <= raw_data.size() -2 ; i++){ // loop over the number of frames 
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- total_correct[raw_data.size()-2-i];
     }
 
@@ -777,13 +718,13 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     //}
 
     // now apply the first frame correction
-    new_correct[0] = new_correct[0] - first_corr;
+    //new_correct[0] = new_correct[0] + first_corr;
 
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
       if(debug == 1 || fabs(new_correct[i]) > 5000 ) {
 	cout << " RSCD correction " << pix_x << " " << pix_y << " " << i << " " <<  
 	  raw_data[i] << " " << new_correct[i]  << " " <<
-	  rscd_correct[i] << " "  << mult_correct[i] << endl;
+	  rscd_correct[i] << " "  << mult_correct[i] << " " << first_corr << endl;
       }
       raw_data[i] = raw_data[i] - new_correct[i];
       if(write_corrected_data) rscd_cor_data[i] = raw_data[i];
@@ -805,8 +746,6 @@ void miri_pixel::ApplyLastFrameCorrection(const int write_corrected_data,
 					  int dq_row_below,
 					  vector<float> a_even, vector<float> b_even,
 					  vector<float> a_odd, vector<float> b_odd){
-
-
   // frame to correct						  
   int iframe = raw_data.size() -1 ;
   lastframe_cor_data = raw_data[iframe]; // initialize to raw data
@@ -838,16 +777,8 @@ void miri_pixel::ApplyLastFrameCorrection(const int write_corrected_data,
 
 
     lastframe_cor_data = raw_data[iframe];      
-
-
   } 
-
-
-
 }
-
-//_______________________________________________________________________
-
 //_______________________________________________________________________
 
 void miri_pixel::SubtractDarkCorrection(const int write_corrected_data,
@@ -882,22 +813,21 @@ void miri_pixel::SubtractDarkCorrection(const int write_corrected_data,
   
   unsigned int dsize =  adark.size(); // planes of dark read in 
     for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-      if(id_data[i] == 0){
+      //      if(id_data[i] == 0){
 	float ycorr = 0;
 	if(i < dsize ) ycorr = adark[i];
 
 	raw_data[i] = raw_data[i] - ycorr;
 	if(write_corrected_data) dark_cor_data[i] = raw_data[i]; 
-      } else {
-	if(write_corrected_data) dark_cor_data[i] = strtod("NaN",NULL); 
-      } 
+	//} else {
+      //	if(write_corrected_data) dark_cor_data[i] = strtod("NaN",NULL); 
+      //} 
     }// end loop over raw_data
     if(dq_flag & CDP_NODARK)     quality_flag = quality_flag + UNRELIABLE_DARK ;
 
 }
 
 //*****************************************************************************************
-
 
 void miri_pixel::PrintData(){
   cout << " Data for pixel (1032 X 1024) " << pix_x << " " << pix_y << endl;
@@ -919,14 +849,12 @@ void miri_pixel::PrintData(){
     cout << " Segment Slope " << seg_slope[i] << endl;
   }
 
-
 }
 
 //_______________________________________________________________________
 void miri_pixel::PrintPixel(){
   cout << " Data for pixel (1032 X 1024)   " << pix_x << " " << pix_y << endl;
   cout << " quality flag    " << quality_flag << endl;
-
 }
 
 void miri_pixel::PrintResults(){
@@ -1005,7 +933,7 @@ void miri_pixel::FindSegments(){
 //_______________________________________________________________________
 // Calculate the slope of each segment
 //
-void miri_pixel::CalculateSlopeNoErrors(int start_fit,int xdebug, int ydebug){
+void miri_pixel::CalculateSlopeNoErrors(int xdebug, int ydebug){
   // case where uncertainties are unknown but  equal
 
 
@@ -1097,8 +1025,8 @@ void miri_pixel::CalculateSlopeNoErrors(int start_fit,int xdebug, int ydebug){
       }
 	  
 
-      int z_pt = seg_begin[i]+start_fit +1; // +1 because data from frame 1 occurs frame time=1 
-      //      cout << z_pt << " " << start_fit << " " << seg_begin[i] << endl;
+      int z_pt = seg_begin[i] +1; // +1 because data from frame 1 occurs frame time=1 
+      //      cout << z_pt << " "  << " " << seg_begin[i] << endl;
 
       
                                             // we want zero pt at x = 0  
@@ -1123,12 +1051,10 @@ void miri_pixel::CalculateSlopeNoErrors(int start_fit,int xdebug, int ydebug){
 
 }
 
-
-
 //_______________________________________________________________________
 // Calculate the slope of each segment
 //
-void miri_pixel::CalculateSlope(int start_fit, float gain, int find_correlated, int xdebug, int ydebug){
+void miri_pixel::CalculateSlope(float gain, int find_correlated, int xdebug, int ydebug){
 
   rms = 0;
   num_good_reads = 0;
@@ -1148,13 +1074,13 @@ void miri_pixel::CalculateSlope(int start_fit, float gain, int find_correlated, 
     vector<int>::iterator iter_id = id_data.begin();
     vector<float>::iterator iter_data = raw_data.begin();
 
-
+    if(pix_x == 170 && pix_y == -160) {
+      cout << "segment " << seg_begin[i] << " " <<seg_end[i] << endl;
+      debug = 1;
+    }
     for (int k = seg_begin[i] ; k <= seg_end[i]; k++){
      if( id_data[k]  ==0) {
        float x  = float(k - seg_begin[i]);
-
-
-
        float tmp_s = 1.0/(raw_data_var[k]);
        s+= tmp_s;
        sx += x*tmp_s ;
@@ -1215,11 +1141,10 @@ void miri_pixel::CalculateSlope(int start_fit, float gain, int find_correlated, 
       }
 	  	
       Slope_unc = sqrt (Slope_unc); 
-
-      int z_pt = seg_begin[i]+start_fit +1; // +1 because data from frame 1 occurs frame time=1 
+      int z_pt = seg_begin[i] +1; // +1 because data from frame 1 occurs frame time=1 
                                             // we want zero pt at x = 0
 
-      //cout << z_pt << " " << start_fit << " " << seg_begin[i] << endl;
+      if(debug) cout << z_pt << " "  << " " << seg_begin[i] << endl;
 
       // y = mx + b (zero pt where x  = -z_pt zero point of entire ramps 
 
@@ -1250,7 +1175,8 @@ void miri_pixel::CalculateSlope(int start_fit, float gain, int find_correlated, 
 
 
 //
-float miri_pixel::CalculateCorrelatedUncertainty(int iseg, float S, float SX, float gain, float Slope, float y_int, float Delta){
+float miri_pixel::CalculateCorrelatedUncertainty(int iseg, float S, float SX, float gain, 
+						 float Slope, float y_int, float Delta){
 
   rms = 0;
   num_good_reads = 0;
@@ -1288,7 +1214,6 @@ float miri_pixel::CalculateCorrelatedUncertainty(int iseg, float S, float SX, fl
 // the met certain requirements
 // 
 void miri_pixel::FinalSlope(float slope_seg_cr_sigma_reject,
-			    int start_fit, 
 			    int n_frames_reject_after_cr,
 			    int cr_min_good_diffs,
 			    int write_detailed_cr,

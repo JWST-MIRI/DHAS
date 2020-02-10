@@ -68,9 +68,6 @@ pro ql,dirin=dirinput,dirout=diroutput,$
        help=help,$
        prefname = prefnamein
 
-
-
-
 @ql_structs ; holds all data structures
 
 ; set 8 bit color according to operating system
@@ -88,9 +85,8 @@ endcase
 ;_______________________________________________________________________
 ; Print the help file
 if keyword_set(help) then begin
-        ql_help
-	return
-;	
+   ql_help
+   return
 endif
 device,decomposed = 0 ; set this from the start
 device,pseudo = 8
@@ -120,7 +116,7 @@ edit_ywindowsize = 0
 
 ;_______________________________________________________________________
 
-version = "(v 9.7.2 Feb 04, 2020)"
+version = "(v 9.7.3 Feb 10, 2020)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -176,7 +172,6 @@ device,get_fontnames=fnames,set_font=fontname6
 fontname6 = fnames[0]
 
 wdelete,1
-
 
 xsize_label = 8
 plotsizeA = 200
@@ -289,7 +284,6 @@ if(status ne 0) then begin
     stop
 endif
 
-
 print,' Done reading preferences file'
 
 if(status eq 0) then begin
@@ -317,7 +311,6 @@ if(status eq 0) then begin
     control.read_limit = Pread_limit
     control.read_limit_save = control.read_limit
     control.frame_end = control.frame_start + control.read_limit -1
-
 
     control.dir = Pdir
     control.dirout = Pdirout
@@ -349,9 +342,7 @@ if(status eq 0) then begin
     control.cdp_jpl = Pcdp_jpl
  endif
 
-
 get_cdp_badpixel_names,control ; for now only get bad pixels 
-
 ;_______________________________________________________________________
 ; Command line options
 ;_______________________________________________________________________
@@ -394,11 +385,8 @@ if(N_elements(dirpsin)) then begin
         if(test eq '/') then control.dirps = strmid(control.dirps,0,len-1)
     endif
 endif
-
-
 ;_______________________________________________________________________
 ; defaults
-
 ;_______________________________________________________________________
 
 ; Size of Windows.
@@ -432,10 +420,6 @@ EditMenu = widget_button(menuBar,value="Color",font=fontname2)
 QuitMenu = widget_button(menuBar,value="Quit",font = fontname2)
 ;HelpMenu = widget_button(menuBar,value="Help",font = fontname2)
 
-
-
-
-
 ; Pixel Look
 pixellookButton = widget_button(PixelLookMenu,value=" Run Pixel Look",$
                                 uvalue='RunPL',font=fontname3)
@@ -453,9 +437,6 @@ loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frame Images
 
 loadslopeButton = widget_button(AnalyzeMenu,value=" Analyze Slope Data",$
                             font=fontname3,uvalue='LoadS')
-
-
-
 
 ; compare
 loadcompareR2Button = widget_button(CompareMenu,value=" Compare Two Science Frames or Two Slope Images",$
@@ -488,12 +469,8 @@ findCalButton = widget_button(PipeMenu,$
 colorbutton = widget_button(editmenu,value='Change Image Color',event_pro='ql_color',font=fontname3)
 ;Set up the GUI
 
-
-
 ; add quit button
 quitbutton = widget_button(quitmenu,value="Quit",event_pro='ql_quit')
-
-
 ;***********************************************************************
 
 blankline = widget_label(Quicklook,value=' ')
@@ -590,7 +567,6 @@ pltrack.num = 0
 ; pixel tracking information for Analyze Science images
 pixeltrack = {pixeltracki}
 
-
 ; create and initialize "output file name" structure
 output = {outputi}
 output.historaw =  '_histo'
@@ -645,8 +621,10 @@ output.Channelrslice =  '_row_slice_'
 output.Channelrsliceslope =  '_reduced_row_slice_'
 
 dqflag = {dqi} ; data quality flag
-dqflag .Unusable = 1
-dqflag .SUnusable = 'Unsable'
+dqflag.Reject_Frame = -1
+dqflag.sReject_Frame = 'Reject Frame'
+dqflag.Unusable = 1
+dqflag.SUnusable = 'Unsable'
 dqflag.Saturated = 2
 dqflag.SSaturated = 'Saturated'
 dqflag.CosmicRay = 4

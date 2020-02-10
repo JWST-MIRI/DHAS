@@ -119,6 +119,9 @@ void ms_read_process_data( const int iteration,
 			   vector<miri_reset> &reset,
 			   miri_rscd RSCD,
 			   miri_mult MULT,
+			   vector<float> &lastframe, // last frame of current integration to be used in last frame correction 
+			                             // updated as loop over rows
+			   vector<float> &lastframe_corr, // last frame corrected
 			   vector<float> lastframe_rscd, // last frame of last integration 
 			   vector<float> lastframe_rscd_sat, // last frame of last integration to use for saturating data 
 			   vector<float> &lastframe_lincor,
@@ -184,6 +187,21 @@ void ms_read_process_data( const int iteration,
   float read_noise_dn2 = control.read_noise_electrons/control.gain;
   read_noise_dn2 = read_noise_dn2*read_noise_dn2;
   // ______________________________________________________________________ 
+  // Set up parameters for last frame correction
+  vector<float> lastf_a_even;
+  vector<float> lastf_a_odd;
+  vector<float> lastf_b_even;
+  vector<float> lastf_b_odd;
+
+  if(control.apply_lastframe_cor ==1){
+    for (int ic =0 ; ic < 4; ic ++){
+      lastf_a_even.push_back(CDP.GetLastFrame_Aeven(ic));
+      lastf_a_odd.push_back(CDP.GetLastFrame_Aodd(ic));
+      lastf_b_even.push_back(CDP.GetLastFrame_Beven(ic));
+      lastf_b_odd.push_back(CDP.GetLastFrame_Bodd(ic));
+    }
+  }
+  //***********************************************************************
   // Set up parameters for RSCD correction
   float rscd_lower_cutoff = 0.0;
   float rscd_alpha_even=0.0;
@@ -271,6 +289,7 @@ void ms_read_process_data( const int iteration,
   // read in all the frames for the current integration
   fpixel[2]=istart +1;
   lpixel[2]=fpixel[2] + data_info.NRampsRead-1;    
+  lpixel[2]=fpixel[2] + data_info.NRampsRead-1;    
 
   //cout << " first pixel " << fpixel[0] << " " << fpixel[1] << " " << fpixel[2] << endl;
   //cout << " last  pixel " << lpixel[0] << " " << lpixel[1] << " " << lpixel[2] << endl;
@@ -286,7 +305,7 @@ void ms_read_process_data( const int iteration,
 
   time_t tr; 
   tr = time(NULL);
-  
+  //  if(control.do_verbose_time == 1) cout << " Time to read in data " << tr - t0 << endl;
   if(status != 0) {
     cout <<" ms_read_process_data: Problem reading subset of data " << isubset << endl;
     cout << " status " << status << endl;
@@ -299,7 +318,7 @@ void ms_read_process_data( const int iteration,
   int incr = xsize*this_nrow;
   int mrow = 0; 
 
-  //  cout << "data_info.NRampsRead " << data_info.NRampsRead << endl;
+  cout << "data_info.NRampsRead " << data_info.NRampsRead << endl;
 
   for (register int k = 0; k < this_nrow ; k++){
     int yy = ystart + k;
@@ -335,8 +354,6 @@ void ms_read_process_data( const int iteration,
 	if(NFramesBad !=0 && FrameBad[iread] ==1) { // corrupt frame
 	  id = BADFRAME;
 	}
-	if (iread < control.n_reads_start_fit) id = SKIP_FRAME;
-	if (iread > control.n_reads_end_fit) id = SKIP_FRAME;
 	pixel[ik].SetRampData(*Iter,id,control.gain,read_noise_dn2,control.video_offset);
       }
       //_______________________________________________________________________
@@ -353,6 +370,8 @@ void ms_read_process_data( const int iteration,
       int pix_y = pixel[ik].GetY();
       
       //_______________________________________________________________________
+      if(control.apply_lastframe_cor ==1) // 
+	pixel[ik].SetLastFrameData(); // initialize the lastframe_cor_data = raw_data last  
       
       int is_ref = pixel[ik].GetIsRef();
 
@@ -391,8 +410,37 @@ void ms_read_process_data( const int iteration,
 					   reset_dq,
 					   areset); 
 
+	  lastframe[pixel_index] = pixel[ik].GetLastFrameData(); // update last frame to include corrected data 
+	  lastframe_corr[pixel_index] = lastframe[pixel_index];
 	}
 
+      //_______________________________________________________________________
+	// Last Frame Correction
+
+	if(control.apply_lastframe_cor ==1){
+	  float data_row_below = 0.0;
+	  int dq_row_below = 0;
+	  int is_ref = pixel[ik].GetIsRef(); 
+	  if(yy <=1 || is_ref ==1 ){
+	    // skip for now 
+	  }else{
+	    long index = pixel_index - xsize; // valid for odd row
+	    if(is_even == 1) index = index - xsize; //valid for even row
+	    data_row_below = lastframe[index];
+	    if(control.apply_badpix) dq_row_below = CDP.GetBadPixel(index); 
+
+	  }
+	  
+	  pixel[ik].ApplyLastFrameCorrection(control.write_output_lastframe_correction,
+					     data_row_below,
+					     dq_row_below,
+					     lastf_a_even,lastf_b_even,
+					     lastf_a_odd,lastf_b_odd);
+
+
+	  lastframe[pixel_index] = pixel[ik].GetLastFrameData(); // update last frame to include corrected data 
+	  lastframe_corr[pixel_index] = lastframe[pixel_index];
+	}      
       //_______________________________________________________________________
 
 	if(control.apply_lin_cor ==1 ) { 
@@ -423,16 +471,9 @@ void ms_read_process_data( const int iteration,
 	    lastint_lastframe_sat = firstframe;
 	    if(pix_x == 181 && pix_y == 161) {
 	      cout << " First frame " << lastint_lastframe << endl;
-	      
 	    }
 	  }
 	  
-	  if(pix_x == 181 && pix_y == -161) {
-	    if(iteration ==1) lastint_lastframe_sat = 92801.9+5028;
-	    if(iteration ==2) lastint_lastframe_sat = 82352.7+5028;
-	    if(iteration ==3) lastint_lastframe_sat = 80954.2+5028;
-	    if(iteration ==4) lastint_lastframe_sat = 81289.1+5028;
-	  }
 	    // mult terms
 	  vector<float> mult_a;
 	  vector<float> mult_b;
@@ -509,6 +550,7 @@ void ms_read_process_data( const int iteration,
 	  }
 		  
 	  pixel[ik].ApplyMULTRSCD(control.write_output_rscd_correction,
+				  control.n_reads_start_fit,
 				  data_info.NRamps,
 				  control.video_offset_rscd,
 				  lastint_lastframe,
@@ -583,6 +625,7 @@ void ms_read_process_data( const int iteration,
 	  if(is_ref ==0 ) { 
 	    ms_2pt_diff_quick(control.do_verbose_jump,
 			      control.do_cr_id,
+			      control.n_reads_start_fit,
 			      data_info.NRampsRead,
 			      pixel[ik],
 			      control.cr_sigma_reject,
@@ -605,6 +648,7 @@ void ms_read_process_data( const int iteration,
 	  }
 	}
 
+
 	if(control.do_verbose_time == 1) cout << " Finished Cosmic Ray check"<< endl;
     //_______________________________________________________________________
 	// find slope - standard 
@@ -613,16 +657,18 @@ void ms_read_process_data( const int iteration,
 // Find Slopes for each segment dn/read	
 
 	int find_uncorrelated = 0;
-	if(control.UncertaintyMethod == 0) pixel[ik].CalculateSlopeNoErrors(control.xdebug,control.ydebug);  
-	if(control.UncertaintyMethod == 1) pixel[ik].CalculateSlope(control.gain,find_uncorrelated,
+	if(control.UncertaintyMethod == 0) pixel[ik].CalculateSlopeNoErrors(control.n_reads_start_fit,
+									    control.xdebug,control.ydebug);  
+	if(control.UncertaintyMethod == 1) pixel[ik].CalculateSlope(control.n_reads_start_fit, 
+								    control.gain,find_uncorrelated,
 								    control.xdebug,control.ydebug);  
 	if(control.UncertaintyMethod == 2) {
 	  find_uncorrelated = 1; 
-	  pixel[ik].CalculateSlope(control.gain,find_uncorrelated,
+	  pixel[ik].CalculateSlope(control.n_reads_start_fit, control.gain,find_uncorrelated,
 				   control.xdebug, control.ydebug);  
 	} 
 
-	pixel[ik].FinalSlope(control.slope_seg_cr_sigma_reject, 
+	pixel[ik].FinalSlope(control.slope_seg_cr_sigma_reject,control.n_reads_start_fit, 
 			     control.n_frames_reject_after_cr,
 			     control.cr_min_good_diffs,
 			     control.write_detailed_cr,
@@ -631,21 +677,24 @@ void ms_read_process_data( const int iteration,
 			     control.xdebug,control.ydebug);
 	  //________________________________________________________________________________
 	  //pull out the linearity corrected data and fill in lastframe_lin_co
+	//if(control.apply_rscd_cor ==1) {
+	  int ilast2 = data_info.NRampsRead-1;
+	  // make sure that we are not using the last frame in the fit 
+	  //cout << control.n_reads_end_fit << " " << data_info.NRampsRead << endl;
 
-	  int ilast2 = data_info.NRampsRead-2;
+	  if(control.n_reads_end_fit== data_info.NRamps-1) ilast2 = data_info.NRamps -2;
 	  int ilast3 = ilast2 - 1;
 	  float second_lastframe = 0;
 	  float third_lastframe = 0;
 	  pixel[ik].GetLast2Frames(ilast2,ilast3,second_lastframe,third_lastframe);
 	  float this_lastframe= second_lastframe + (second_lastframe  - third_lastframe);
 	  if(pix_x == 181 && pix_y == 161) {
-	    cout << " Linearity corrected last frame is determined using " << 
-	      ilast3+1 << " " << ilast2+1 << endl;
-	    cout << "LASTFRAME "<< third_lastframe<< " " << second_lastframe << " " <<
+	    cout << " Linearity corrected last frame is determined using " << ilast2 << " " << ilast3 << endl;
+	    cout << "LASTFRAME "<< second_lastframe<< " " << third_lastframe << " " <<
 	      this_lastframe << endl;
 	  }
 	  lastframe_lincor[pixel_index] = this_lastframe;
-	  
+	  //}
 	  //________________________________________________________________________________
 	int nseg = pixel[ik].GetNumGoodSegments();
 
@@ -755,7 +804,7 @@ void ms_read_process_data( const int iteration,
 
   } //end loop over y values
 
-
+  cout << " finished ms_read_data" << endl;  cout << " finished ms_read_data" << endl;
   data_info.total_cosmic_rays = data_info.total_cosmic_rays + num_cosmic_rays;
   data_info.total_noise_spike = data_info.total_noise_spike + num_noise_spike;
 

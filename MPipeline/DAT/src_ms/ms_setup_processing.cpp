@@ -99,6 +99,7 @@ void ms_setup_processing(miri_control &control,
 
   data_info.NRampsRead = (control.n_reads_end_fit - control.n_reads_start_fit) + 1;
 
+  data_info.NRampsRead = data_info.NRamps; // correct all the frames only do the fix defined by start fit to end fit
   if( (control.n_reads_end_fit+1)  != data_info.NRamps) { // control.n_reads_end_fit referenced to zero
     if(control.apply_lastframe_cor ==1) cout << " Not using last frame in fit, turning off applying last frame correction" << endl;
     control.apply_lastframe_cor = 0;

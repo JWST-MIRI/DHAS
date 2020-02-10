@@ -28,15 +28,13 @@ class  miri_pixel {
   // functions defined in ms_miri_pixel.cpp
   void BadPixelReject();
 
-  void Get2ptDiff(const int, vector<float>&, vector<float>&, int&);
-  void Get2ptDiffIndex(const int start_fit, 
-		       vector<float> &diff, 
+
+  void Get2ptDiffIndex(vector<float> &diff, 
 		       vector<float> &true_diff, 
 		       vector<long> &index, 
 		       int &ngood);
 
-  void Get2ptDiffIndexP(const int start_fit, 
-		       vector<float> &diff, 
+  void Get2ptDiffIndexP(vector<float> &diff, 
 		       vector<float> &true_diff, 
 		       vector<long> &index, 
 		       vector<long> &pindex, 
@@ -52,19 +50,20 @@ class  miri_pixel {
 
   void FindSegments();
   void CoAddData();
-  void CalculateSlopeNoErrors(int,int,int);
-  void CalculateSlope(int, float,int,int,int);
+  void CalculateSlopeNoErrors(int,int);
+  void CalculateSlope(float,int,int,int);
   float CalculateCorrelatedUncertainty(int iseg, float S, float SX, float gain, float Slope, float y_int, float Delta);
-  void FinalSlope(float,int,int,int,int,int,ofstream&,int,int );
+  void FinalSlope(float,int,int,int,int,ofstream&,int,int );
   void CalculatePixelFlag( );
 
 
   void GetLast2Frames(const int isecond, const int ithird,
 		      float &lastframe_second, float  &lastframe_third);
 
+  float GetFirstFrame();
+
   void CorrectNonLinearityOld(const int write_corrected_data,
 					  const int apply_lin_offset,
-					  const int istart_fit,
 					  int linflag,
 					  int lin_order,vector<float> lin);
   void CorrectNonLinearity(const int,
@@ -90,7 +89,6 @@ class  miri_pixel {
 
 
   void ApplyMULTRSCD(const int write_output_rscd_correction,
-		     int n_reads_start_fit,
 		     int nframes,
 		     int video_offset,
 		     float lastframeDN,
@@ -117,7 +115,7 @@ class  miri_pixel {
   vector<int> GetFlags(int &, int &);
   void SetPixel(int X, int Y, const int ColStart,int IREAD,int BADPIXEL);
 
-  void InitializeLinCorData();
+  //  void InitializeLinCorData();
   void InitializeDarkCorData();
   void InitializeResetCorData();
   void InitializeRSCDCorData();
@@ -147,25 +145,23 @@ class  miri_pixel {
 
   inline short GetChannel() {return channel;}
 
-
   inline void ReserveRampData(int nramps){
     raw_data.reserve(nramps);
     id_data.reserve(nramps);
     raw_data_var.reserve(nramps);
-      }
+    lin_cor_data.reserve(nramps);
+  }
 
   inline void SetRampData(int DATA,int ID, float gain,float read_noise_dn2, float video_offset){
     float dn = float(DATA) + video_offset;
     
     raw_data.push_back(dn);
-    //    raw_data.push_back(float(DATA));
     id_data.push_back(ID);
+    lin_cor_data.push_back(0.0);
 
-    //float var = float(DATA) + read_noise_dn2;
     float var = dn + read_noise_dn2;
     raw_data_var.push_back(var);
   }
-
 
    inline void SetRefCorrected(){
      for (unsigned int i = 0 ; i < raw_data.size() ; i++){
