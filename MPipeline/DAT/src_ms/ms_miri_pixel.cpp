@@ -699,7 +699,7 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
   // add corrections together
     vector<float> total_correct(raw_data.size(),0.0);
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames
-      rscd_correct[i] = 0;
+      //      rscd_correct[i] = 0;
       total_correct[i] = rscd_correct[i] + mult_correct[i];
       if(debug ==1) {
 	cout << "total" << i << " " << total_correct[i] << " " << rscd_correct[i] << " " << mult_correct[i]  << endl; 
@@ -707,8 +707,6 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     }
 
     vector<float> new_correct(raw_data.size(),0.0);
-    //new_correct[raw_data.size()-1] = -total_correct[raw_data.size()-1];
-
     for (unsigned int i = 0 ; i <= raw_data.size() -2 ; i++){ // loop over the number of frames 
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- total_correct[raw_data.size()-2-i];
     }
@@ -718,7 +716,7 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     //}
 
     // now apply the first frame correction
-    //new_correct[0] = new_correct[0] + first_corr;
+    //new_correct[0] = new_correct[0] - first_corr;
 
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
       if(debug == 1 || fabs(new_correct[i]) > 5000 ) {
