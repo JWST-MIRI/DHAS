@@ -11,7 +11,6 @@ if(info.data.read_all eq 0) then begin
 endif else begin
     pixeldata = (*info.data.pimagedata)[*,*,xvalue,yvalue]
 endelse
-
 end
 
 
@@ -26,10 +25,6 @@ x[0] = xvalue & y[0]  = yvalue
 get_pixeldata,info,1,x,y,pixeldata
 end
 
-
-
-
-
 ;_______________________________________________________________________
 pro mql_read_refcorrected_data,xvalue,yvalue,info
 ; x_pos, y_pos starts at 0
@@ -39,11 +34,8 @@ pixeldata = fltarr(info.data.nints,info.data.nramps,1)
 x[0] = xvalue & y[0]  = yvalue
 get_refcorrected_pixeldata,info,1,x,y,pixeldata
 if(ptr_valid(info.image.prefcorrected_pixeldata)) then ptr_free, info.image.prefcorrected_pixeldata
-
 info.image.prefcorrected_pixeldata = ptr_new(pixeldata)
 end
-
-
 
 ;_______________________________________________________________________
 pro msql_read_refcorrected_data,xvalue,yvalue,info
@@ -58,27 +50,19 @@ if(ptr_valid(info.slope.prefcorrected_pixeldata)) then ptr_free, info.slope.pref
 info.slope.prefcorrected_pixeldata = ptr_new(pixeldata)
 end
 
-
-
 ;_______________________________________________________________________
 pro mql_read_id_data,xvalue,yvalue,info
 ; x_pos, y_pos starts at 0
-
 
 x = intarr(1) & y = intarr(1)
 pixeldata = fltarr(info.data.nints,info.data.nramps,1)
 x[0] = xvalue & y[0]  = yvalue
 get_id_pixeldata,info,1,x,y,pixeldata
-
-
 if(ptr_valid(info.image.pid_pixeldata)) then ptr_free, info.image.pid_pixeldata
-
 info.image.pid_pixeldata = ptr_new(pixeldata)
 end
 
-
 ;_______________________________________________________________________
-
 pro msql_read_id_data,xvalue,yvalue,info
 ; x_pos, y_pos starts at 0
 
@@ -95,8 +79,6 @@ end
 
 pro mql_read_lc_data,xvalue,yvalue,info
 ; x_pos, y_pos starts at 0
-
-
 x = intarr(1) & y = intarr(1)
 pixeldata = fltarr(info.data.nints,info.data.nramps,1)
 

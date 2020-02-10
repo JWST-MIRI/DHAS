@@ -1300,6 +1300,7 @@ qlscript = {scripti,$
 
 qldq = {dqi,$
 	        Unusable           : 0,$	
+		Reject_Frame     : 0,$
 		Saturated         : 0,$
 	        CosmicRay         : 0,$
 	        NoiseSpike        : 0,$
@@ -1315,7 +1316,8 @@ qldq = {dqi,$
 		CR_Slope_Failure   : 0,$
 		CR_Seg_Min         : 0,$
 		Min_Frame_Failure  : 0,$
-	        SUnusable           : ' ' ,$	
+	        SUnusable           : ' ' ,$
+		Sreject_frame       : ' ' ,$	
 		SSaturated         : ' ' ,$
 	        SCosmicRay         : ' ' ,$
 	        SNoiseSpike        :  ' ',$

@@ -68,7 +68,7 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
 				 const int write_output_dark_correction,
 				 const int subtract_dark,
 				 const int write_output_reset_correction,
-				 const int write_output_lastframe_correction,
+				 //				 const int write_output_lastframe_correction,
 				 const int write_output_rscd_correction,
 				 const int iter,
 				 const int isubset,
@@ -116,7 +116,7 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
   lpixel2[1]= lpixel[1];
   
   int xsize = data_info.ramp_naxes[0];
-  int istart = iter*data_info.NRamps+ ramp_start;
+  int istart = iter*data_info.NRamps; //+ ramp_start;
   
   // read in all the frames for the current integration
   fpixel[2]=istart +1;
@@ -125,7 +125,7 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
 
   //cout << " first pixel " << fpixel[0] << " " << fpixel[1] << " "<< fpixel[2] << endl;
   //cout << " last pixel " << lpixel[0] << " " << lpixel[1] << " " <<lpixel[2] << endl;
-  long ixy = this_nrow*xsize;
+  //  long ixy = this_nrow*xsize;
   long ixyz =data_info.NRampsRead*this_nrow*xsize;
   long irxyz = ixyz;
   long iixyz = ixyz;
@@ -142,7 +142,7 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
   if(write_output_dark_correction== 0) idxyz = 1;
   if(write_output_reset_correction== 0) itxyz = 1;
   if(write_output_rscd_correction== 0) irsxyz = 1;
-  if(write_output_lastframe_correction== 0) ixy = 1;
+  //  if(write_output_lastframe_correction== 0) ixy = 1;
   
   vector<float>  data(irxyz); // reference pixel correction
   vector<int>   idata(iixyz); // ids 
@@ -150,12 +150,12 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
   vector<float> ddata(idxyz); // dark correction
   vector<float> rscddata(irsxyz); // rscd correction
   vector<float> rdata(itxyz); // reset correction
-  vector<float> ldata(ixy); //last frame correction
+  //  vector<float> ldata(ixy); //last frame correction
 
 
   long ip = 0;
   long ik =0;
-  long ii = 0; 
+  //long ii = 0; 
 
   for (int m = 0; m < data_info.NRampsRead; m++){
     ik =0;
@@ -165,8 +165,6 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
 	if(write_output_refpixel_corrections ==1) {
 	  float RampPt = pixel[ik].GetRefData(m);
 	  data[ip] = (RampPt) - video_offset;
-
-	  
 	}
 	if(write_output_ids ==1){
 	  short IDPt = -1;
@@ -187,27 +185,21 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
 	if(write_output_reset_correction ==1) {
 	  float rcorr = pixel[ik].GetResetData(m);
 	  rdata[ip] = (rcorr) - video_offset;
-	  //	  cout << ik << " " << rdata[ip] << endl;
 	}
-
 
 	if(write_output_rscd_correction ==1) {
 	  float rcorr = pixel[ik].GetRSCDData(m);
 	  rscddata[ip] = (rcorr) - video_offset;
-	  
 
 	}
 
 	// only if on last frame
 
-	if( write_output_lastframe_correction == 1  && m == data_info.NRampsRead-1) {
-	  float lcorr = pixel[ik].GetLastFrameData();
-	  //int pix_x = pixel[ik].GetX();
-	  //int pix_y = pixel[ik].GetY();
-	  //if(pix_x == 500 && pix_y == 500)  cout << "in write" << j+1 << " " << k+1 << " " << lcorr << endl;
-	  ldata[ii] = lcorr; 
-	  ii++;	
-	}
+	//if( write_output_lastframe_correction == 1  && m == data_info.NRampsRead-1) {
+	// float lcorr = pixel[ik].GetLastFrameData();
+	// ldata[ii] = lcorr; 
+	// ii++;	
+	//}
 
 	ip++;
 	ik++;
@@ -289,19 +281,19 @@ void ms_write_intermediate_data( const int write_output_refpixel_corrections,
   //_______________________________________________________________________
   status = 0;
 
-  if(write_output_lastframe_correction ==1) {
+  //  if(write_output_lastframe_correction ==1) {
 
-    fits_write_subset(data_info.lastframe_file_ptr,TFLOAT, 
-			  fpixel2,lpixel2,
-			  &ldata[0], &status);
+  // fits_write_subset(data_info.lastframe_file_ptr,TFLOAT, 
+  //		  fpixel2,lpixel2,
+  //		  &ldata[0], &status);
 
 
-    if(status != 0) {
-      cout <<" ms_write_intermediate_data: Problem writing last corrected  data " << isubset << endl;
-      cout << " status " << status << endl;
-      exit(EXIT_FAILURE);
-    }
-  }
+  //if(status != 0) {
+  //  cout <<" ms_write_intermediate_data: Problem writing last corrected  data " << isubset << endl;
+  //  cout << " status " << status << endl;
+  //  exit(EXIT_FAILURE);
+  //}
+  //}
 
   //_______________________________________________________________________
   status = 0;

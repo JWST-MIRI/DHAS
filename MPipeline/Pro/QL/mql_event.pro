@@ -274,7 +274,7 @@ endif
         info.compare_image[0].iramp = info.image.rampNO 
         info.compare_image[1].iramp = this_frame
 
-        print,'compare images',info.compare_image[0].iramp,info.compare_image[1].iramp
+;        print,'compare images',info.compare_image[0].iramp,info.compare_image[1].iramp
 	mql_compare_display,info
         Widget_Control,ginfo.info.QuickLook,Set_UValue=info
     end
@@ -518,8 +518,6 @@ endif
    (strmid(event_name,0,8) EQ 'getframe') : begin
 	x = info.image.x_pos * info.image.binfactor
 	y = info.image.y_pos * info.image.binfactor
-
-
         ; check and see if read in all frame values for pixel
         ; if not then read in
 
@@ -556,17 +554,13 @@ endif
             refcorrected_data = 0
         endif
 
-
-
 ; fill in the frame IDS, if the file was written
         if(info.control.file_ids_exist eq 1) then begin
             if (ptr_valid(info.image.pid_pixeldata) eq 0) then begin ; has not been read in 
                 mql_read_id_data,x,y,info
             endif
-
  
             id_data = (*info.image.pid_pixeldata)
-       
             if ptr_valid (info.image_pixel.id_pixeldata) then $
               ptr_free,info.image_pixel.id_pixeldata
             info.image_pixel.id_pixeldata = ptr_new(id_data)        
@@ -633,7 +627,6 @@ endif
                 mql_read_lc_data,x,y,info
             endif
             lc_data = (*info.image.plc_pixeldata)
-
             if ptr_valid (info.image_pixel.lc_pixeldata) then $
               ptr_free,info.image_pixel.lc_pixeldata
             info.image_pixel.lc_pixeldata = ptr_new(lc_data)        
@@ -647,8 +640,6 @@ endif
         if ptr_valid (info.image_pixel.ref_pixeldata) then $
           ptr_free,info.image_pixel.ref_pixeldata
         info.image_pixel.ref_pixeldata = ptr_new(ref_pixeldata)
-        
-
 
         info.image_pixel.file_ids_exist  = info.control.file_ids_exist 
         info.image_pixel.file_lc_exist  = info.control.file_lc_exist 

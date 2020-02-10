@@ -5,161 +5,6 @@ widget_control,tinfo.info.QuickLook,Get_UValue=info
 widget_control,info.RPixelInfo,/destroy
 end
 ;***********************************************************************
-
-pro update_frame_values,info
-
-; this is only called if the user changes from decimal to hex or vice
- ; versa
-
-i = info.image_pixel.integrationNO
-
-xvalue = info.image_pixel.xvalue ; starts at 0
-yvalue = info.image_pixel.yvalue ; starts at 0
-
-
-if(xvalue lt 0) then xvalue =0
-if(yvalue lt 0) then yvalue = 0
-
-value = (*info.image_pixel.pixeldata)[i,*]
-value_ref = (*info.image_pixel.ref_pixeldata)[i,*]
-
-lc = value
-mdc = value
-reset = value
-rscd = value
-
-lastframe = value
-
-if(info.image_pixel.file_lc_exist eq 1) then begin
-    lc = (*info.image_pixel.lc_pixeldata)
-endif
-
-if(info.image_pixel.file_mdc_exist eq 1) then begin
-    mdc = (*info.image_pixel.mdc_pixeldata)
- endif
-
-if(info.image_pixel.file_reset_exist eq 1) then begin
-    reset = (*info.image_pixel.reset_pixeldata)
- endif
-
-if(info.image_pixel.file_rscd_exist eq 1) then begin
-    rscd = (*info.image_pixel.rscd_pixeldata)
- endif
-
-print,info.image_pixel.file_lastframe_exist
-if(info.image_pixel.file_lastframe_exist eq 1) then begin
-    lastframe = (*info.image_pixel.lastframe_pixeldata)
-    help,lastframe
-    stop
-endif
-
-
-nend = info.image_pixel.nframes
-
-framevalue = strarr(nend)
-refvalue = strarr(nend)
-linvalue = strarr(nend)
-darkvalue = strarr(nend)
-resetvalue = strarr(nend)
-rscdvalue = strarr(nend)
-lastframevalue = strarr(nend)
-
-
-for j = 0,nend-1 do begin
-    frame_no = "Frame " + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    rampnew = value[j]
-    sramp = strtrim(string(rampnew,format="(f16.2)"),2)
-        
-    ref_no = "Reference Output " + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    refnew = value_ref[j]
-    sref = strtrim(string(refnew,format="(f16.2)"),2)
-
-
-    lin_no = "Lin Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    lvalue = lc[j]
-    slin = strtrim(string(lvalue,format="(f16.2)"),2)
-
-    dark_no = "Dark Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    dvalue =mcd[j]
-    sdark = strtrim(string(dvalue,format="(f16.2)"),2)
-
-    reset_no = "Reset Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    rvalue =reset[j]
-    sreset = strtrim(string(rvalue,format="(f16.2)"),2)
-
-    rscd_no = "RSCD Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    rvalue =rscd[j]
-    srscd = strtrim(string(rvalue,format="(f16.2)"),2)
-
-    lastframe_no = "Lastframe Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    lvalue =lastframe
-
-    slastframe = strtrim(string(lvalue,format="(f16.2)"),2)
-
-    if(info.image_pixel.hex eq 1) then  begin
-        if(value[j] lt 0) then begin
-            sramp = " Negative Value " 
-        endif else begin
-            dec2hex,value[j],ramphex,quiet=1,upper=1
-            sramp = strtrim(string(ramphex),2)
-        endelse
-            
-        if(value_ref[j] lt 0) then begin
-            sref = " Negative Value " 
-        endif else begin
-            dec2hex,value_ref[j],refhex,quiet=1,upper=1
-            sref = strtrim(string(refhex),2)
-        endelse
-    endif
-
-    if(info.image_pixel.nints eq info.image_pixel.integrationNO ) then begin
-        sramp = 'NA'
-        sref = 'NA'
-    endif    
-    framevalue[j] = frame_no +sramp
-    refvalue[j] = ref_no  + sref
-    linvalue[j] = lin_no + slin
-    darkvalue[j] = dark_no + sdark
-    resetvalue[j] = reset_no + sreset
-    rscdvalue[j] = rscd_no + srscd
-    lastframevalue[j] = lastframe_no + slastframe
-endfor
-
-widget_control,info.image_pixel.pix_statLabelID[0],set_value = framevalue
-
-widget_control,info.image_pixel.pix_statLabelID[1],set_value = refvalue
-
-if(info.image_pixel.file_lc_exist eq 1) then $
-  widget_control,info.image_pixel.pix_statLabelID[2],set_value = linvalue
-
-
-if(info.image_pixel.file_mcd_exist eq 1) then $
-  widget_control,info.image_pixel.pix_statLabelID[3],set_value = darkvalue
-
-if(info.image_pixel.file_reset_exist eq 1) then $
-  widget_control,info.image_pixel.pix_statLabelID[4],set_value = resetvalue
-
-if(info.image_pixel.file_rscd_exist eq 1) then $
-  widget_control,info.image_pixel.pix_statLabelID[5],set_value = rscdvalue
-
-if(info.image_pixel.file_lastframe_exist eq 1) then $
-  widget_control,info.image_pixel.pix_statLabelID[6],set_value = lastframevalue
-
-value = 0
-value_ref = 0
-framevalue = 0
-refvalue = 0
-lastframevalue = 0
-reservalue = 0
-rscdvalue =0
-linvalue = 0
-
-end
-
-
-;***********************************************************************
-;_______________________________________________________________________
-;***********************************************************************
 pro frame_values_event,event
 
 Widget_Control,event.id,Get_uValue=event_name
@@ -168,23 +13,11 @@ widget_control,ginfo.info.QuickLook,Get_Uvalue = info
 
     case 1 of
 ;_______________________________________________________________________
-
-; change the display type: decimal, hex
-;_______________________________________________________________________
-
-    (strmid(event_name,0,7) EQ 'display') : begin
-        if(event.index eq 0) then info.image_pixel.hex = 0
-        if(event.index eq 1) then info.image_pixel.hex = 1
-        Widget_Control,ginfo.info.QuickLook,Set_UValue=info
-
-        update_frame_values,info
-    end
-
-;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
 
 
-        data_id ='ID flag '+ strcompress(string(info.dqflag.Unusable),/remove_all) +  ' = ' + info.dqflag.Sunusable +  string(10b) + $
+        data_id ='ID flag '+ strcompress(string(info.dqflag.Reject_Frame),/remove_all) +  ' = ' + info.dqflag.sReject_Frame +  string(10b) + $
+                 'ID flag '+ strcompress(string(info.dqflag.Unusable),/remove_all) +  ' = ' + info.dqflag.Sunusable +  string(10b) + $
                  'ID flag '+ strcompress(string(info.dqflag.Saturated),/remove_all) +  ' = ' + info.dqflag.SSaturated +  string(10b) + $
                  'ID flag '+ strcompress(string(info.dqflag.CosmicRay),/remove_all) +  ' = ' + info.dqflag.SCosmicRay +  string(10b) + $
                  'ID flag '+ strcompress(string(info.dqflag.NoiseSpike),/remove_all) +  ' = ' + info.dqflag.SNoiseSpike +  string(10b) + $
@@ -192,15 +25,13 @@ widget_control,ginfo.info.QuickLook,Get_Uvalue = info
                  'ID flag '+ strcompress(string(info.dqflag.NoReset),/remove_all) +  ' = ' + info.dqflag.SNoReset +  string(10b) + $
                  'ID flag '+ strcompress(string(info.dqflag.NoDark),/remove_all) +  ' = ' + info.dqflag.SNoDark +  string(10b) + $
                  'ID flag '+ strcompress(string(info.dqflag.NoLin),/remove_all) +  ' = ' + info.dqflag.SNoLin +  string(10b) + $
-;                 'ID flag '+ strcompress(string(info.dqflag.OutLinRange),/remove_all) +  ' = ' + info.dqflag.SOutLinRange +  string(10b) + $
+
                  'ID flag '+ strcompress(string(info.dqflag.NoLastFrame),/remove_all) +  ' = ' + info.dqflag.SNoLastFrame +  string(10b) + $
                  'ID flag '+ strcompress(string(info.dqflag.Min_Frame_Failure),/remove_all) +  ' = ' + info.dqflag.SMin_Frame_Failure +  string(10b) 
 
                  
         result = dialog_message(data_id,/information)
     end
-;_______________________________________________________________________
-
 ;_______________________________________________________________________
 
 else: ;print," Event name not found ",event_name
@@ -247,11 +78,6 @@ info.image_pixel.yvalue = yvalue
 ;*********
 title_label = widget_label(PixelInfo,value = info.image_pixel.filename,/align_left)
 
-displaytypes = ['Decimal Display',$
-              'Hexidecimal Display']
-
-display_base = widget_base(PixelInfo,col= 1,/align_left)
-DMenu = widget_droplist(display_base,value=displaytypes,uvalue='display')
 
 pix_statLabel = strarr(9)
 pix_statFormat = strarr(9)
@@ -263,7 +89,6 @@ pix_statFormat = ["I3", "I4", "I4", "F16.2","F16.2","I8","F16.2","I4","F16.2"]
 
 nend = info.image_pixel.nframes
 i = info.image_pixel.integrationNO
-
 
 
 ssignal = 'NA'
@@ -321,7 +146,6 @@ value = (*info.image_pixel.pixeldata)[i,*]
 value_ref = (*info.image_pixel.ref_pixeldata)[i,*]
 
 
-
 value_refcorrected = 0
 if(info.image_pixel.file_refcorrection_exist eq 1) then $
   value_refcorrected = (*info.image_pixel.refcorrected_pixeldata)[i,*]
@@ -353,10 +177,7 @@ if(info.image_pixel.file_lastframe_exist eq 1) then begin
   value_lastframe = (*info.image_pixel.lastframe_pixeldata)[i]
 endif
 
-
-
 info_string = "Frame "
-
 
 pix_statLabelID = widget_label(pixelinfo,$
                                              value= pix_statLabel[0]+' = ' + $
@@ -395,8 +216,6 @@ pix_statLabelID = widget_label(pixelinfo,$
                                szeropt, $ 
                                /dynamic_resize,/align_left)
 
-
-
 pix_statLabelID = widget_label(pixelinfo,$
                                value= pix_statLabel[7]+' = ' + $
                                sngood, $ 
@@ -406,8 +225,6 @@ pix_statLabelID = widget_label(pixelinfo,$
                                              value= pix_statLabel[8]+' = ' + $
                                              snumsat, $ 
                                              /dynamic_resize,/align_left)
-
-
 
 
 framevalue = strarr(nend)
@@ -424,14 +241,11 @@ for j = 0,nend-1 do begin
     svalue = strtrim(string(value[j],format="("+pix_statFormat[4]+")"),2)
     srefvalue = strtrim(string(value_ref[j],format="("+pix_statFormat[4]+")"),2)
 
-
     if(info.image_pixel.file_refcorrection_exist eq 0) then  begin
         srefcorrected_value = 'NA'
     endif else begin 
         srefcorrected_value = strtrim(string(value_refcorrected[j],format="("+pix_statFormat[4]+")"),2)
     endelse
-
-
 
     if(info.image_pixel.file_ids_exist eq 0) then begin
         sid_value = 'NA'
@@ -443,9 +257,8 @@ for j = 0,nend-1 do begin
         slc_value = 'NA'
     endif else begin 
         slc_value = strtrim(string(value_lc[j],format="("+pix_statFormat[4]+")"),2)
-    endelse
-
-
+     endelse
+    
     if(info.image_pixel.file_mdc_exist eq 0) then begin
         smdc_value = 'NA'
     endif else begin 
@@ -489,19 +302,6 @@ for j = 0,nend-1 do begin
         srscd_value = 'NA'
         slastframe_value = 'NA'
     endif
-
-
-    if(j+1 lt info.image_pixel.start_fit or j+1 gt info.image_pixel.end_fit) then begin
-        srefcorrected_value = 'NA'
-        sid_value = 'NA'
-        slc_value = 'NA'
-        smdc_value = 'NA'
-        sreset_value = 'NA'
-        srscd_value = 'NA'
-        slastframe_value = 'NA'
-    endif
-
-
 
     framevalue[j] = frame_no + svalue
         
