@@ -235,12 +235,12 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control &control, miri_data_info &data
     }
   }
 
-  if(control.apply_mult_cor == 1) {
+  if(control.apply_rscd_cor == 1) {
     miri_search_CDP("MULT",keyname,value,file,status);
 
     if(file == "NA" ) {
       cout << " No mult correction file exist, turnning off step" << endl;
-      control.apply_mult_cor = 0;
+      control.apply_rscd_cor = 0;
     } else {
       if(status == 1) {
 	cout << "Failure to parse MULT from CDP list of files" << endl;

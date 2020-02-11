@@ -215,9 +215,9 @@ void ms_update_control( miri_control &control,
   if(control.do_refpixel_option ==0)control.write_output_refpixel_corrections = 0;
 
   
-  cout << "ms_update_control: Apply RSCD" << control.apply_rscd_cor <<endl;
-  cout << "ms_update_control: Apply MULT" << control.apply_mult_cor <<endl;
-  cout << " Write RSCD " <<control.write_output_rscd_correction << endl;
+  //  cout << "ms_update_control: Apply RSCD" << control.apply_rscd_cor <<endl;
+  //cout << "ms_update_control: Apply MULT" << control.apply_mult_cor <<endl;
+  //cout << " Write RSCD " <<control.write_output_rscd_correction << endl;
 
 
   

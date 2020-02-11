@@ -191,12 +191,10 @@ int main(int argc, char* argv[])
 
     // Read in MULT file 
     miri_mult MULT;
-    if(control.apply_mult_cor == 1 ) {
+    if(control.apply_rscd_cor == 1 ) {
       ms_read_MULT_file(data_info,control,CDP,MULT); 
     }
 
-    int do_rscd = 0;
-    if(control.apply_rscd_cor == 1 || control.apply_mult_cor == 1) do_rscd = 1;
     //_______________________________________________________________________   
     // set up the name of the linearity file and read it in
     long NL = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
@@ -244,7 +242,7 @@ int main(int argc, char* argv[])
 
     data_info.frame_time_to_use = data_info.GroupTime; 
 
-  // set up the name of the output header and the primary header
+    // set up the name of the output header and the primary header
     // This program also sets up the intermediate files 
 
     ms_write_reduced_header(control,preference.preference_filename_used,data_info,CDP);
@@ -285,15 +283,12 @@ int main(int argc, char* argv[])
     int Total_NFramesBad = 0; 
 
     long NLF = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
-    // initialize to zero 
     vector<float> lastframe_rscd(NLF,0.0);
     vector<float> lastframe_rscd_sat(NLF,0.0);
 
     // the lastframe to use the rscd correction is filled in according to the how the correction is is applied
     // . -rx: extrapolated linearity correctede last frame using (second to last and third to last frames). 
 
-    // The firstframe_rscd is the first frame extrapolated forward using the last two frames in the integration
-    // The last two frames are used to avoid the initial frames affected by the reset effects
     // _______________________________________________________________________
     // Starting New Integration
     // _______________________________________________________________________
@@ -347,7 +342,7 @@ int main(int argc, char* argv[])
       // -rc: rscd lastframe = corrected last frame (filled in after ms_read_process) 
 
       //long NSCD = data_info.ramp_naxes[0] * data_info.ramp_naxes[1];
-      //if(control.apply_lastframe_cor ==0 && control.apply_rscd_cor == 0 && control.apply_mult_cor == 0) NSCD = 1; 
+      //if(control.apply_lastframe_cor ==0 && control.apply_rscd_cor == 0) NSCD = 1; 
       //vector<float> lastframe(NSCD,0.0);  // last frame of current integration (to be used in lastframe correction)
       //vector<float> lastframe_corr(NSCD,0.0); // corrected last frame
 
@@ -534,7 +529,7 @@ int main(int argc, char* argv[])
 	  for (long j = 0; j < data_info.ramp_naxes[0]; j++){
 	    
 	    lastframe_rscd_sat[ik] = ZeroPt[ik] + Slope[ik] * data_info.frame_time_to_use * float(data_info.NRamps);
-	    if(i+1 == 161 and j+1 == 181) {
+	    if(i+1 == 161 and j+1 == -181) {
 	      cout << "SLOPE RESULTS *******" << ZeroPt[ik] << " " << Slope[ik] << " " << data_info.frame_time_to_use <<
 		" " << data_info.NRamps << " " << lastframe_rscd_sat[ik] << endl;
 	    }
@@ -705,14 +700,10 @@ int main(int argc, char* argv[])
 
       Total_NFramesBad = Total_NFramesBad + NFramesBad; 
   // **********************************************************************
-      // If apply_rscd then set up the lastframe_corr
-      cout << " ************************************" << endl;
-      // if(do_rscd ==1){
-	//	if(control.rscd_lastframe_corrected ==1) {
-	// copy(lastframe_corr.begin(), lastframe_corr.end(),lastframe_rscd.begin());
-	//}
-	copy(lastframe_lincor.begin(), lastframe_lincor.end(),lastframe_rscd.begin());
-	//}
+      //	if(control.rscd_lastframe_corrected ==1) {
+      // copy(lastframe_corr.begin(), lastframe_corr.end(),lastframe_rscd.begin());
+      //}
+      copy(lastframe_lincor.begin(), lastframe_lincor.end(),lastframe_rscd.begin());
 
   // **********************************************************************
     }   // close the loop over the integrations
