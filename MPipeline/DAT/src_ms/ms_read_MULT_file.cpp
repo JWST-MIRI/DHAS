@@ -367,7 +367,7 @@ int ms_read_MULT_file(miri_data_info &data_info,
     } else{
       cout << " Could not find the correct row in the MULT table " << endl;
       cout << " Turning off apply mult correction " << endl;
-      control.apply_mult_cor = 0;
+      control.apply_rscd_cor = 0;
     }
     //_______________________________________________________________________
     

@@ -239,7 +239,7 @@ void ms_read_process_data( const int iteration,
   vector<float> mult_d_even(2);
   vector<float> mult_d_odd(2);
 
-  if(control.apply_mult_cor ==1 ) {
+  if(control.apply_rscd_cor ==1 ) {
     MULT.GetParams(mult_min_tol_even,
 		   mult_min_tol_odd,
 		   mult_alpha_even,
@@ -412,7 +412,7 @@ void ms_read_process_data( const int iteration,
 					lin);
 	}      
     //-----------------------------------------------------------------------
-	if(control.apply_mult_cor == 1 || control.apply_rscd_cor==1) {
+	if(control.apply_rscd_cor==1) {
 	  float lastint_lastframe= lastframe_rscd[pixel_index];
 	  float lastint_lastframe_sat = lastframe_rscd_sat[pixel_index];
 
@@ -421,18 +421,15 @@ void ms_read_process_data( const int iteration,
 	  if(iteration == 0){
 	    lastint_lastframe = firstframe;
 	    lastint_lastframe_sat = firstframe;
-	    if(pix_x == 181 && pix_y == 161) {
-	      cout << " First frame " << lastint_lastframe << endl;
-	      
-	    }
+	    if(pix_x == 181 && pix_y == -161)  cout << " First frame " << lastint_lastframe << endl;
 	  }
 	  
-	  if(pix_x == 181 && pix_y == -161) {
-	    if(iteration ==1) lastint_lastframe_sat = 92801.9+5028;
-	    if(iteration ==2) lastint_lastframe_sat = 82352.7+5028;
-	    if(iteration ==3) lastint_lastframe_sat = 80954.2+5028;
-	    if(iteration ==4) lastint_lastframe_sat = 81289.1+5028;
-	  }
+	  //if(pix_x == 181 && pix_y == 161) {
+	  // if(iteration ==1) lastint_lastframe_sat = 98430.3+5028;
+	  //  if(iteration ==2) lastint_lastframe_sat = 82352.7+5028;
+	  //  if(iteration ==3) lastint_lastframe_sat = 80954.2+5028;
+	  //  if(iteration ==4) lastint_lastframe_sat = 81289.1+5028;
+	  //}
 	    // mult terms
 	  vector<float> mult_a;
 	  vector<float> mult_b;
@@ -487,7 +484,7 @@ void ms_read_process_data( const int iteration,
 	  }
 
 
-	  if(pix_x == 181 && pix_y == 161) {
+	  if(pix_x == 181 && pix_y == -161) {
 	    cout << " sign of data " << is_even << endl;
 	    cout << " last frame " << 	    lastint_lastframe << " " << lastint_lastframe_sat << endl;
 	    cout << "rscd terms" << rscd_a0 << " " << rscd_a1 << " " << rscd_a2 <<  " " << rscd_a3 << " " <<
@@ -638,7 +635,7 @@ void ms_read_process_data( const int iteration,
 	  float third_lastframe = 0;
 	  pixel[ik].GetLast2Frames(ilast2,ilast3,second_lastframe,third_lastframe);
 	  float this_lastframe= second_lastframe + (second_lastframe  - third_lastframe);
-	  if(pix_x == 181 && pix_y == 161) {
+	  if(pix_x == 181 && pix_y == -161) {
 	    cout << " Linearity corrected last frame is determined using " << 
 	      ilast3+1 << " " << ilast2+1 << endl;
 	    cout << "LASTFRAME "<< third_lastframe<< " " << second_lastframe << " " <<

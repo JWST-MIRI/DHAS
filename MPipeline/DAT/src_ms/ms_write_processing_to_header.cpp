@@ -447,7 +447,7 @@ void ms_write_processing_to_header(fitsfile *file_ptr,
     fits_write_key(file_ptr, TSTRING, "USE_RSCD", no_str, "Did Not Use RSCD Correction File", &status);
   }
 
-  if(control.apply_mult_cor ==1){
+  if(control.apply_rscd_cor ==1){
     fits_write_key(file_ptr, TSTRING, "USE_MULT", yes_str, "Used MULT Correction File", &status);
     
     string multfile = CDP.GetMULTName();
