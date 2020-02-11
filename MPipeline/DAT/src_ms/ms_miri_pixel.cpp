@@ -710,12 +710,8 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       new_correct[raw_data.size()-2-i] = new_correct[raw_data.size()-1-i]- total_correct[raw_data.size()-2-i];
     }
 
-    // for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
-    //  new_correct[raw_data.size()-1-i] = new_correct[raw_data.size()-i]- total_correct[raw_data.size()-1-i];
-    //}
-
     // now apply the first frame correction
-    // new_correct[0] = new_correct[0] - first_corr;
+    new_correct[0] = new_correct[0] - first_corr;
 
     for (unsigned int i = 0 ; i < raw_data.size()  ; i++){ // loop over the number of frames 
       if(debug == 1 || fabs(new_correct[i]) > 5000 ) {
