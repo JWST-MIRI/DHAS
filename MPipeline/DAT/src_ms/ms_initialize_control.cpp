@@ -1,4 +1,3 @@
-
 // This software is part of the MIRI Data Handling and Analysis Software (DHAS)
 // This routine belongs to the miri_sloper package which processes raw science data.
 
@@ -147,8 +146,6 @@ void ms_initialize_control(miri_control &control)
   control.flag_rscd_cor_file  = 0;
   control.rscd_cor_file = "";
 
-  control.apply_mult_cor = 0;             // +/- m do (not do) multi integration correction
-  control.flag_apply_mult_cor = 0; 
   control.flag_mult_cor_file  = 0;
   control.mult_cor_file = "";
 

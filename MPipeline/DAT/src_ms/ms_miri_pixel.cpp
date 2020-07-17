@@ -618,8 +618,8 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
   }
 
   int debug = 0;
-  if(pix_x == 181 && pix_y == -161) debug = 1;
-  
+  if(pix_x == 181 && pix_y == 161) debug = 1;
+
   // ______________________________________________________________________
   // mult correction (secondard correction) 
   vector<float> mult_correct(raw_data.size(),0);
@@ -651,6 +651,9 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
       float eterm = exp(0.0001 * mult_alpha *  (raw_data[i]-video_offset_rscd));
       float corr =  A*eterm + B;
       mult_correct[i]= corr;
+
+      //remove 
+      //mult_correct[i] = 0;
       if(debug == 1) cout << "Mult corr" << i+1 << " " << mult_correct[i] << " " <<
 		       eterm << " " << raw_data[i] - video_offset_rscd  << " " <<
 		       raw_data[i] << endl;
@@ -689,6 +692,8 @@ void miri_pixel::ApplyMULTRSCD(const int write_corrected_data,
     first_corr = first_a0 + first_a1*lastframeDN + first_a2*lastframeDN2 + 
       first_a3*lastframeDN* lastframeDN2;
 
+    //remove
+    //first_corr = 0; 
     if(debug == 1) {
       cout << " first frame parameters" << pix_x << " " << pix_y << " " << first_a0 << " " << first_a1 << " " <<
 	first_a2 << " " << first_a3 << endl;

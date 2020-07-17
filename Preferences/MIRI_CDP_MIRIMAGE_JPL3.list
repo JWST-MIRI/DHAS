@@ -1,12 +1,12 @@
 LIST                 = THISFILE                                                     :list of CDP to use for Imager from CDP2 delivery
 BAD                  = MIRI_FM_MIRIMAGE_MASK_8B.02.00. fits                         : Bad Pixelfile 
-PIXELSAT             = MIRI_FM_MIRIMAGE_SATURATION_8B.00.00.fits                    : Pixel Saturation file 
+PIXELSAT             = MIRI_FM_MIRIMAGE_SATURATION_MIN_8B.00.00.fits                    : Pixel Saturation file 
 LIN_COR              = MIRI_FM_MIRIMAGE_LINEARITY_8B.00.00.fits                     : Linearity Correction default
 LIN_COR_F2100W       = MIRI_FM_MIRIMAGE_F2100W_LINEARITY_8B.00.00.fits              : Linearity Correction for F2100W filter 
 LIN_COR_F2500W       = MIRI_FM_MIRIMAGE_F2100W_LINEARITY_8B.00.00.fits              : Linearity Correction for F2500W filter 
 RSCD                 = NA                 : Reset Switch Charge Decay Correction File 
 MULT                 = NA                  : Multi integration secondary Correction File 
-RESET_FAST           = MIRI_FM_MIRIMAGE_FAST_RESET_RESIDUAL_8B.00.00.fits           : Reset anomaly correction
+RESET_FAST           = MIRI_FM_MIRIMAGE_FAST_RESET_RESIDUAL_8B.00.01.fits           : Reset anomaly correction
 RESETFAST            = MIRI_FM_MIRIMAGE_FAST_RESET_RESIDUAL_8B.00.00.fits                     : Fast DARK 
 RESETSLOW            = MIRI_FM_MIRIMAGE_SLOW_RESET_RESIDUAL_8B.00.00.fits                     : Slow DARK 
 RESETBRIGHTSKY       = MIRI_FM_MIRIMAGE_FAST_BRIGHTSKY_RESET_RESIDUAL_8B.00.00.fits           : BrightSky DARK 

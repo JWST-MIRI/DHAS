@@ -1,5 +1,5 @@
 LIST                 = THISFILE                                                      :list of CDP to use for Imager RAL 
-BAD                  = MIRI_FM_MIRIMAGE_MASK_07.02.01. fits                          : Bad Pixelfile 
+BAD                  = MIRI_FM_MIRIMAGE_MASK_8B.02.00. fits                          : Bad Pixelfile 
 PIXELSAT             = MIRI_FM_RAL_MIRIMAGE_SATURATION_07.02.00.fits                 : Pixel Saturation file 
 LIN_COR              = MIRI_FM_RAL_MIRIMAGE_LINEARITY_8B.00.00.fits                  : Linearity Correction file 
 LIN_COR_F2100W       = MIRI_FM_MIRIMAGE_F2100W_LINEARITY_8B.00.00.fits               : Linearity Correction for F2100W filter 

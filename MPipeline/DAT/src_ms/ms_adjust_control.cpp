@@ -134,13 +134,12 @@ void ms_adjust_control(miri_data_info& data_info, miri_control &control)
     }
 
 
-    control.apply_mult_cor_Input =control.apply_mult_cor;
     control.apply_rscd_cor_Input =control.apply_rscd_cor;
     control.write_output_rscd_correction_Input = control.write_output_rscd_correction;
     //    if(data_info.NInt == 1 && control.apply_rscd_cor ==1) {
     // cout << " Reset Switch Charge Decay correction can not be applied to data with only 1 integration" << endl;
     //}
-    if(control.apply_rscd_cor ==0 && control.apply_mult_cor ==0 ) control.write_output_rscd_correction = 0;
+    if(control.apply_rscd_cor ==0) control.write_output_rscd_correction = 0;
   //***********************************************************************
 
     if(control.QuickMethod ==1) {

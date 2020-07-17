@@ -147,7 +147,7 @@ void ms_setup_processing(miri_control &control,
   // have to know the correct CDP file to read in. 
   if ( control.apply_pixel_saturation== 1 ||  control.apply_badpix== 1  ||  control.apply_lin_cor ||
        control.subtract_dark == 1 || control.apply_lastframe_cor ||
-       control.apply_rscd_cor == 1 || control.apply_reset_cor || control.apply_mult_cor == 1 ) {
+       control.apply_rscd_cor == 1 || control.apply_reset_cor  ) {
 
     int found = 0;
     if(data_info.Origin == "JPL"    ){

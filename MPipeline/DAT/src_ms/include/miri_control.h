@@ -69,7 +69,6 @@ struct miri_control {
   int apply_lin_cor;           // apply linearity correctionn
   int apply_dark_cor;          // apply dark correection
   int apply_rscd_cor;          // apply RSCD correction
-  int apply_mult_cor;          // apply multiple integration (secondard)  correction
   int apply_reset_cor;         // apply reset anomaly correction
   int rscd_lastframe_corrected; // use corrected last frame for rscd correction
   int rscd_lastframe_extrap;    // use extrapolated last frame for rscd correction
@@ -82,7 +81,6 @@ struct miri_control {
   int flag_apply_pixel_saturation;
   int flag_apply_dark_cor;
   int flag_apply_rscd_cor;
-  int flag_apply_mult_cor;
   int flag_apply_reset_cor;
   int flag_apply_lastframe_cor;
 
@@ -256,7 +254,6 @@ struct miri_control {
   // if running over a list of files and subarray data is on the list (subarray turns off ref pixel correction)
   int do_refpixel_option_SA;
   int apply_rscd_cor_Input;
-  int apply_mult_cor_Input;
   int write_output_rscd_correction_Input;
 
   
