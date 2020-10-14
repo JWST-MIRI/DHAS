@@ -399,14 +399,12 @@ void ms_read_process_data( const int iteration,
 	
 	  int  lin_dq =linearity[pixel_index].GetDQ();
 	  int lin_order = CDP.GetLinOrder(); 
-	
 	  vector<float> lin(lin_order+1);
 	
 	  for (int kp = 0; kp < lin_order+1; kp++){
 	    lin[kp] = linearity[pixel_index].GetCorrection(kp);
 	  }
 	  pixel[ik].CorrectNonLinearity(control.write_output_lc_correction,
-					control.apply_rscd_cor,
 					lin_dq,
 					lin_order,
 					lin);

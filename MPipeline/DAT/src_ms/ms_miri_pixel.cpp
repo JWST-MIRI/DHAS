@@ -295,10 +295,10 @@ void miri_pixel::RejectAfterEvent(const int frame, const int FLAG, const int nre
 }
 
 //_______________________________________________________________________
-void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
-				     const int apply_lin_offset,
+void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
 				     int linflag,
-				     int lin_order,vector<float> lin){
+				     int lin_order,
+				     vector<float> lin){
 
 
 
@@ -328,113 +328,29 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
     return;
   }
   //-----------------------------------------------------------------------
-  // determine Starting Value
-
-  double startVal = 0.0;
-
-  unsigned int nsize = raw_data.size();
-  if (nsize < 4) {
-    startVal = raw_data[0];
-  } else { 
-
-  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    // Estimate the DN_zero, DN at time = 0 = startVal
-    int min_num = 8; // enough points to do a decent 3rd order poly
-    double startVal_fit = 0.0;
-    double startVal_estimate  = 0.0;
-
-    int iflag_fit = 0;
-    int iflag_estimate = 0; 
-  // first estimate the starting value based on 2,3,4 ramp values
- 
-    float rate = 0.0;
-    int estimate_linrate = 1; // do not use first one
-    int num_lin_frames = 3;
-    int n = 0;
-    for (int i = estimate_linrate; i< num_lin_frames; i++){
-      if(id_data[i] ==0 && id_data[i+1] ==0 && raw_data[i] !=0 && raw_data[i+1] !=0){
-	rate = rate  + float(raw_data[i+1] - raw_data[i]);
-	n = n + 1;
-      }
-    }
-    // rate ==0 can occur when raw data = 0 in multiple integration data after bright previous exposure
-    if(n > 0  && rate !=0){ 
-      rate = rate/n;
-      startVal_estimate = raw_data[0];
-      iflag_estimate = 1; 
-    }
-  //-----------------------------------------------------------------------
-    int order = 3;
-    // now do a third order fit (if there are enough points) to determine starting value
-    vector<double> yobs;
-    vector<double>xobs;
-    int igood = 0; 
-   
-    for (unsigned int ii = 0; ii < raw_data.size(); ii++){
-      if(id_data[ii] == 0 && raw_data[ii] !=0) { 
-	yobs.push_back(double(raw_data[ii]));
-	xobs.push_back(double(ii ));
-	igood++;
-      }
-    }
-    vector<double> cresult(order+1);
-    if(igood > min_num) {
-      int  status = 0;
-      int debug = 0;
-      double yerror = 0;
-      double chisq = 0; 
-      vector<double> ycorrected(igood);
-      vector<double> sigma(order+1);
-      
-      status = Poly_Fit(xobs,yobs,3,cresult,ycorrected,sigma,chisq,yerror,debug);
-      startVal_fit = cresult[0];
-      iflag_fit = 1; 
-    }
-    //-----------------------------------------------------------------------		
-    if(iflag_fit ==1 && iflag_estimate ==1){ 
-      if(startVal_fit > raw_data[0] ){
-	startVal = startVal_estimate;
-      } else {
-	startVal = startVal_fit;
-      }
-    }
-    if(iflag_fit ==0 and iflag_estimate ==1) startVal = startVal_estimate; 
-    if(iflag_fit ==1 and iflag_estimate ==0) startVal = startVal_fit;
-  }
-  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  float startCorFac = 0.0;
-  float coorFactor = 1.0;  
-  float startVal3 = startVal*startVal*startVal;
-
-  if(lin_order ==2) startCorFac =  lin[1] + (lin[2]*startVal) ;
-  if(lin_order ==3) startCorFac =  lin[1] + (lin[2]*startVal) + (lin[3]*startVal*startVal) ;
-  if(lin_order ==4) startCorFac =  lin[1] + (lin[2]*startVal) + (lin[3]*startVal*startVal) + (lin[4]*startVal3) ;
-  if(lin_order ==5) startCorFac =  lin[1] + (lin[2]*startVal) + (lin[3]*startVal*startVal)+ (lin[4]*startVal3) +  (lin[5]*startVal3*startVal);
 
   for (unsigned int i = 0 ; i < raw_data.size() ; i++){
-    if(id_data[i] == 0){
+    float coorFactor = 1.0;
+    //    if(id_data[i] == 0){
 
-      float data3 = raw_data[i]*raw_data[i] *raw_data[i];      
+    float data3 = raw_data[i]*raw_data[i] *raw_data[i];      
 
-      if(lin_order ==2) coorFactor =  lin[1] + (lin[2]*raw_data[i]);
-      if(lin_order ==3) coorFactor =  lin[1] + (lin[2]*raw_data[i])+  (lin[3]*raw_data[i]*raw_data[i]) ;
-      if(lin_order ==4) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i])  + (lin[4]*data3) ;
-      if(lin_order ==5) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i]) +  (lin[4]*data3) + (lin[5]*data3*raw_data[i]) ;
+    if(lin_order ==2) coorFactor =  lin[1] + (lin[2]*raw_data[i]);
+    if(lin_order ==3) coorFactor =  lin[1] + (lin[2]*raw_data[i])+  (lin[3]*raw_data[i]*raw_data[i]) ;
+    if(lin_order ==4) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i])  + (lin[4]*data3) ;
+    if(lin_order ==5) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i]) +  (lin[4]*data3) + (lin[5]*data3*raw_data[i]) ;
+   
 
-
-      float DN_0 = (startVal*startCorFac + lin[0])  ;
-      if(apply_lin_offset == 0){
-	DN_0 = 0;
-	startVal = 0.0;
-      }
-      raw_data[i] = (raw_data[i]*coorFactor + lin[0])  - DN_0 + startVal;
-      
-
-      lin_cor_data[i] = raw_data[i]; 
-	//_______________________________________________________________________
-    } else {
-      lin_cor_data[i] = strtod("NaN",NULL); //  
+    if(pix_x == -484 && pix_y == 613){
+      cout << lin_order << " "<< lin[0] << " " << lin[1] << " " << lin[2] << " " << lin[3] << " " << lin[4] << " " << lin[5] << endl;
+      cout << raw_data[i] << " " << coorFactor << endl;
     }
+    raw_data[i] = (raw_data[i]*coorFactor + lin[0]);
+    lin_cor_data[i] = raw_data[i]; 
+    //_______________________________________________________________________
+    //} else {
+    //lin_cor_data[i] = strtod("NaN",NULL); //  
+    // }
   }// end loop over raw_data
 
   if(linflag & CDP_NOLINEARITY)     quality_flag = quality_flag + UNRELIABLE_LIN ;
@@ -442,8 +358,7 @@ void miri_pixel::CorrectNonLinearityOld(const int write_corrected_data,
 
 
   //-----------------------------------------------------------------------
-void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
-				     const int apply_rscd_cor,
+void miri_pixel::CorrectNonLinearityRate(const int write_corrected_data,
 				     int linflag,
 				     int lin_order,
 				     vector<float> lin){
@@ -1232,6 +1147,8 @@ void miri_pixel::FinalSlope(float slope_seg_cr_sigma_reject,
 
 
   int debug = 0;
+  //pix_x = 484;
+  //pix_y = 613;
   if(pix_x == xdebug && pix_y == ydebug) debug = 1;
 
   if(debug ==1) cout << " Final Slope: Number of Segments: " << num_segments << endl;

@@ -36,8 +36,6 @@ if(info.image.autopixelupdate eq 0) then begin
 endif
 
 
-
-
 badpixel = 0
 if( (*info.badpixel.pmask)[xvalue,yvalue] and 1 and info.image.apply_bad eq 1 ) then badpixel =1
 
@@ -279,8 +277,6 @@ for k = 0,num_int-1 do begin
         if(info.image.overplot_pixel_int eq 1) then xnew_plot = xnew
 
         ynew_plot = ynew[k,*]
-
-
         oplot,xnew_plot,ynew_plot,linestyle= 0,color= info.red,thick = 1.5
 
         xnew_plot = 0 & ynew_plot = 0

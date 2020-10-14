@@ -62,24 +62,16 @@ class  miri_pixel {
 
   float GetFirstFrame();
 
-  void CorrectNonLinearityOld(const int write_corrected_data,
-					  const int apply_lin_offset,
-					  int linflag,
-					  int lin_order,vector<float> lin);
-  void CorrectNonLinearity(const int,
-			   const int,
+  void CorrectNonLinearity(const int write_corrected_data,
+			      int linflag,
+			      int lin_order,
+			      vector<float> lin);
+  void CorrectNonLinearityRate(const int,
 			   int linflag,
 			   int lin_order,
 			   vector<float> lin);
 
   float poly_ave(float a, float b, vector<float> coeff);
-
-  void CorrectNonLinearityold(const int,
-			   const int, 
-			   const int, 
-			   int linflag,
-			    int lin_order,vector<float> lin);
-
 
   void SubtractDarkCorrection(const int,short,vector<float>);
   void SubtractResetCorrection(const int,short,vector<float>);

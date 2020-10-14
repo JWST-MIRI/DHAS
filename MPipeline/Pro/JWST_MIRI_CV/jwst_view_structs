@@ -1,0 +1,142 @@
+
+cvcontrol={cube_controli, $
+	pref_filename   :       ' ',$
+        max_x_window    :         0,$
+	max_y_window    :         0,$
+	max_x_screen    :         0,$
+	max_y_screen    :         0,$
+	added_dir       :         0,$
+	miri_dir        :       ' ',$
+	dirCube         :       ' ',$
+	dirps           :      	' ',$   
+	filename_cube   :       ' ',$ 
+	file_cube_base  :	' '}
+
+
+;***********************************************************************
+
+; _______________________________________________________________________
+cvheader= {vheadi,$
+		phead		: ptr_new(),$
+	        num             : 0,$
+		viewtxt         : 0L,$
+		viewwin 	:0L}
+
+; _______________________________________________________________________
+cvwave = {wavei,$
+	PrevButton          : 0L,$
+        NextButton          : 0L,$
+        PlayButton          : 0L,$
+        StopButton          : 0L,$
+        Slider              : 0L,$
+        wavelengthID        : 0L,$
+	stopflag            : 0,$
+	delay               : 0.0}
+
+
+cvadjustroi = {adjustroii,$
+		x1	            : 0,$
+		x2	            : 0,$
+		y1	            : 0,$
+		y2	            : 0,$
+	        x1ID                : 0L,$
+	        x2ID                : 0L,$
+	        y1ID                : 0L,$
+	        y2ID                : 0L}
+		
+
+cvcentroid = {centroidi,$
+	zoom                : 0,$
+	xstart              : 0,$
+	ystart              : 0,$
+	xcenter             : 0.0,$
+	ycenter             : 0.0,$
+	xcenter_plot        : 0.0,$
+	ycenter_plot        : 0.0,$
+	xoffset_surface     : 0,$
+	yoffset_surface     : 0,$
+	uoffset_surface     : 0,$ 
+	fail                : 0,$            
+        pimage              : ptr_new(),$
+        porg_image          : ptr_new(),$
+	rebin_factor        : 1,$
+	draw_window_id      : 0L,$
+	angle               : 0.0,$
+	do_rebinSmooth      : 0}
+
+
+cvcoadd = {addi,$
+        wavelengthID1        : 0L,$
+        wavelengthID2        : 0L,$
+        waveReSelectID       : 0L,$
+	doneID               : 0,$		
+	flag                 : 0,$
+	cancelID             : 0,$
+	select_ranges        : 0}
+
+; _______________________________________________________________________
+
+cvviewcube = {view_cubei,$
+	  this_iwavelength      : 0,$
+	  zoom                 : 0,$
+	  zoom_user            : 0,$
+	  xstart_zoom          : 0,$
+	  ystart_zoom          : 0,$
+	  plot_pixel           : 0,$
+	  overlay_science      : 0,$
+	  xpos_cube            : 0,$
+	  ypos_cube            : 0,$
+	  xstart               : 0.0,$
+	  ystart               : 0.0,$
+	  xend                 : 0.0,$
+	  yend                 : 0.0,$
+	  plot_xsize           : 0,$
+	  plot_ysize           : 0,$
+	  plot_xsize_org       : 0,$
+	  plot_ysize_org       : 0,$
+	  stopflag             : 0,$
+	  delay                : 0.0}
+
+
+; _______________________________________________________________________
+; extracted spectrum 
+
+cvviewspectrum={view_spectrumi, $
+        draw_window_id      : 0L,$  ; widget id of window
+	plot_xsize          : 0,$
+	plot_ysize          : 0,$
+	xzoom                : 0.0,$
+	yzoom                : 0.0,$
+	pixmapID            : 0,$
+	default_range       : intarr(2),$
+	graph_range         : fltarr(2,2),$
+	xbox                : fltarr(2),$
+	ybox                : fltarr(2),$
+	alphabox            : fltarr(2),$
+	betabox             : fltarr(2),$
+	show_value_line     : 0,$
+	last_x              : 0.0,$
+	last_y              : 0.0,$
+	show_error_bars     : 0}
+
+; _______________________________________________________________________
+cvviewimage2d={viewimage2di, $
+	zoom                : 0,$
+	zoom_user           : 0,$
+	plot_xsize          : 0,$
+	plot_ysize          : 0,$
+	plot_xsize_org      : 0,$
+	plot_ysize_org      : 0,$
+	default_scale       : 0,$
+	image_min           : 0.0,$
+	image_max           : 0.0,$
+	image_scale         : fltarr(2),$
+	xstart               : 0.0,$
+	ystart               : 0.0,$
+	xend                 : 0.0,$
+	yend               : 0.0,$
+	plot_pixel          : 1,$
+	xpos_screen         : 0,$
+	ypos_screen         : 0,$
+	xpos                : 0,$
+	ypos                : 0 }
