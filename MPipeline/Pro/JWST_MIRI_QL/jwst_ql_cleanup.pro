@@ -26,7 +26,7 @@ endif
 
 
 if(XRegistered ('jwst_mql')) then begin
-    num = n_elements(info.image.pixmapID)	
+    num = n_elements(info.jwst_image.pixmapID)	
     for i = 0,num-1 do begin
         wdelete,info.jwst_image.pixmapID[i]
     endfor
@@ -34,10 +34,8 @@ if(XRegistered ('jwst_mql')) then begin
 endif
 
 
-
-
 if(XRegistered ('miri_ql')) then begin
-  num = n_elements(info.ijwst_mage.pixmapID)
+  num = n_elements(info.jwst_image.pixmapID)
 endif
 
 

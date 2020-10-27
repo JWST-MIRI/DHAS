@@ -176,9 +176,11 @@ dec = (*cinfo.jwst_cube.pdec)[cinfo.view_cube.ypos_cube]
 ra = (*cinfo.jwst_cube.pra)[cinfo.view_cube.xpos_cube]
 sdec =  ' Dec:  ' + strcompress(string(dec)) + ' (arc sec)'
 sra = '  Ra ' + strcompress(string(ra)) + '(arc sec)'
-info_line = sx + sy + svalue  + suvalue + swmap+ sra + sdec
+info_line1 = sx + sy + svalue  + suvalue
+info_line2 = swmap+ sra + sdec
 
-widget_control,cinfo.pixel_labelID,set_value = info_line
+widget_control,cinfo.pixel_labelID1,set_value = 'Cube Spaxel:' + info_line1
+widget_control,cinfo.pixel_labelID2,set_value = info_line2
 
 ; update the new region for the spectrum to be extracted from 
 cinfo.jwst_spectrum.xcube_range[0] = xstart

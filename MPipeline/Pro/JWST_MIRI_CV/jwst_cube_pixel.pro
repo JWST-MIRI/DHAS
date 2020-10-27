@@ -62,10 +62,12 @@ if(type_of_image eq 0) then begin
 
     sdec =  ' Dec:  ' + strcompress(string(dec)) + ' (arc sec)'
     sra = '  Ra ' + strcompress(string(ra)) + ' (arc sec)'
-    info_line = sx + sy + svalue  +suvalue + swmap + sra + sdec
+    info_line1 = sx + sy + svalue  +suvalue 
+    info_line2 = swmap + sra + sdec
 ;_______________________________________________________________________
 
-    widget_control,cinfo.pixel_labelID,set_value = info_line
+    widget_control,cinfo.pixel_labelID1,set_value = 'Cube Pixel '+ info_line1
+    widget_control,cinfo.pixel_labelID2,set_value = info_line2
 
 ;_______________________________________________________________________
     if(cinfo.roi_image eq 1 ) then begin 
@@ -204,6 +206,9 @@ if(type_of_image eq 0) then begin
                                                      cinfo.view_cube.ypos_cube,$
                                                      iwavelength]
                 
+                w_map_value = (*cinfo.jwst_cube.pw_map)[cinfo.view_cube.xpos_cube,$
+                                                        cinfo.view_cube.ypos_cube,$
+                                                        iwavelength]
                 uncer_value = (*cinfo.jwst_cube.puncertainty)[cinfo.view_cube.xpos_cube,$
                                                          cinfo.view_cube.ypos_cube,$
                                                          iwavelength]
@@ -213,13 +218,16 @@ if(type_of_image eq 0) then begin
                 svalue = '  Pixel Value: ' + strcompress(string(cube_value))
                 suvalue = ' +/-' + strcompress(string(uncer_value))
 
+                swmap = ' Weight Map'+ strcompress(string(w_map_value))
                 dec = (*cinfo.jwst_cube.pdec)[cinfo.view_cube.ypos_cube]
                 ra = (*cinfo.jwst_cube.pra)[cinfo.view_cube.xpos_cube]
                 sdec =  ' Dec:  ' + strcompress(string(dec)) + ' (arc sec)'
                 sra = '  Ra ' + strcompress(string(ra)) + '(arc sec)'
-                info_line = sx + sy + svalue  +suvalue + sra + sdec
+                info_line1 = sx + sy + svalue  +suvalue 
+                info_line2 =  swmap + sra + sdec
 
-                widget_control,cinfo.pixel_labelID,set_value = info_line
+                widget_control,cinfo.pixel_labelID1,set_value = 'Cube Spaxel ' + info_line1
+                widget_control,cinfo.pixel_labelID2,set_value = info_line2
 ;_______________________________________________________________________
 
                 jwst_cv_update_cube,cinfo

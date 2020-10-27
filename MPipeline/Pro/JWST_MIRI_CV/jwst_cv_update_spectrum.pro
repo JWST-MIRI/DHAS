@@ -14,7 +14,7 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
     plots,xline,yline,color=3,thick = 1.5
     oplot,xline,yline,color=3,thick = 1.5
     
@@ -37,7 +37,7 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
 
     plots,xline,yline,color=3,thick = 1.5
     oplot,xline,yline,color=3,thick = 1.5
@@ -55,7 +55,7 @@ if(cinfo.jwst_image2d.z1 ne -1) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[cinfo.jwst_image2d.z1]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
 
     plots,xline,yline,color=2,thick = 1.5
     oplot,xline,yline,color=2,thick = 1.5
@@ -65,7 +65,7 @@ if(cinfo.jwst_image2d.z2 ne -1) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[cinfo.jwst_image2d.z2]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
 
     plots,xline,yline,color=4,thick = 1.5
     oplot,xline,yline,color=4,thick = 1.5
@@ -128,7 +128,7 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
 
     plots,xline,yline,color=3,thick = 1.5
     oplot,xline,yline,color=3,thick = 1.5
@@ -164,7 +164,7 @@ if(cinfo.jwst_coadd.select_ranges eq 1 and cinfo.jwst_coadd.flag eq 1 and event.
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
 
     plots,xline,yline,color=4,thick = 1.5
     oplot,xline,yline,color=4,thick = 1.5
@@ -187,7 +187,7 @@ if(cinfo.jwst_coadd.select_ranges eq 1 and cinfo.jwst_coadd.flag eq 0 and event.
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 10000
+    yline[1] = 1000000
 
     plots,xline,yline,color=2,thick = 1.5
     oplot,xline,yline,color=2,thick = 1.5

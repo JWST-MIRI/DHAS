@@ -33,15 +33,14 @@
 @jwst_cv_display_header.pro
 @jwst_cv_update_spectrum.pro
 @jwst_find_line_values.pro
-;@cv_print_image.pro
-;@cv_spec_print.pro
-;@cv_spec_print_data.pro
-;@print_spectrum_data.pro
+@jwst_cv_print_image.pro
+@jwst_cv_spec_print.pro
+@jwst_cv_spec_print_data.pro
+@jwst_print_spectrum_data.pro
 @jwst_cv_display_image2d.pro
 @jwst_cv_box_stat.pro
 @jwst_cv_get_image_stat.pro
-;@cv_spec_print.pro
-;@cv_spec_print_data.pro
+
 @jwst_cv_centroid_surface.pro
 
 

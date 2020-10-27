@@ -189,8 +189,8 @@ if(y_max gt 1024) then y_max = 1024
 cv_control.max_x_screen = x_max + (x_max*.1) 
 cv_control.max_y_screen = y_max + (y_max*.1) 
 
-cv_control.max_x_window = x_max*0.4 ; - (x_max*.5)
-cv_control.max_y_window = y_max*0.4; - (y_max*.5)
+cv_control.max_x_window = x_max*0.5
+cv_control.max_y_window = y_max*0.5
 
 print,'max screen',cv_control.max_x_screen, cv_control.max_y_screen
 print,'max window',cv_control.max_x_window, cv_control.max_y_window
@@ -207,8 +207,8 @@ endif
 
 ;_______________________________________________________________________
 
-version = "(v 9.7.5 Oct 15, 2020)"
-cv_control.pref_filename=miri_dir+'Preferences/'+'JWST_MIRI_CV_v9.7.preferences'
+version = "(v 9.8.0 Oct 27, 2020)"
+cv_control.pref_filename=miri_dir+'Preferences/'+'JWST_MIRI_CV_v9.8.preferences'
 print,'  Preferences file ',cv_control.pref_filename
 
 ; only thing reading from preferences file (at this time) is the
@@ -250,10 +250,8 @@ endwhile
 
 if(j gt 1) then view_spectrum.xzoom  = xzoom*2*(j-1)
 ;-----------------------------------------------------------------------
-
 view_spectrum.plot_xsize = xspectrum * view_spectrum.xzoom
 view_spectrum.plot_ysize = yspectrum * view_spectrum.yzoom
-
 ;_______________________________________________________________________
 xwidget_size = cv_control.max_x_screen
 ywidget_size = cv_control.max_y_screen
@@ -292,9 +290,9 @@ zoom8 = widget_button(zoommenu,value = ' 8 X Zoom ',/checked_menu)
 zoom16 = widget_button(zoommenu,value = ' 16 X Zoom ',/checked_menu)
 
 ; change the color
-colorbutton = widget_button(colormenu,value='Change Color',event_pro='jwst_cv_color',font=fontname2)
+colorbutton = widget_button(colormenu,value='Change Color of 2-D Image',event_pro='jwst_cv_color',font=fontname2)
 
-PrintButtonI  = Widget_Button(PrintMenu, Value='Print Image')
+PrintButtonI  = Widget_Button(PrintMenu, Value='Print 2-D Image')
 PrintButtonD  = Widget_Button(PrintMenu, Value='Print Spectra to File')
 PrintButtonP  = Widget_Button(PrintMenu, Value='Print Spectrum to Plot')
 
@@ -310,8 +308,7 @@ graphID_master0 = widget_base(CubeView,row=1)
 graphID_master1 = widget_base(CubeView,row=1)
 graphID_master2 = widget_base(CubeView,row=1)
 graphID_master3 = widget_base(CubeView,row=1)
-graphID_master4 = widget_base(CubeView,row=1)
-graphID_master5 = widget_base(CubeView,row=1)
+
 
 graphID0 = widget_base(graphID_master0,row= 1)
 graphID1 = widget_base(graphID_master1,row= 1)
@@ -320,16 +317,13 @@ graphID2 = widget_base(graphID_master2,row= 1)
 graphID2a = widget_base(graphID2,col=1)
 graphID2b = widget_base(graphID2,col=1)
 
-graphID3 = widget_base(graphID_master3,row= 1)
-
-graphID4 = widget_base(graphID_master4,row= 1)
-
-graphID5 = widget_base(graphID_master5,col= 1)
+graphID3a = widget_base(graphID_master3,row= 1)
+graphID3b = widget_base(graphID_master3,col= 1)
 
 cube_box = widget_base(graphID0,/row)
 cube_info_box = widget_base(cube_box,row=1)
 
-Cube_name = 'Cube: ' + cv_control.file_cube_base 
+Cube_name = 'IFU Cube: ' + cv_control.file_cube_base 
 graph_labelID = widget_label(cube_info_box,value = cube_name,/align_left,$
                              font = fontname5,/dynamic_resize)
 image2display = widget_label(cube_info_box, value = '   Image Displayed',font = fontname5)
@@ -345,9 +339,9 @@ InfoCentroidID = widget_button(cube_info_box,value =  'Info')
 
 ;-----------------------------------------------------------------------
 select_roi = 0
-roi_box = widget_base(graphID1,/row)
-adjust_box = widget_base(graphID1,/row)
-full_box = widget_base(graphID1,/row)
+roi_box = widget_base(graphID2a,/row)
+
+full_box = widget_base(graphID2a,/row)
 
 roiID = widget_label(roi_box,value = ' Select Region of Interest',$
                      font = fontname5,/dynamic_resize)
@@ -358,7 +352,7 @@ widget_control,roi_button1,Set_Button = 0
 roi_button2 = Widget_Button(oBase, Value = ' No ')
 widget_control,roi_button2,Set_Button = 1
 
-roi_adjust_button = Widget_button(adjust_box, Value = ' Adjust ROI')
+roi_adjust_button = Widget_button(roi_box, Value = ' Adjust ROI')
 
 full_cube_button = widget_button(full_box, value = ' View Full Cube',font = fontname5,/dynamic_resize)
 
@@ -380,23 +374,8 @@ plotID = widget_draw(graphID2a,xsize =view_cube.plot_xsize,$
                      event_pro='jwst_cube_pixel')
 
     
-cenID = lonarr(7)
-cenID[0] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-cenID[1] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-cenID[2] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-cenID[3] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-cenID[4] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-cenID[5] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-cenID[6] = widget_label(graphid2b,value = '',/dynamic_resize,/align_left)
-
-; plot x,y, pixel value, wmap, ra, dec
-coords_of_cube = '                               '
-pix_box = widget_base(graphID3,/row)
-pixel_labelID = widget_label(pix_box,value = coords_of_cube,/align_left,$
-                             font = fontname3,/dynamic_resize)
-
 ; min and max scale of  image
-scale_base = widget_base(graphID4,row = 1)
+scale_base = widget_base(graphID2a,row = 1)
 default_scale = 1
 default_scaleID = widget_button(scale_base,value=' Image Scale ',$
                                 font=fontname3)
@@ -411,6 +390,17 @@ rmaxlabelID = cw_field(scale_base[0],title="max",font=fontname4,$
                        /float,/return_events,$
                        xsize=xsize_label,value =graph_range[1],$
                        fieldfont = fontname3)
+
+; plot x,y, pixel value, wmap, ra, dec
+coords_of_cube = 'Cube spaxel:         '
+pix_box = widget_base(graphID2a,/row)
+pixel_labelID1 = widget_label(pix_box,value = coords_of_cube,/align_left,$
+                             font = fontname3,/dynamic_resize)
+coords_of_cube = '         '
+pix_box = widget_base(graphID2a,/row)
+pixel_labelID2 = widget_label(pix_box,value = coords_of_cube,/align_left,$
+                             font = fontname3,/dynamic_resize)
+
 ;_______________________________________________________________________
 x1 = (*roi).roix1
 y1 = (*roi).roiy1
@@ -425,13 +415,6 @@ swlength = strcompress(string((*jwst_cube.pwavelength)[iwavelength]),/remove_all
 info_box1 = box_stat[0] + box_stat[1] + box_stat[2] + box_stat[3] 
 info_box2 = box_stat[4] + box_stat[5]
 
-box_info = widget_base(graphID4,/col,/frame) 
-label2d = lonarr(5)
-stat_label = widget_label(box_info,value = ' 2-D Image Statistics at Wavelength: ' + swlength,$
-                          /align_left,font = fontname5,/dynamic_resize)
-label2d[0] =  widget_label(box_info,value = info_box1,/align_left,/dynamic_resize,font=fontname5)
-label2d[1] =  widget_label(box_info,value = info_box2,/align_left,/dynamic_resize,font=fontname5)
-
 ;_______________________________________________________________________
 ; Extracted Spectrum
 stitle = "Extracted Spectrum "
@@ -444,7 +427,7 @@ smax = 0.0
 range_min = 0.0
 range_max = 0.0
 
-base_line = widget_base(graphID5,/row)
+base_line = widget_base(graphID2b,/row)
 tlabelID = widget_label(base_line,value = stitle,$
                             /align_center,font=fontname5)
 base_line2 = widget_base(base_line,/row,/nonexclusive)
@@ -463,20 +446,20 @@ value_lineID = widget_combobox(base_line,value = wlines,$
 errorbars = ['Do not Show Error Bars','Show Error Bars']
 error_barsID = widget_combobox(base_line,value = errorbars,font = fontname5,/dynamic_resize)
 
-specDraw = Widget_Draw(graphID5, XSize = view_spectrum.plot_xsize, YSize = view_spectrum.plot_ysize, $
+specDraw = Widget_Draw(graphID2b, XSize = view_spectrum.plot_xsize, YSize = view_spectrum.plot_ysize, $
                        /Button_Events, Retain=2,$
                        /motion_events,event_pro = 'jwst_cv_draw_line')
 
 info_wave ='                                                                                                   '
-info_box = widget_base(graphID5,/row)
+info_box = widget_base(graphID2b,/row)
 info_spectrum_labelID = widget_label(info_box,value = info_wave,/align_left,$
                                      font = fontname5,/dynamic_resize)
-green_base = widget_base(graphID5,/row)
+green_base = widget_base(graphID2b,/row)
 green_lineID1 = widget_label(info_box, value = '(Green Line: Current Wavelength Plane in Cube View)',$
                              font = fontname3,/dynamic_resize)
 
 range = fltarr(2,2)
-range_base = widget_base(graphID5,row = 1)
+range_base = widget_base(graphID2b,row = 1)
 XlabelID = widget_label(range_base,value="Lamba->",font=fontname5)
 range_x1_labelID = cw_field(range_base,title="min:",font=fontname3, $
                             /float,/return_events, $
@@ -507,6 +490,21 @@ default_y_ID = widget_button(range_base,value=' Plot Range ',$
                              font=fontname3)
 
 
+box_info = widget_base(graphID3a,/col,/frame) 
+label2d = lonarr(5)
+stat_label = widget_label(box_info,value = ' 2-D Image Statistics at Wavelength: ' + swlength,$
+                          /align_left,font = fontname5,/dynamic_resize)
+label2d[0] =  widget_label(box_info,value = info_box1,/align_left,/dynamic_resize,font=fontname5)
+label2d[1] =  widget_label(box_info,value = info_box2,/align_left,/dynamic_resize,font=fontname5)
+
+cenID = lonarr(7)
+cenID[0] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
+cenID[1] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
+cenID[2] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
+cenID[3] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
+cenID[4] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
+cenID[5] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
+cenID[6] = widget_label(graphid3b,value = '',/dynamic_resize,/align_left)
 ;_______________________________________________________________________
 longline = '                                                                                                                        '
 longtag = widget_label(CubeView,value = longline)
@@ -567,7 +565,8 @@ cinfo = {version                : version,$
          font5                  : fontname5,$
          font6                  : fontname6,$
          fontsmall              : fontsmall,$
-         pixel_labelID          : pixel_labelID,$
+         pixel_labelID1          : pixel_labelID1,$
+         pixel_labelID2         : pixel_labelID2,$
          graph_labelID          : graph_labelID,$
          cenID                  : cenID,$
          wavelengthID           : 0L,$
