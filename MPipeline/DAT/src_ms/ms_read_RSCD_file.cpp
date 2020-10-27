@@ -202,8 +202,9 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     
   } else {
 
-    // Read 1st extension - General Values
-    fits_movabs_hdu(fptr,2,&hdutype,&status); // General Values (lower cutoff, alpha_even,alpha_odd) 
+    // Not reading the RSCD_GROUP_SKIP values - first extension
+    // Read 2nd extension - General Values
+    fits_movabs_hdu(fptr,3,&hdutype,&status); // General Values (lower cutoff, alpha_even,alpha_odd) 
     long nrows=0;
     int ncols=0;
     status = fits_get_num_rows(fptr,&nrows,&status);
@@ -291,9 +292,9 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     }
 
     //______________________________________________________________________
-    // Read  Second extension - First integration
+    // Read  Third extension - First integration
     status = 0;
-    fits_movabs_hdu(fptr,3,&hdutype,&status); 
+    fits_movabs_hdu(fptr,4,&hdutype,&status); 
     nrows=0;
     ncols=0;
     status = 0;
@@ -415,9 +416,9 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     }
     //_______________________________________________________________________
 
-    // Read  third extension - 2nd integration
+    // Read  forth extension - 2nd integration
     status = 0;
-    fits_movabs_hdu(fptr,4,&hdutype,&status); 
+    fits_movabs_hdu(fptr,5,&hdutype,&status); 
     nrows=0;
     ncols=0;
     status = 0;
@@ -537,10 +538,10 @@ int ms_read_RSCD_file(miri_data_info &data_info,
     }
 
     //______________________________________________________________________
-    // Read  third extension - 2rd integration
+    // Read  fifth extension - 3rd integration
 
     status = 0;
-    fits_movabs_hdu(fptr,5,&hdutype,&status); 
+    fits_movabs_hdu(fptr,6,&hdutype,&status); 
     nrows=0;
     ncols=0;
     status = 0;

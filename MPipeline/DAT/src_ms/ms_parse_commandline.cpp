@@ -1035,19 +1035,6 @@ void ms_parse_commandline(int& argc,
 	break;
       }
 
-
-      //_______________________________________________________________________
-    case 'm': // multiple integration effect (secondary effect)
-
-      if(Cstring.size() == 2) {
-
-	if(plus) control.apply_mult_cor = 1;
-	if(minus) control.apply_mult_cor = 0;
-	control.flag_apply_mult_cor = 1;
-	++argv;
-	--argc;
-	break;
-      }
       //_______________________________________________________________________
       // L - Linearity &  Correction file
       //_______________________________________________________________________

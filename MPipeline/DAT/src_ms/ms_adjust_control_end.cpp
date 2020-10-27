@@ -73,7 +73,6 @@ void ms_adjust_control_end(miri_data_info &data_info, miri_control &control)
 
   //***********************************************************************
     control.apply_rscd_cor = control.apply_rscd_cor_Input;
-    control.apply_mult_cor = control.apply_mult_cor_Input;
     control.write_output_rscd_correction = control.write_output_rscd_correction_Input;
 
 }

@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
   // them on the command line
 
   ms_update_control(control,preference);
-  
+a  
   // **********************************************************************
   // open and parse the raw data FITS header to get the details of the data
   // and how it was taken

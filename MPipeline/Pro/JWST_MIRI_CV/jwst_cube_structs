@@ -1,0 +1,93 @@
+
+cvcube={cubei, $
+        mode                : 0,$ ; Mode = 0, Fast, Mode= 1, Slow, Mode = 2 Fast Short mode. 
+	filename            : ' ' ,$
+	sca_id              : 0,$
+	channel             : 0,$
+	subchannel          : 0,$
+	start_wavelength    : 0.0,$
+	end_wavelength      : 0.0,$
+	istart_wavelength   : 0,$
+	iend_wavelength     : 0,$
+	naxis1              : 0,$
+	naxis2         	    : 0,$
+	naxis3              : 0,$
+	crpix1              : 0.0d0,$
+	crpix2              : 0.0d0,$
+	crpix3              : 0.0d0,$
+	crval1              : 0.0d0,$
+	crval2              : 0.0d0,$
+	crval3              : 0.0d0,$
+	cdelt1              : 0.0d0,$
+	cdelt2              : 0.0d0,$
+	cdelt3              : 0.0d0,$
+	x1                  : 0,$
+	x2                  : 0,$
+	y1                  : 0,$
+	y2                  : 0,$
+        exist               : 0.0,$ ; flag set cube images does exist
+        pcubedata           : ptr_new(),$   ;pointer to cube
+        puncertainty        : ptr_new(),$   ;pointer to cube
+        pdq                 : ptr_new(),$   ;pointer to cube
+        pw_map               : ptr_new(),$   ;pointer to cube
+	psubdata            : ptr_new(),$
+	pwavelength         : ptr_new(),$   ; pointer to wavelength axis values
+	pdec               : ptr_new(),$   ; pointer to beta axis values
+	pra              : ptr_new()}    ; pointer to alpha axis values
+
+
+;***********************************************************************
+
+; extracted spectrum 
+
+cvspectrum={spectrumi, $
+    	pspectrum           : ptr_new(),$   ;pointer to extracted spectrum	
+    	puncertainty        : ptr_new(),$   ;pointer to uncertainty
+	wavelength_range    : fltarr(2),$
+	flux_range          : fltarr(2),$
+	xcube_range         : fltarr(2),$
+	ycube_range         : fltarr(2),$
+	ra_range         : fltarr(2),$
+	dec_range          : fltarr(2)}  
+
+
+cvimage2dd={image2di, $
+	x1                 : 0,$
+	x2                 : 0,$
+	y1 	           : 0,$
+        y2                 : 0,$
+	z1                 : 0,$
+	z2                 : 0,$
+	image_min          : 0.0,$
+	image_max          : 0.0,$
+	dec1              : 0.0,$
+	dec2              : 0.0,$
+	ra1             : 0.0,$
+	ra2             : 0.0,$
+	wave1              : 0.0,$
+	wave2              : 0.0,$
+    	pimage             : ptr_new(),$   ;pointer to extracted spectrum	
+    	puimage            : ptr_new(),$   ;pointer to extracted spectrum	
+    	pisubdata          : ptr_new(),$   ;pointer to extracted spectrum	
+    	pisum              : ptr_new(),$   ;pointer to extracted spectrum	
+	psubdata           : ptr_new()}
+
+;***********************************************************************
+
+
+cvroi = {roii,                   $
+            color:             0,  $
+            boxx0:             0,  $   ; storage for lower-left corner of box
+            boxy0:             0,  $ 
+            tempxbox:          0,  $   ; temp storage, upper right box corner
+            tempybox:          0,  $
+            roixsize:          0,  $   ; size of ROI in display image pixels
+            roiysize:          0,  $
+            roix1:             0,  $   ; lower left corner of ROI,dispim pixels
+            roiy1:             0,  $
+            roix2:             0,  $   ; upper right corner of ROI,dispim pixels
+            roiy2:             0,  $
+            xsize:             0,  $
+            ysize:             0,  $
+            pressed:           0 }   ; flag,tells ROI_Draw that button pressed
+

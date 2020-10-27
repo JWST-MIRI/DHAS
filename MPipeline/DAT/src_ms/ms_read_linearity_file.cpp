@@ -138,7 +138,6 @@ int ms_read_linearity_file(miri_data_info &data_info,
 
   int nplanes = lin_order+1;  
 
-
   fpixel[2]=1;
   lpixel[2]=nplanes;
 
