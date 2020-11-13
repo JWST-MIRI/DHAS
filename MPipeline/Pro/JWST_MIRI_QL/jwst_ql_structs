@@ -48,6 +48,8 @@ jwst_data={jwst_datai, $
         prefdata            : ptr_new(),$ ;pointer to ref image cube         
         preduced            : ptr_new(),$ ; pointer to slope data for mql_display
         reduced_stat        : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
+        preduced_cal        : ptr_new(),$ ; pointer to slope data for mql_display
+        reduced_cal_stat    : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
         preducedint         : ptr_new(),$ ; pointer to slope data for mql_display
         reducedint_stat     : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
         pratefinal          : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display
@@ -158,12 +160,18 @@ jwst_image={jwst_imagei, $
          ramp_recomputeID    : lonarr(2),$ ; button controlling Default scale or User Set Scale
 	 ramp_x_label        : 0L,$
 	 ramp_y_label        : 0L,$
-         pix_statID          : lonarr(4),$
-         pix_statLabel       : strarr(4),$
-         pix_statFormat      : strarr(4) ,$
+         pix_statID          : lonarr(1),$
+         pix_statLabel       : strarr(1),$
+         pix_statFormat      : strarr(1) ,$
+         pix_statID1         : lonarr(3),$
+         pix_statLabel1      : strarr(3),$
+         pix_statFormat1     : strarr(3) ,$
          pix_statID2         : lonarr(3),$
          pix_statLabel2      : strarr(3),$
          pix_statFormat2     : strarr(3) ,$
+         pix_statID3         : lonarr(3),$
+         pix_statLabel3      : strarr(3),$
+         pix_statFormat3     : strarr(3) ,$
 	 overplotRefID       : lonarr(2),$
 	 overplotCRID        : lonarr(2),$
 	 overplotlinID        : lonarr(2),$
@@ -528,25 +536,26 @@ jwst_output={jwst_outputi, $
 ;***********************************************************************
 
 jwst_dq = {jwst_dqi,$
-	        Donotuse           : 0,$	
-		Saturated         : 0,$
-	        Jump              : 0,$
-	        Dropout           : 0,$
-	        Unrelerror        : 0,$
-	        Nonscience        : 0,$
-	        Dead              : 0,$
-	        Hot               : 0,$
-	        Warm       	  : 0,$
-	        RC      	  : 0,$
-		nonlinear      	  : 0,$
-		bad_refpixel      : 0,$
-		no_flatfield      : 0,$
-		no_gain           : 0,$
-		unrel_dark        : 0,$
-		unrel_slope       : 0,$
-	        unrel_flat        : 0 ,$	
-		unrel_reset       : 0 ,$
-		ref_pixel         : 0,$
+	        Donotuse           : 0L,$	
+		Saturated         : 0L,$
+	        Jump              : 0L,$
+	        Dropout           : 0L,$
+	        Unrelerror        : 0L,$
+	        Nonscience        : 0L,$
+	        Dead              : 0L,$
+	        Hot               : 0L,$
+	        Warm       	  : 0L,$
+		lowqe             : 0L,$
+	        RC      	  : 0L,$
+		nonlinear      	  : 0L,$
+		bad_refpixel      : 0L,$
+		no_flatfield      : 0L,$
+		no_gain           : 0L,$
+		unrel_dark        : 0L,$
+		unrel_slope       : 0L,$
+	        unrel_flat        : 0L ,$	
+		unrel_reset       : 0L ,$
+		ref_pixel         : 0LL,$
 	        sDonotuse         : ' ',$	
 		sSaturated        : ' ',$
 	        sJump             : ' ' ,$
@@ -557,6 +566,7 @@ jwst_dq = {jwst_dqi,$
 	        sHot              : ' ',$
 	        sWarm       	  : ' ',$
 	        sRC      	  : ' ',$
+		slowqe            : ' ',$
 		snonlinear        : ' ',$
 		sbad_refpixel     : ' ',$
 		sno_flatfield     : ' ',$

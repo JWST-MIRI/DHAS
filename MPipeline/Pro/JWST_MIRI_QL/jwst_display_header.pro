@@ -6,11 +6,14 @@ end
 
 ;***********************************************************************
 ; Set up the structure to display a header
-; If type = 0 called from image display. Display frame + slope (if
-; exist) 
+; If type = 0 called from image display. 
+; Raw Header, Final Slope Header, Int Slope header, Calibrated header
 
-; If type = 1 callled from slope display. Display slope + cal (if
-; exist)  
+; If type = 1 callled from rate & calibration  display. 
+;Display slope + cal (if exist)  
+
+; If type = 2 callled from rate & rate int
+;  Display slope + cal (if exist)  
 
 ;***********************************************************************
 pro jwst_header_setup,type,info ; default type = 0 (only set up for Primary header
@@ -24,17 +27,26 @@ chead = 0
 
 if(type eq 0) then begin ; called from Image Frame Display
     rhead = 1
-    if(info.jwst_control.file_slope_exist) then shead = 1
-endif
-
-if(type eq 1) then begin
     shead = 1
-    if(info.jwst_control.file_cal_exist) then chead = 1
-    rhead = 0 
+    chead = 1
+    num = 4
+    ;if(info.jwst_control.file_slope_exist) then shead = 1
+    ;if(info.jwst_control.file_cal_exist) then chead = 1
 endif
 
-num =  shead  + chead + rhead
+if(type eq 1) then begin ; final slope + calibration image
+    shead = 1
+    chead = 1
+    ;if(info.jwst_control.file_cal_exist) then chead = 1
+    num = 2 
+ endif
 
+if(type eq 2) then begin ; final slope +  slope integration  image
+    shead = 1
+    num = 1
+endif
+;num =  shead  + chead + rhead
+; clean up header info already loaded
 if (ptr_valid ( (*info.jwst_viewhead)[0] )) then   begin
     old_num = (*(*info.jwst_viewhead)[0]).num
     for ii = 0,old_num -1 do begin
@@ -47,6 +59,7 @@ if (ptr_valid ( (*info.jwst_viewhead)[0] )) then   begin
     ptr_free,info.jwst_viewhead
 endif
 
+; set up new header information
 info.jwst_viewhead = ptr_new()
 for i = 0,num-1 do begin 
     newhdr = ptr_new({jwst_vheadi})
@@ -88,13 +101,16 @@ end
 ;***********************************************************************
 pro jwst_header_setup_slope,type,info
 
-; type = 0 calling for Frame display
-; type = 1 calling for Slope display
+; type = 0 calling for Frame display, slope header = 1
+; type = 1 slope and cal display, slope header = 0
+; type = 2 calling for Slope display and slope integration,slope header = 0
+
+
 
 file_exist2 = file_test(info.jwst_control.filename_slope,/regular,/read)
 if(file_exist2 ne  1)then begin
     return
- endif
+endif
 fits_open,info.jwst_control.filename_slope,fcb
 fits_read,fcb,slope,header_slope,/header_only,exten_no = 0
 nint = fxpar(header_slope,'NINTS',count = count)
@@ -105,15 +121,20 @@ if(nframe eq 1 and nint gt 1) then begin
    stop
 endif
     
-
-if(type eq 0) then begin 
+if(type eq 0) then begin  ; 0 = raw, 1 = final slope, 2 = calibration
    if ptr_valid ((*(*info.jwst_viewhead)[1]).phead) then ptr_free,$
       (*(*info.jwst_viewhead)[1]).phead
    (*(*info.jwst_viewhead)[1]).phead= ptr_new(header_slope)
 endif
 
 
-if(type eq 1) then begin 
+if(type eq 1) then begin  ; 0 = final slope, 1= calibrated
+   if ptr_valid ((*(*info.jwst_viewhead)[0]).phead) then ptr_free,$
+      (*(*info.jwst_viewhead)[0]).phead
+   (*(*info.jwst_viewhead)[0]).phead= ptr_new(header_slope)
+endif
+
+if(type eq 2 ) then begin  ; 0 = final slope, 1= slope int
    if ptr_valid ((*(*info.jwst_viewhead)[0]).phead) then ptr_free,$
       (*(*info.jwst_viewhead)[0]).phead
    (*(*info.jwst_viewhead)[0]).phead= ptr_new(header_slope)
@@ -131,29 +152,36 @@ pro jwst_header_setup_cal,type,info
 file_exist2 = file_test(info.jwst_control.filename_cal,/regular,/read)
 if(file_exist2 ne  1)then begin
     return
-endif else begin
-    fits_open,info.jwst_control.filename_cal,fcb
-    fits_read,fcb,cube,header_cal,/header_only,exten_no = 0
+endif 
+fits_open,info.jwst_control.filename_cal,fcb
+fits_read,fcb,cube,header_cal,/header_only,exten_no = 0
 
-    nint = fxpar(header_cal,'NINTS',count = count)
-    nframe = fxpar(header_cal,'NGROUPS',count = count)
-    if(nframe eq 1 and nint gt 1) then begin
-       print,'This tool does not support co-added data'
-       stop
-    endif
+nint = fxpar(header_cal,'NINTS',count = count)
+nframe = fxpar(header_cal,'NGROUPS',count = count)
+if(nframe eq 1 and nint gt 1) then begin
+   print,'This tool does not support co-added data'
+   stop
+endif
 
 
-    if(type eq 1) then begin 
-       if ptr_valid ((*(*info.jwst_viewhead)[1]).phead) then ptr_free,$
-          (*(*info.jwst_viewhead)[1]).phead
-       (*(*info.jwst_viewhead)[1]).phead= ptr_new(header_cal)
-    endif
+if(type eq 0) then begin 
+   if ptr_valid ((*(*info.jwst_viewhead)[2]).phead) then ptr_free,$
+      (*(*info.jwst_viewhead)[2]).phead
+   (*(*info.jwst_viewhead)[2]).phead= ptr_new(header_cal)
+endif
+
+
+if(type eq 1) then begin 
+   if ptr_valid ((*(*info.jwst_viewhead)[1]).phead) then ptr_free,$
+      (*(*info.jwst_viewhead)[1]).phead
+   (*(*info.jwst_viewhead)[1]).phead= ptr_new(header_cal)
+endif
 
     
-    fits_close,fcb
-    cube = 0
-    header_cal = 0
-endelse
+fits_close,fcb
+cube = 0
+header_cal = 0
+
 
 Widget_Control,info.jwst_Quicklook,Set_UValue=info
 

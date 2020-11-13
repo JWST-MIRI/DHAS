@@ -293,15 +293,18 @@ if(type_of_image eq 1) then begin
 
     pixel_value = (*cinfo.jwst_image2d.pimage)[xpos,ypos]
     uncer_value = (*cinfo.jwst_image2d.puimage)[xpos,ypos]
+
     sx = 'x: '+ strcompress(string(fix(xpos+1)))
     sy = '  y: '+ strcompress(string(fix(ypos+1)))
     svalue = '  Pixel Value: ' + strcompress(string(pixel_value))
     suvalue = ' +/-' + strcompress(string(uncer_value))
     dec = (*cinfo.jwst_cube.pdec)[ypos]
     ra = (*cinfo.jwst_cube.pra)[xpos]
+
     sdec =  ' Dec:  ' + strcompress(string(dec))
     sra = '  Ra ' + strcompress(string(ra))
-    info_line = sx + sy + svalue + suvalue +sra + sdec
+    info_line1 = sx + sy + svalue + suvalue
+    info_line2 = sra + sdec
 
 ;_______________________________________________________________________
     if(cinfo.roi_image eq 1 ) then begin 
@@ -349,7 +352,8 @@ if(type_of_image eq 1) then begin
 
     endif
 
-    widget_control,cinfo.pixel_labelID,set_value = info_line
+    widget_control,cinfo.pixel_labelID1,set_value = 'Cube Pixel: '+ info_line1
+    widget_control,cinfo.pixel_labelID2,set_value = info_line2
     if(cinfo.roi_image eq 1) then begin
 
     ; User is dragging out an ROI box, erase and redraw until done.
@@ -444,10 +448,12 @@ if(type_of_image eq 1) then begin
                 ra = (*cinfo.jwst_cube.pra)[xpos]
                 sdec =  ' Dec:  ' + strcompress(string(dec))
                 sra = '  Ra ' + strcompress(string(ra))
-                info_line = sx + sy + svalue + suvalue +sra + sdec
 
+                info_line1 = sx + sy + svalue + suvalue 
+                info_line2 = sra + sdec
 
-                widget_control,cinfo.pixel_labelID,set_value = info_line
+                widget_control,cinfo.pixel_labelID1,set_value = 'Cube: '+ info_line1
+                widget_control,cinfo.pixel_labelID2,set_value = info_line2
 ;_______________________________________________________________________
 
                 jwst_cv_update_image2d,cinfo

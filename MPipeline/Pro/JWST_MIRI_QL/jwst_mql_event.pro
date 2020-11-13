@@ -46,7 +46,6 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'voption') : begin
-
         info.jwst_image.plane = event.index
         info.jwst_image.default_scale_graph[2] = 1
         jwst_mql_update_slope,info
@@ -58,13 +57,19 @@ endif
     end
 
     (strmid(event_name,0,7) EQ 'sheader') : begin
-        if(info.jwst_control.file_slope_exist eq 0 ) then begin
-            ok = dialog_message(" No slope image exists",/Information)
-        endif else begin
-            j = info.jwst_image.IntegrationNO
-            jwst_display_header,info,1
-        endelse
+       if(info.jwst_control.file_slope_exist eq 0 ) then begin
+          ok = dialog_message(" No slope image exists",/Information)
+       endif else begin
+          jwst_display_header,info,1
+       endelse
+    end
 
+    (strmid(event_name,0,7) EQ 'cheader') : begin
+       if(info.jwst_control.file_cal_exist eq 0 ) then begin
+          ok = dialog_message(" No calibration image exists",/Information)
+       endif else begin
+          jwst_display_header,info,2
+       endelse
     end
 
 ;_______________________________________________________________________
@@ -985,10 +990,21 @@ endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
-; inspect slope  image
+; inspect slope, slope int or calibration 
     (strmid(event_name,0,9) EQ 'inspect_s') : begin
-        if(info.jwst_control.file_slope_exist eq 0) then begin
+
+        if(info.jwst_control.file_slope_exist eq 0 and info.jwst_image.plane eq 0) then begin
             ok = dialog_message(" No slope image exists",/Information)
+            return
+         endif
+
+        if(info.jwst_control.file_slope_int_exist eq 0 and info.jwst_image.plane eq 1) then begin
+            ok = dialog_message(" No slope int image exists",/Information)
+            return
+         endif
+
+        if(info.jwst_control.file_cal_exist eq 0 and info.jwst_image.plane eq 2) then begin
+            ok = dialog_message(" No calibration image exists",/Information)
             return
         endif
 
@@ -998,6 +1014,7 @@ endif
         frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
         if(info.jwst_image.plane eq 0) then frame_image = (*info.jwst_data.preduced)
         if(info.jwst_image.plane eq 1) then frame_image = (*info.jwst_data.preducedint)
+        if(info.jwst_image.plane eq 2) then frame_image = (*info.jwst_data.preduced_cal)
 
         if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
         info.jwst_inspect_slope.pdata = ptr_new(frame_image)

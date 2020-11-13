@@ -84,11 +84,6 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-;edit_uwindowsize = 0 ; paramters for editing preferences file
-;edit_xwindowsize = 0 ; no structure exists for this widget
-;edit_ywindowsize = 0
-
-;_______________________________________________________________________
 version = "(v 9.8.0 Oct 27, 2020)"
 
 miri_dir = getenv('MIRI_DIR')
@@ -170,7 +165,7 @@ wdelete,1
 ;Setup main panel
 ;*********
 
-xql_size = 600
+xql_size = 650
 yql_size = 300
 
 JWST_QuickLook = widget_base(title="JWST MIRI Quick Look " + version,$
@@ -246,15 +241,17 @@ EditMenu = widget_button(menuBar,value="Color",font=fontname2)
 QuitMenu = widget_button(menuBar,value="Quit",font = fontname2)
 
 ; Analyze
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames and Rates",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames, Rate and Calibrated Images",$
                                 uvalue='JWST_LoadI',font=fontname3)
+
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
+                                uvalue='JWST_LoadR',font=fontname3)
 
 loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Rate Int Images",$
                                 uvalue='JWST_LoadS',font=fontname3)
 
 
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
-                                uvalue='JWST_LoadC',font=fontname3)
+
 ; compare
 loadcompareR2Button = widget_button(CompareMenu,value=" Compare Two Science Frames or Two Rate Images",$
                             font=fontname3,uvalue='JWST_Load2')
@@ -348,27 +345,26 @@ jwst_dqflag.SDead = 'Dead'
 jwst_dqflag.Hot = 2048
 jwst_dqflag.SHot = 'Hot' 
 jwst_dqflag.Warm =4096  
-jwst_dqflag.SWarm = 'Warm'  
-jwst_dqflag.RC = 16384
+jwst_dqflag.SWarm = 'Warm'
+jwst_dqflag.lowqe = long(2.0^13)
+jwst_dqflag.slowqe = 'Low QE'    
+jwst_dqflag.RC = long(2.0^14) 
 jwst_dqflag.SRC = 'RC'  
-jwst_dqflag.nonlinear = 65536
-
+jwst_dqflag.nonlinear = long(2.0^16)
 jwst_dqflag.Snonlinear = 'Nonlinear'
-jwst_dqflag.bad_refpixel= 131072
+jwst_dqflag.bad_refpixel= long(2.0^17) 
 jwst_dqflag.sbad_refpixel= 'Bad ref pixel'
-jwst_dqflag.no_flatfield=262144
+jwst_dqflag.no_flatfield=long(2.0^18)
 jwst_dqflag.sno_flatfield='No flat field'
-jwst_dqflag.no_gain=-524288
-jwst_dqflag.sno_gain='No gain value'
-jwst_dqflag.unrel_dark  = 8399608
+jwst_dqflag.unrel_dark  = long(2.0^23)
 jwst_dqflag.Sunrel_dark = 'Unreliable dark'
-jwst_dqflag.unrel_slope  = 16777216
+jwst_dqflag.unrel_slope  = long(2.0^24)
 jwst_dqflag.Sunrel_slope = 'Unreliable slope'
-jwst_dqflag.unrel_flat = 33554432
+jwst_dqflag.unrel_flat = long(2.0^25)
 jwst_dqflag.Sunrel_flat = 'Unreliable flat'
-jwst_dqflag.unrel_reset = 268435456
+jwst_dqflag.unrel_reset = long64(2.0^28)
 jwst_dqflag.Sunrel_reset = 'Unreliable reset'
-jwst_dqflag.ref_pixel= 2147483648
+jwst_dqflag.ref_pixel= long64(2.0^31)
 jwst_dqflag.Sref_pixel='Reference Pixel'
 
 

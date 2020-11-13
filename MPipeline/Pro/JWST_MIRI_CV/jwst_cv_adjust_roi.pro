@@ -84,9 +84,16 @@ case 1 of
     end
 
 
+    (strmid(event_name,0,2) EQ 'x1') : begin
+        cinfo.adjust_roi.x1 = event.value
+        xlength = event.value 
+        x2 = cinfo.adjust_roi.x1 + xlength
+        if(x2 gt x2_full) then x2 = x2_full
+        cinfo.adjust_roi.x2 = x2
+    end
 
     (strmid(event_name,0,2) EQ 'x2') : begin
-
+       
     end
 
     (strmid(event_name,0,2) EQ 'y1') : begin
@@ -95,14 +102,14 @@ case 1 of
 
     (strmid(event_name,0,2) EQ 'y2') : begin
         xlength = event.value 
-        x2 = cinfo.adjust_roi.x1 + xlength
-        if(x2 gt x2_full) then x2 = x2_full
-        cinfo.adjust_roi.x2 = x2
+        y2 = cinfo.adjust_roi.y1 + xlength
+        if(y2 gt y2_full) then y2 = y2_full
+        cinfo.adjust_roi.y2 = y2
     end
 
 
 
-    else: print,'Event Name not found',event_name
+    else: print,'Event Name not found ',event_name
 endcase
 
 

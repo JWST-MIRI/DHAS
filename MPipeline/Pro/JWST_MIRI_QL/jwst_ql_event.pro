@@ -51,9 +51,11 @@ case 1 of
 
         info.jwst_image.x_pos =(info.jwst_data.image_xsize/info.jwst_image.binfactor)/2.0
         info.jwst_image.y_pos = (info.jwst_data.image_ysize/info.jwst_image.binfactor)/2.0
+        ; read in the data
         jwst_setup_intermediate,info ; ramp data, slope data, and  all intemediate data 
         jwst_setup_slope_final,info,0,status
         jwst_setup_slope_int,info,0,0
+        jwst_setup_cal,info,0
 
         xvalue = info.jwst_image.x_pos * info.jwst_image.binfactor
         yvalue = info.jwst_image.y_pos * info.jwst_image.binfactor
@@ -91,14 +93,36 @@ case 1 of
         jwst_setup_slope_final,info,1,status
         jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
         jwst_find_slope_binfactor,info
-;        jwst_setup_cal,info,1
-
         jwst_msql_display_slope,info
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,10) EQ 'JWST_LoadC') : begin
-       imessage = 'Option to view calibrated data is not avaliable at this time'
-       result = dialog_message(imessage,/Information)
+
+        status_continue = 0
+        jwst_setup_names,info,3,status_continue,error_message
+
+        if(status_continue eq 2) then return
+        if(status_continue eq 1 ) then begin
+            result = dialog_message(error_message,/error)
+            return
+         endif
+
+        if(XRegistered ('jwst_mql')) then begin
+            if(sl_filename ne info.jwst_control.filebase) then begin
+                jwst_ql_reset,info
+                widget_control,info.jwst_RawQuickLook,/destroy
+                print,'Closing JWST QuickLook window'
+            endif
+        endif    
+
+        if(XRegistered ('jwst_misql')) then begin
+           widget_control,info.jwst_InspectSlope,/destroy
+        endif
+        jwst_setup_slope_final,info,2,status
+        jwst_find_slope_binfactor,info
+        jwst_setup_cal,info,1
+
+        ;jwst_msql_display_slope,info
        return
     end
 ;_______________________________________________________________________
