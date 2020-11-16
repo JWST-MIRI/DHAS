@@ -66,7 +66,7 @@ case 1 of
 
      end	
 ;____________________________________________________________________
-; Slope 
+; Slope and Slope Int 
     (strmid(event_name,0,10) EQ 'JWST_LoadS') : begin
        if(XRegistered ('jwst_mql')) then sl_filename = info.jwst_control.filebase
 
@@ -94,12 +94,13 @@ case 1 of
         jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
         jwst_find_slope_binfactor,info
         jwst_msql_display_slope,info
-    end
+     end
 ;_______________________________________________________________________
-    (strmid(event_name,0,10) EQ 'JWST_LoadC') : begin
+;reduced data:  Rate and Calibration Image
+    (strmid(event_name,0,10) EQ 'JWST_LoadR') : begin
 
         status_continue = 0
-        jwst_setup_names,info,3,status_continue,error_message
+        jwst_setup_names,info,2,status_continue,error_message
 
         if(status_continue eq 2) then return
         if(status_continue eq 1 ) then begin

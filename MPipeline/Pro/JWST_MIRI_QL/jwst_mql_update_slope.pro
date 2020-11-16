@@ -52,7 +52,6 @@ if(info.jwst_image.plane eq 2) then  begin
 endif
 
 ;_______________________________________________________________________
-;i = info.jwst_image.integrationNO
 
 if(info.jwst_image.default_scale_graph[2] eq 1) then begin
    info.jwst_image.graph_range[2,0] = stat[5,0]
@@ -149,4 +148,8 @@ plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device,color=inf
 
 disp_image = 0
 
+
+; check if need update the zoom image. This zoom image plotting this
+; window
+if(info.jwst_image.graph_mpixel eq 3) then jwst_mql_update_zoom_image,info
 end

@@ -292,28 +292,10 @@ for integ = 0, info.jwst_data.nints -1 do begin
 
    for iramp = 0,ngroups -1 do begin
        for k = 0, num-1 do begin
-
            xvalue = x[k]        ; 
            yvalue = y[k] 
-;           nxy = long(info.jwst_data.dark_xsize) * long(info.jwst_data.dark_ysize)
-;           firstvalue = long(yvalue)*long(info.jwst_data.id_xsize) + long(xvalue)
-;           istart = long(nxy) * long(iramp) + (  long(integ) * long(ngroups) * long(nxy))
-;           firstvalue = firstvalue + istart
-;           lastvalue  = long(firstvalue)
-;           if(lastvalue le 1) then begin ; fits_read will fail for this case
-;               im_raw = readfits(info.jwst_control.filename_dark,nslice = j,/silent) 
-               value  = im_raw[xvalue,yvalue,iramp,integ]
-               pixeldata[integ,iramp,k] = value
-               
-;           endif else begin 
-;               if(j gt 500) then begin ; 2 gigabyte limit for bitpix = 32
-;                   im_raw = readfits(info.jwst_control.filename_dark,nslice = j,/silent) 
-;                   dn  = im_raw[xvalue,yvalue]
-;               endif else begin 
-;                   fits_read,fcb,dn,hdr,first = firstvalue,last = lastvalue,exten_no = 1
-;               endelse
-;               pixeldata[integ,iramp,k] = dn
-;           endelse
+           value  = im_raw[xvalue,yvalue,iramp,integ]
+           pixeldata[integ,iramp,k] = value
        endfor
    endfor
 
@@ -346,7 +328,7 @@ if(imessage) then begin
 ; for the selected pixels - find the frame values for the entire exposure
 
 ngroups = info.jwst_data.ngroups
-im_raw = readfits(info.jwst_control.filename_reset,/silent) 
+im_raw = readfits(info.jwst_control.filename_reset,/silent, exten_no=1) 
 for integ = 0, info.jwst_data.nints -1 do begin
     if(imessage) then begin 
         percent = (float(integ)/float(info.jwst_data.nints) * 99)

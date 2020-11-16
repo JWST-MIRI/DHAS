@@ -70,14 +70,13 @@ signal_final = (*info.jwst_data.pratefinal)[x,y,0]
 error_final = (*info.jwst_data.pratefinal)[x,y,1]
 dq_final = (*info.jwst_data.pratefinal)[x,y,2]
 
-sfin = strtrim(string(signal_final,format="("+info.jwst_slope.pix_statFormat3[1]+")"),2)
-se = strtrim(string(error_final,format="("+info.jwst_slope.pix_statFormat3[2]+")"),2)
-sdq = strtrim(string(dq_final,format="("+info.jwst_slope.pix_statFormat3[3]+")"),2)
+sfin = strtrim(string(signal_final,format="("+info.jwst_slope.pix_statFormat3[0]+")"),2)
+se = strtrim(string(error_final,format="("+info.jwst_slope.pix_statFormat3[1]+")"),2)
+sdq = strtrim(string(dq_final,format="("+info.jwst_slope.pix_statFormat3[2]+")"),2)
 
-widget_control,info.jwst_slope.pix_statID3[0],set_value= info.jwst_slope.pix_statLabel3[0] + ' = ' + scal
-widget_control,info.jwst_slope.pix_statID3[1],set_value= info.jwst_slope.pix_statLabel3[1] + ' = ' + sfin
-widget_control,info.jwst_slope.pix_statID3[2],set_value= info.jwst_slope.pix_statLabel3[2] + ' = ' + se
-widget_control,info.jwst_slope.pix_statID3[3],set_value= info.jwst_slope.pix_statLabel3[3] + ' = ' + sdq
+widget_control,info.jwst_slope.pix_statID3[0],set_value= info.jwst_slope.pix_statLabel3[0] + ' = ' + sfin
+widget_control,info.jwst_slope.pix_statID3[1],set_value= info.jwst_slope.pix_statLabel3[1] + ' = ' + se
+widget_control,info.jwst_slope.pix_statID3[2],set_value= info.jwst_slope.pix_statLabel3[2] + ' = ' + sdq
 
 ss = 'NA'
 su = 'NA'
@@ -87,7 +86,6 @@ if(info.jwst_control.file_slope_int_exist eq 1) then begin
    unc = (*info.jwst_data.prateint)[x,y,1]
    dq = (*info.jwst_data.prateint)[x,y,2]
 
-   print,'infor from integration',signal,unc,dq
    ss = strtrim(string(signal,format="("+info.jwst_slope.pix_statFormat[0]+")"),2)
    su = strtrim(string(unc,format="("+info.jwst_slope.pix_statFormat[1]+")"),2)
    sf = strtrim(string(dq,format="("+info.jwst_slope.pix_statFormat[2]+")"),2)
@@ -201,7 +199,7 @@ if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.j
 if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 ;_______________________________________________________________________
-SlopeQuickLook = widget_base(title="JWST MIRI Quick Look- Rate/Cal Images" + info.jwst_version,$
+SlopeQuickLook = widget_base(title="JWST MIRI Quick Look- Rate & Rate Int Images" + info.jwst_version,$
                              col = 1,mbar = menuBar,group_leader = info.jwst_QuickLook,$
                              xsize = xwidget_size,$
                              ysize = ywidget_size,/scroll,$
@@ -617,10 +615,10 @@ info.jwst_slope.slope_range = slope_range
 ;_______________________________________________________________________
 ;base1 = widget_base(infoID01,row=1)
 
-info.jwst_slope.pix_statLabel3 = ["Calibrated Value (Dn/s)", "Final Rate (DN/s)",  "Final Error",  "DQ flag"] 
-info.jwst_slope.pix_statFormat3 =  ["F16.4","F16.4", "F16.8", "I16"] 
+info.jwst_slope.pix_statLabel3 = ["Final Rate (DN/s)",  "Final Error",  "DQ flag"] 
+info.jwst_slope.pix_statFormat3 =  ["F16.4", "F16.8", "I16"] 
 
-for i = 0,3 do begin  
+for i = 0,2 do begin  
     info.jwst_slope.pix_statID3[i] = widget_label(infoID01,value = info.jwst_slope.pix_statLabel3[i]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
 endfor
@@ -702,7 +700,6 @@ jwst_read_all_slopes,info,slopedata,status,error_message
 if ptr_valid (info.jwst_data.pslopedata_all) then ptr_free,info.jwst_data.pslopedata_all
 info.jwst_data.pslopedata_all = ptr_new(slopedata)
 slopedata = 0
-
 
 jwst_msql_update_slopepixel,info
 jwst_msql_update_pixel_stat_slope,info

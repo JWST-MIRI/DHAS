@@ -203,15 +203,15 @@ jwst_image_pixel = {jwst_image_pixeli,$
 	         quality_flag        : 0,$
                  zeropt              : 0.0,$
 	         pix_label           : lonarr(2),$
-         	 pix_statLabelID     : lonarr(6),$
-	         ppixeldata           : ptr_new(),$
-	         pref_pixeldata       : ptr_new(),$
-	         prefpix_pixeldata       : ptr_new(),$
-	         pdark_pixeldata        : ptr_new(),$	
-	         preset_pixeldata        : ptr_new(),$	
-	         prscd_pixeldata        : ptr_new(),$	
-	         plastframe_pixeldata        : ptr_new(),$	
-	         plin_pixeldata        : ptr_new(),$	
+         	 pix_statLabelID     : lonarr(7),$
+	         ppixeldata          : ptr_new(),$
+	         pref_pixeldata      : ptr_new(),$
+	         prefpix_pixeldata   : ptr_new(),$
+	         pdark_pixeldata     : ptr_new(),$	
+	         preset_pixeldata    : ptr_new(),$	
+	         prscd_pixeldata     : ptr_new(),$	
+	         plastframe_pixeldata : ptr_new(),$	
+	         plin_pixeldata       : ptr_new(),$	
 		 xpixel_typeLabel    : strarr(2),$
 	         xpixel_typeID       : 0L}	
 
@@ -342,9 +342,9 @@ jwst_slope = {jwst_slopei,                $
            pix_statID          : lonarr(4),$
            pix_statLabel       : strarr(4),$
            pix_statFormat      : strarr(4),$
-           pix_statLabel3      : strarr(4),$
-           pix_statFormat3     : strarr(4),$
-           pix_statID3         : lonarr(4)}
+           pix_statLabel3      : strarr(3),$
+           pix_statFormat3     : strarr(3),$
+           pix_statID3         : lonarr(3)}
 
 ;***********************************************************************
 jwst_inspect = {jwst_inspecti,$

@@ -83,7 +83,11 @@ if (type eq 1) then begin       ; working with rate file or rateint
       check2 = strpos(out_filebase,rate)
       if(check2 gt 0) then begin 
          out_file = strmid(out_filebase,0,check2)
-      endif
+      endif else begin
+         error_message = ' You did not open a Rate or Rateints File, try again'
+         status = 1
+         return
+      endelse
    endelse 
 
    info.jwst_control.filebase = out_file
@@ -100,19 +104,24 @@ if (type eq 1) then begin       ; working with rate file or rateint
 endif
 
 
-if (type eq 3) then begin       ; working with rate or cal file 
+if (type eq 2) then begin       ; working with rate or cal file 
    ; first check if rate file selected
    rate = '_rate'
    cal = '_cal'
    info.jwst_control.dirout = realpath    
    check = strpos(out_filebase,rate)
+   print,'check rate',check
    if(check gt 0) then begin
       out_file = strmid(out_filebase,0,check)
    endif else begin             ; could not find '_rate' so look for '_cal'
-      check = strpos(out_filebase,cal)
-      if (check gt 0) then begin
+      check2 = strpos(out_filebase,cal)
+      if (check2 gt 0) then begin
          out_file = strmid(out_filebase,0,check)
-      endif
+      endif else begin
+         error_message = ' You did not open a Rate or Cal File, try again'
+         status = 1
+         return
+      endelse
    endelse 
 
    info.jwst_control.filebase = out_file
@@ -139,7 +148,7 @@ info.jwst_control.filename_linearity = info.jwst_control.filebase + '_linearity'
 info.jwst_control.filename_dark = info.jwst_control.filebase + '_dark_current'+fitname
 info.jwst_control.filename_reset = info.jwst_control.filebase + '_reset'+fitname
 info.jwst_control.filename_rscd = info.jwst_control.filebase + '_rscd'+fitname
-info.jwst_control.filename_refpix = info.jwst_control.filebase + '_rscd'+fitname
+info.jwst_control.filename_refpix = info.jwst_control.filebase + '_refpix'+fitname
 info.jwst_control.filename_lastframe = info.jwst_control.filebase + '_lastframe'+fitname
 info.jwst_control.filename_fitopt = info.jwst_control.filebase + '_fitopt'+fitname
 info.jwst_control.filename_slope_refimage = 'none'

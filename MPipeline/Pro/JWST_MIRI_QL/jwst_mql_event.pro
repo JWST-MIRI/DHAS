@@ -352,7 +352,7 @@ endif
             reset_data = (*info.jwst_image.preset_pixeldata)
             if ptr_valid (info.jwst_image_pixel.preset_pixeldata) then $
               ptr_free,info.jwst_image_pixel.preset_pixeldata
-            info.jwst_image_pixel.reset_pixeldata = ptr_new(reset_data)
+            info.jwst_image_pixel.preset_pixeldata = ptr_new(reset_data)
             reset_data = 0
          endif
 
@@ -819,8 +819,8 @@ endif
 
             jwst_mql_update_zoom_pixel_location,xvalue,yvalue,update,info
 
-               ; redefine the center of the zoom image - if later
-               ; want to zoom: x_zoom_pos & y_zoom_pos  
+             ; redefine the center of the zoom image - if later
+             ; want to zoom: x_zoom_pos & y_zoom_pos  
                
             x = (xvalue)/info.jwst_image.scale_zoom
             y = (yvalue)/info.jwst_image.scale_zoom

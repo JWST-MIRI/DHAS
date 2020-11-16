@@ -244,10 +244,10 @@ QuitMenu = widget_button(menuBar,value="Quit",font = fontname2)
 loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames, Rate and Calibrated Images",$
                                 uvalue='JWST_LoadI',font=fontname3)
 
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images (SCI, ERROR, DQ)",$
                                 uvalue='JWST_LoadR',font=fontname3)
 
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Rate Int Images",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Rate Int Images (SCI, ERROR, DQ)",$
                                 uvalue='JWST_LoadS',font=fontname3)
 
 
