@@ -3,23 +3,25 @@
 pro jwst_msql_update_slope,data_plane,win,info,ps = ps,eps = eps
 ;_______________________________________________________________________
 loadct,info.col_table,/silent
+; data plane 0  rate
+; data plane 1  error
+; data plane 2  dq
 
 
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
-i = info.jwst_slope.integrationNO
+;i = info.jwst_slope.integrationNO[win]
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-if(data_plane le 2) then begin
-   stat = info.jwst_data.ratefinal_stat[*,data_plane]
-   frame_image[*,*] = (*info.jwst_data.pratefinal)[*,*,data_plane]
+if (win eq 0) then begin 
+   stat = info.jwst_data.rate1_stat[*,data_plane]
+   frame_image[*,*] = (*info.jwst_data.prate1)[*,*,data_plane]
 endif
 
-if(data_plane ge 3) then begin
-   dplane = data_plane - 3
-   stat = info.jwst_data.rateint_stat[*,dplane]
-   frame_image[*,*] = (*info.jwst_data.prateint)[*,*,dplane]
+if(win eq 1) then begin 
+   stat = info.jwst_data.rate2_stat[*,data_plane]
+   frame_image[*,*] = (*info.jwst_data.prate2)[*,*,data_plane]
 endif
 
 info.jwst_slope.graph_range[win,0] = stat[5]

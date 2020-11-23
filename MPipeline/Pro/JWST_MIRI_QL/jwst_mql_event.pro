@@ -607,7 +607,7 @@ endif
         
         if(info.jwst_image.x_zoom ge xsize) then info.jwst_image.x_zoom = xsize -1 
         if(info.jwst_image.y_zoom ge ysize) then info.jwst_image.y_zoom = ysize - 1
-         jwst_mql_update_zoom_image,info
+         jwst_mql_update_zoomimage,info
 
 ; If the Frame values for pixel window is open - destroy
         if(XRegistered ('mpixel')) then begin

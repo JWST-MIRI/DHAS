@@ -53,8 +53,8 @@ case 1 of
         info.jwst_image.y_pos = (info.jwst_data.image_ysize/info.jwst_image.binfactor)/2.0
         ; read in the data
         jwst_setup_intermediate,info ; ramp data, slope data, and  all intemediate data 
-        jwst_setup_slope_final,info,0,status
-        jwst_setup_slope_int,info,0,0
+        jwst_setup_slope_final,info,0,status  ;preduced
+        jwst_setup_slope_int,info,0,0         ;preducedint
         jwst_setup_cal,info,0
 
         xvalue = info.jwst_image.x_pos * info.jwst_image.binfactor
@@ -90,8 +90,29 @@ case 1 of
         if(XRegistered ('jwst_misql')) then begin
            widget_control,info.jwst_InspectSlope,/destroy
         endif
-        jwst_setup_slope_final,info,1,status
-        jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
+        info.jwst_slope.integrationNO[0] = -1 ; final rate image 
+        info.jwst_slope.plane[0] = 0 ; rate 
+        info.jwst_slope.integrationNO[1] = 0
+        jwst_setup_slope_final,info,1,status  ; default set first image to Final Rate
+        jwst_setup_slope_int,info,info.jwst_slope.integrationNO[1],1 ; fills in prate2 is *rate_ints.fits exist - if not return
+        if (info.jwst_control.file_slope_int_exist eq 1) then begin
+           info.jwst_slope.plane[1] = 0; integration rate
+        endif else begin 
+           ; jwst_setup_slope_int could not fill in prate2 image
+           ; set prate2 to final error
+
+           stats = info.jwst_data.rate1_stat
+           slopedata = (*info.jwst_data.prate1)
+           if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
+           info.jwst_data.prate2 = ptr_new(slopedata)
+           info.jwst_data.rate2_stat = stats
+           info.jwst_slope.integrationNO[1] = -1
+           info.jwst_slope.plane[1] = 2 ; error 
+           slopedata = 0
+           stats = 0 
+        endelse
+
+
         jwst_find_slope_binfactor,info
         jwst_msql_display_slope,info
      end

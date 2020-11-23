@@ -46,18 +46,20 @@ jwst_data={jwst_datai, $
 	rwin                : 0L, $, header widget window
 	pimagedata          : ptr_new(),$ ;pointer to image cube         
         prefdata            : ptr_new(),$ ;pointer to ref image cube         
-        preduced            : ptr_new(),$ ; pointer to slope data for mql_display
+        preduced            : ptr_new(),$ ; pointer to slope data for jwst_mql_display
         reduced_stat        : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
-        preduced_cal        : ptr_new(),$ ; pointer to slope data for mql_display
-        reduced_cal_stat    : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
-        preducedint         : ptr_new(),$ ; pointer to slope data for mql_display
+        preducedint         : ptr_new(),$ ; pointer to slope data for jwst_mql_display
         reducedint_stat     : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
-        pratefinal          : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display
-        ratefinal_stat      : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
-        prateint            : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display
-        rateint_stat        : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
+        preduced_cal        : ptr_new(),$ ; pointer to slope data for jwst_mql_display
+        reduced_cal_stat    : fltarr(8,3),$ ; slope statistics (mean,st dev,min,max):
+        prate1              : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display - window 1
+        rate1_stat          : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
+        prate2              : ptr_new(),$ ; pointer to combined rate,error,dq  data for msql_display - window 2
+        rate2_stat          : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
         pslopedata_all      : ptr_new(),$  ; pointer to slope data
-        pcaldata            : ptr_new(),$ ; pointer to slope data
+        pratefinal          : ptr_new(),$ ; pointer to combined rate,error,dq  data for jwst_mcql_display
+        ratefinal_stat      : fltarr(8,3),$ ; final rate  statistics (mean,st dev,min,max):
+        pcaldata            : ptr_new(),$ ; pointer to cal data for jwst_mcql_display
         cal_stat            : fltarr(8,6),$ ; cal statistics (mean,st dev,min,max):
         pcaldata_all      : ptr_new()}  ; pointer to slope data
 
@@ -278,7 +280,7 @@ jwst_slope = {jwst_slopei,                $
 	   xwindowsize         : 0,$
 	   ywindowsize         : 0,$
 	   plane               : intarr(3),$
-	   integrationNO       : 0,$	
+	   integrationNO       : intarr(2),$	
 	   binfactor           : 0.0,$
 	   scale_zoom          : 0.0,$
 	   scale_inspect       : 0,$
@@ -299,7 +301,7 @@ jwst_slope = {jwst_slopei,                $
            graphID22           : 0,$
            default_scale_graph : intarr(3,1),$
            graph_range         : fltarr(3,2),$
-           integration_label   : 0L,$ ; Button to allow flipping through integrations
+           integration_label   : intarr(2),$ ; Button to allow flipping through integrations
            compare_label   : 0L,$ ; Button set compare integration
            slabelID            : lonarr(3),$ 
            rlabelID            : lonarr(3,2),$ 
@@ -339,12 +341,12 @@ jwst_slope = {jwst_slopei,                $
            pixmapID            : intarr(3),$
 	   srange_base         : lonarr(3),$
 	   plot_base           : lonarr(3),$
-           pix_statID          : lonarr(4),$
-           pix_statLabel       : strarr(4),$
-           pix_statFormat      : strarr(4),$
-           pix_statLabel3      : strarr(3),$
-           pix_statFormat3     : strarr(3),$
-           pix_statID3         : lonarr(3)}
+           pix_statID1         : lonarr(3),$
+           pix_statLabel1      : strarr(3),$
+           pix_statFormat1     : strarr(3),$
+           pix_statLabel2      : strarr(3),$
+           pix_statFormat2     : strarr(3),$
+           pix_statID2         : lonarr(3)}
 
 ;***********************************************************************
 jwst_inspect = {jwst_inspecti,$

@@ -26,33 +26,29 @@ hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 planenum = info.jwst_slope.plane[2] 
-
 zoom = info.jwst_slope.scale_zoom
-i = info.jwst_slope.integrationNO
 
 xdata_end = info.jwst_data.slope_xsize
 ydata_end = info.jwst_data.slope_ysize
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-;print,'plane num for zoom window',planenum
-if(planenum le 2) then  frame_image[*,*] = (*info.jwst_data.pratefinal)[*,*,planenum]
-if(planenum ge 3) then  frame_image[*,*] = (*info.jwst_data.prateint)[*,*,planenum-3]
-    if(info.jwst_slope.default_scale_graph[2] eq 1) then begin    
 
-        info.jwst_slope.graph_range[2,0] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,0]
-        info.jwst_slope.graph_range[2,1] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,1]
-    endif
-;endelse
+if(info.jwst_slope.default_scale_graph[2] eq 1) then begin    
+   info.jwst_slope.graph_range[2,0] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,0]
+   info.jwst_slope.graph_range[2,1] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,1]
+endif
 
-
-if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
-if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 
-if(planenum eq 2) then szoom = "Zoom Centered on Final DQ       " 
-
-if(planenum eq 3) then szoom = "Zoom Centered on Int Rate     " 
-if(planenum eq 4) then szoom = "Zoom Centered on Int Error    " 
-if(planenum eq 5) then szoom = "Zoom Centered on Int DQ       " 
-
+if(info.jwst_slope.integrationNO(info.jwst_slope.zoom_window-1) eq -1) then begin
+   frame_image[*,*] = (*info.jwst_data.prate1)[*,*,planenum] 
+   if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
+   if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 
+   if(planenum eq 2) then szoom = "Zoom Centered on Final DQ       " 
+endif else begin
+   frame_image [*,*] = (*info.jwst_data.prate2)[*,*,planenum]
+   if(planenum eq 0) then szoom = "Zoom Centered on Int Rate     " 
+   if(planenum eq 1) then szoom = "Zoom Centered on Int Error    " 
+   if(planenum eq 2) then szoom = "Zoom Centered on Int DQ       " 
+endelse
 
 x = info.jwst_slope.x_zoom
 y = info.jwst_slope.y_zoom

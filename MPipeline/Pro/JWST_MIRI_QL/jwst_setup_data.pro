@@ -90,7 +90,9 @@ end
 ;***********************************************************************
 pro jwst_setup_slope_int,info,integrationNO,type
 ;_______________________________________________________________________
-
+; read in slope integration
+; type = 0: raw, rate, rate int and cal image display
+; type = 1: rate, rate int
 slope_exists = 0
 status = 0 & error_message = " "
 info.jwst_data.slope_int_exist = 0  
@@ -120,9 +122,9 @@ if(type eq 0) then begin
 endif
 
 if(type eq 1) then begin 
-   if ptr_valid (info.jwst_data.prateint) then ptr_free,info.jwst_data.prateint
-   info.jwst_data.prateint = ptr_new(slopedata)
-   info.jwst_data.rateint_stat = stats
+   if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
+   info.jwst_data.prate2 = ptr_new(slopedata)
+   info.jwst_data.rate2_stat = stats
 endif
 
 
@@ -136,9 +138,9 @@ pro jwst_setup_slope_final,info,type,status
 status = 0
 ;_______________________________________________________________________
 ; read in slope data
-; type = 0 Read slope for Frame display jwst_mql
-; type = 1 Read slope for Rate display jwst_msql
-; type = 2 Read final rate and cal jwst_mcql
+; type = 0 Read slope for Frame display jwst_mql - fill in preduced
+; type = 1 Read slope for Rate display jwst_msql - fill in prate1 (default)
+; type = 2 Read final rate and cal jwst_mcql     - fill in pratefinal
 ;_______________________________________________________________________
 
 slope_exists = 0
@@ -174,7 +176,16 @@ if (type eq 0) then begin ; set up data for jwst_mql_display
 endif 
 
 
-if (type eq 1 or type eq 2) then begin ; set up data for jwst_msql_display or jwst_mcql_display
+if (type eq 1 ) then begin ; set up data for jwst_msql_display - default image 1 is rate image
+   if ptr_valid (info.jwst_data.prate1) then ptr_free,info.jwst_data.prate1
+   info.jwst_data.prate1 = ptr_new(slopedata)
+   info.jwst_data.rate1_stat = stats
+
+   jwst_header_setup,1,info 
+   jwst_header_setup_slope,1,info
+endif 
+
+if (type eq 2) then begin ; set up data for jwst_mcql_display
    if ptr_valid (info.jwst_data.pratefinal) then ptr_free,info.jwst_data.pratefinal
    info.jwst_data.pratefinal = ptr_new(slopedata)
    info.jwst_data.ratefinal_stat = stats
