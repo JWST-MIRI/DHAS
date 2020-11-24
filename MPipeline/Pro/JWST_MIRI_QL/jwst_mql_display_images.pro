@@ -13,7 +13,6 @@ widget_control,tinfo.info.jwst_QuickLook,Get_UValue=info
 if( XRegistered ('jwst_mql')) then begin ; channel image display
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
-
 end
 
 ; _______________________________________________________________________
@@ -187,8 +186,8 @@ hcMenu = widget_button(hmenu,value="Display Calibrated Header",uvalue='cheader')
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Statistics on Images",uvalue = 'Stat')
 
-slopeMenu = widget_button(menuBar,value="Reduced Data",font = info.font2)
-slopebutton = widget_button(slopemenu,value="Display Reduced Data",uvalue = 'LoadS')
+;slopeMenu = widget_button(menuBar,value="Reduced Data",font = info.font2)
+;slopebutton = widget_button(slopemenu,value="Display Reduced Data",uvalue = 'LoadS')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
 cbutton = widget_button(cMenu,value = "Compare Science Frame to another Science Frame",uvalue = 'compare')
@@ -512,7 +511,7 @@ info.jwst_image.pix_statLabel = ["Frame Value"]
 info.jwst_image.pix_statFormat =  ["F10.2"]
 
 info.jwst_image.pix_statLabel1 = ["Final Rate (DN/s)", $
-                                 "Error (DN/s)",$
+                                 "Error ",$
                                  "DQ Flag"]
 
 info.jwst_image.pix_statFormat1 =  ["F12.5", "F12.5","I10"]
@@ -528,8 +527,8 @@ endfor
 if(info.jwst_control.file_slope_int_exist eq 1) then begin 
    pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
 
-   info.jwst_image.pix_statLabel2 = ["Int   Rate (DN/s)", $
-                                    "Error (DN/s)",$
+   info.jwst_image.pix_statLabel2 = ["Int Rate   (DN/s)", $
+                                    "Error ",$
                                     "DQ Flag"]
 
    info.jwst_image.pix_statFormat2 =  ["F12.5", "F12.5","I10"]
@@ -543,8 +542,8 @@ endif
 if(info.jwst_control.file_cal_exist eq 1) then begin 
    pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
 
-   info.jwst_image.pix_statLabel3 = ["Cal        (DN/s)", $
-                                    "Error (DN/s)",$
+   info.jwst_image.pix_statLabel3 = ["Cal      (MJy/sr)", $
+                                    "Error ",$
                                     "DQ Flag"]
 
    info.jwst_image.pix_statFormat3 =  ["F12.5", "F12.5","I10"]
@@ -565,6 +564,9 @@ info_label = widget_button(info_base,value = 'DQ flag values',uvalue = 'datainfo
 rate_option = 'Final Rate Image'
 rate_int_option = 'Integration Rate Image'
 cal_option = 'Calibrated Image'
+info.jwst_image.data_type[0] = 1
+info.jwst_image.data_type[1] = 2
+info.jwst_image.data_type[2] = 3
 if(info.jwst_control.file_slope_exist eq 0) then  rate_option= " No Final Rate Image Exist" 
 if(info.jwst_control.file_slope_int_exist eq 0) then rate_int_option= " No Final Rate Image Exist" 
 if(info.jwst_control.file_cal_exist eq 0) then cal_option= " No Calibrated Image Exist" 

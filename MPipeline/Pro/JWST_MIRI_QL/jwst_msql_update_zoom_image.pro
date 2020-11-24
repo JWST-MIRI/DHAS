@@ -38,7 +38,7 @@ if(info.jwst_slope.default_scale_graph[2] eq 1) then begin
    info.jwst_slope.graph_range[2,1] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,1]
 endif
 
-if(info.jwst_slope.integrationNO(info.jwst_slope.zoom_window-1) eq -1) then begin
+if(info.jwst_slope.data_type(info.jwst_slope.zoom_window-1) eq 1) then begin
    frame_image[*,*] = (*info.jwst_data.prate1)[*,*,planenum] 
    if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
    if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 

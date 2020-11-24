@@ -109,12 +109,11 @@ if (type eq 2) then begin       ; working with rate or cal file
    rate = '_rate'
    cal = '_cal'
    info.jwst_control.dirout = realpath    
-   check = strpos(out_filebase,rate)
-   print,'check rate',check
+   check = strpos(out_filebase,cal)
    if(check gt 0) then begin
       out_file = strmid(out_filebase,0,check)
-   endif else begin             ; could not find '_rate' so look for '_cal'
-      check2 = strpos(out_filebase,cal)
+   endif else begin             ; could not find '_cal' so look for '_rate'
+      check2 = strpos(out_filebase,rate)
       if (check2 gt 0) then begin
          out_file = strmid(out_filebase,0,check)
       endif else begin

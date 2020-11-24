@@ -30,21 +30,10 @@ case 1 of
         jwst_display_header,info,0
     end
 
-; calibrated header 
-    (strmid(event_name,0,7) EQ 'cheader') : begin
-        if(info.jwst_control.file_cal_exist eq 0) then begin
-            ok = dialog_message(" No calibration image exists",/Information)
-        endif else begin
-            jwst_display_header,info,1
-        endelse
-    end
 ;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'compare') : begin
         info.jwst_rcompare.uwindowsize = 0
         info.jwst_crinspect[*].uwindowsize = 1
-
-
-        print,'planes',info.jwst_slope.plane[0], info.jwst_slope.plane[1]
 
         test1 = info.jwst_slope.plane[0]
         test2 = info.jwst_slope.plane[1]
@@ -83,9 +72,6 @@ case 1 of
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
-
-
-
 ;_______________________________________________________________________
 ; print
     (strmid(event_name,0,5) EQ 'print') : begin
@@ -99,16 +85,11 @@ case 1 of
 ;_______________________________________________________________________
 ; inspect image
     (strmid(event_name,0,7) EQ 'inspect') : begin
-        if(info.jwst_control.file_slope_exist eq 0) then begin
-            ok = dialog_message(" No slope image exists",/Information)
-            return
-        endif
+
         type = fix(strmid(event_name,8,1))
 	if(type eq 1) then begin 
-
             info.jwst_inspect_slope.integrationNO = info.jwst_slope.integrationNO[0]
             frame_image = (*info.jwst_data.prate1)
-
             if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
             info.jwst_inspect_slope.pdata = ptr_new(frame_image)
             frame_image = 0 
@@ -117,6 +98,7 @@ case 1 of
             info.jwst_inspect_slope.plane = info.jwst_slope.plane[0]
             info.jwst_inspect_slope.zoom = 1
             info.jwst_inspect_slope.zoom_x = 1
+            info.jwst_inspect_slope.data_type = info.jwst_slope.data_type[0]
             info.jwst_inspect_slope.x_pos =(info.jwst_data.slope_xsize)/2.0
             info.jwst_inspect_slope.y_pos = (info.jwst_data.slope_ysize)/2.0
             
@@ -143,6 +125,7 @@ case 1 of
             all_data = 0
 
             info.jwst_inspect_slope2.plane = info.jwst_slope.plane[1]
+            info.jwst_inspect_slope2.data_type = info.jwst_slope.data_type[0]
             info.jwst_inspect_slope2.zoom = 1
             info.jwst_inspect_slope2.zoom_x = 1
             info.jwst_inspect_slope2.x_pos =(info.jwst_data.slope_xsize)/2.0
@@ -215,7 +198,6 @@ case 1 of
            graphnum = fix(strmid(event_name,6,1))
            ; set the zoom plane number
            info.jwst_slope.plane[2] = info.jwst_slope.plane[graphnum-1]
-           print,'jwst_msql_event',info.jwst_slope.plane[2]
 
            xvalue = event.x     ; starts at 0
            yvalue = event.y     ; starts at 0
@@ -288,30 +270,6 @@ case 1 of
        endif
    end
 ;_______________________________________________________________________
-   
-   (strmid(event_name,0,8) EQ 'getframe') : begin
-	x = info.jwst_slope.x_pos * info.jwst_slope.binfactor
-	y = info.jwst_slope.y_pos * info.jwst_slope.binfactor
-
-        ; check and see if read in all frame values for pixel
-        ; if not then read in
-
-        pixeldata = (*info.jwst_slope.pixeldata)
-
-        size_data = size(pixeldata)
-        if(size_data[0] eq 0) then return
-
-        info.jwst_image_pixel.nints = info.jwst_data.nints
-        info.jwst_image_pixel.slope = (*info.jwst_data.pslopedata)[x,y,0]
-
-        info.jwst_image_pixel.uncertainty =  (*info.jwst_data.pslopedata)[x,y,1]
-        info.jwst_image_pixel.quality_flag =  (*info.jwst_data.pslopedata)[x,y,2]
-
-        info.jwst_image_pixel.filename = info.jwst_control.filename_slope
-
-	display_frame_values,x,y,info,0
-    end
-;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
        jwst_dqflags,info
     end
@@ -327,9 +285,9 @@ case 1 of
         endif
 
 	if(graphno eq 1)then  $
-        jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+        jwst_msql_update_slope,0,info
 	if(graphno eq 2)then  $
-        jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+        jwst_msql_update_slope,1,info
 	if(graphno eq 3)then  $
         jwst_msql_update_zoom_image,info
 
@@ -359,9 +317,9 @@ case 1 of
         widget_control,info.jwst_slope.image_recomputeID[graph_num-1],set_value='Default Scale'
 
 	if(graph_num eq 1) then $
-          jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+          jwst_msql_update_slope,0,info
 	if(graph_num eq 2) then $
-          jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+          jwst_msql_update_slope,1,info
 	if(graph_num eq 3) then $
           jwst_msql_update_zoom_image,info
 
@@ -386,8 +344,8 @@ case 1 of
     
 ; redraw box
 
-        if(info.jwst_slope.current_graph eq 0) then jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
-        if(info.jwst_slope.current_graph eq 1) then jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+        if(info.jwst_slope.current_graph eq 0) then jwst_msql_update_slope,0,info
+        if(info.jwst_slope.current_graph eq 1) then jwst_msql_update_slope,1,info
 
         jwst_msql_draw_zoom_box,info
 
@@ -395,24 +353,6 @@ case 1 of
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info    
     end
 
-;_______________________________________________________________________
-
-;_______________________________________________________________________
-
-; Change automatically reading pixels values and plotting ramp data
-;_______________________________________________________________________
-
-    (strmid(event_name,0,4) EQ 'auto') : begin
-        if(event.index eq 0) then begin
-            info.jwst_slope.autopixelupdate = 1
-            widget_control,info.jwst_slope.updatingID, set_value = 'Click on a pixel to plot ramp'
-        endif
-
-        if(event.index ne 0) then begin
-            info.jwst_slope.autopixelupdate = 0
-            widget_control,info.jwst_slope.updatingID, set_value = 'Not updating plot'
-        endif
-    end
 ;_______________________________________________________________________
 ; change x and y range of slope pixel  graph
 ;_______________________________________________________________________
@@ -467,7 +407,6 @@ case 1 of
 ;_______________________________________________________________________
     (strmid(event_name,0,3) EQ 'pix') : begin
 
-
         xsize = info.jwst_data.slope_xsize
         ysize = info.jwst_data.slope_ysize
         xvalue = info.jwst_slope.x_pos* info.jwst_slope.binfactor
@@ -482,36 +421,26 @@ case 1 of
             xvalue = event.value ; event value - user input starts at 1 
 
             if(xvalue lt 1) then xvalue = 1
-            
             if(xvalue gt xsize) then xvalue = xsize
-
             pixel_xvalue = float(xvalue)-1.0
 
             ; check what is in y box 
             widget_control,info.jwst_slope.pix_label[1],get_value =  ytemp
             yvalue = ytemp
             if(yvalue lt 1) then yvalue = 1
-            
             if(yvalue gt ysize) then yvalue = ysize
-          
             pixel_yvalue = float(yvalue)-1
-
-
         endif
         if(strmid(event_name,4,1) eq 'y') then begin
             yvalue = event.value ; event value - user input starts at 1
             if(yvalue lt 1) then yvalue = 1
             if(yvalue gt ysize) then yvalue = ysize
-            
             pixel_yvalue = float(yvalue)-1
-
             ; check what is in x box 
             widget_control,info.jwst_slope.pix_label[0], get_value= xtemp
             xvalue = xtemp
             if(xvalue lt 1) then xvalue = 1
-            
             if(xvalue gt xsize) then xvalue = xsize
-           
             pixel_xvalue = float(xvalue)-1.0
         endif
 
@@ -593,7 +522,9 @@ case 1 of
            value = event.index
            if (value le 2) then begin
               this_int = -1
+              info.jwst_slope.data_type[0] = 1
            endif else begin
+              info.jwst_slope.data_type[0] = 2
               this_int = info.jwst_slope.integrationNo[0]
               if(this_int eq -1) then this_int = 0
            endelse
@@ -603,7 +534,7 @@ case 1 of
               jwst_msql_moveframe,info,0
            endif else begin     ; just update the image 
               info.jwst_slope.default_scale_graph[0] = 1
-              jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+              jwst_msql_update_slope,0,info
            endelse
            
            if(info.jwst_slope.zoom_window eq 1) then  begin
@@ -617,9 +548,11 @@ case 1 of
            value = event.index
            if (value le 2) then begin
               this_int = -1
+              info.jwst_slope.data_type[1] = 1
            endif else begin
               this_int = info.jwst_slope.integrationNo[1]
               if(this_int eq -1) then this_int = 0
+              info.jwst_slope.data_type[1] = 2
            endelse
            info.jwst_slope.plane[1] = plane
            if(this_int ne info.jwst_slope.integrationNo[1]) then begin
@@ -627,7 +560,7 @@ case 1 of
               jwst_msql_moveframe,info,1
            endif else begin     ; just update the image 
               info.jwst_slope.default_scale_graph[1] = 1
-              jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+              jwst_msql_update_slope,1,info
            endelse
            if(info.jwst_slope.zoom_window eq 2) then begin
               info.jwst_slope.plane[2] = plane
@@ -636,7 +569,6 @@ case 1 of
         endif
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-
         jwst_msql_update_pixel_stat_slope,info
     end
 

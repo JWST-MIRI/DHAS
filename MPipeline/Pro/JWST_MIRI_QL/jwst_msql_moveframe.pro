@@ -19,9 +19,9 @@ pro jwst_msql_moveframe,info,win
 jwst_msql_cleanup_widgets,info
  
 jintegration = info.jwst_slope.integrationNO[win]
+data_type = info.jwst_slope.data_type[win]
 
-print,'in jwst msql_moveframe', jintegration
-if(jintegration eq -1) then begin 
+if(data_type eq 1) then begin 
    jwst_read_final_slope,info.jwst_control.filename_slope,slope_exists,$
                          info.jwst_data.subarray,slopedata,$
                          slope_xsize,slope_ysize,$
@@ -42,7 +42,7 @@ if(win eq 0) then begin
    if ptr_valid (info.jwst_data.prate1) then ptr_free,info.jwst_data.prate1
    info.jwst_data.prate1 = ptr_new(slopedata)
    info.jwst_data.rate1_stat = stats
-   jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+   jwst_msql_update_slope,0,info
    widget_control,info.jwst_slope.integration_label[0],set_value= fix(jintegration+1)
 endif
 
@@ -50,7 +50,7 @@ if(win eq 1) then begin
    if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
    info.jwst_data.prate2 = ptr_new(slopedata)
    info.jwst_data.rate2_stat = stats
-   jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+   jwst_msql_update_slope,1,info
    widget_control,info.jwst_slope.integration_label[1],set_value= fix(jintegration+1)
 endif
 

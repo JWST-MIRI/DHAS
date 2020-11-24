@@ -50,7 +50,6 @@ endif
 end
 
 ;***********************************************************************
-
 pro jwst_find_slope_binfactor,info
 
 info.jwst_slope.scale_zoom = 1.0
@@ -94,6 +93,55 @@ if(info.jwst_data.subarray ne 0) then begin
     endif
     if(image_size eq 864) then begin
         info.jwst_slope.binfactor = 4.0
+    endif
+endif 
+
+end
+
+;***********************************************************************
+pro jwst_find_cal_binfactor,info
+
+info.jwst_cal.scale_zoom = 1.0
+info.jwst_cal.scale_inspect = 1.0
+
+info.jwst_cal.binfactor = info.binfactor ; set default 
+
+if(info.jwst_data.subarray ne 0) then begin
+ image_size = info.jwst_data.slope_xsize
+ if(info.jwst_data.slope_ysize gt image_size) then image_size = info.jwst_data.slope_ysize
+
+   ; default for subarray less than or =  256
+    if(image_size le 256) then info.jwst_cal.binfactor = 1.0
+
+    if(image_size gt 256 ) then begin
+	info.jwst_cal.binfactor = image_size/256
+    endif
+
+    if(image_size lt  256 ) then begin
+	info.jwst_cal.binfactor = 256/image_size
+    endif
+
+; look at specific subarrays smaller than 256
+    if(image_size eq 16 ) then begin
+        info.jwst_cal.binfactor = 1.0/16.0
+        info.jwst_cal.scale_zoom = 16
+    endif
+    if(image_size eq 32 or image_size eq 36) then begin
+        info.jwst_cal.binfactor = 1.0/8.0
+        info.jwst_cal.scale_zoom = 8
+    endif
+
+    if(image_size eq 64 or image_size eq 68) then begin
+        info.jwst_cal.binfactor = 1.0/4.0
+        info.jwst_cal.scale_zoom = 4
+    endif
+
+    if(image_size eq 128 or image_size eq 132) then begin
+        info.jwst_cal.binfactor = 1.0/2.0
+        info.jwst_cal.scale_zoom = 2
+    endif
+    if(image_size eq 864) then begin
+        info.jwst_cal.binfactor = 4.0
     endif
 endif 
 

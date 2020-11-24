@@ -1012,10 +1012,18 @@ endif
         info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
 
         frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
-        if(info.jwst_image.plane eq 0) then frame_image = (*info.jwst_data.preduced)
-        if(info.jwst_image.plane eq 1) then frame_image = (*info.jwst_data.preducedint)
-        if(info.jwst_image.plane eq 2) then frame_image = (*info.jwst_data.preduced_cal)
-
+        if(info.jwst_image.plane eq 0) then begin
+           frame_image = (*info.jwst_data.preduced)
+           info.jwst_inspect_slope.data_type = 1
+        endif
+        if(info.jwst_image.plane eq 1) then begin
+           frame_image = (*info.jwst_data.preducedint)
+           info.jwst_inspect_slope.data_type = 2
+        endif
+        if(info.jwst_image.plane eq 2) then begin
+           frame_image = (*info.jwst_data.preduced_cal)
+           info.jwst_inspect_slope.data_type = 3
+        endif
         if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
         info.jwst_inspect_slope.pdata = ptr_new(frame_image)
         frame_image = 0

@@ -9,11 +9,11 @@ end
 ; If type = 0 called from image display. 
 ; Raw Header, Final Slope Header, Int Slope header, Calibrated header
 
-; If type = 1 callled from rate & calibration  display. 
-;Display slope + cal (if exist)  
+; If type = 1 callled from rate & rate int   display. 
+;Display rate (if exist)  
 
-; If type = 2 callled from rate & rate int
-;  Display slope + cal (if exist)  
+; If type = 2 callled from rate & cal 
+;  Display rate + cal (if exist)  
 
 ;***********************************************************************
 pro jwst_header_setup,type,info ; default type = 0 (only set up for Primary header
@@ -34,18 +34,17 @@ if(type eq 0) then begin ; called from Image Frame Display
     ;if(info.jwst_control.file_cal_exist) then chead = 1
 endif
 
-if(type eq 1) then begin ; final slope + calibration image
+if(type eq 2) then begin ; final slope + calibration image
     shead = 1
     chead = 1
-    ;if(info.jwst_control.file_cal_exist) then chead = 1
     num = 2 
  endif
 
-if(type eq 2) then begin ; final slope +  slope integration  image
+if(type eq 1) then begin ; final slope +  slope integration  image
     shead = 1
     num = 1
 endif
-;num =  shead  + chead + rhead
+
 ; clean up header info already loaded
 if (ptr_valid ( (*info.jwst_viewhead)[0] )) then   begin
     old_num = (*(*info.jwst_viewhead)[0]).num
@@ -102,8 +101,8 @@ end
 pro jwst_header_setup_slope,type,info
 
 ; type = 0 calling for Frame display, slope header = 1
-; type = 1 slope and cal display, slope header = 0
-; type = 2 calling for Slope display and slope integration,slope header = 0
+; type = 2 slope and cal display, slope header = 0
+; type = 1 calling for Slope display and slope integration,slope header = 0
 
 
 
@@ -128,13 +127,13 @@ if(type eq 0) then begin  ; 0 = raw, 1 = final slope, 2 = calibration
 endif
 
 
-if(type eq 1) then begin  ; 0 = final slope, 1= calibrated
-   if ptr_valid ((*(*info.jwst_viewhead)[0]).phead) then ptr_free,$
-      (*(*info.jwst_viewhead)[0]).phead
-   (*(*info.jwst_viewhead)[0]).phead= ptr_new(header_slope)
+if(type eq 2) then begin  ; 1 = final slope, 0= calibrated
+   if ptr_valid ((*(*info.jwst_viewhead)[1]).phead) then ptr_free,$
+      (*(*info.jwst_viewhead)[1]).phead
+   (*(*info.jwst_viewhead)[1]).phead= ptr_new(header_slope)
 endif
 
-if(type eq 2 ) then begin  ; 0 = final slope, 1= slope int
+if(type eq 1 ) then begin  ; 0 = final slope
    if ptr_valid ((*(*info.jwst_viewhead)[0]).phead) then ptr_free,$
       (*(*info.jwst_viewhead)[0]).phead
    (*(*info.jwst_viewhead)[0]).phead= ptr_new(header_slope)
@@ -164,17 +163,17 @@ if(nframe eq 1 and nint gt 1) then begin
 endif
 
 
-if(type eq 0) then begin 
+if(type eq 0) then begin ; raw =0, slope = 1, cal = 2
    if ptr_valid ((*(*info.jwst_viewhead)[2]).phead) then ptr_free,$
       (*(*info.jwst_viewhead)[2]).phead
    (*(*info.jwst_viewhead)[2]).phead= ptr_new(header_cal)
 endif
 
 
-if(type eq 1) then begin 
-   if ptr_valid ((*(*info.jwst_viewhead)[1]).phead) then ptr_free,$
-      (*(*info.jwst_viewhead)[1]).phead
-   (*(*info.jwst_viewhead)[1]).phead= ptr_new(header_cal)
+if(type eq 2) then begin 
+   if ptr_valid ((*(*info.jwst_viewhead)[0]).phead) then ptr_free,$
+      (*(*info.jwst_viewhead)[0]).phead
+   (*(*info.jwst_viewhead)[0]).phead= ptr_new(header_cal)
 endif
 
     

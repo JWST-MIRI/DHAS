@@ -35,7 +35,7 @@ nsize = fxpar(header1,'NAXIS',count=count4)
 ;result = 1 ; this does not seem to be working
            ; for some simulated data
            ; FILETYPE is not read in correctly
-print,count2,count3,nsize
+
 if(count2 eq 0 ) then  type  = 0 ;uncal
 if(count2 ne 0 and count3 eq  0) then  type  = 1 ; rate
 if(count2 ne 0 and count3 eq  1) then  type  = 3 ;cal

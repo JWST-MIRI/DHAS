@@ -168,9 +168,9 @@ pro jwst_msql_display_slope,info
 ;_______________________________________________________________________
 window,2,/pixmap
 wdelete,2
-;if(XRegistered ('jwst_msql')) then begin
-;    widget_control,info.jwst_SlopeQuickLook,/destroy
-;endif
+if(XRegistered ('jwst_msql')) then begin
+    widget_control,info.jwst_SlopeQuickLook,/destroy
+endif
 ;*********
 ;Setup main panel
 ;*********
@@ -237,7 +237,6 @@ ysize = info.jwst_data.slope_ysize/info.jwst_slope.binfactor
 info.jwst_slope.xplot_size = fix(xsize)
 info.jwst_slope.yplot_size = fix(ysize)
 
-;info.jwst_slope.integrationNO[*] = info.jwst_control.int_num
 info.jwst_slope.current_graph = 0
 ;*********
 ; Draw Main Display Window
@@ -270,9 +269,9 @@ if(info.jwst_slope.binfactor lt 1.0) then bimage = "Blown up by " + $
 
 info.jwst_slope.bindisplay=[bimage,"Scroll Full Image"] 
 ;_______________________________________________________________________
-voptions = ['Final Rate: ', 'Final Error', 'Final DQ']
-if(info.jwst_control.file_slope_int_exist eq 1) then $
 voptions = ['Final Rate: ', 'Final Error', 'Final DQ','Int Rate','Int Error','Int DQ']
+if(info.jwst_control.file_slope_int_exist eq 0) then voptions = ['Final Rate: ', 'Final Error', 'Final DQ']
+
 
 xsize_label = 9
 ;************************************
@@ -360,7 +359,7 @@ info.jwst_slope.graph_label[1] = widget_droplist(base1,value=voptions,$
                                             uvalue='voption2',font=info.font5)
 slope_bin = widget_label(base1,value = bintitle,font=info.font4)
 value = info.jwst_slope.plane[1]
-if(info.jwst_slope.integrationNO[1] ne -1) then value = value + 3
+if(info.jwst_control.file_slope_int_exist eq 1) then value = value + 3
 widget_control,info.jwst_slope.graph_label[1],set_droplist_select=value
 
 slmean = info.jwst_data.rate2_stat[0,1]
@@ -616,11 +615,6 @@ info.jwst_slope.slope_recomputeID[1] = widget_button(pix_num_base3,value=' Plot 
 info.jwst_slope.slope_range = slope_range
 
 
-;_______________________________________________________________________
-
-
-
-
 ;Set up the GUI
 longline = '                                                                                                                        '
 longtag = widget_label(SlopeQuicklook,value = longline)
@@ -653,13 +647,13 @@ endfor
 loadct,info.col_table,/silent
 
 ; plot first image - defaulted to slope
-jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+jwst_msql_update_slope,0,info
 
 ; plot second plane - defaulted to error 
-jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+jwst_msql_update_slope,1,info
 
 ;plot zoom image 
-info.jwst_slope.plane[2] = 0 ; default to slope image
+info.jwst_slope.plane[2] = 0 ; default to image in window 1
 info.jwst_slope.zoom_window = 1
 info.jwst_slope.x_zoom = info.jwst_slope.x_pos* info.binfactor
 info.jwst_slope.y_zoom = info.jwst_slope.y_pos* info.binfactor

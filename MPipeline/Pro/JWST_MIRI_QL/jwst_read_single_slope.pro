@@ -5,11 +5,10 @@ pro jwst_read_single_slope,filename,exists,this_integration,$
                            image_xsize,image_ysize,stats_image,$
                            status,error_message
 
-;print,'filename',filename
+
 status = 0
 error_message = ''
 slope_data = 0
-print,'in jwst_read_single_slope',this_integration
 exists = 1
 file_exist1 = file_test(filename,/regular,/read)
 if(file_exist1 ne 1 ) then begin

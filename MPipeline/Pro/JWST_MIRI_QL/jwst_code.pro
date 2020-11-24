@@ -49,6 +49,16 @@
 @jwst_msql_event.pro
 @jwst_msql_update_slope.pro
 @jwst_msql_update_zoom_image.pro
+@jwst_msql_cleanup_widgets.pro
+@jwst_msql_moveframe.pro
+
+@jwst_mcql_display_images.pro
+@jwst_mcql_update_images.pro
+@jwst_mcql_update_zoom_image.pro
+@jwst_mcql_event.pro
+@jwst_mcql_display_stat.pro
+@jwst_micalql_display_images.pro ; first window from jwst_mcql_display_images
+@jwst_micalql2_display_images.pro ; second window from jwst_mcql_display_images
 ;@setup_Channel.pro 
 ;@mql_display_Channel.pro       
 ;@mql_update_Channel.pro      
@@ -83,9 +93,6 @@
 ; statistics on data
 ;@get_slope_id_stat.pro
 
-; slope quick look routines
-@jwst_msql_cleanup_widgets.pro
-@jwst_msql_moveframe.pro
 
 ; inspect slope uncertainty mage
 ; compare two images
