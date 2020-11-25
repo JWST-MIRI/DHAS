@@ -50,7 +50,7 @@ pro jwst_cv_image_print, event
              device, file=filename, /landscape,/color, encapsulated=0
              
              if(type eq 0) then jwst_cv_update_cube,cinfo,/ps
-             if(type eq 1) then jwwt_cv_update_image2d,cinfo,/ps
+             if(type eq 1) then jwst_cv_update_image2d,cinfo,/ps
 
              device,/close
              set_plot, 'x'

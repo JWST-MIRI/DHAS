@@ -9,9 +9,7 @@ if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
     info.jwst_cal.uwindowsize = 1
     widget_control,event.top,set_uvalue = ginfo
     widget_control,ginfo.info.jwst_Quicklook,set_uvalue = info
-    jwst_mcql_display_slope,info
-
-    print,'STOOOOOOOOOOO'
+    jwst_mcql_display_images,info
     return
 endif
 

@@ -126,7 +126,7 @@ if(cinfo.imagetype ge 1) then begin
         zoom = cinfo.view_image2d.zoom  
     endif else begin
         result = dialog_message(" You have not selected the wavelength range properly ",/info)
-        cv_coadd_options,cinfo
+        jwst_cv_coadd_options,cinfo
         cinfo.jwst_centroid.fail = 1
         return
     endelse
@@ -137,7 +137,7 @@ indx = where(finite(image) eq 0,nnan)
 
 status = 0
 if(nnan ne 0) then begin
-    cv_image_fill,image,new_image,status,error_message
+    jwst_cv_image_fill,image,new_image,status,error_message
     image = new_image
     new_image  = 0
 endif
