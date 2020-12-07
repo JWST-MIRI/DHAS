@@ -21,12 +21,12 @@ endif
 ;*********
 ;Setup main panel
 ;*********
-i = info.jwst_slope.integrationNO
 
 xstart = 0 & xend = 0 
 ystart = 0 & yend = 0 
 
 stitle = strarr(3)
+sint = strarr(3)
 mean = fltarr(3)
 st_pixel = fltarr(3)
 var = fltarr(3)
@@ -36,15 +36,11 @@ median = fltarr(3)
 st_mean  = fltarr(3)
 
 stitle[0] = " Statistics on Window 1 "
-plane = info.jwst_slope.plane[0]
-if(plane le 2) then begin
-   stat = info.jwst_data.ratefinal_stat
-endif
-if(plane gt 2) then begin
-   stat = info.jwst_data.rateint_stat
-   plane = plane - 3
-endif
+si = strtrim(string(info.jwst_slope.integrationNO[0]+1),2)
+sint[0] = 'Integration: ' + si 
 
+stat = info.jwst_data.rate1_stat
+plane = info.jwst_slope.plane[0]
 mean[0] = stat[0,plane]
 st_pixel[0] = stat[2,plane]
 var[0] = st_pixel[0]*st_pixel[0]
@@ -54,7 +50,7 @@ median[0] =stat[1,plane]
 st_mean[0] = stat[7,plane]
 
 stitle[1] = " Statistics on Zoom Image "
-
+sint[1] = " " 
 mean[1] = info.jwst_slope.zoom_stat[0]
 st_pixel[1] = info.jwst_slope.zoom_stat[1]
 var[1] = st_pixel[1]*st_pixel[1] 
@@ -70,14 +66,10 @@ ystart = info.jwst_slope.y_zoom_start
 yend = info.jwst_slope.y_zoom_end
 
 stitle[2] = " Statistics on Window 2"
+si = strtrim(string(info.jwst_slope.integrationNO[1]+1),2)
+sint[2] = 'Integration: ' + si 
+stat = info.jwst_data.rate2_stat
 plane = info.jwst_slope.plane[1]
-if(plane le 2) then begin
-   stat = info.jwst_data.ratefinal_stat
-endif
-if(plane gt 2) then begin
-   stat = info.jwst_data.rateint_stat
-   plane = plane - 3
-endif
 mean[2] = stat[0,plane]
 st_pixel[2] = stat[2,plane]
 var[2] = st_pixel[2]*st_pixel[1]
@@ -90,9 +82,7 @@ statinfo = widget_base(title="Statisics on Slope Images (without reference pixel
                          col=1,mbar=menuBar,group_leader=info.jwst_SlopeQuickLook,$
                            xsize = 780,ysize = 280,/align_right)
 
-si = strtrim(string(info.jwst_slope.integrationNO+1),2)
-st = 'Integration: ' + si 
-label = widget_label(statinfo,value=st,/align_center,font=info.font5)
+
 
 graphID_master1 = widget_base(statinfo,row=1)
 
@@ -111,6 +101,7 @@ for i = 0,2 do begin
 ;    resbase = Widget_Base(statInfo, /column, /Frame)
     resbase = Widget_Base(graphid[i], /column, /Frame)
     stit  =    stitle[i]
+    si = sint[i]
     smean =    '           Mean:       ' + strtrim(string(mean[i],format="(g14.6)"),2) 
     sdpixel =  'Standard Deviation:    ' +  strtrim(string(st_pixel[i],format="(g14.6)"),2)
     smin =     '            Min:       '+ strtrim(string(min[i],format="(g14.6)"),2) 
@@ -118,6 +109,7 @@ for i = 0,2 do begin
     smed     = '         Median:       '+strtrim( string(median[i],format="(g14.6)"),2)
  
     titlelab = Widget_Label(resbase, Value = stit)
+    ilab = Widget_Label(resbase, Value = si)
     meanlab = Widget_Label(resbase, Value = smean)
     sdplab = Widget_Label(resbase, Value = sdpixel)
     minlab = Widget_Label(resbase, Value = smin)

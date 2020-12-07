@@ -13,7 +13,6 @@ widget_control,tinfo.info.jwst_QuickLook,Get_UValue=info
 if( XRegistered ('jwst_mql')) then begin ; channel image display
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
-
 end
 
 ; _______________________________________________________________________
@@ -37,8 +36,6 @@ ycenter = yvalue + 0.5
 
 box_coords1 = [xcenter,(xcenter+1), $
                ycenter,(ycenter+1)]
-
-
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
 end
@@ -64,24 +61,25 @@ endif
 
 pixelvalue = (*info.jwst_data.pimagedata)[i,j,x,y]
 sp =   strtrim(string(pixelvalue,format="("+info.jwst_image.pix_statFormat[0]+")"),2)
+widget_control,info.jwst_image.pix_statID[0],set_value=info.jwst_image.pix_statLabel[0]+' = ' +sp
 
 ssignal = 'NA'
 serror = 'NA'
 sdq = 'NA'
 if(info.jwst_control.file_slope_exist eq 1) then begin
     signal = (*info.jwst_data.preduced)[x,y,0]
-    ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat[1]+")"),2)
+    ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat1[0]+")"),2)
     error = (*info.jwst_data.preduced)[x,y,1]
-    serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat[2]+")"),2)
+    serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat1[1]+")"),2)
 
     dq = (*info.jwst_data.preduced)[x,y,2]
-    sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat[3]+")"),2)
+    sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat1[2]+")"),2)
 endif
 
-widget_control,info.jwst_image.pix_statID[0],set_value=info.jwst_image.pix_statLabel[0]+' = ' +sp
-widget_control,info.jwst_image.pix_statID[1],set_value=info.jwst_image.pix_statLabel[1]+' = ' +ssignal
-widget_control,info.jwst_image.pix_statID[2],set_value= info.jwst_image.pix_statLabel[2] +' = '+serror
-widget_control,info.jwst_image.pix_statID[3],set_value= info.jwst_image.pix_statLabel[3] +' = '+ sdq
+
+widget_control,info.jwst_image.pix_statID1[0],set_value=info.jwst_image.pix_statLabel1[0]+' = ' +ssignal
+widget_control,info.jwst_image.pix_statID1[1],set_value= info.jwst_image.pix_statLabel1[1] +' = '+serror
+widget_control,info.jwst_image.pix_statID1[2],set_value= info.jwst_image.pix_statLabel1[2] +' = '+ sdq
 
 if(info.jwst_control.file_slope_int_exist eq 1) then begin
    ssignal = 'NA'
@@ -98,6 +96,24 @@ if(info.jwst_control.file_slope_int_exist eq 1) then begin
     widget_control,info.jwst_image.pix_statID2[1],set_value= info.jwst_image.pix_statLabel2[1] +' = '+serror
     widget_control,info.jwst_image.pix_statID2[2],set_value= info.jwst_image.pix_statLabel2[2] +' = '+ sdq
 endif
+
+
+if(info.jwst_control.file_cal_exist eq 1) then begin
+   ssignal = 'NA'
+   serror = 'NA'
+   sdq = 'NA'
+   signal = (*info.jwst_data.preduced_cal)[x,y,0]
+   ssignal =   strtrim(string(signal,format="("+info.jwst_image.pix_statFormat3[0]+")"),2)
+   error = (*info.jwst_data.preduced_cal)[x,y,1]
+   serror =   strtrim(string(error,format="("+info.jwst_image.pix_statFormat3[1]+")"),2)   
+   dq = (*info.jwst_data.preduced_cal)[x,y,2]
+   sdq =   strtrim(string(dq,format="("+info.jwst_image.pix_statFormat3[2]+")"),2)
+
+   widget_control,info.jwst_image.pix_statID3[0],set_value=info.jwst_image.pix_statLabel3[0]+' = ' +ssignal
+   widget_control,info.jwst_image.pix_statID3[1],set_value= info.jwst_image.pix_statLabel3[1] +' = '+serror
+   widget_control,info.jwst_image.pix_statID3[2],set_value= info.jwst_image.pix_statLabel3[2] +' = '+ sdq
+endif
+
 
 end
 
@@ -132,8 +148,8 @@ info.jwst_image.plane_int = 1
 ; widget window parameters
 xwidget_size = 1200
 ywidget_size = 1000
-xsize_scroll = 980
-ysize_scroll = 980
+xsize_scroll = 1100
+ysize_scroll = 950
 
 ;check the maximum size of the windows
 
@@ -165,12 +181,13 @@ quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_mql_quit')
 hMenu = widget_button(menuBar,value=" Header",font = info.font2)
 hrMenu = widget_button(hmenu,value="Display Science Image Header",uvalue = 'rheader')
 hsMenu = widget_button(hmenu,value="Display Rate Header",uvalue='sheader')
+hcMenu = widget_button(hmenu,value="Display Calibrated Header",uvalue='cheader')
 
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Statistics on Images",uvalue = 'Stat')
 
-slopeMenu = widget_button(menuBar,value="Reduced Data",font = info.font2)
-slopebutton = widget_button(slopemenu,value="Display Reduced Data",uvalue = 'LoadS')
+;slopeMenu = widget_button(menuBar,value="Reduced Data",font = info.font2)
+;slopebutton = widget_button(slopemenu,value="Display Reduced Data",uvalue = 'LoadS')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
 cbutton = widget_button(cMenu,value = "Compare Science Frame to another Science Frame",uvalue = 'compare')
@@ -490,24 +507,29 @@ flabel = widget_button(info.jwst_image.infoID00,value="Display a Table of  Frame
                         uvalue = "getframe")
 pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)    
 
-info.jwst_image.pix_statLabel = ["Frame Value",$
-                                 "Final Rate (DN/s)", $
-                                 "Final Error (DN/s)",$
-                                 "Final  DQ Flag"]
+info.jwst_image.pix_statLabel = ["Frame Value"]
+info.jwst_image.pix_statFormat =  ["F10.2"]
 
-info.jwst_image.pix_statFormat =  ["F10.2","F12.5", "F12.5","I10"]
+info.jwst_image.pix_statLabel1 = ["Final Rate (DN/s)", $
+                                 "Error ",$
+                                 "DQ Flag"]
 
-for i = 0,3 do begin  
-    info.jwst_image.pix_statID[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel[i]+$
+info.jwst_image.pix_statFormat1 =  ["F12.5", "F12.5","I10"]
+
+info.jwst_image.pix_statID[0] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel[0]+$
+                                            ' =   ' ,/align_left,/dynamic_resize)
+pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
+for i = 0,2 do begin  
+    info.jwst_image.pix_statID1[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel1[i]+$
                                             ' =   ' ,/align_left,/dynamic_resize)
 endfor
 
 if(info.jwst_control.file_slope_int_exist eq 1) then begin 
-   pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)    
+   pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
 
-   info.jwst_image.pix_statLabel2 = ["Int Rate (DN/s)", $
-                                    "Int Error (DN/s)",$
-                                    "Int  DQ Flag"]
+   info.jwst_image.pix_statLabel2 = ["Int Rate   (DN/s)", $
+                                    "Error ",$
+                                    "DQ Flag"]
 
    info.jwst_image.pix_statFormat2 =  ["F12.5", "F12.5","I10"]
 
@@ -516,23 +538,44 @@ if(info.jwst_control.file_slope_int_exist eq 1) then begin
                                                    ' =   ' ,/align_left,/dynamic_resize)
    endfor
 endif
+
+if(info.jwst_control.file_cal_exist eq 1) then begin 
+   pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
+
+   info.jwst_image.pix_statLabel3 = ["Cal      (MJy/sr)", $
+                                    "Error ",$
+                                    "DQ Flag"]
+
+   info.jwst_image.pix_statFormat3 =  ["F12.5", "F12.5","I10"]
+
+   for i = 0,2 do begin  
+      info.jwst_image.pix_statID3[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel3[i]+$
+                                                   ' =   ' ,/align_left,/dynamic_resize)
+   endfor
+endif
+
 info_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)
-info_label = widget_button(info_base,value = 'Rate DQ Info',uvalue = 'datainfo')
+info_label = widget_button(info_base,value = 'DQ flag values',uvalue = 'datainfo')
 
 ;_______________________________________________________________________
 ;*****
 ;graph 2,1
 ;*****
-voptions = ['Final Rate Image: ']
-if(info.jwst_control.file_slope_int_exist) then voptions = ['Final Rate Image: ', 'Integration Rate Image']
+rate_option = 'Final Rate Image'
+rate_int_option = 'Integration Rate Image'
+cal_option = 'Calibrated Image'
+info.jwst_image.data_type[0] = 1
+info.jwst_image.data_type[1] = 2
+info.jwst_image.data_type[2] = 3
+if(info.jwst_control.file_slope_exist eq 0) then  rate_option= " No Final Rate Image Exist" 
+if(info.jwst_control.file_slope_int_exist eq 0) then rate_int_option= " No Final Rate Image Exist" 
+if(info.jwst_control.file_cal_exist eq 0) then cal_option= " No Calibrated Image Exist" 
 
+voptions = [rate_option, rate_int_option, cal_option]
 
 ss = " Rate Image  [" + strtrim(string(info.jwst_data.image_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_data.image_ysize),2) + ']' + " " + info.jwst_image.bindisplay[0]
-if(info.jwst_control.file_slope_exist eq 0) then voptions = " No Final Rate Image Exist" 
 
-;info.jwst_image.graph_label[2]= widget_label(info.jwst_image.graphID21,value = ss,$
-;                                      /align_center,font=info.font5,/sunken_frame)
 
 label21= widget_label(info.jwst_image.graphID21,value = ss,$
                                       /align_center,font=info.font5,/sunken_frame)

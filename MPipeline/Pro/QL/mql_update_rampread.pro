@@ -112,7 +112,7 @@ endif
 if(info.control.file_rscd_exist eq 0) then info.image.overplot_rscd = 0
 if(info.image.overplot_rscd eq 1 ) then begin
    if(ptr_valid(info.image.prscd_pixeldata) eq 0) then begin
-      mql_read_rscd,xvalue,yvalue,info
+      mql_read_rscd_data,xvalue,yvalue,info
    endif
 
    rscd_data = (*info.image.prscd_pixeldata)[ii:ij,*,0]

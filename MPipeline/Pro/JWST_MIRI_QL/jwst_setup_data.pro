@@ -18,8 +18,8 @@ info.jwst_image.overplot_rscd = 0
 info.jwst_image.overplot_lastframe = 0
 info.jwst_image.overplot_fit = 0 
 
-jwst_header_setup,0,info
-jwst_header_setup_image,info
+jwst_header_setup,0,info  ; set up 
+jwst_header_setup_image,info ; fill in raw header
 jwst_read_multi_frames,info
 
 end
@@ -90,7 +90,9 @@ end
 ;***********************************************************************
 pro jwst_setup_slope_int,info,integrationNO,type
 ;_______________________________________________________________________
-
+; read in slope integration
+; type = 0: raw, rate, rate int and cal image display
+; type = 1: rate, rate int
 slope_exists = 0
 status = 0 & error_message = " "
 info.jwst_data.slope_int_exist = 0  
@@ -108,15 +110,9 @@ info.jwst_control.file_slope_int_exist = slope_exists
 
 
 if(slope_exists eq 0) then begin
-   print,'rate int does not exist',info.jwst_control.filename_slope_int
    return
 endif
 
-
-;info.jwst_data.slope_xsize = slope_xsize
-;info.jwst_data.slope_ysize = slope_ysize
-
-;jwst_reading_slope_header,info,status,error_message
 
 if(type eq 0) then begin
    if ptr_valid (info.jwst_data.preducedint) then ptr_free,info.jwst_data.preducedint
@@ -125,12 +121,10 @@ if(type eq 0) then begin
 endif
 
 if(type eq 1) then begin 
-   if ptr_valid (info.jwst_data.prateint) then ptr_free,info.jwst_data.prateint
-   info.jwst_data.prateint = ptr_new(slopedata)
-   info.jwst_data.rateint_stat = stats
+   if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
+   info.jwst_data.prate2 = ptr_new(slopedata)
+   info.jwst_data.rate2_stat = stats
 endif
-;   jwst_header_setup,1,info 
-;   jwst_header_setup_slope,1,info
 
 
 slopedata = 0
@@ -143,8 +137,9 @@ pro jwst_setup_slope_final,info,type,status
 status = 0
 ;_______________________________________________________________________
 ; read in slope data
-; type = 0 Read slope for Frame display jwst_mql
-; type = 1 Read slope for Rate display jwst_msql
+; type = 0 Read slope for Frame display jwst_mql - fill in preduced
+; type = 1 Read slope for Rate display jwst_msql - fill in prate1 & prate2
+; type = 2 Read final rate and cal jwst_mcql     - fill in pcal1 & pcal2
 ;_______________________________________________________________________
 
 slope_exists = 0
@@ -167,7 +162,6 @@ if(slope_exists eq 0) then begin
    return
 endif
 
-
 info.jwst_data.slope_xsize = slope_xsize
 info.jwst_data.slope_ysize = slope_ysize
 
@@ -181,13 +175,22 @@ if (type eq 0) then begin ; set up data for jwst_mql_display
 endif 
 
 
-if (type eq 1) then begin ; set up data for jwst_msql_display
-   if ptr_valid (info.jwst_data.pratefinal) then ptr_free,info.jwst_data.pratefinal
-   info.jwst_data.pratefinal = ptr_new(slopedata)
-   info.jwst_data.ratefinal_stat = stats
-
+if (type eq 1 ) then begin ; set up data for jwst_msql_display - default image 1 is rate image
+   if ptr_valid (info.jwst_data.prate1) then ptr_free,info.jwst_data.prate1
+   info.jwst_data.prate1 = ptr_new(slopedata)
+   info.jwst_data.rate1_stat = stats
+   
    jwst_header_setup,1,info 
    jwst_header_setup_slope,1,info
+endif 
+
+if (type eq 2) then begin ; set up data for jwst_mcql_display
+   if ptr_valid (info.jwst_data.pcal2) then ptr_free,info.jwst_data.pcal2
+   info.jwst_data.pcal2 = ptr_new(slopedata)
+   info.jwst_data.cal2_stat = stats
+
+
+   jwst_header_setup_slope,2,info
 endif 
 
 slopedata = 0
@@ -196,7 +199,6 @@ end
 ;_______________________________________________________________________
 pro jwst_setup_cal,info,type
 ;  type = 0  set up data for jwst_mql_display
-;  type = 1  set up data for jwst_msql_display
 ;  type = 2  set up data for jwst_mcql_display
   info.jwst_control.file_cal_exist = 0
   cal_exists = 0
@@ -207,19 +209,33 @@ pro jwst_setup_cal,info,type
                 status,error_message
   info.jwst_control.file_cal_exist = cal_exists
 
+  
   if(cal_exists eq 1) then begin 
      info.jwst_data.cal_xsize = cal_xsize
      info.jwst_data.cal_ysize = cal_ysize
 
-     if ptr_valid (info.jwst_data.pcaldata) then ptr_free,info.jwst_data.pcaldata
-     info.jwst_data.pcaldata = ptr_new(caldata)
-     info.jwst_data.cal_stat = stats
-     caldata = 0
-     stats = 0
+     if(type eq 0) then begin 
+        if ptr_valid (info.jwst_data.preduced_cal) then ptr_free,info.jwst_data.preduced_cal
+        info.jwst_data.preduced_cal = ptr_new(caldata)
+        info.jwst_data.reduced_cal_stat = stats
+        caldata = 0
+        stats = 0
+     endif
+
+     if(type eq 2) then begin 
+        if ptr_valid (info.jwst_data.pcal1) then ptr_free,info.jwst_data.pcal1
+        info.jwst_data.pcal1 = ptr_new(caldata)
+        info.jwst_data.cal1_stat = stats
+
+        caldata = 0
+        stats = 0
+        jwst_header_setup,2,info
+ 
+     endif
+
      jwst_header_setup_cal,type,info
 
-;not reading cal header at this time.
-;all info concerning header is read in from rate file
+
 ;jwst_reading_cal_header,info,status,error_message
   endif
 

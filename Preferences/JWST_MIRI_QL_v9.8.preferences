@@ -1,4 +1,4 @@
-VER             = 1.0				  : Version of Preferences file
+VER             = 9.8				  : Version of Preferences file
 SCIDIR          = . 			    	  : Input directory  for Raw science data
 PROCESSDIR    = . 			          : Output  directory for Processed data (rate and cal files) 
 PSDIR	        = .			    	  : Output directory for postscript images              

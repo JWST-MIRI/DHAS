@@ -37,34 +37,39 @@ if (n_pixels GT 1) then begin
     mean_image = m[0]
     var = m[1]
 
-    minsignal = min(image[indxs])
-    maxsignal = max(image[indxs])
-    cube_sum = total(image[indxs])
-    median_image = median(image[indxs])
+    minsignal = min(image_use)
+    maxsignal = max(image_use)
+    cube_sum = total(image_use)
+    median_image = median(image_use)
+    
     std_mean  = SQRT(m[1])/SQRT(n_pixels)
     skewness = m[2]
     if (var GT 0) then std = sqrt(var) else std = 0.0
 
     ; adjust the image intensities scale by removing outliers
-    high = median_image +2*std
-    low = median_image - 2*std
+    high = median_image +1*std
+    low = median_image - 1*std
 
-    clean_image = where(image_use gt low and image_use lt high)
+    iclean = where(image_use gt low and image_use lt high)
+    clean_image = image_use[iclean]
     m = moment(clean_image,/double,/nan)
     mean_clean_image = m[0]
+    median_clean_image = median(clean_image)
     var_clean = m[1]
 
     if (var_clean GT 0) then std_clean = sqrt(var_clean) else std_clean = 0.0
 
+
     if (std_clean GT 0) then begin
-        min_image = mean_clean_image - 3.0*std_clean
-        max_image = mean_clean_image + 3.0*std_clean
+        min_image = median_clean_image - 2.0*std_clean
+        max_image = median_clean_image + 2.0*std_clean
     endif else begin
         min_image = mean_clean_image*0.9
         max_image = mean_clean_image*1.1
         min_image = mean_clean_image*0.8
         max_image = mean_clean_image*1.2
     endelse
+
 
     if(min_image lt minsignal) then min_image = minsignal
     if(max_image gt maxsignal) then max_image = maxsignal

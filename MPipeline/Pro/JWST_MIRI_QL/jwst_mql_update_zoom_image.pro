@@ -134,8 +134,19 @@ if(graphnum eq 3) then begin
          info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[2,1]
       endif
    endif
-endif
 
+   if(info.jwst_image.plane eq 2) then begin 
+      szoom = "Zoom Centered on Cal Image" 
+      xdata_end = info.jwst_data.slope_xsize
+      ydata_end = info.jwst_data.slope_ysize
+      frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
+      frame_image[*,*] = (*info.jwst_data.preduced_cal)[*,*,0]
+      if(info.jwst_image.default_scale_graph[1] eq 1) then begin
+         info.jwst_image.graph_range[1,0] = info.jwst_image.graph_range[2,0]
+         info.jwst_image.graph_range[1,1] = info.jwst_image.graph_range[2,1]
+      endif
+   endif
+endif
 
 x = info.jwst_image.x_zoom
 y = info.jwst_image.y_zoom
@@ -146,7 +157,6 @@ info.jwst_image.y_zoom_pos = info.jwst_image.y_zoom
 
 widget_control,info.jwst_image.graph_label[1], set_value=szoom
 
-
 xsize = info.jwst_plotsize1
 ysize = info.jwst_plotsize1
 
@@ -156,13 +166,10 @@ ysize = ysize/zoom
 info.jwst_image.zoom_xplot_size = xsize
 info.jwst_image.zoom_yplot_size = ysize
 
-
 ; ixstart and iystart are the starting points for the zoom imnage
 ; xstart and ystart are the starting points for the orginal image
-
 xstart = fix(x - xsize/2)
 ystart = fix(y - ysize/2)
-
 
 ; check if x or y start < 0
 if(xstart lt 0) then xstart = 0
@@ -170,7 +177,6 @@ if(ystart lt 0) then ystart = 0
 
 xend  = xstart + xsize-1
 yend  = ystart + ysize-1
-
 
 if(xend ge xdata_end) then begin
     xend =  xdata_end -1
@@ -212,7 +218,6 @@ stat_data = sub_image[ixstart:ixend,iystart:iyend]
 x_zoom_start = ixstart
 x_zoom_end = ixend
 if(info.jwst_data.subarray eq 0) then begin
-
     xstart_new = xstart
     xend_new  = xend
     if(xstart lt 4) then xstart_new = 4
@@ -273,7 +278,6 @@ endif else begin
     maxtitle = "Max value: " + smax
     xrg = "X pixel range: " + strtrim(string(xstart+1),2) + ' to ' + strtrim(string(xend+1),2)
     yrg = "Y pixel range: " + strtrim(string(ystart+1),2) + ' to ' + strtrim(string(yend+1),2)
-    
 
     xyouts,0.75*!D.X_Vsize,0.95*!D.Y_VSize,sstitle,/device
     xyouts,0.75*!D.X_Vsize,0.90*!D.Y_VSize,stitle,/device
@@ -286,11 +290,7 @@ endif else begin
     xyouts,0.75*!D.X_Vsize,0.60*!D.Y_VSize,yrg,/device
 
 endelse
-
-
 ; update stats    
-
-
 smean =  strcompress(string(image_mean),/remove_all)
 smin = strcompress(string(image_min),/remove_all) 
 smax = strcompress(string(image_max),/remove_all) 
@@ -298,27 +298,21 @@ smax = strcompress(string(image_max),/remove_all)
 scale_min = info.jwst_image.graph_range[1,0]
 scale_max = info.jwst_image.graph_range[1,1]
 
-
 widget_control,info.jwst_image.rlabelID[1,0],set_value=scale_min
 widget_control,info.jwst_image.rlabelID[1,1],set_value=scale_max
 
 widget_control,info.jwst_image.slabelID[1],set_value=('Mean: ' +smean) 
 widget_control,info.jwst_image.mlabelID[1],set_value=(' Min: ' +smin + '   Max: ' +smax) 
 
-
 ; replot the pixel location
-
-
 xvalue = (x - xstart + ixstart)*info.jwst_image.scale_zoom
 yvalue = (y - ystart + iystart)*info.jwst_image.scale_zoom
-
 
 info.jwst_image.ixstart_zoom = ixstart
 info.jwst_image.xstart_zoom = xstart
 
 info.jwst_image.iystart_zoom = iystart
 info.jwst_image.ystart_zoom = ystart
-
 
 pixelsize  = 1.0 * info.jwst_image.scale_zoom
 

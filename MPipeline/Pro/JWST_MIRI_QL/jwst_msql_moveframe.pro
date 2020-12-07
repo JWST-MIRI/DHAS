@@ -1,4 +1,4 @@
-pro jwst_msql_moveframe,info
+pro jwst_msql_moveframe,info,win
 
 
 ; If integration update to followingplots (if the widget is up);
@@ -18,41 +18,49 @@ pro jwst_msql_moveframe,info
     
 jwst_msql_cleanup_widgets,info
  
-jintegration = info.jwst_slope.integrationNO
+jintegration = info.jwst_slope.integrationNO[win]
+data_type = info.jwst_slope.data_type[win]
 
-jwst_read_single_slope,info.jwst_control.filename_slope_int,slope_exists,$
-                       info.jwst_slope.integrationNO,$
-                       subarray,slopedata,$
-                       slope_xsize,slope_ysize,$
-                       stats,$
-                       status,$
-                       error_message
+if(data_type eq 1) then begin 
+   jwst_read_final_slope,info.jwst_control.filename_slope,slope_exists,$
+                         info.jwst_data.subarray,slopedata,$
+                         slope_xsize,slope_ysize,$
+                         stats,$
+                         status,$
+                         error_message
+endif else begin 
+   jwst_read_single_slope,info.jwst_control.filename_slope_int,slope_exists,$
+                          info.jwst_slope.integrationNO[win],$
+                          subarray,slopedata,$
+                          slope_xsize,slope_ysize,$
+                          stats,$
+                          status,$
+                          error_message
+endelse
 
-if ptr_valid (info.jwst_data.prateint) then ptr_free,info.jwst_data.prateint
-info.jwst_data.prateint = ptr_new(slopedata)
-
-if(info.jwst_slope.plane[0] eq 3) then begin ; update this rate int 
-   info.jwst_data.rateint_stat = stats
-   jwst_msql_update_slope,info.jwst_slope.plane[0],0,info
+if(win eq 0) then begin
+   if ptr_valid (info.jwst_data.prate1) then ptr_free,info.jwst_data.prate1
+   info.jwst_data.prate1 = ptr_new(slopedata)
+   info.jwst_data.rate1_stat = stats
+   jwst_msql_update_slope,0,info
+   widget_control,info.jwst_slope.integration_label[0],set_value= fix(jintegration+1)
 endif
 
-if(info.jwst_slope.plane[1] eq 3) then begin ; update this rate int 
-   info.jwst_data.rateint_stat = stats
-   jwst_msql_update_slope,info.jwst_slope.plane[1],1,info
+if(win eq 1) then begin
+   if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
+   info.jwst_data.prate2 = ptr_new(slopedata)
+   info.jwst_data.rate2_stat = stats
+   jwst_msql_update_slope,1,info
+   widget_control,info.jwst_slope.integration_label[1],set_value= fix(jintegration+1)
 endif
 
 slopedata = 0
 stats = 0
 
 jwst_msql_update_zoom_image,info
-
-;info.jwst_slope.int_range[*] = jintegration+1
-;widget_control,info.jwst_slope.IrangeID[0],set_value=info.jwst_slope.int_range[0]
-;widget_control,info.jwst_slope.IrangeID[1],set_value=info.jwst_slope.int_range[1]
-
 jwst_msql_update_pixel_stat_slope,info
 
-widget_control,info.jwst_slope.integration_label,set_value= fix(jintegration+1)
+
 Widget_Control,info.jwst_QuickLook,Set_UValue=info	
 ;____________________
 

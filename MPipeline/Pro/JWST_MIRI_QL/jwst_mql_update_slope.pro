@@ -9,29 +9,49 @@ hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 ;plane = 0 final rate image
-;plate = 1 rate int image
-if(info.jwst_control.file_slope_exist eq 0) then return
-
-frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
+;plane = 1 rate int image
+;plane = 2 cal image 
+; set up default size
+frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
+file_exist = 0
 
 if(info.jwst_image.plane eq 0) then begin
-   slope_exist = info.jwst_control.file_slope_exist
-   if(slope_exist eq 0) then return
-   if(slope_exist eq 1) then begin
+   file_exist = info.jwst_control.file_slope_exist
+   if(file_exist eq 0) then begin
+      frame_image[*,*] = 0
+      stat = fltarr(8,3)
+   endif
+   if(file_exist eq 1) then begin
       frame_image[*,*] = (*info.jwst_data.preduced)[*,*,0]
       stat = info.jwst_data.reduced_stat
    endif
-endif else  begin
-   slope_exist = info.jwst_control.file_slope_int_exist
-   if(slope_exist eq 0) then return
-   if(slope_exist eq 1) then begin
+endif
+
+
+if(info.jwst_image.plane eq 1) then  begin
+   file_exist = info.jwst_control.file_slope_int_exist
+   if(file_exist eq 0) then begin
+      frame_image[*,*] = 0
+      stat = fltarr(8,3)
+   endif
+   if(file_exist eq 1) then begin
       frame_image[*,*] = (*info.jwst_data.preducedint)[*,*,0] 
       stat = info.jwst_data.reducedint_stat
    endif
-endelse
+endif
+if(info.jwst_image.plane eq 2) then  begin
+   file_exist = info.jwst_control.file_cal_exist
+   if(file_exist eq 0) then begin
+      frame_image[*,*] = 0
+      stat = fltarr(8,3)
+   endif
+   if(file_exist eq 1) then begin
+      frame_image[*,*] = (*info.jwst_data.preduced_cal)[*,*,0] 
+      stat = info.jwst_data.reduced_cal_stat
+   endif
+endif
 
 ;_______________________________________________________________________
-;i = info.jwst_image.integrationNO
 
 if(info.jwst_image.default_scale_graph[2] eq 1) then begin
    info.jwst_image.graph_range[2,0] = stat[5,0]
@@ -52,8 +72,11 @@ smax = strcompress(string(max),/remove_all)
 ssmean = string('Mean: ' + smean )    
 sminmax = string(' Min: ' + smin + ' Max: ' + smax) 
 ;_______________________________________________________________________
-xsize_image = fix(info.jwst_data.slope_xsize/info.jwst_image.binfactor) 
-ysize_image = fix(info.jwst_data.slope_ysize/info.jwst_image.binfactor)
+;xsize_image = fix(info.jwst_data.slope_xsize/info.jwst_image.binfactor) 
+;ysize_image = fix(info.jwst_data.slope_ysize/info.jwst_image.binfactor)
+
+xsize_image = fix(info.jwst_data.image_xsize/info.jwst_image.binfactor) 
+ysize_image = fix(info.jwst_data.image_ysize/info.jwst_image.binfactor)
 widget_control,info.jwst_image.graphID[2],draw_xsize = xsize_image,draw_ysize=ysize_image 
 
 ; Display the image
@@ -78,7 +101,7 @@ endif
 range1 = info.jwst_image.graph_range[2,0] 
 range2 = info.jwst_image.graph_range[2,1] 
 
-if(slope_exist eq 0 ) then begin
+if(file_exist eq 0 ) then begin
 	ssmean = '   Mean:  NA        '
         sminmax = '   Min and Max:  NA  '
         range1 = " NA"
@@ -125,4 +148,8 @@ plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device,color=inf
 
 disp_image = 0
 
+
+; check if need update the zoom image. This zoom image plotting this
+; window
+if(info.jwst_image.graph_mpixel eq 3) then jwst_mql_update_zoom_image,info
 end

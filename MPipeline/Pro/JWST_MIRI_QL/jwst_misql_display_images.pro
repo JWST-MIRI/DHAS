@@ -913,7 +913,11 @@ info.jwst_inspect_slope.pix_label[1] = cw_field(pix_num_base,title="y",font=info
 
 pix_num_base = widget_base(graphid2,/col,/align_left)
 
-info.jwst_inspect_slope.pix_statLabel = ["Slope (DN/s)", "Error", "DQ Flag"]
+if(info.jwst_inspect_slope.data_type eq 3) then begin
+   info.jwst_inspect_slope.pix_statLabel = ["Cal (MJy/sr)", "Error", "DQ Flag"]
+endif else begin 
+   info.jwst_inspect_slope.pix_statLabel = ["Rate (DN/s)", "Error", "DQ Flag"]
+endelse
 
 info.jwst_inspect_slope.pix_statFormat = ["F16.5","F16.8","I16" ]
 

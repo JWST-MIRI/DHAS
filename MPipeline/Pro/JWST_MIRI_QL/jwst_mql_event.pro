@@ -46,7 +46,6 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'voption') : begin
-
         info.jwst_image.plane = event.index
         info.jwst_image.default_scale_graph[2] = 1
         jwst_mql_update_slope,info
@@ -58,13 +57,19 @@ endif
     end
 
     (strmid(event_name,0,7) EQ 'sheader') : begin
-        if(info.jwst_control.file_slope_exist eq 0 ) then begin
-            ok = dialog_message(" No slope image exists",/Information)
-        endif else begin
-            j = info.jwst_image.IntegrationNO
-            jwst_display_header,info,1
-        endelse
+       if(info.jwst_control.file_slope_exist eq 0 ) then begin
+          ok = dialog_message(" No slope image exists",/Information)
+       endif else begin
+          jwst_display_header,info,1
+       endelse
+    end
 
+    (strmid(event_name,0,7) EQ 'cheader') : begin
+       if(info.jwst_control.file_cal_exist eq 0 ) then begin
+          ok = dialog_message(" No calibration image exists",/Information)
+       endif else begin
+          jwst_display_header,info,2
+       endelse
     end
 
 ;_______________________________________________________________________
@@ -347,7 +352,7 @@ endif
             reset_data = (*info.jwst_image.preset_pixeldata)
             if ptr_valid (info.jwst_image_pixel.preset_pixeldata) then $
               ptr_free,info.jwst_image_pixel.preset_pixeldata
-            info.jwst_image_pixel.reset_pixeldata = ptr_new(reset_data)
+            info.jwst_image_pixel.preset_pixeldata = ptr_new(reset_data)
             reset_data = 0
          endif
 
@@ -814,8 +819,8 @@ endif
 
             jwst_mql_update_zoom_pixel_location,xvalue,yvalue,update,info
 
-               ; redefine the center of the zoom image - if later
-               ; want to zoom: x_zoom_pos & y_zoom_pos  
+             ; redefine the center of the zoom image - if later
+             ; want to zoom: x_zoom_pos & y_zoom_pos  
                
             x = (xvalue)/info.jwst_image.scale_zoom
             y = (yvalue)/info.jwst_image.scale_zoom
@@ -985,10 +990,21 @@ endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
-; inspect slope  image
+; inspect slope, slope int or calibration 
     (strmid(event_name,0,9) EQ 'inspect_s') : begin
-        if(info.jwst_control.file_slope_exist eq 0) then begin
+
+        if(info.jwst_control.file_slope_exist eq 0 and info.jwst_image.plane eq 0) then begin
             ok = dialog_message(" No slope image exists",/Information)
+            return
+         endif
+
+        if(info.jwst_control.file_slope_int_exist eq 0 and info.jwst_image.plane eq 1) then begin
+            ok = dialog_message(" No slope int image exists",/Information)
+            return
+         endif
+
+        if(info.jwst_control.file_cal_exist eq 0 and info.jwst_image.plane eq 2) then begin
+            ok = dialog_message(" No calibration image exists",/Information)
             return
         endif
 
@@ -996,9 +1012,18 @@ endif
         info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
 
         frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
-        if(info.jwst_image.plane eq 0) then frame_image = (*info.jwst_data.preduced)
-        if(info.jwst_image.plane eq 1) then frame_image = (*info.jwst_data.preducedint)
-
+        if(info.jwst_image.plane eq 0) then begin
+           frame_image = (*info.jwst_data.preduced)
+           info.jwst_inspect_slope.data_type = 1
+        endif
+        if(info.jwst_image.plane eq 1) then begin
+           frame_image = (*info.jwst_data.preducedint)
+           info.jwst_inspect_slope.data_type = 2
+        endif
+        if(info.jwst_image.plane eq 2) then begin
+           frame_image = (*info.jwst_data.preduced_cal)
+           info.jwst_inspect_slope.data_type = 3
+        endif
         if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
         info.jwst_inspect_slope.pdata = ptr_new(frame_image)
         frame_image = 0

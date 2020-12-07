@@ -6,130 +6,6 @@ widget_control,info.jwst_RPixelInfo,/destroy
 end
 ;***********************************************************************
 
-pro jwst_update_frame_values,info
-
-; this is only called if the user changes from decimal to hex or vice
- ; versa
-
-i = info.jwst_image_pixel.integrationNO
-
-xvalue = info.jwst_image_pixel.xvalue ; starts at 0
-yvalue = info.jwst_image_pixel.yvalue ; starts at 0
-
-
-if(xvalue lt 0) then xvalue =0
-if(yvalue lt 0) then yvalue = 0
-
-value = (*info.jwst_image_pixel.ppixeldata)[i,*]
-
-lc = value
-mdc = value
-reset = value
-rscd = value
-
-lastframe = value
-
-if(info.jwst_control.file_linearity_exist eq 1) then begin
-    lc = (*info.jwst_image_pixel.plin_pixeldata)
-endif
-
-if(info.jwst_control.file_dark_exist eq 1) then begin
-    mdc = (*info.jwst_image_pixel.pdark_pixeldata)
- endif
-
-if(info.jwst_control.file_reset_exist eq 1) then begin
-    reset = (*info.jwst_image_pixel.preset_pixeldata)
- endif
-
-if(info.jwst_control.file_rscd_exist eq 1) then begin
-    rscd = (*info.jwst_image_pixel.prscd_pixeldata)
- endif
-
-if(info.jwst_control.file_lastframe_exist eq 1) then begin
-    lastframe = (*info.jwst_image_pixel.plastframe_pixeldata)
-endif
-
-nend = info.jwst_data.ngroups
-refvalue = strarr(nend)
-linvalue = strarr(nend)
-darkvalue = strarr(nend)
-resetvalue = strarr(nend)
-rscdvalue = strarr(nend)
-lastframevalue = strarr(nend)
-
-for j = 0,nend-1 do begin
-    frame_no = "Frame " + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    rampnew = value[j]
-    sramp = strtrim(string(rampnew,format="(f16.2)"),2)
-
-    lin_no = "Lin Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    lvalue = lc[j]
-    slin = strtrim(string(lvalue,format="(f16.2)"),2)
-
-    dark_no = "Dark Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    dvalue =mcd[j]
-    sdark = strtrim(string(dvalue,format="(f16.2)"),2)
-
-    reset_no = "Reset Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    rvalue =reset[j]
-    sreset = strtrim(string(rvalue,format="(f16.2)"),2)
-
-    rscd_no = "RSCD Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    rvalue =rscd[j]
-    srscd = strtrim(string(rvalue,format="(f16.2)"),2)
-
-    lastframe_no = "Lastframe Corr" + strcompress(string(fix(j+1)),/remove_all)+ " = " 
-    lvalue =lastframe
-
-    slastframe = strtrim(string(lvalue,format="(f16.2)"),2)
-
-
-    if(info.jwst_data.nints eq info.jwst_image_pixel.integrationNO ) then begin
-        sramp = 'NA'
-        sref = 'NA'
-    endif    
-    framevalue[j] = frame_no +sramp
-    linvalue[j] = lin_no + slin
-    darkvalue[j] = dark_no + sdark
-    resetvalue[j] = reset_no + sreset
-    rscdvalue[j] = rscd_no + srscd
-    lastframevalue[j] = lastframe_no + slastframe
-endfor
-
-widget_control,info.jwst_image_pixel.pix_statLabelID[0],set_value = framevalue
-
-
-if(info.jwst_control.file_linearity_exist eq 1) then $
-  widget_control,info.jwst_image_pixel.pix_statLabelID[2],set_value = linvalue
-
-
-if(info.jwst_control.file_mcd_exist eq 1) then $
-  widget_control,info.jwst_image_pixel.pix_statLabelID[3],set_value = darkvalue
-
-if(info.jwst_control.file_reset_exist eq 1) then $
-  widget_control,info.jwst_image_pixel.pix_statLabelID[4],set_value = resetvalue
-
-if(info.jwst_control.file_rscd_exist eq 1) then $
-  widget_control,info.jwst_image_pixel.pix_statLabelID[5],set_value = rscdvalue
-
-if(info.jwst_control.file_lastframe_exist eq 1) then $
-  widget_control,info.jwst_image_pixel.pix_statLabelID[6],set_value = lastframevalue
-
-value = 0
-
-framevalue = 0
-refvalue = 0
-lastframevalue = 0
-resetvalue = 0
-rscdvalue =0
-linvalue = 0
-
-end
-
-
-;***********************************************************************
-;_______________________________________________________________________
-;***********************************************************************
 pro jwst_frame_values_event,event
 
 Widget_Control,event.id,Get_uValue=event_name
@@ -137,8 +13,6 @@ widget_control,event.top, Get_UValue = ginfo
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
 
     case 1 of
-;_______________________________________________________________________
-
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
        jwst_dqflags,info
@@ -171,7 +45,7 @@ endif
 PixelInfo = widget_base(title=" Frame Values for Pixel",$
                         col = 1,mbar = menuBar,group_leader = info.jwst_RawQuickLook,$
                         xsize = 1400,ysize = 500,/base_align_right,xoffset=550,yoffset=100,$
-                        /scroll,x_scroll_size = 900,y_scroll_size = 500)
+                        /scroll,x_scroll_size = 1000,y_scroll_size = 500)
 
 ;********
 ; build the menubar
@@ -225,10 +99,6 @@ endelse
 value = (*info.jwst_image_pixel.ppixeldata)[i,*]
 
 
-value_refcorrected = 0
-if(info.jwst_control.file_refpix_exist eq 1) then $
-  value_refcorrected = (*info.jwst_image_pixel.prefpix_pixeldata)[i,*]
-
 value_lc  =0
 if(info.jwst_control.file_linearity_exist eq 1) then begin
   value_lc = (*info.jwst_image_pixel.plin_pixeldata)[i,*]
@@ -253,6 +123,12 @@ value_lastframe  =0
 if(info.jwst_control.file_lastframe_exist eq 1) then begin
   value_lastframe = (*info.jwst_image_pixel.plastframe_pixeldata)[i]
 endif
+
+value_refcorrected = 0
+if(info.jwst_control.file_refpix_exist eq 1) then $
+  value_refcorrected = (*info.jwst_image_pixel.prefpix_pixeldata)[i,*]
+
+
 
 info_string = "Frame "
 
@@ -391,39 +267,34 @@ for j = 0,nend-1 do begin
 endfor
 pix2 = widget_base(PixelInfo,row=1,/align_left)
 info.jwst_image_pixel.pix_statLabelID[0] = widget_list(pix2,$
-                              value=framevalue,/align_left,scr_ysize=200,$
-                              uvalue = 'frame')
+                              value=framevalue,/align_left,scr_ysize=200)
 
-if(info.jwst_control.file_refpix_exist ne 0) then $
-pix_statLabelID = widget_list(pix2,$
-                              value=refcorrected_value,/align_left,scr_ysize=200,$
-                              uvalue ='refc')
-
-
-if(info.jwst_control.file_dark_exist eq 1) then $
-info.jwst_image_pixel.pix_statLabelID[3] = widget_list(pix2,$
-                                                  value=mdc_value,/align_left,scr_ysize=200,$
-                                                  uvalue ='mdc')
 
 if(info.jwst_control.file_reset_exist eq 1) then $
-info.jwst_image_pixel.pix_statLabelID[4] = widget_list(pix2,$
-                                                  value=reset_value,/align_left,scr_ysize=200,$
-                                                  uvalue ='reset')
-
-if(info.jwst_control.file_rscd_exist eq 1) then $
-info.jwst_image_pixel.pix_statLabelID[5] = widget_list(pix2,$
-                                                  value=rscd_value,/align_left,scr_ysize=200,$
-                                                  uvalue ='rscd')
-
-if(info.jwst_control.file_lastframe_exist eq 1) then $
-info.jwst_image_pixel.pix_statLabelID[5] = widget_list(pix2,$
-                                                  value=lastframe_value,/align_left,scr_ysize=200,$
-                                                  uvalue ='lastframe')
+info.jwst_image_pixel.pix_statLabelID[1] = widget_list(pix2,$
+                                                  value=reset_value,/align_left,scr_ysize=200)
 
 if(info.jwst_control.file_linearity_exist eq 1) then $
 info.jwst_image_pixel.pix_statLabelID[2] = widget_list(pix2,$
-                                                  value=lc_value,/align_left,scr_ysize=200,$
-                                                  uvalue ='lc')
+                                                  value=lc_value,/align_left,scr_ysize=200)
+
+if(info.jwst_control.file_rscd_exist eq 1) then $
+info.jwst_image_pixel.pix_statLabelID[3] = widget_list(pix2,$
+                                                  value=rscd_value,/align_left,scr_ysize=200)
+
+if(info.jwst_control.file_dark_exist eq 1) then $
+info.jwst_image_pixel.pix_statLabelID[4] = widget_list(pix2,$
+                                                  value=mdc_value,/align_left,scr_ysize=200)
+
+
+if(info.jwst_control.file_lastframe_exist eq 1) then $
+info.jwst_image_pixel.pix_statLabelID[5] = widget_list(pix2,$
+                                                  value=lastframe_value,/align_left,scr_ysize=200)
+
+
+if(info.jwst_control.file_refpix_exist ne 0) then $
+info.jwst_image_pixel.pix_statLabelID[6] = widget_list(pix2,$
+                              value=refcorrected_value,/align_left,scr_ysize=200)
 
 
 

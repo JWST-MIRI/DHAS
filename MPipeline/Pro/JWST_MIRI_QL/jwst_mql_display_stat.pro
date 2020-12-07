@@ -85,14 +85,25 @@ if(info.jwst_image.plane eq 0) then begin
 endif
 
 if(info.jwst_image.plane eq 1) then begin 
-   stitle[2] = " Statistics on Int Rate Image "
+   stitle[2] = " Statistics on Rate Int Image "
    mean[2] = info.jwst_data.reducedint_stat[0,0]
    st_pixel[2] = info.jwst_data.reducedint_stat[2,0]
    var[2] = st_pixel[2]*st_pixel[2,0]
    min[2] = info.jwst_data.reducedint_stat[3,0]
    max[2] = info.jwst_data.reducedint_stat[4,0]
    median[2] = info.jwst_data.reducedint_stat[2,0]
-   st_mean[2] = info.jwst_data.reduced_stat[7,0]
+   st_mean[2] = info.jwst_data.reducedint_stat[7,0]
+endif
+
+if(info.jwst_image.plane eq 2) then begin 
+   stitle[2] = " Statistics on Calibrated Image "
+   mean[2] = info.jwst_data.reduced_cal_stat[0,0]
+   st_pixel[2] = info.jwst_data.reduced_cal_stat[2,0]
+   var[2] = st_pixel[2]*st_pixel[2,0]
+   min[2] = info.jwst_data.reduced_cal_stat[3,0]
+   max[2] = info.jwst_data.reduced_cal_stat[4,0]
+   median[2] = info.jwst_data.reduced_cal_stat[2,0]
+   st_mean[2] = info.jwst_data.reduced_cal_stat[7,0]
 endif
 statinfo = widget_base(title="Statistics on Images",$
                          col = 1,mbar = menuBar,group_leader = info.jwst_RawQuickLook,$

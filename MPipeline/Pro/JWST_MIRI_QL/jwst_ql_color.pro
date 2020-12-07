@@ -35,8 +35,8 @@ if(type eq 1 or type eq 0) then begin
         endif
 
         if(XRegistered ('jwst_msql')) then begin
-            jwst_msql_update_slope,info.slope.plane[0],0,info
-            jwst_msql_update_slope,info.slope.plane[2],2,info
+            jwst_msql_update_slope,0,info
+            jwst_msql_update_slope,1,info
             jwst_msql_update_zoom_image,info
         endif
 

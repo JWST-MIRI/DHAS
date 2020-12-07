@@ -1,25 +1,27 @@
 ;***********************************************************************
 ;_______________________________________________________________________
-pro jwst_msql_update_slope,data_plane,win,info,ps = ps,eps = eps
+pro jwst_msql_update_slope,win,info,ps = ps,eps = eps
 ;_______________________________________________________________________
 loadct,info.col_table,/silent
-
+; data plane 0  rate
+; data plane 1  error
+; data plane 2  dq
+data_plane = info.jwst_slope.plane[win]
 
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
-i = info.jwst_slope.integrationNO
+
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-if(data_plane le 2) then begin
-   stat = info.jwst_data.ratefinal_stat[*,data_plane]
-   frame_image[*,*] = (*info.jwst_data.pratefinal)[*,*,data_plane]
+if (win eq 0) then begin 
+   stat = info.jwst_data.rate1_stat[*,data_plane]
+   frame_image[*,*] = (*info.jwst_data.prate1)[*,*,data_plane]
 endif
 
-if(data_plane ge 3) then begin
-   dplane = data_plane - 3
-   stat = info.jwst_data.rateint_stat[*,dplane]
-   frame_image[*,*] = (*info.jwst_data.prateint)[*,*,dplane]
+if(win eq 1) then begin 
+   stat = info.jwst_data.rate2_stat[*,data_plane]
+   frame_image[*,*] = (*info.jwst_data.prate2)[*,*,data_plane]
 endif
 
 info.jwst_slope.graph_range[win,0] = stat[5]
@@ -67,7 +69,8 @@ box_coords1 = [info.jwst_slope.x_pos,(info.jwst_slope.x_pos+1), $
 
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
-if(hcopy eq 1) then begin 
+if(hcopy eq 1) then begin
+;i = info.jwst_slope.integrationNO[win] 
     svalue = "Slope Image"
     ititle = "Integration #: " + strtrim(string(i+1),2)
     sstitle = info.control.filename_slope

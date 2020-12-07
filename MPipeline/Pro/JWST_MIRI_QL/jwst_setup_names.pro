@@ -7,6 +7,9 @@
 pro jwst_setup_names,info,type,status,error_message
 ; type = 0 input is uncal file
 ; type = 1 input is rate file 
+; type = 2 input is cal or rate. 
+
+info.jwst_control.filename_raw = ' '
 status = 0
 error_message = ' ' 
 ;_______________________________________________________________________
@@ -31,6 +34,7 @@ endif
 if (image_file NE '') then begin
    filename = image_file
 endif
+
 ;_______________________________________________________________________
 slash_str = strsplit(filename,'/',/extract)
 n_slash = n_elements(slash_str)
@@ -42,6 +46,7 @@ endif else begin
 
 info.jwst_control.filename = out_filebase ; only the filename not directory
 fitname = '.fits'
+
 
 ;_______________________________________________________________________
 if(type eq 0) then begin ; working with uncal - raw file 
@@ -59,29 +64,36 @@ if(type eq 0) then begin ; working with uncal - raw file
 
    fits = strpos(filename,fitname)
    info.jwst_control.filename_raw = filename
-   jwst_read_data_type,info.jwst_control.filename_raw,type_error
-   if(type_error ne 0) then begin
+   jwst_read_data_type,filename,type_file
+   if(type_file ne 0) then begin
       error_message = ' You did not open a Science Frame data File, try again'
       status = 1
       return
    endif
 
 endif
-if (type eq 1) then begin       ; working with rate file  
+if (type eq 1) then begin       ; working with rate file or rateint  
    rate = '_rate'
+   rateints = '_rateints'
    info.jwst_control.dirout = realpath    
-   check = strpos(out_filebase,rate)
+   check = strpos(out_filebase,rateints)
    if(check gt 0) then begin
       out_file = strmid(out_filebase,0,check)
    endif else begin 
-      len= strlen(out_filebase)
-      out_file = strmid(out_filebase,0,len-5)
+      check2 = strpos(out_filebase,rate)
+      if(check2 gt 0) then begin 
+         out_file = strmid(out_filebase,0,check2)
+      endif else begin
+         error_message = ' You did not open a Rate or Rateints File, try again'
+         status = 1
+         return
+      endelse
    endelse 
-   info.jwst_control.filebase = out_file
-   info.jwst_control.filename_slope = filename
-   jwst_read_data_type,info.jwst_control.filename_slope,type_error
 
-   if(type_error ne 1 ) then begin
+   info.jwst_control.filebase = out_file
+   jwst_read_data_type,filename,type_file
+
+   if(type_file eq 0 or type_file eq 3 ) then begin
       flag = 1
       error_message = ' You did not open a rate.fits file, input file name again '
       print,error_message
@@ -90,12 +102,44 @@ if (type eq 1) then begin       ; working with rate file
    endif
 
 endif
+
+
+if (type eq 2) then begin       ; working with rate or cal file 
+   ; first check if rate file selected
+   rate = '_rate'
+   cal = '_cal'
+   info.jwst_control.dirout = realpath    
+   check = strpos(out_filebase,cal)
+   if(check gt 0) then begin
+      out_file = strmid(out_filebase,0,check)
+   endif else begin             ; could not find '_cal' so look for '_rate'
+      check2 = strpos(out_filebase,rate)
+      if (check2 gt 0) then begin
+         out_file = strmid(out_filebase,0,check)
+      endif else begin
+         error_message = ' You did not open a Rate or Cal File, try again'
+         status = 1
+         return
+      endelse
+   endelse 
+
+   info.jwst_control.filebase = out_file
+   jwst_read_data_type,filename,type_file
+   
+   if(type_file eq  0 or type_file eq 2  ) then begin ; type =0 raw, type=2 rateints
+      flag = 1
+      error_message = ' You did not open a *rate.fits or *cal.fits file, input file name again '
+      print,error_message
+      status = 1
+      return
+   endif
+   
+endif
 ;_______________________________________________________________________
 
 dirlocation = strpos(filename,'/',/reverse_search)
 
 print,'The base filename: ',info.jwst_control.filebase
-
 info.jwst_control.filename_slope = info.jwst_control.filebase + '_rate'+fitname
 info.jwst_control.filename_slope_int = info.jwst_control.filebase + '_rateints'+fitname
 info.jwst_control.filename_cal = info.jwst_control.filebase + '_cal'+fitname
@@ -103,7 +147,7 @@ info.jwst_control.filename_linearity = info.jwst_control.filebase + '_linearity'
 info.jwst_control.filename_dark = info.jwst_control.filebase + '_dark_current'+fitname
 info.jwst_control.filename_reset = info.jwst_control.filebase + '_reset'+fitname
 info.jwst_control.filename_rscd = info.jwst_control.filebase + '_rscd'+fitname
-info.jwst_control.filename_refpix = info.jwst_control.filebase + '_rscd'+fitname
+info.jwst_control.filename_refpix = info.jwst_control.filebase + '_refpix'+fitname
 info.jwst_control.filename_lastframe = info.jwst_control.filebase + '_lastframe'+fitname
 info.jwst_control.filename_fitopt = info.jwst_control.filebase + '_fitopt'+fitname
 info.jwst_control.filename_slope_refimage = 'none'
@@ -116,7 +160,6 @@ info.jwst_control.filename_cal = info.jwst_control.filebase + '_cal'+fitname
 info.jwst_control.filename_slope = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_slope,/remove_all)
 info.jwst_control.filename_slope_int = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_slope_int,/remove_all)
 info.jwst_control.filename_cal = strcompress(info.jwst_control.dirout+'/'+info.jwst_control.filename_cal,/remove_all)
-
 
 
 info.jwst_control.filename_refpix = $

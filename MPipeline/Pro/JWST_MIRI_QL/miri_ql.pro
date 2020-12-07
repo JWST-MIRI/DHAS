@@ -84,12 +84,7 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-;edit_uwindowsize = 0 ; paramters for editing preferences file
-;edit_xwindowsize = 0 ; no structure exists for this widget
-;edit_ywindowsize = 0
-
-;_______________________________________________________________________
-version = "(v 9.8.0 Oct 27, 2020)"
+version = "(v 9.8.1 Nov 25, 2020)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -170,7 +165,7 @@ wdelete,1
 ;Setup main panel
 ;*********
 
-xql_size = 600
+xql_size = 650
 yql_size = 300
 
 JWST_QuickLook = widget_base(title="JWST MIRI Quick Look " + version,$
@@ -246,15 +241,16 @@ EditMenu = widget_button(menuBar,value="Color",font=fontname2)
 QuitMenu = widget_button(menuBar,value="Quit",font = fontname2)
 
 ; Analyze
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames and Rates",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Science Frames, Rate and Calibrated Images",$
                                 uvalue='JWST_LoadI',font=fontname3)
 
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Rate Int Images",$
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate Images (SCI, ERROR, DQ) and Rate Int (optional)",$
                                 uvalue='JWST_LoadS',font=fontname3)
 
+loadimageButton = widget_button(AnalyzeMenu,value=" Display Cal Images (SCI, ERROR, DQ) and Rate (optional) ",$
+                                uvalue='JWST_LoadR',font=fontname3)
 
-loadimageButton = widget_button(AnalyzeMenu,value=" Display Rate and Cal Images",$
-                                uvalue='JWST_LoadC',font=fontname3)
+
 ; compare
 loadcompareR2Button = widget_button(CompareMenu,value=" Compare Two Science Frames or Two Rate Images",$
                             font=fontname3,uvalue='JWST_Load2')
@@ -275,11 +271,11 @@ titletag = widget_label(JWST_Quicklook,$
                             /align_left,font=fontlarge)
 
 authortag = widget_label(JWST_Quicklook,$
-                            value='      View JWST Pipeline products' ,$
+                            value='        View JWST Pipeline products' ,$
                             /align_left,font=fontmedium)
 
 emailtag = widget_label(JWST_Quicklook,$
-                            value='       morrison@as.arizona.edu' ,$
+                            value='         janem@email.arizona.edu' ,$
                             /align_left,font=fontmedium)
 
 blankline = widget_label(JWST_Quicklook,value=' ')
@@ -303,14 +299,15 @@ Widget_control,jwst_QuickLook,/Realize
 ;********
 ; create and initialize "slope " structure
 jwst_slope = {jwst_slopei}
-;jwst_slope.id_flags = [ 1,2,4,8,16,32]
+
+; create and initialize "cal " structure
+jwst_cal = {jwst_cali}
+
 
 ; create and initialize "data" structure
 jwst_data = {jwst_datai}
 
 jwst_data.read_all = 1
-;jwst_data.ref_exist = 1
-;jwst_data.slope_stat[*,*] = 0
 
 loadfile = {jwst_generic_windowi} 
 
@@ -348,27 +345,26 @@ jwst_dqflag.SDead = 'Dead'
 jwst_dqflag.Hot = 2048
 jwst_dqflag.SHot = 'Hot' 
 jwst_dqflag.Warm =4096  
-jwst_dqflag.SWarm = 'Warm'  
-jwst_dqflag.RC = 16384
+jwst_dqflag.SWarm = 'Warm'
+jwst_dqflag.lowqe = long(2.0^13)
+jwst_dqflag.slowqe = 'Low QE'    
+jwst_dqflag.RC = long(2.0^14) 
 jwst_dqflag.SRC = 'RC'  
-jwst_dqflag.nonlinear = 65536
-
+jwst_dqflag.nonlinear = long(2.0^16)
 jwst_dqflag.Snonlinear = 'Nonlinear'
-jwst_dqflag.bad_refpixel= 131072
+jwst_dqflag.bad_refpixel= long(2.0^17) 
 jwst_dqflag.sbad_refpixel= 'Bad ref pixel'
-jwst_dqflag.no_flatfield=262144
+jwst_dqflag.no_flatfield=long(2.0^18)
 jwst_dqflag.sno_flatfield='No flat field'
-jwst_dqflag.no_gain=-524288
-jwst_dqflag.sno_gain='No gain value'
-jwst_dqflag.unrel_dark  = 8399608
+jwst_dqflag.unrel_dark  = long(2.0^23)
 jwst_dqflag.Sunrel_dark = 'Unreliable dark'
-jwst_dqflag.unrel_slope  = 16777216
+jwst_dqflag.unrel_slope  = long(2.0^24)
 jwst_dqflag.Sunrel_slope = 'Unreliable slope'
-jwst_dqflag.unrel_flat = 33554432
+jwst_dqflag.unrel_flat = long(2.0^25)
 jwst_dqflag.Sunrel_flat = 'Unreliable flat'
-jwst_dqflag.unrel_reset = 268435456
+jwst_dqflag.unrel_reset = long64(2.0^28)
 jwst_dqflag.Sunrel_reset = 'Unreliable reset'
-jwst_dqflag.ref_pixel= 2147483648
+jwst_dqflag.ref_pixel= long64(2.0^31)
 jwst_dqflag.Sref_pixel='Reference Pixel'
 
 
@@ -385,8 +381,11 @@ jwst_inspect = {jwst_inspecti}
 ; create and initialize inspect structure - 3rd window slope  display  
 jwst_inspect_slope2 = {jwst_inspecti}
 
-; create and initialize inspect structure - slope  final image 
-jwst_inspect_final = {jwst_inspecti}
+; create and initialize inspect structure - cal display window 1
+jwst_inspect_cal1 = {jwst_inspecti}
+; create and initialize inspect structure - cal display window 2
+jwst_inspect_cal2 = {jwst_inspecti}
+
 
 ; widget to load 2 files
 jwst_compare_load = {jwst_generic_windowi}
@@ -463,10 +462,12 @@ jinfo = {jwst_version        : version,$
          jwst_viewhead       : ptr_new(jwst_viewhead),$
          jwst_image          : jwst_image,$
          jwst_slope          : jwst_slope,$
+         jwst_cal          : jwst_cal,$
          jwst_inspect        : jwst_inspect,$
          jwst_inspect_slope  : jwst_inspect_slope,$
-         jwst_inspect_slope2      : jwst_inspect_slope2,$
-         jwst_inspect_final       : jwst_inspect_final,$
+         jwst_inspect_slope2 : jwst_inspect_slope2,$
+         jwst_inspect_cal1   : jwst_inspect_cal1,$
+         jwst_inspect_cal2   : jwst_inspect_cal2,$
          jwst_image_pixel    : jwst_image_pixel,$
          jwst_rcompare       : jwst_rcompare,$
          jwst_rcompare_image : jwst_rcompare_image,$
@@ -479,16 +480,19 @@ jinfo = {jwst_version        : version,$
          jwst_RawQuickLook   : 0L,$
  ;       SubarrayGeo         : 0L,$
          jwst_SlopeQuickLook      : 0L,$
+         jwst_CalQuickLook      : 0L,$
          jwst_RPixelInfo          : 0L,$
          jwst_StatInfo            : 0L,$
          jwst_Slope_StatInfo      : 0L,$
+         jwst_cal_StatInfo        : 0L,$
          jwst_rcomparedisplay     : 0L,$
          jwst_comparedisplay      : 0L,$
          jwst_load2display        : 0L,$
          jwst_InspectImage        : 0L,$
          jwst_InspectSlope        : 0L,$
          jwst_InspectSlope2       : 0L,$
-         jwst_InspectSlopeFinal   : 0L,$
+         jwst_InspectCal1         : 0L,$
+         jwst_InspectCal2         : 0L,$
          jwst_CInspectImage       : lonarr(3),$
          jwst_CRInspectImage      : lonarr(3),$
          LoadFileInfo             : 0L}

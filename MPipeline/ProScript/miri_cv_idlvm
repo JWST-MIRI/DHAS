@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Default location and name for saveset. User can change
+IDL_SAVESET_BASE=./
+IDL_SAVESET_DEFAULT=miri_cv.sav
+IDL_SAVESET=$IDL_SAVESET_BASE$IDL_SAVESET_DEFAULT
+
+# Run the virtual machine, assumed .sav file. 
+idl -vm=$IDL_SAVESET
+

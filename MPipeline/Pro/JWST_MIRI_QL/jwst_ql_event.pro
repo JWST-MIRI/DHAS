@@ -28,7 +28,6 @@ case 1 of
         endif
 
         if(XRegistered ('jwst_msql')) then begin
-           print,'Slope image open',sl_filename, info.jwst_control.filebase
             if(sl_filename ne info.jwst_control.filebase) then begin
                 jwst_ql_reset,info
                 widget_control,info.jwst_SlopeQuickLook,/destroy
@@ -51,9 +50,11 @@ case 1 of
 
         info.jwst_image.x_pos =(info.jwst_data.image_xsize/info.jwst_image.binfactor)/2.0
         info.jwst_image.y_pos = (info.jwst_data.image_ysize/info.jwst_image.binfactor)/2.0
+        ; read in the data
         jwst_setup_intermediate,info ; ramp data, slope data, and  all intemediate data 
-        jwst_setup_slope_final,info,0,status
-        jwst_setup_slope_int,info,0,0
+        jwst_setup_slope_final,info,0,status  ;rate
+        jwst_setup_slope_int,info,0,0         ;rate int
+        jwst_setup_cal,info,0
 
         xvalue = info.jwst_image.x_pos * info.jwst_image.binfactor
         yvalue = info.jwst_image.y_pos * info.jwst_image.binfactor
@@ -64,7 +65,7 @@ case 1 of
 
      end	
 ;____________________________________________________________________
-; Slope 
+; Slope and Slope Int - MUST HAVE RATE FILE 
     (strmid(event_name,0,10) EQ 'JWST_LoadS') : begin
        if(XRegistered ('jwst_mql')) then sl_filename = info.jwst_control.filebase
 
@@ -88,17 +89,108 @@ case 1 of
         if(XRegistered ('jwst_misql')) then begin
            widget_control,info.jwst_InspectSlope,/destroy
         endif
-        jwst_setup_slope_final,info,1,status
-        jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
-        jwst_find_slope_binfactor,info
-;        jwst_setup_cal,info,1
+        info.jwst_slope.integrationNO[0] = -1 ; final rate image 
+        info.jwst_slope.plane[0] = 0 ; rate 
+        info.jwst_slope.integrationNO[1] = 0
+        ; open rate data
+        jwst_setup_slope_final,info,1,status  ; default set first image to Final Rate
+        if (info.jwst_control.file_slope_exist eq 0) then begin
+           result = dialog_message('Rate File does not exist, it must for this option',/error)
+           return
+        endif
 
+        ; open rate int data 
+        jwst_setup_slope_int,info,info.jwst_slope.integrationNO[1],1 ; fills in prate2 is *rate_ints.fits exist - if not return
+
+        if (info.jwst_control.file_slope_exist eq 1 and info.jwst_control.file_slope_int_exist eq 1) then begin; default
+           info.jwst_slope.data_type[0] = 1 ; rate
+           info.jwst_slope.plane[0] = 0 
+           info.jwst_slope.data_type[1] = 2 ; rate int 
+           info.jwst_slope.plane[1] = 0 
+
+        endif else begin 
+           if(info.jwst_control.file_slope_int_exist eq 0) then begin ; set rate2 to final error
+           ; jwst_setup_slope_int could not fill in prate2 image
+           ; set prate2 to final error
+
+              stats = info.jwst_data.rate1_stat
+              slopedata = (*info.jwst_data.prate1)
+              if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
+              info.jwst_data.prate2 = ptr_new(slopedata)
+              info.jwst_data.rate2_stat = stats
+              info.jwst_slope.integrationNO[1] = -1
+              info.jwst_slope.plane[1] = 2 ; error 
+              info.jwst_slope.data_type[1] = 1 ; rate
+
+           endif
+
+           slopedata = 0
+           stats = 0 
+        endelse
+
+        jwst_find_slope_binfactor,info
         jwst_msql_display_slope,info
-    end
+     end
 ;_______________________________________________________________________
-    (strmid(event_name,0,10) EQ 'JWST_LoadC') : begin
-       imessage = 'Option to view calibrated data is not avaliable at this time'
-       result = dialog_message(imessage,/Information)
+;reduced data:  Calibration Image and Rate (option). Must have cal file
+    (strmid(event_name,0,10) EQ 'JWST_LoadR') : begin
+
+        status_continue = 0
+        jwst_setup_names,info,2,status_continue,error_message
+
+        if(status_continue eq 2) then return
+        if(status_continue eq 1 ) then begin
+            result = dialog_message(error_message,/error)
+            return
+         endif
+
+        if(XRegistered ('jwst_mql')) then begin
+            if(sl_filename ne info.jwst_control.filebase) then begin
+                jwst_ql_reset,info
+                widget_control,info.jwst_RawQuickLook,/destroy
+                print,'Closing JWST QuickLook window'
+            endif
+        endif    
+
+        if(XRegistered ('jwst_misql')) then begin
+           widget_control,info.jwst_InspectSlope,/destroy
+        endif
+        jwst_setup_cal,info,2
+
+        if (info.jwst_control.file_cal_exist eq 0) then begin
+           result = dialog_message('Cal File does not exist, it must for this option',/error)
+           return
+        endif
+        jwst_setup_slope_final,info,2,status
+        jwst_find_cal_binfactor,info
+
+
+        if (info.jwst_control.file_slope_exist eq 1 and info.jwst_control.file_cal_exist eq 1) then begin; default
+           info.jwst_cal.data_type[0] = 3 ; cal image
+           info.jwst_cal.plane[0] = 0 
+           info.jwst_cal.data_type[1] = 1 ; rate image
+           info.jwst_cal.plane[1] = 0 
+           
+        endif else begin 
+
+           if(info.jwst_control.file_slope_exist eq 0) then begin ; set cal2 to cal error 
+              
+              stats = info.jwst_data.cal1_stat
+              data = (*info.jwst_data.pcal1)
+              if ptr_valid (info.jwst_data.pcal2) then ptr_free,info.jwst_data.pcal2
+              info.jwst_data.pcal2 = ptr_new(data)
+              info.jwst_data.rcal2_stat = stats
+              info.jwst_cal.plane[0] = 2 ; error
+              info.jwst_cal.data_type[0] = 3
+           endif
+
+           data = 0
+           stats = 0 
+
+        endelse
+
+
+        jwst_mcql_display_images,info
        return
     end
 ;_______________________________________________________________________

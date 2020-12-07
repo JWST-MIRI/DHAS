@@ -1,9 +1,9 @@
 LIST		= thisFile				                : list of Calibration Files to use for LW from CDP2 delivery
 BAD		= MIRI_FM_MIRIFULONG_34_MASK_07.02.01.fits		: Bad Pixelfile 
-PIXELSAT	= MIRI_FM_MIRIFULONG_34_SATURATION_8B.00.00.fits        : Pixel Saturation file 
-LIN_COR_SHORT   = MIRI_FM_MIRIFULONG_34SHORT_LINEARITY_8B.00.00.fits    : Linearity Correction file 
-LIN_COR_MEDIUM  = MIRI_FM_MIRIFULONG_34MEDIUM_LINEARITY_8B.00.00.fits   : Linearity Correction file 
-LIN_COR_LONG    = MIRI_FM_MIRIFULONG_34LONG_LINEARITY_8B.00.00.fits     : Linearity Correction file 
+PIXELSAT	= NA        : Pixel Saturation file 
+LIN_COR_SHORT   = NA    : Linearity Correction file 
+LIN_COR_MEDIUM  = NA   : Linearity Correction file 
+LIN_COR_LONG    = NA     : Linearity Correction file 
 RSCD            = NA              : Reset Switch Charge Decay Correction File
 MULT            = NA              : Multi integration secondary Correction File 
 RESET_FAST     =  MIRI_JPL_MIRIFULONG_FAST_34_RESET_RESIDUAL_8B.00.00.fits  : Reset anomaly correction
