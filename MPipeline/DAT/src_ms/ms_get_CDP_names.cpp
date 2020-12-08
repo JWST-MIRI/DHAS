@@ -180,10 +180,19 @@ void ms_get_CDP_names(miri_CDP &CDP, miri_control &control, miri_data_info &data
       if(data_info.filter == "F2500W") LIN_COR = "LIN_COR_F2500W";
     }
 	
-    if(data_info.Detector == SW  ) { LIN_COR = "LIN_COR";}
     if(data_info.Detector == IC  ) { LIN_COR = "LIN_COR";}
 
     if(data_info.Detector == LW  ) {
+      if(data_info.DGAA == "SHORT" && data_info.DGAB == "SHORT")  LIN_COR = "LIN_COR_SHORT";
+      if(data_info.DGAA == "MEDIUM" && data_info.DGAB == "MEDIUM")  LIN_COR = "LIN_COR_MEDIUM";
+      if(data_info.DGAA == "LONG" && data_info.DGAB == "LONG") LIN_COR = "LIN_COR_LONG";
+
+      if(data_info.Band == "SHORT" )  LIN_COR = "LIN_COR_SHORT";
+      if(data_info.Band == "MEDIUM")  LIN_COR = "LIN_COR_MEDIUM";
+      if(data_info.Band == "LONG" ) LIN_COR = "LIN_COR_LONG";
+    }
+
+    if(data_info.Detector == SW  ) {
       if(data_info.DGAA == "SHORT" && data_info.DGAB == "SHORT")  LIN_COR = "LIN_COR_SHORT";
       if(data_info.DGAA == "MEDIUM" && data_info.DGAB == "MEDIUM")  LIN_COR = "LIN_COR_MEDIUM";
       if(data_info.DGAA == "LONG" && data_info.DGAB == "LONG") LIN_COR = "LIN_COR_LONG";
