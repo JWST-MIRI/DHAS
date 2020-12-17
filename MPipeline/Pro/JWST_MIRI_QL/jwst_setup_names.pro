@@ -219,6 +219,7 @@ if(file_exist1 eq 1) then begin
    result = strcmp(reset_str,complete_string)
    if(result eq 1) then reset_step = 1 
 
+
    rscd_str = fxpar(header,'S_RSCD',count = count)
    rscd_str = strcompress(strlowcase(rscd_str),/remove_all)
    result = strcmp(rscd_str,complete_string)

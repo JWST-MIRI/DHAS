@@ -514,6 +514,7 @@ void ms_setup_processing(miri_control &control,
     CDP.SetResetMaxFrames(zsize);
     CDP.SetResetMaxInt(isize);
     int istart = control.n_reads_start_fit;
+    istart = 0;
     int end_frame = istart + data_info.NRampsRead; // istart 0 indexed
 
     if(end_frame > zsize) end_frame = zsize;

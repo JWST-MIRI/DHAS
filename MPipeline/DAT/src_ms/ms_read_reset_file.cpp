@@ -87,7 +87,7 @@ void ms_read_reset_file( const int integ,
 
   if(iplane > max_int) iplane = max_int;
  
-  cout << " Reset Calibration file name (integration) " << reset_file << " " << iplane <<  endl;
+  //cout << " Reset Calibration file name (integration) " << reset_file << " " << iplane <<  endl;
   //cout << " nplanes " << nplanes << endl;
 
   ifstream Reset_file(reset_file.c_str());
@@ -140,9 +140,10 @@ void ms_read_reset_file( const int integ,
   long lpixel[4];
 
   int istart = control.n_reads_start_fit;
-  
+  istart = 0;
   // read in all the frames for the current integration
   fpixel[2]=istart +1;
+
 
   // lower left corner of subset
   fpixel[0]= 1;
@@ -160,7 +161,7 @@ void ms_read_reset_file( const int integ,
   lpixel[3]= iplane;
 
 
-  //    cout << " first pixel " << fpixel[0] << " " << fpixel[1] << " " << fpixel[2] << " " << fpixel[3] << endl;
+  //cout << " first pixel " << fpixel[0] << " " << fpixel[1] << " " << fpixel[2] << " " << fpixel[3] << endl;
   //cout << " last  pixel " << lpixel[0] << " " << lpixel[1] << " " << lpixel[2] << " " << lpixel[3] <<  endl;
 
   

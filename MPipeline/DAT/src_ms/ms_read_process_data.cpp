@@ -325,6 +325,9 @@ void ms_read_process_data( const int iteration,
       //_______________________________________________________________________
       int read_num_first_saturated = 50000;
       int iread = 0;
+
+      //cout<< " number of frames to skip at start" << control.n_reads_start_fit << endl;
+
       for(; Iter < Iter_end; Iter=Iter+incr,iread++){
 	int id = 0;
 	if(*Iter >= control.dn_high_sat)id = HIGHSAT_ID;
