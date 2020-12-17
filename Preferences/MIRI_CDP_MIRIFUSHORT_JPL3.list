@@ -1,12 +1,12 @@
-LIST = THISFILE                                                         : list of Calibration Files to use for SW from CDP2 delivery
+LIST = THISFILE                                                         : list of Calibration Files to use for SW 
 BAD            = MIRI_FM_MIRIFUSHORT_12_MASK_07.02.01.fits              : Bad Pixelfile 
-PIXELSAT       = MIRI_FM_MIRIFUSHORT_12_SATURATION_MIN_8B.00.01.fits        : Pixel Saturation file 
+PIXELSAT       = MIRI_FM_MIRIFUSHORT_12_SATURATION_MIN_8B.00.02.fits        : Pixel Saturation file 
 LIN_COR_SHORT  = MIRIFUSHORT_SHORT_FM_12_LINEARITY_08.00.00.fits         : Linearity Correction file
 LIN_COR_MEDIUM = MIRIFUSHORT_MEDIUM_FM_12_LINEARITY_08.00.00.fits         : Linearity Correction file
 LIN_COR_LONG   = MIRIFUSHORT_LONG_FM_12_LINEARITY_08.00.00.fits         : Linearity Correction file
 RSCD           = NA                       : Reset Switch Charge Decay Correction File 
 MULT           = NA                       : Multi integration secondary Correction File 
-RESET_FAST     = MIRI_FM_MIRIFUSHORT_FAST_12_RESET_RESIDUAL_8B.00.01.fits  : Reset anomaly correction
+RESET_FAST     = MIRI_FM_MIRIFUSHORT_FAST_12_RESET_RESIDUAL_8B.00.02.fits  : Reset anomaly correction
 LASTFRAME      = NA                  : LastFrame Correction	   
 DARK_FAST      = MIRI_FM_MIRIFUSHORT_FAST_12_DARK_8B.00.00.fits         : Fast Dark 
 DARK_SLOW      = MIRI_FM_MIRIFUSHORT_SLOW_12_DARK_8B.00.00.fits         : Slow Dark 
