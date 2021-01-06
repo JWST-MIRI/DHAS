@@ -368,7 +368,9 @@ int main(int argc, char* argv[])
       if(control.apply_reset_cor ==0) NR = 1; 
       vector<miri_reset> reset(NR);
       if(control.apply_reset_cor == 1 ) {
-	ms_read_reset_file(i,control,data_info,CDP,reset); 
+	cout << " reading apply reset" << endl;
+	ms_read_reset_file(i,control,data_info,CDP,reset);
+	cout << " done reading apply reset" << endl;
       }
       
     // **********************************************************************
@@ -461,6 +463,8 @@ int main(int argc, char* argv[])
 	  vector<miri_dark> dark(ND);
 
 	  if(control.subtract_dark==1)ms_setup_dark(i,isubset,this_nrow,control,data_info,CDP,dark);
+
+	  if(control.do_verbose == 1 )cout << " starting ms_read_process_data" << endl;
 	  ms_read_process_data(i,isubset,this_nrow,refimage,
 			       reset,
 			       RSCD,
@@ -480,14 +484,15 @@ int main(int argc, char* argv[])
 	  time_t tp; 
 	  tp = time(NULL);
 	  if(control.do_verbose_time) cout << "Time to  Read/Process DATA " << tp - ts << endl;
-
+	  if(control.do_verbose == 1 )cout << " end ms_read_process_data" << endl;
   // **********************************************************************
 	// If set - write the intermediate ID FITS file
 	  if(control.write_output_ids || control.write_output_refpixel_corrections ||
 	     control.write_output_lc_correction || control.write_output_dark_correction ||
 	     control.write_output_rscd_correction ||
 	     control.write_output_reset_correction) {
-	    
+
+	    if(control.do_verbose == 1 )cout << " starting write intermediate data" << endl;
 	    ms_write_intermediate_data(control.write_output_refpixel_corrections,
 				       control.write_output_ids,
 				       control.write_output_lc_correction,
@@ -501,6 +506,7 @@ int main(int argc, char* argv[])
 				       control.video_offset,
 				       data_info,pixel);
 	  }
+	  if(control.do_verbose == 1 )cout << " done write intermediate data" << endl;
   // **********************************************************************
 	  if(control.write_segment_output) {
 	    ms_fillin_segments(isubset,this_nrow,control.n_reads_start_fit,

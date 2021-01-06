@@ -241,18 +241,19 @@ void miri_pixel::Get2ptDiffIndexP(vector<float> &diff,
   read_num_max_2pt_diff =0;
   ngood = 0;
   long  j = 0;
+
   for (long i =0; i< num-1; i++){
     if( (id_data[i] + id_data[i+1]) == 0){
-      diff.push_back( raw_data[i+1] - raw_data[i]);
+      float d = (raw_data[i+1] - raw_data[i]);
+
       index.push_back(j);
-
       ipixel.push_back(i); 
+      true_diff.push_back(d);
+      d = fabs(d);
+      diff.push_back(d);      
 
-      true_diff.push_back(diff[ngood]);
-      diff[ngood] = fabs(diff[ngood]);
-
-      if(fabs(diff[ngood]) > fabs(max_2pt_diff)) {
-	max_2pt_diff = diff[ngood];
+      if(d > fabs(max_2pt_diff)) {
+	max_2pt_diff = d;
 	read_num_max_2pt_diff = int(i)  + 1 ;
       }
 
@@ -341,9 +342,10 @@ void miri_pixel::CorrectNonLinearity(const int write_corrected_data,
     if(lin_order ==5) coorFactor =  lin[1] + (lin[2]*raw_data[i]) + (lin[3]*raw_data[i]*raw_data[i]) +  (lin[4]*data3) + (lin[5]*data3*raw_data[i]) ;
    
 
-    if(pix_x == -484 && pix_y == 613){
+    if(pix_x == 517 && pix_y == -513){
       cout << lin_order << " "<< lin[0] << " " << lin[1] << " " << lin[2] << " " << lin[3] << " " << lin[4] << " " << lin[5] << endl;
       cout << raw_data[i] << " " << coorFactor << endl;
+      cout << raw_data[i]*coorFactor << endl;
     }
     raw_data[i] = (raw_data[i]*coorFactor + lin[0]);
     lin_cor_data[i] = raw_data[i]; 

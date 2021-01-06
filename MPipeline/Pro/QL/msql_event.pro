@@ -611,6 +611,17 @@ endif
             rscd_data = 0
          endif
 
+; fill in reset corrected data 
+        if(info.control.file_reset_exist eq 1) then begin
+            if (ptr_valid(info.slope.preset_pixeldata) eq 0) then begin ; has not been read in 
+                msql_read_reset_data,x,y,info
+            endif
+            reset_data = (*info.slope.preset_pixeldata)
+            if ptr_valid (info.image_pixel.reset_pixeldata) then $
+              ptr_free,info.image_pixel.reset_pixeldata
+            info.image_pixel.reset_pixeldata = ptr_new(reset_data)
+            reset_data = 0
+         endif        
 ; fill in the lastframe corrected data, if the file was written
 
         if(info.control.file_lastframe_exist eq 1) then begin

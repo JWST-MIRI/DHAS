@@ -77,6 +77,8 @@ void ms_initialize_control(miri_control &control)
   control.flag_do_refpixel_option = 0;
   control.do_refpixel_options[0] = 0;
   control.do_refpixel_options[1]= 0;
+  control.refpixel_temp_gain = 0;
+  control.refpixel_temp_scale = 0;
 
 
   control.do_refpixel_option_SA = 0;
@@ -181,8 +183,6 @@ void ms_initialize_control(miri_control &control)
 
   control.flag_output_name = 0;
 
-
-
   control.n_reads_start_fit = 0;
   control.flag_n_reads_start_fit=0;        
 
@@ -234,5 +234,16 @@ void ms_initialize_control(miri_control &control)
 
 //_______________________________________________________________________
 
+  control.do_cr_id_FS = 0;
+  control.do_diagnostic_FS = 0;
+  control.apply_lin_cor_FS = 0;
+  control.write_output_refslope_FS = 0;
+  control.write_output_lc_correction_FS = 0;
+  control.apply_dark_FS = 0;
+  control.write_output_dark_FS = 0;
+  
+  control.apply_rscd_cor_Input = 0;
+  control.write_output_rscd_correction_Input = 0;
+  
 }
 
