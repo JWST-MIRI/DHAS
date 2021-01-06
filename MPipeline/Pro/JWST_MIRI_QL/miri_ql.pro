@@ -84,7 +84,7 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-version = "(v 9.8.1 Nov 25, 2020)"
+version = "(v 9.8.2 Jan 6, 2021)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
