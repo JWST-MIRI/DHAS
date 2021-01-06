@@ -297,9 +297,6 @@ void ms_read_process_data( const int iteration,
 
   long ystart = isubset*data_info.subset_nrow;
   int incr = xsize*this_nrow;
-  int mrow = 0; 
-
-  //  cout << "data_info.NRampsRead " << data_info.NRampsRead << endl;
 
   for (register int k = 0; k < this_nrow ; k++){
     int yy = ystart + k;
@@ -316,6 +313,7 @@ void ms_read_process_data( const int iteration,
 			 pixel_index);
 
 
+      if(control.do_verbose_time == 1) cout << " Before pixel sat "  << endl;
       if(control.apply_pixel_saturation) sat = CDP.GetPixelSat(pixel_index);
       if(control.apply_badpix) badpixel = CDP.GetBadPixel(pixel_index); 
 
@@ -395,6 +393,7 @@ void ms_read_process_data( const int iteration,
 					   areset); 
 
 	}
+	if(control.do_verbose_time == 1) cout << " After Subtract Reset "  << endl;
 
       //_______________________________________________________________________
 
@@ -411,7 +410,8 @@ void ms_read_process_data( const int iteration,
 					lin_dq,
 					lin_order,
 					lin);
-	}      
+	}
+	if(control.do_verbose_time == 1) cout << " After Apply lin "  << endl;
     //-----------------------------------------------------------------------
 	if(control.apply_rscd_cor==1) {
 	  float lastint_lastframe= lastframe_rscd[pixel_index];
@@ -425,12 +425,6 @@ void ms_read_process_data( const int iteration,
 	    if(pix_x == 181 && pix_y == -161)  cout << " First frame " << lastint_lastframe << endl;
 	  }
 	  
-	  //if(pix_x == 181 && pix_y == 161) {
-	  // if(iteration ==1) lastint_lastframe_sat = 98430.3+5028;
-	  //  if(iteration ==2) lastint_lastframe_sat = 82352.7+5028;
-	  //  if(iteration ==3) lastint_lastframe_sat = 80954.2+5028;
-	  //  if(iteration ==4) lastint_lastframe_sat = 81289.1+5028;
-	  //}
 	    // mult terms
 	  vector<float> mult_a;
 	  vector<float> mult_b;
@@ -578,7 +572,8 @@ void ms_read_process_data( const int iteration,
     //-----------------------------------------------------------------------
       // search for  cosmic rays 
 	if(control.do_cr_id || control.do_diagnostic){
-	  if(is_ref ==0 ) { 
+	  if(is_ref ==0 ) {
+
 	    ms_2pt_diff_quick(control.do_verbose_jump,
 			      control.do_cr_id,
 			      data_info.NRampsRead,
@@ -603,10 +598,13 @@ void ms_read_process_data( const int iteration,
 	  }
 	}
 
-	if(control.do_verbose_time == 1) cout << " Finished Cosmic Ray check"<< endl;
+	if(control.do_verbose_time == 1) cout << " Finished Cosmic Ray check "<< num_cosmic_rays << " " <<
+					   num_cosmic_rays_neg << " " <<
+					   num_noise_spike << " " << ik << " " << this_nrow <<  endl;
     //_______________________________________________________________________
-	// find slope - standard 
+	// find slope - standard
 	pixel[ik].FindSegments();
+	if(control.do_verbose_time == 1) cout << " Finished FindSegments check "<< ik << " " << this_nrow <<  endl;
 
 // Find Slopes for each segment dn/read	
 
@@ -620,6 +618,7 @@ void ms_read_process_data( const int iteration,
 				   control.xdebug, control.ydebug);  
 	} 
 
+
 	pixel[ik].FinalSlope(control.slope_seg_cr_sigma_reject, 
 			     control.n_frames_reject_after_cr,
 			     control.cr_min_good_diffs,
@@ -627,6 +626,7 @@ void ms_read_process_data( const int iteration,
 			     control.UncertaintyMethod,
 			     data_info.output_cr,
 			     control.xdebug,control.ydebug);
+
 	  //________________________________________________________________________________
 	  //pull out the linearity corrected data and fill in lastframe_lin_co
 
@@ -744,15 +744,13 @@ void ms_read_process_data( const int iteration,
 	Slope2ptDiff.push_back(slope2ptdiff);
       }
 
-
+      if(control.do_verbose_time == 1) cout << " done pixel "<< ik << " " << k<< " " <<  this_nrow << " " << j << " " << xsize<< endl;
 
     } // end loop over x values
-    mrow++;
-    if(mrow>3) mrow = 0;
-      
 
   } //end loop over y values
 
+  if(control.do_verbose_time == 1) cout << " done ALL pixel "<< ik << " " << this_nrow <<  endl;
 
   data_info.total_cosmic_rays = data_info.total_cosmic_rays + num_cosmic_rays;
   data_info.total_noise_spike = data_info.total_noise_spike + num_noise_spike;

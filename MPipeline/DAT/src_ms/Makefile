@@ -85,7 +85,7 @@ MS_OBJS = ${MS_SRCS:.cpp=.o}
 
 RM = rm -f
 
-CC = g++ -ansi  -g -Wall 
+CC = llvm-g++   -g -Wall 
 #CC = g++
 MAKE = make
 DIFLAGS = -Y./include
