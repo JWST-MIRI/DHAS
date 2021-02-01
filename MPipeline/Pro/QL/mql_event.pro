@@ -587,8 +587,10 @@ endif
         if(info.control.file_reset_exist eq 1) then begin
             if (ptr_valid(info.image.preset_pixeldata) eq 0) then begin ; has not been read in 
                 mql_read_reset_data,x,y,info
-            endif
+             endif
+            
             reset_data = (*info.image.preset_pixeldata)
+            print,'mql_event',reset_data
             if ptr_valid (info.image_pixel.reset_pixeldata) then $
               ptr_free,info.image_pixel.reset_pixeldata
             info.image_pixel.reset_pixeldata = ptr_new(reset_data)

@@ -93,6 +93,7 @@ int ms_read_badpixel_fits(string badpixel_filename, miri_data_info &data_info,
     lpixel[0] = fpixel[0] + data_info.ramp_naxes[0] -1;
     lpixel[1] = fpixel[1] + data_info.ramp_naxes[1] -1;
 
+    //cout << data_info.ramp_naxes[0] << " " <<data_info.ramp_naxes[1] << endl;
     //cout << " reading bad pixel mask " << endl;
     //cout << " first pixel " << fpixel[0] << " " << fpixel[1]  << endl;
     //cout << " last  pixel " << lpixel[0] << " " << lpixel[1] << endl;

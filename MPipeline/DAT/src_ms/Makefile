@@ -85,8 +85,10 @@ MS_OBJS = ${MS_SRCS:.cpp=.o}
 
 RM = rm -f
 
-CC = llvm-g++   -g -Wall 
-#CC = g++
+
+CC = g++  -g -Wall
+# for you might need to uncomment line below for MAC Catalina
+#CC = llvm-g++ -g -Wall
 MAKE = make
 DIFLAGS = -Y./include
 

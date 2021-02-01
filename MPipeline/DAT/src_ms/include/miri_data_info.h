@@ -33,6 +33,7 @@ struct miri_data_info {
   int ColStart;
   int RowStart;
 
+  int JPLFixes;
   int Flag_obs_id; 
   int obs_id;
   int Flag_exp_id; 

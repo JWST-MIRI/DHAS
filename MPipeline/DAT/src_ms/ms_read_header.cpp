@@ -141,9 +141,12 @@ void ms_read_header(miri_data_info& data_info, miri_control control)
   fits_read_key(data_info.raw_file_ptr, TINT, "ROWSTART", &data_info.RowStart, comment, &status); 
   if(status != 0) data_info.RowStart = 1;
 
+  status = 0; 
+  fits_read_key(data_info.raw_file_ptr, TINT, "JPLFIXES", &data_info.JPLFixes, comment, &status); 
+  if(status != 0) data_info.JPLFixes = 0;
 
   status = 0; 
-  fits_read_key(data_info.raw_file_ptr, TINT, "FRMRSETS", &data_info.frame_resets, comment, &status); 
+  fits_read_key(data_info.raw_file_ptr, TINT, "FRMRSTS", &data_info.frame_resets, comment, &status); 
   if(status != 0) data_info.frame_resets = 0;
 
   status = 0; 

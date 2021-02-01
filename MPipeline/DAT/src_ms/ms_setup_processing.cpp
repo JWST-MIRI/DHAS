@@ -156,11 +156,40 @@ void ms_setup_processing(miri_control &control,
 	cout << " If you want a different run then use option -run #" << endl;
       }
 
-      int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
-      cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
-      data_info.ColStart = corrected_value;
+      if(data_info.JPLFixes ==0 &  data_info.ColStart !=0){ 
+	int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
+	cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
+	data_info.ColStart = corrected_value;
+      }
 
-      if(control.jpl_run == "8" || control.jpl_run == "9") {
+      // ______________________________________________________________________
+      // JPL RUN 10
+      if(control.jpl_run == "10") {
+	if(control.jpl_detector_flag ==0) {
+	  cout << " This is JPL Run 10 , you must also set which detector the data is from, use option -jdet 101,106 " << endl;
+	  cout << "  -jdet 101 is for FPM-101 data " << endl;
+	  cout << "  -jdet 106 is for SCA-106 data " << endl;
+
+	  exit(EXIT_FAILURE);
+	} else {
+	  cout << " Frame Reset Parameter " << data_info.frame_resets << endl;
+	  if (data_info.frame_resets ==0){
+	    preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run + "_D"+control.jpl_detector + "_FR0.list";
+	    cout << " Using " << preference.CDP_file;
+	    found = 1;
+	    
+	  }else if(data_info.frame_resets== 1){
+	    	    preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run + "_D"+control.jpl_detector + "_FR1.list";
+	    cout << " Using " << preference.CDP_file;
+	    found = 1;
+	  }else{
+	    cout << " Frame Reset is not 0 or 1, reference files do not exist for this frame reset value of" <<
+	      data_info.frame_resets << endl;
+	  }
+	}  
+	// ______________________________________________________________________
+      // JPL RUN 8 or 9
+      } else if(control.jpl_run == "8" || control.jpl_run == "9") {
 	if(control.jpl_detector_flag ==0) {
 	  cout << " This is JPL Run 8 or 9 , you must also set which detector the data is from, use option -jdet 101,106,124 " << endl;
 	  cout << "  -jdet 101 is for FPM-101 data " << endl;
@@ -197,7 +226,8 @@ void ms_setup_processing(miri_control &control,
 	  }
 	}
       
-
+      // ______________________________________________________________________
+      // Any other JPL Run
       } else {
 	preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run +".list";	
 	found = 1;      
