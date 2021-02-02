@@ -156,7 +156,7 @@ void ms_setup_processing(miri_control &control,
 	cout << " If you want a different run then use option -run #" << endl;
       }
 
-      if(data_info.JPLFixes ==0 &  data_info.ColStart !=0){ 
+      if(data_info.JPLFixes ==0 &&  data_info.ColStart !=0){ 
 	int corrected_value  = (data_info.ColStart -1)*4/5 + 1;
 	cout << "Correcting COLSTART value in memory from " << data_info.ColStart << " to " << corrected_value<< endl;
 	data_info.ColStart = corrected_value;
