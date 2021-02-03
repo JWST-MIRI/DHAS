@@ -1,9 +1,0 @@
-LIST = THISFILE                                                         : list of Calibration Files to use for SW from CDP2 delivery
-BAD            = MIRI_FM_MIRIFUSHORT_12_MASK_06.02.00.fits              : Bad Pixelfile 
-PIXELSAT       = MIRI_FM_RAL_MIRIFUSHORT_12_SATURATION_07.02.00.fits    : Pixel Saturation file 
-LIN_COR        = MIRI_FM_RAL_MIRIFUSHORT_12_LINEARITY_07.02.00.fits     : Linearity Correction file 
-RSCD           = MIRI_JPL_RUN6_RSCD_07.02.00.fits                       : Reset Switch Charge Decay Correction File
-RESET_FAST     = NA                                                     : Reset anomaly correction
-LASTFRAME      = MIRI_JPL_RUN6_LASTFRAME_07.01.00.fits                  : LastFrame Correction	   
-DARK_FAST      = MIRI_FM_RAL_MIRIFUSHORT_FAST_12_DARK_07.01.00.fits     : Fast Dark 
-DARK_SLOW      = NA                                                     : Slow Dark 
