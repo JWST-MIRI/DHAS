@@ -115,7 +115,7 @@ edit_xwindowsize = 0 ; no structure exists for this widget
 edit_ywindowsize = 0
 
 ;_______________________________________________________________________
-
+; 
 version = "(v 9.8.5 Feb 7, 2021)"
 
 miri_dir = getenv('MIRI_DIR')
