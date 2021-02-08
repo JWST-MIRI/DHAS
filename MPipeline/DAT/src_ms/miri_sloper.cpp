@@ -368,9 +368,7 @@ int main(int argc, char* argv[])
       if(control.apply_reset_cor ==0) NR = 1; 
       vector<miri_reset> reset(NR);
       if(control.apply_reset_cor == 1 ) {
-	cout << " reading apply reset" << endl;
 	ms_read_reset_file(i,control,data_info,CDP,reset);
-	cout << " done reading apply reset" << endl;
       }
       
     // **********************************************************************
