@@ -286,7 +286,7 @@ int ms_read_RSCD_file(miri_data_info &data_info,
       //	   << " " << alpha_odd[ifound] <<  endl; 
     } else{
       cout << " Could not find the correct row in the RSCD table " << endl;
-      cout << " searching for " << subarray << " " << readpatt << " " << 
+      cout << " searching for " << subarray << " " << readpatt << " " << endl;
       cout << " Turning off apply rscd correction " << endl;
       control.apply_rscd_cor = 0;
     }
