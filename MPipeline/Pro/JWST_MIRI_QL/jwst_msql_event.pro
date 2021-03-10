@@ -86,7 +86,7 @@ case 1 of
 ; inspect image
     (strmid(event_name,0,7) EQ 'inspect') : begin
 
-        type = fix(strmid(event_name,8,1))
+       type = fix(strmid(event_name,8,1))
 	if(type eq 1) then begin 
             info.jwst_inspect_slope.integrationNO = info.jwst_slope.integrationNO[0]
             frame_image = (*info.jwst_data.prate1)
@@ -107,6 +107,7 @@ case 1 of
 
             info.jwst_inspect_slope.limit_low = -5000.0
             info.jwst_inspect_slope.limit_high = 70000.0
+            if(info.jwst_inspect_slope.plane eq 2) then  info.jwst_inspect_slope.limit_high = ulong64(2.0^30)
             info.jwst_inspect_slope.limit_low_num = 0
             info.jwst_inspect_slope.limit_high_num = 0
             info.jwst_inspect_slope.graph_range[0] = info.jwst_slope.graph_range[0,0]
@@ -119,7 +120,6 @@ case 1 of
 	if(type eq 2) then  begin
             info.jwst_inspect_slope2.integrationNO = info.jwst_slope.integrationNO[1]
             frame_image = (*info.jwst_data.prate2)
-
             if ptr_valid (info.jwst_inspect_slope2.pdata) then ptr_free,info.jwst_inspect_slope2.pdata
             info.jwst_inspect_slope2.pdata = ptr_new(frame_image)
             all_data = 0
@@ -136,6 +136,7 @@ case 1 of
 
             info.jwst_inspect_slope2.limit_low = -5000.0
             info.jwst_inspect_slope2.limit_high = 70000.0
+            if(info.jwst_inspect_slope2.plane eq 2) then  info.jwst_inspect_slope2.limit_high = ulong64(2.0^30)
             info.jwst_inspect_slope2.limit_low_num = 0
             info.jwst_inspect_slope2.limit_high_num = 0
             info.jwst_inspect_slope2.graph_range[0] = info.jwst_slope.graph_range[2,0]

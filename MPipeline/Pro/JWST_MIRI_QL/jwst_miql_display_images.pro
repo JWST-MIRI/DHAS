@@ -704,7 +704,8 @@ if(info.jwst_inspect.uwindowsize eq 0) then begin ; user changed the widget wind
 
 
     info.jwst_inspect.limit_low = -5000.0
-    info.jwst_inspect.limit_high = 65535
+    info.jwst_inspect.limit_high = 5000.0
+
     info.jwst_inspect.limit_low_num = 0
     info.jwst_inspect.limit_high_num = 0
 endif

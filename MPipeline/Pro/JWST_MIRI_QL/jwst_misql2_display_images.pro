@@ -380,13 +380,12 @@ info.jwst_inspect_slope2.ystart_zoom = ystart
 info.jwst_inspect_slope2.yend_zoom = yend
 info.jwst_inspect_slope2.xend_zoom = xend
 
-frame_image = (*info.jwst_inspect_slope2.pdata)[*,*,info.jwst_inspect_slope2.plane_plot]
+frame_image = (*info.jwst_inspect_slope2.pdata)[*,*,info.jwst_inspect_slope2.plane]
 
 sub_image = fltarr(xsize,ysize)   
 
 sub_image[ixstart:ixend,iystart:iyend] =frame_image[xstart:xend,ystart:yend]
 stat_data =     sub_image
-
     
 x_zoom_start = ixstart
 x_zoom_end = ixend
@@ -402,7 +401,6 @@ stat_noref = stat_data[x_zoom_start:x_zoom_end,*]
 stat_data = 0
 stat_data = stat_noref
 stat_noref = 0
-
 
 jwst_get_image_stat,stat_data,image_mean,stdev,image_min,image_max,$
                irange_min,irange_max,image_median,stdev_mean
@@ -420,7 +418,6 @@ z_max  = image_max
 
 ;_______________________________________________________________________
 ; get stats on full image - no reference pixels
-
 
 if(info.jwst_data.subarray eq 0) then begin  
     frame_image_noref  = frame_image[4:1027,*]
@@ -447,7 +444,6 @@ if(info.jwst_inspect_slope2.default_scale_graph eq 1) then begin
     info.jwst_inspect_slope2.graph_range[1] = irange_max
 endif
 
-
 disp_image = congrid(sub_image, $
                      xsize_image,ysize_image)
 
@@ -469,7 +465,6 @@ min = image_min
 max = image_max
 median = image_median
 st_mean = stdev_mean
-
 
 low_limit_value = info.jwst_inspect_slope2.limit_low
 high_limit_value = info.jwst_inspect_slope2.limit_high
@@ -717,7 +712,8 @@ if(info.jwst_inspect_slope2.uwindowsize eq 0) then begin ; user changed the widg
     info.jwst_inspect_slope2.yposful = info.jwst_inspect_slope2.y_pos
 
     info.jwst_inspect_slope2.limit_low = -5000.0
-    info.jwst_inspect_slope2.limit_high = 5000.0
+    info.jwst_inspect_slope2.limit_high = 65535
+    if(info.jwst_inspect_slope2.plane eq 2) then  info.jwst_inspect_slope2.limit_high = ulong64(2.0^30)
     info.jwst_inspect_slope2.limit_low_num = 0
     info.jwst_inspect_slope2.limit_high_num = 0
 endif
@@ -823,7 +819,7 @@ info.jwst_inspect_slope2.graphID = widget_draw(graphID1,$
 ;_______________________________________________________________________
 ;  Information on the image
 
-xsize_label = 8
+xsize_label = 12
 ; 
 ; statistical information - next column
 
@@ -902,7 +898,7 @@ info.jwst_inspect_slope2.pix_label[1] = cw_field(pix_num_base,title="y",font=inf
 
 pix_num_base = widget_base(graphid2,col=1,/align_left)
 
-info.jwst_inspect_slope2.pix_statLabel = ["Slope (DN/s)","Error","DQ Flag" ]
+info.jwst_inspect_slope2.pix_statLabel = ["Rate (DN/s)","Error","DQ Flag" ]
 
 info.jwst_inspect_slope2.pix_statFormat = ["F16.5","F16.8","I16"]
 

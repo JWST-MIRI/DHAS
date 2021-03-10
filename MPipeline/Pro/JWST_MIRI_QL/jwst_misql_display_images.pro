@@ -386,7 +386,7 @@ info.jwst_inspect_slope.ystart_zoom = ystart
 info.jwst_inspect_slope.yend_zoom = yend
 info.jwst_inspect_slope.xend_zoom = xend
 
-frame_image = (*info.jwst_inspect_slope.pdata)[*,*,info.jwst_inspect_slope.plane_plot]
+frame_image = (*info.jwst_inspect_slope.pdata)[*,*,info.jwst_inspect_slope.plane]
 
 sub_image = fltarr(xsize,ysize)   
 
@@ -736,6 +736,7 @@ if(info.jwst_inspect_slope.uwindowsize eq 0) then begin ; user changed the widge
 
     info.jwst_inspect_slope.limit_low = -5000.0
     info.jwst_inspect_slope.limit_high = 5000.0
+    if(info.jwst_inspect_slope.plane eq 2) then  info.jwst_inspect_slope.limit_high = ulong64(2.0^30)
     info.jwst_inspect_slope.limit_low_num = 0
     info.jwst_inspect_slope.limit_high_num = 0
 endif
@@ -839,7 +840,7 @@ info.jwst_inspect_slope.graphID = widget_draw(graphID1,$
 ;_______________________________________________________________________
 ;  Information on the image
 
-xsize_label = 8
+xsize_label = 12
 ; 
 ; statistical information - next column
 
