@@ -1,0 +1,93 @@
+pro compare_dhas_jwst, file_dhas_lvl2, file_jwst_rate
+
+; file_dhas_lvl2: slope image from DHAS
+; First extension contains average slope
+;    data: slope, error, dq
+; Second extension: slope from int 1
+;   data: slope, error, dq, zero pt, # good frames,
+;         frame # first sat, # good segments, STD fit
+
+; file_jwst_rate;
+; first extension: average slope
+; second extension: error of slope
+; third extension: DQ
+; forth extension: var_poisson
+; fifth extension: var_rnoise
+
+; Using the name of the rate file - form the name of the rateints file
+; read in the rate ints file
+;******************************************************************
+;Read in the DHAS data
+  
+  file_exists = file_test(file_dhas_lvl2,/regular,/read)
+  if(file_exists ne 1) then begin
+     print,' DHAS file does not exists', file_dhas_lvl2
+     stop
+  endif
+
+  file_exists = file_test(file_jwst_rate,/regular,/read)
+  if(file_exists ne 1) then begin
+     print,' JWST  file does not exists', file_jwst_rate
+     stop
+  endif
+
+  fits_open,file_dhas_lvl2,fcb
+  fits_read,fcb,ave_slope_dhas,header,,exten_no = 0
+
+  nramps = fxpar(header,'NPGROUP',count=count)
+  if(count eq 0) then nramps = fxpar(header,'NGROUPS',count = count)
+  if(count eq 0) then nramps = 0
+  nints = fxpar(header,'NINT',count = count)
+  if(count eq 0) then nints = fxpar(header,'NINT',count = count)
+  if(count eq 0) then nints = 1
+  if(nints eq 0) then nints  = 1
+  naxis1 = fxpar(header,'NAXIS1',count = count)
+  naxis2 = fxpar(header,'NAXIS2',count = count)
+  slope_dhas_int = fltarr(nints, naxis1, naxis2,3)
+  
+  for i = 0, nints -1 do begin
+     fits_read,fcb,data,header,exten_no = i+1
+     slope_dhas_int[i,*,*,0:2] = data[*,*,0:2]
+  endfor
+  fits_close,fcb
+;******************************************************************
+; Read in the jwst pipeline data
+  len  = strlen(file_jwst_rate)
+  filebase = strmid(file_jwst_rate,0,len-5)
+  file_jwst_rate_ints = filebase + 'ints.fits'
+
+;read average rate
+  fits_open,file_jwst_rate,fcb
+  fits_read,fcb,data,header,exten_no = 1
+  naxis1_jwst = fxpar(header,'NAXIS1',count = count)
+  naxis2_jwst = fxpar(header,'NAXIS2',count = count)
+  if(naxis1 ne naxis1_jwst or naxis2 ne naxis2_jwst) then begin
+     print,' The DHAS and JWST files are not the same size'
+     print,' DHAS file has size',naxis1, naxis2
+     print,' JWST file has size',naxis1_jwst, naxis2_jwst
+     stop
+  endif
+  ave_slope_jwst = fltarr(naxis1, naxis2,3)
+  ave_slope_jwst[*,*,0] =data
+  fits_read,fcb,data,header,exten_no = 2
+  ave_slope_jwst[*,*,1] =data
+  fits_read,fcb,data,header,exten_no = 3
+  ave_slope_jwst[*,*,2] =data
+  fits_close,fcb
+  
+  ave_slope_jwst = fltarr(nints, naxis1, naxis2,3)
+  fits_open,file_jwst_rate_ints,fcb
+  fits_read,fcb,data,header,exten_no = 1
+  ave_slope_jwst[0:nints-1,naxis1, naxis2,0] = data
+
+  fits_read,fcb,data,header,exten_no = 2
+  ave_slope_jwst[0:nints-1,naxis1, naxis2,1] = data
+
+  fits_read,fcb,data,header,exten_no = 3
+  ave_slope_jwst[0:nints-1,naxis1, naxis2,2] = data
+  fits_close,fcb
+
+; Now compare the average rate files
+
+  stop
+  end
