@@ -189,7 +189,6 @@ endif
 
         xmove = xvalue - xstart
         ymove = yvalue - ystart
-        
 
         info.jwst_inspect_slope.xposful = info.jwst_inspect_slope.xposful + xmove
         info.jwst_inspect_slope.yposful = info.jwst_inspect_slope.yposful + ymove
@@ -206,14 +205,11 @@ endif
 
         jwst_misql_update_pixel_location,info
 
-
-
 ; If the Frame values for pixel window is open - destroy
         if(XRegistered ('mpixel')) then begin
             widget_control,info.jwst_RPixelInfo,/destroy
-        endif
+         endif
         
-
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
@@ -232,11 +228,9 @@ endif
             if(y gt info.jwst_data.slope_ysize) then y = info.jwst_data.slope_ysize-1
             xvalue = x * info.jwst_inspect_slope.zoom
             yvalue = y * info.jwst_inspect_slope.zoom
-;;
             
             info.jwst_inspect_slope.x_pos = xvalue ;value in image screen 
             info.jwst_inspect_slope.y_pos = yvalue ;
-
 
             xposful = (xvalue/info.jwst_inspect_slope.zoom_x)+ info.jwst_inspect_slope.xstart_zoom
             yposful = (yvalue/info.jwst_inspect_slope.zoom)+ info.jwst_inspect_slope.ystart_zoom
@@ -270,9 +264,6 @@ endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
-
-
-
 else: print,event_name
 endcase
 end
@@ -291,20 +282,16 @@ ititle =  "Integration #: " + strtrim(string(info.jwst_inspect_slope.integration
          
 widget_control,info.jwst_inspect_slope.iLabelID,set_value= ititle
 
-
 i = info.jwst_inspect_slope.integrationNO
-
 
 zoom = info.jwst_inspect_slope.zoom
 
 x = info.jwst_inspect_slope.xposful ; xposful = x location in full image
 y = info.jwst_inspect_slope.yposful ; yposful = y location in full image
 
-
 if(zoom eq 1) then begin
     x = info.jwst_data.slope_xsize/2
     y = info.jwst_data.slope_ysize/2
-
 endif
 xsize_org =  info.jwst_inspect_slope.xplotsize
 ysize_org =  info.jwst_inspect_slope.yplotsize
@@ -334,7 +321,6 @@ if(zoom eq 32) then begin
   xsize = xsize_org/32
   ysize = ysize_org/32
 endif
-
 
 ; ixstart and iystart are the starting points for the zoom image
 ; xstart and ystart are the starting points for the orginal image
@@ -411,7 +397,6 @@ stat_noref = 0
 
 jwst_get_image_stat,stat_data,image_mean,stdev,image_min,image_max,$
                irange_min,irange_max,image_median,stdev_mean
-
 stat_data = 0
 ;_______________________________________________________________________
 if ptr_valid (info.jwst_inspect_slope.psubdata) then ptr_free,info.jwst_inspect_slope.psubdata
@@ -437,7 +422,11 @@ endelse
     
 
 jwst_get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean
+                    irange_min,irange_max,image_median,stdev_mean
+if(info.jwst_inspect_slope.plane eq 2) then begin ; DQ plane
+   irange_min = 0
+   irange_max = 32
+endif
 frame_image = 0                 ; free memory
 frame_image_noref = 0
 ;_______________________________________________________________________
@@ -902,7 +891,6 @@ info.jwst_inspect_slope.pix_label[0] = cw_field(pix_num_base,title="x",font=info
                                    value=fix(xvalue+1),xsize=6,$  ; xvalue + 1 -4 (reference pixel)
                                    fieldfont=info.font3)
 
-
 pix_num_base = widget_base(graphID2,row=1,/align_left)
 labelID = widget_button(pix_num_base,uvalue='pix_move_y1',value='<',font=info.font3)
 labelID = widget_button(pix_num_base,uvalue='pix_move_y2',value='>',font=info.font3)
@@ -910,7 +898,6 @@ info.jwst_inspect_slope.pix_label[1] = cw_field(pix_num_base,title="y",font=info
                                    uvalue="pix_y_val",/integer,/return_events, $
                                    value=fix(yvalue+1),xsize=6,$
                                    fieldfont=info.font3)
-
 
 pix_num_base = widget_base(graphid2,/col,/align_left)
 
@@ -923,7 +910,8 @@ endelse
 info.jwst_inspect_slope.pix_statFormat = ["F16.5","F16.8","I16" ]
 
 for i = 0,1 do begin 
-   info.jwst_inspect_slope.pix_statID[i]=widget_label(pix_num_base,value = info.jwst_inspect_slope.pix_statLabel[i]+$
+   info.jwst_inspect_slope.pix_statID[i]=widget_label(pix_num_base,$
+                                                      value = info.jwst_inspect_slope.pix_statLabel[i]+$
                                                       ' = ' ,/align_left,/dynamic_resize)
 endfor
 
@@ -931,7 +919,6 @@ info_base = widget_base(graphid2,row=1,/align_left)
 info.jwst_inspect_slope.pix_statID[2] = widget_label(info_base,value = info.jwst_inspect_slope.pix_statLabel[2]+$
                                         ' =  ' ,/align_left,/dynamic_resize)                                       
 info_label = widget_button(info_base,value = 'Info',uvalue = 'datainfo')
-
 
 ; stats
 b_label = widget_label(graphID2,value=blank)
@@ -986,7 +973,6 @@ info.jwst_inspect_slope.draw_window_id = tdraw_id
 window,/pixmap,xsize=info.jwst_inspect_slope.xplotsize,ysize=info.jwst_inspect_slope.yplotsize,/free
 info.jwst_inspect_slope.pixmapID = !D.WINDOW
 loadct,info.col_table,/silent
-
 
 jwst_misql_update_images,info
 jwst_misql_find_limits,info

@@ -69,8 +69,6 @@ endif
         jwst_miql_update_images,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
-    
 ;_______________________________________________________________________
 ; Change limits
 
@@ -665,7 +663,7 @@ if(info.jwst_inspect.limit_high_num gt 0) then begin
     xvalue = 0
     yvalue = 0
 endif
-if(change_color eq 1) then loadct,save_color
+if(change_color eq 1) then loadct,save_color,/silent
 
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
@@ -704,7 +702,7 @@ if(info.jwst_inspect.uwindowsize eq 0) then begin ; user changed the widget wind
 
 
     info.jwst_inspect.limit_low = -5000.0
-    info.jwst_inspect.limit_high = 5000.0
+    info.jwst_inspect.limit_high = 65350.0
 
     info.jwst_inspect.limit_low_num = 0
     info.jwst_inspect.limit_high_num = 0
@@ -941,11 +939,9 @@ longtag = widget_label(InspectImage,value = longline)
 ; realize main panel
 Widget_control,InspectImage,/Realize
 
-
 info.jwst_InspectImage = InspectImage
 
 XManager,'jwst_miql',info.jwst_InspectImage,/No_Block,event_handler='jwst_miql_event'
-
 
 ; get the window ids of the draw windows
 

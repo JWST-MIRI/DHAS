@@ -1,5 +1,5 @@
 ;_______________________________________________________________________
-pro jwst_micrql_quit,event
+pro jwst_compare_inspect_reduced_quit,event
 ;_______________________________________________________________________
 widget_control,event.top, Get_UValue = ginfo	
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
@@ -8,7 +8,7 @@ wdelete,info.jwst_crinspect[ginfo.imageno].pixmapID
 
 end
 ;_______________________________________________________________________
-pro jwst_micrql_event,event
+pro jwst_compare_inspect_reduced_event,event
 ;_______________________________________________________________________
 Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = ginfo	
@@ -23,7 +23,7 @@ if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
     info.jwst_crinspect[imageno].uwindowsize = 1
     widget_control,event.top,set_uvalue = ginfo
     widget_control,ginfo.info.jwst_Quicklook,set_uvalue = info
-    jwst_micrql_display_images,info,imageno
+    jwst_compare_inspect_reduced_images,info,imageno
 
     return
 endif
@@ -42,7 +42,7 @@ endif
             info.jwst_crinspect[imageno].default_scale_graph = 1
         endif
 
-        jwst_micrql_update_images,info,imageno
+        jwst_compare_inspect_reduced_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
     end
@@ -69,7 +69,7 @@ endif
         info.jwst_crinspect[imageno].default_scale_graph = 0
         widget_control,info.jwst_crinspect[imageno].image_recomputeID,set_value='Default Scale'
 
-        jwst_micrql_update_images,info,imageno
+        jwst_compare_inspect_reduced_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
@@ -95,7 +95,7 @@ endif
         info.jwst_crinspect[imageno].limit_low_default = 0
         info.jwst_crinspect[imageno].limit_high_default = 0
 
-        jwst_micrql_update_images,info,imageno
+        jwst_compare_inspect_reduced_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
@@ -108,7 +108,7 @@ endif
        info.jwst_crinspect[imageno].zoom = 2^zoom
 
          ; redefine the xpos and y pos value in new zoom window
-         jwst_micrql_update_images,info,imageno
+         jwst_compare_inspect_reduced_update_images,info,imageno
 
          
          ; xposful, uposful - x,y location in full image
@@ -118,7 +118,7 @@ endif
          ypos_new = info.jwst_crinspect[imageno].yposful -info.jwst_crinspect[imageno].ystart_zoom
          info.jwst_crinspect[imageno].x_pos = (xpos_new+0.5)*info.jwst_crinspect[imageno].zoom_x
          info.jwst_crinspect[imageno].y_pos = (ypos_new+0.5)*info.jwst_crinspect[imageno].zoom
-         jwst_micrql_update_pixel_location,info,imageno
+         jwst_compare_inspect_reduced_update_pixel_location,info,imageno
 
          for i = 0,5 do begin
              widget_control,info.jwst_crinspect[imageno].zbutton[i],set_button = 0
@@ -202,7 +202,7 @@ endif
         widget_control,info.jwst_crinspect[imageno].pix_label[0],set_value=info.jwst_crinspect[imageno].xposful+1
         widget_control,info.jwst_crinspect[imageno].pix_label[1],set_value=info.jwst_crinspect[imageno].yposful+1
 
-        jwst_micrql_update_pixel_location,info,imageno
+        jwst_compare_inspect_reduced_update_pixel_location,info,imageno
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
@@ -250,7 +250,7 @@ endif
             widget_control,info.jwst_crinspect[imageno].pix_label[0],set_value = info.jwst_crinspect[imageno].xposful+1
             widget_control,info.jwst_crinspect[imageno].pix_label[1],set_value = info.jwst_crinspect[imageno].yposful+1
 
-            jwst_micrql_update_pixel_location,info,imageno
+            jwst_compare_inspect_reduced_update_pixel_location,info,imageno
 
 
         endif
@@ -265,7 +265,7 @@ end
 
 ;_______________________________________________________________________
 ;***********************************************************************
-pro jwst_micrql_update_images,info,imageno,ps = ps,eps = eps
+pro jwst_compare_inspect_reduced_update_images,info,imageno,ps = ps,eps = eps
 ;_______________________________________________________________________
 hcopy = 0
 loadct,info.col_table,/silent
@@ -619,7 +619,7 @@ test_image = 0
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
 ;_______________________________________________________________________
-pro jwst_micrql_update_pixel_location,info,imageno
+pro jwst_compare_inspect_reduced_update_pixel_location,info,imageno
 ;_______________________________________________________________________
 
 xvalue = info.jwst_crinspect[imageno].xposful ; location in image 
@@ -674,7 +674,7 @@ widget_control,info.jwst_Quicklook,set_uvalue = info
 end
 
 ;_______________________________________________________________________
-pro jwst_micrql_display_images,info,imageno
+pro jwst_compare_inspect_reduced_images,info,imageno
 ;_______________________________________________________________________
 
 if(info.jwst_crinspect[imageno].uwindowsize eq 0) then begin ; user changed the widget window size - only redisplay
@@ -783,7 +783,7 @@ InspectImage = widget_base(title=" JWST MIRI Quick Look- "+ stit + info.jwst_ver
 QuitMenu = widget_button(menuBar,value="Quit",font = info.font2)
 
 ; add quit button
-quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_micrql_quit')
+quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_compare_inspect_reduced_quit')
 
 ; zoom button
 ZoomMenu = widget_button(menuBar,value="Zoom",font = info.font2)
@@ -960,9 +960,9 @@ longtag = widget_label(InspectImage,value = longline)
 Widget_control,InspectImage,/Realize
 
 info.jwst_CRInspectImage[imageno] = InspectImage
-if(imageno eq 0)then  XManager,'jwst_micrql1',info.jwst_CRInspectImage[imageno],/No_Block,event_handler='jwst_micrql_event'
-if(imageno eq 1) then XManager,'jwst_micrql2',info.jwst_CRInspectImage[imageno],/No_Block,event_handler='jwst_micrql_event'
-if(imageno eq 2) then XManager,'jwst_micrql3',info.jwst_CRInspectImage[imageno],/No_Block,event_handler='jwst_micrql_event'
+if(imageno eq 0)then  XManager,'jwst_micrql1',info.jwst_CRInspectImage[imageno],/No_Block,event_handler='jwst_compare_inspect_reduced_event'
+if(imageno eq 1) then XManager,'jwst_micrql2',info.jwst_CRInspectImage[imageno],/No_Block,event_handler='jwst_compare_inspect_reduced_event'
+if(imageno eq 2) then XManager,'jwst_micrql3',info.jwst_CRInspectImage[imageno],/No_Block,event_handler='jwst_compare_inspect_reduced_event'
 
 widget_control,info.jwst_crinspect[imageno].graphID,get_value=tdraw_id
 info.jwst_crinspect[imageno].draw_window_id = tdraw_id
@@ -974,9 +974,9 @@ Widget_Control,info.jwst_QuickLook,Set_UValue=info
 iinfo = {imageno          : imageno,$
          info        : info}
 
-jwst_micrql_update_images,info,imageno
+jwst_compare_inspect_reduced_update_images,info,imageno
 
-jwst_micrql_update_pixel_location,info,imageno
+jwst_compare_inspect_reduced_update_pixel_location,info,imageno
 
 Widget_Control,info.jwst_CRInspectImage[imageno],Set_UValue=iinfo
 

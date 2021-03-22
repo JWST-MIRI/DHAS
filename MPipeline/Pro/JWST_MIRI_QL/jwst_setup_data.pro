@@ -105,14 +105,11 @@ jwst_read_single_slope,info.jwst_control.filename_slope_int,slope_exists,$
                        status,$
                        error_message
 
-
 info.jwst_control.file_slope_int_exist = slope_exists
-
 
 if(slope_exists eq 0) then begin
    return
 endif
-
 
 if(type eq 0) then begin
    if ptr_valid (info.jwst_data.preducedint) then ptr_free,info.jwst_data.preducedint
@@ -125,7 +122,6 @@ if(type eq 1) then begin
    info.jwst_data.prate2 = ptr_new(slopedata)
    info.jwst_data.rate2_stat = stats
 endif
-
 
 slopedata = 0
 stats = 0
@@ -154,7 +150,6 @@ jwst_read_final_slope,info.jwst_control.filename_slope,slope_exists,$
                       status,$
                       error_message
 
-
 info.jwst_control.file_slope_exist = slope_exists
 
 if(slope_exists eq 0) then begin
@@ -167,13 +162,14 @@ info.jwst_data.slope_ysize = slope_ysize
 
 jwst_reading_slope_header,info,status,error_message ; reads the rate.fits file 
 
+print,'jwst_setup_data reading slope final',type
+
 if (type eq 0) then begin ; set up data for jwst_mql_display
    if ptr_valid (info.jwst_data.preduced) then ptr_free,info.jwst_data.preduced
    info.jwst_data.preduced = ptr_new(slopedata)
    info.jwst_data.reduced_stat = stats
    jwst_header_setup_slope,0,info
 endif 
-
 
 if (type eq 1 ) then begin ; set up data for jwst_msql_display - default image 1 is rate image
    if ptr_valid (info.jwst_data.prate1) then ptr_free,info.jwst_data.prate1
@@ -188,8 +184,7 @@ if (type eq 2) then begin ; set up data for jwst_mcql_display
    if ptr_valid (info.jwst_data.pcal2) then ptr_free,info.jwst_data.pcal2
    info.jwst_data.pcal2 = ptr_new(slopedata)
    info.jwst_data.cal2_stat = stats
-
-
+   print,'stats',stats
    jwst_header_setup_slope,2,info
 endif 
 
@@ -208,7 +203,6 @@ pro jwst_setup_cal,info,type
                 cal_xsize,cal_ysize,stats,$
                 status,error_message
   info.jwst_control.file_cal_exist = cal_exists
-
   
   if(cal_exists eq 1) then begin 
      info.jwst_data.cal_xsize = cal_xsize
@@ -226,7 +220,7 @@ pro jwst_setup_cal,info,type
         if ptr_valid (info.jwst_data.pcal1) then ptr_free,info.jwst_data.pcal1
         info.jwst_data.pcal1 = ptr_new(caldata)
         info.jwst_data.cal1_stat = stats
-
+        print,'cal stats',stats
         caldata = 0
         stats = 0
         jwst_header_setup,2,info

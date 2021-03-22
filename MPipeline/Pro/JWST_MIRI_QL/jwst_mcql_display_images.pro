@@ -56,10 +56,10 @@ signal1 = (*info.jwst_data.pcal1)[x,y,0]
 error1 = (*info.jwst_data.pcal1)[x,y,1]
 dq1 = (*info.jwst_data.pcal1)[x,y,2]
 
-if (info.jwst_cal.data_type[0] eq 2) then info.jwst_cal.pix_statLabel1 = ["Image 1 Cal (MJy/sr)",  "Image 1 Error",  "DQ flag"] 
+if (info.jwst_cal.data_type[0] eq 3) then info.jwst_cal.pix_statLabel1 = ["Image 1 Cal (MJy/sr)",  "Image 1 Error",  "DQ flag"] 
 if (info.jwst_cal.data_type[0] eq 1) then info.jwst_cal.pix_statLabel1 = ["Image 1 Rate (DN/s)",  "Image 1 Error",  "DQ flag"] 
 
-if (info.jwst_cal.data_type[1] eq 2) then info.jwst_cal.pix_statLabel2 = ["Image 2 Cal (MJy/sr)",  "Image 2 Error",  "DQ flag"] 
+if (info.jwst_cal.data_type[1] eq 3) then info.jwst_cal.pix_statLabel2 = ["Image 2 Cal (MJy/sr)",  "Image 2 Error",  "DQ flag"] 
 if (info.jwst_cal.data_type[1] eq 1) then info.jwst_cal.pix_statLabel2 = ["Image 2 Rate (DN/s)",  "Image 2 Error",  "DQ flag"] 
 
 sfin = strtrim(string(signal1,format="("+info.jwst_cal.pix_statFormat1[0]+")"),2)
@@ -195,7 +195,7 @@ if(info.jwst_control.file_slope_exist eq 0) then voptions = ['Cal Image','Cal Er
 
 xsize_label = 9
 ;************************************
-;graph 1,1- slope image
+;graph 1,1- cal default image
 ;************************************
 bintitle =   "[" + strtrim(string(info.jwst_data.slope_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_data.slope_ysize),2) + " " + info.jwst_cal.bindisplay[0] + "]"
@@ -205,17 +205,17 @@ base1 = widget_base(info.jwst_cal.graphID11,row=1)
 info.jwst_cal.graph_label[0] = widget_droplist(base1,value=voptions,$
                                             uvalue='voption1',font=info.font5)
 slope_bin = widget_label(base1,value = bintitle,font=info.font4)
-
-slmean = info.jwst_data.cal1_stat[0,0]
-slmin = info.jwst_data.cal1_stat[3,0]
-slmax = info.jwst_data.cal1_stat[4,0]
+plane_win1 = info.jwst_cal.plane[0]
+slmean = info.jwst_data.cal1_stat[0,plane_win1]
+slmin = info.jwst_data.cal1_stat[3,plane_win1]
+slmax = info.jwst_data.cal1_stat[4,plane_win1]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.cal1_stat[5,0]
-range_max = info.jwst_data.cal1_stat[6,0]
+range_min = info.jwst_data.cal1_stat[5,plane_win1]
+range_max = info.jwst_data.cal1_stat[6,plane_win1]
 info.jwst_cal.graph_range[0,0] = range_min
 info.jwst_cal.graph_range[0,1] = range_max
 
@@ -223,10 +223,10 @@ stat_base1 = widget_base(info.jwst_cal.graphID11,row=1)
 stat_base2 = widget_base(info.jwst_cal.graphID11,row=1)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_1',font=info.font4)
 info.jwst_cal.slabelID[0] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
-                                          /align_left,font=info.font4)
+                                          /align_left,font=info.font4,/dynamic_resize)
 info.jwst_cal.mlabelID[0] = widget_label(stat_base2,$
                          value=(' Min: ' + smin + ' Max: ' + smax),$
-                                      /align_left,font=info.font4)
+                                      /align_left,font=info.font4,/dynamic_resize)
 
 ; min and max scale of  image
 info.jwst_cal.srange_base[0] = widget_base(info.jwst_cal.graphID11,row=1)
@@ -259,7 +259,7 @@ info.jwst_cal.x_pos =(info.jwst_data.slope_xsize/info.jwst_cal.binfactor)/2.0
 info.jwst_cal.y_pos = (info.jwst_data.slope_ysize/info.jwst_cal.binfactor)/2.0
 
 ;_______________________________________________________________________
-;graph 1,2- uncertainty slope image (default) 
+;graph 1,2- final slope  (default) 
 
 base1 = widget_base(info.jwst_cal.graphID12,row=1)
 info.jwst_cal.graph_label[1] = widget_droplist(base1,value=voptions,$
@@ -269,16 +269,18 @@ value = info.jwst_cal.plane[1]
 if(info.jwst_control.file_slope_exist eq 1) then value = value + 3 
 widget_control,info.jwst_cal.graph_label[1],set_droplist_select=value
 
-slmean = info.jwst_data.cal2_stat[0,1]
-slmin = info.jwst_data.cal2_stat[3,1]
-slmax = info.jwst_data.cal2_stat[4,1]
+plane_win2 = info.jwst_cal.plane[1]
+
+slmean = info.jwst_data.cal2_stat[0,plane_win2]
+slmin = info.jwst_data.cal2_stat[3,plane_win2]
+slmax = info.jwst_data.cal2_stat[4,plane_win2]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.cal2_stat[5,1]
-range_max = info.jwst_data.cal2_stat[6,1]
+range_min = info.jwst_data.cal2_stat[5,plane_win2]
+range_max = info.jwst_data.cal2_stat[6,plane_win2]
 info.jwst_cal.graph_range[1,0] = range_min
 info.jwst_cal.graph_range[1,1] = range_max
 
@@ -289,7 +291,7 @@ stat_base2 = widget_base(info.jwst_cal.graphID12,row=1)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_2',font=info.font4)
 
 info.jwst_cal.slabelID[1] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
-                                          /align_left,font=info.font4)
+                                          /align_left,font=info.font4,/dynamic_resize)
 info.jwst_cal.mlabelID[1] = widget_label(stat_base2,$
                          value=(' Min: ' + smin + ' Max: ' + smax),$
                                       /align_left,font=info.font4)
@@ -370,12 +372,12 @@ info_base = widget_base(infoID00,row=1,/align_left)
 
 info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
 ;*****
-;graph 2,1; window 2 initally set to Slope image zoom
+;graph 2,1; window 2 initally set to cal image zoom
 ;*****
 
 base1 = widget_base(info.jwst_cal.graphID21,row=1)
 
- subt = "    Zoom Centered on Slope image       "
+ subt = "    Zoom Centered on Cal image       "
 info.jwst_cal.graph_label[2] = widget_label(base1,$
                                               value=subt,/align_center,$
                                               font=info.font5,/sunken_frame)
@@ -404,16 +406,16 @@ info.jwst_cal.zoom_label[5] = widget_button(zoom_base,value=zoomvalues[5],$
                                            font=info.font4)
 
 ; default values for slope image
-slmean = info.jwst_data.cal1_stat[0,0]
-slmin = info.jwst_data.cal1_stat[3,0]
-slmax = info.jwst_data.cal1_stat[4,0]
+slmean = info.jwst_data.cal1_stat[0,plane_win1]
+slmin = info.jwst_data.cal1_stat[3,plane_win1]
+slmax = info.jwst_data.cal1_stat[4,plane_win1]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.cal1_stat[5,0]
-range_max = info.jwst_data.cal1_stat[6,0]
+range_min = info.jwst_data.cal1_stat[5,plane_win1]
+range_max = info.jwst_data.cal1_stat[6,plane_win1]
 
 info.jwst_cal.graph_range[2,0] = range_min
 info.jwst_cal.graph_range[2,1] = range_max
@@ -482,16 +484,19 @@ for i = 0,2 do begin
 endfor
 loadct,info.col_table,/silent
 
-; plot first image - defaulted to slope
+
+; plot first image - defaulted to cal
 jwst_mcql_update_images,0,info
 
-; plot second plane - defaulted to error 
+; plot second plane - defaulted to slope 
 jwst_mcql_update_images,1,info
 
 ;plot zoom image 
 info.jwst_cal.plane[2] = 0 ; default to slope image
 info.jwst_cal.zoom_window = 1
-info.jwst_cal.zoom_window_type = 0 
+info.jwst_cal.plane[2] = info.jwst_cal.plane[0]   ; default to image in window 1
+info.jwst_cal.data_type[2] = info.jwst_cal.data_type[0] ; default to window 1
+
 info.jwst_cal.x_zoom = info.jwst_cal.x_pos* info.binfactor
 info.jwst_cal.y_zoom = info.jwst_cal.y_pos* info.binfactor
 jwst_mcql_update_zoom_image,info

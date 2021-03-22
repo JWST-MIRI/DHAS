@@ -64,13 +64,6 @@ jwst_data={jwst_datai, $
 
 
 ; _______________________________________________________________________
-jwst_vheader= {jwst_vheadi,$
-		phead		: ptr_new(),$
-	        num             : 0,$
-		viewtxt         : 0L,$
-		viewwin 	:0L}
-
-; _______________________________________________________________________
 ; basic image structure
 
 jwst_image={jwst_imagei, $
@@ -194,6 +187,51 @@ jwst_image={jwst_imagei, $
 	 overplot_fit        : 0,$
          default_scale_ramp  : intarr(2)} ; scaling min and max display ranges 
 
+
+;***********************************************************************
+;
+
+jwst_cimage= { jwst_cimagei,$
+		filename        : ' ' ,$
+		type            : 0,$ ; 0 = raw, 1 = rate, 2 = rate_int, 3 = cal 
+	        colstart	: 1,$
+        	rowstart        : 1,$
+        	subarray        : 0,$
+		nints           : 0,$ ; number of integrations in exposure 
+		ngroups         : 0,$ ; number of groups/ integration
+	        plane           : 0,$
+	    	xsize           : 0.0,$
+	    	ysize           : 0.0,$
+	        ref_exist       : 0,$
+	        ref_xsize       : 0.0,$
+	        ref_ysize       : 0.0,$
+	    	igroup          : 0,$
+	    	jintegration    : 0,$
+	    	pdata           : ptr_new(),$
+                prefdata        : ptr_new(),$
+	    	psubdata        : ptr_new(),$
+	    	psubdata_noref  : ptr_new(),$
+		mean            : 0.0,$
+	    	median          : 0.0,$
+	    	stdev           : 0.0,$
+	        stdev_mean      : 0.0,$
+	    	min             : 0.0,$
+	    	max             : 0.0,$
+	    	range_min       : 0.0,$
+	    	range_max       : 0.0,$
+	    	ximage_range    : intarr(2),$
+	    	yimage_range    : intarr(2),$
+		sd_mean         : 0.0,$
+	    	sd_median       : 0.0,$
+	    	sd_stdev        : 0.0,$
+	    	sd_min          : 0.0,$
+	    	sd_max          : 0.0,$
+	    	sd_range_min    : 0.0,$
+	    	sd_range_max    : 0.0,$
+	    	sd_stdev_mean   : 0.0,$
+	    	sd_ximage_range : intarr(2),$
+	    	sd_yimage_range : intarr(2)}
+
 ; _______________________________________________________________________
 jwst_image_pixel = {jwst_image_pixeli,$
 	         filename            : ' ',$
@@ -226,53 +264,14 @@ jwst_generic_window = {jwst_generic_windowi,$
 		uwindowsize           : 0,$
 	        status                : 0}
 
-;***********************************************************************
-; 
-jwst_cimage= { jwst_cimagei,$
-	        uwindowsize     : 0,$
-	        xwindowsize     : 0,$
-	        ywindowsize     : 0,$
-		filename        : ' ' ,$
-		type            : 0,$ ; 0 = raw, 1 = rate, 2 = rate_int, 3 = cal 
-	        colstart	: 1,$
-        	rowstart        : 1,$
-        	subarray        : 0,$
-		nints           : 0,$ ; number of integrations in exposure 
-		ngroups         : 0,$ ; number of groups/ integration
-	        plane           : 0,$
-	    	xsize           : 0.0,$
-	    	ysize           : 0.0,$
-	        ref_exist       : 0,$
-	        ref_xsize       : 0.0,$
-	        ref_ysize       : 0.0,$
-	    	iframe           : 0.0,$
-	    	jintegration    : 0.0,$
-	    	ptimeflag       : ptr_new(),$
-	    	pdata           : ptr_new(),$
-                prefdata        : ptr_new(),$
-	    	psubdata        : ptr_new(),$
-	    	psubdata_noref  : ptr_new(),$
-		mean            : 0.0,$
-	    	median          : 0.0,$
-	    	stdev           : 0.0,$
-	        stdev_mean      : 0.0,$
-	    	min             : 0.0,$
-	    	max             : 0.0,$
-	    	range_min       : 0.0,$
-	    	range_max       : 0.0,$
-                pixelunits      : 0,$
-	    	ximage_range    : intarr(2),$
-	    	yimage_range    : intarr(2),$
-		sd_mean         : 0.0,$
-	    	sd_median       : 0.0,$
-	    	sd_stdev        : 0.0,$
-	    	sd_min          : 0.0,$
-	    	sd_max          : 0.0,$
-	    	sd_range_min    : 0.0,$
-	    	sd_range_max    : 0.0,$
-	    	sd_stdev_mean   : 0.0,$
-	    	sd_ximage_range : intarr(2),$
-	    	sd_yimage_range : intarr(2)}
+
+; _______________________________________________________________________
+jwst_vheader= {jwst_vheadi,$
+		phead		: ptr_new(),$
+	        num             : 0,$
+		viewtxt         : 0L,$
+		viewwin 	:0L}
+
 
 ;***********************************************************************
 jwst_slope = {jwst_slopei,                $
@@ -281,7 +280,7 @@ jwst_slope = {jwst_slopei,                $
 	   ywindowsize         : 0,$
 	   plane               : intarr(3),$
 	   integrationNO       : intarr(2),$	
-	   data_type           : intarr(2),$
+	   data_type           : intarr(3),$
 	   binfactor           : 0.0,$
 	   scale_zoom          : 0.0,$
 	   scale_inspect       : 0,$
@@ -374,7 +373,7 @@ jwst_cal = {jwst_cali,                $
            rlabelID            : lonarr(3,2),$ 
            mlabelID            : lonarr(3),$ 
            image_recomputeID   : lonarr(3),$
-	   data_type           : intarr(2),$
+	   data_type           : intarr(3),$
 	   zoom_integrationNO  : 0,$
 	   zoom_window         : 0,$
 	   zoom_window_type    : 0,$
@@ -608,43 +607,87 @@ jwst_output={jwst_outputi, $
 ;***********************************************************************
 
 jwst_dq = {jwst_dqi,$
-	        Donotuse           : 0L,$	
-		Saturated         : 0L,$
-	        Jump              : 0L,$
-	        Dropout           : 0L,$
-	        Unrelerror        : 0L,$
-	        Nonscience        : 0L,$
-	        Dead              : 0L,$
-	        Hot               : 0L,$
-	        Warm       	  : 0L,$
-		lowqe             : 0L,$
-	        RC      	  : 0L,$
-		nonlinear      	  : 0L,$
-		bad_refpixel      : 0L,$
-		no_flatfield      : 0L,$
-		no_gain           : 0L,$
-		unrel_dark        : 0L,$
-		unrel_slope       : 0L,$
-	        unrel_flat        : 0L ,$	
-		unrel_reset       : 0L ,$
-		ref_pixel         : 0LL,$
-	        sDonotuse         : ' ',$	
-		sSaturated        : ' ',$
-	        sJump             : ' ' ,$
-	        sDropout          : ' ',$
-	        sUnrelerror       : ' ',$
-	        sNonscience       : ' ',$
-	        sDead             : ' ',$
-	        sHot              : ' ',$
-	        sWarm       	  : ' ',$
-	        sRC      	  : ' ',$
-		slowqe            : ' ',$
-		snonlinear        : ' ',$
-		sbad_refpixel     : ' ',$
-		sno_flatfield     : ' ',$
-		sno_gain          : ' ',$
-		sunrel_dark       : ' ',$
-		sunrel_slope      : ' ',$
+	        Donotuse           : 0L, $	
+		Saturated         : 0L, $
+	        Jump              : 0L, $
+	        Dropout           : 0L, $
+		Outlier           : 0L, $
+		Persistence       : 0L, $
+		AD_floor          : 0L, $
+	        Unrelerror        : 0L, $
+	        Nonscience        : 0L, $
+	        Dead              : 0L, $
+	        Hot               : 0L, $
+	        Warm       	  : 0L, $
+		lowqe             : 0L, $
+	        RC      	  : 0L, $
+		nonlinear      	  : 0L, $
+		bad_refpixel      : 0L, $
+		no_flatfield      : 0L, $
+		no_gain           : 0L, $
+		unrel_dark        : 0L, $
+		unrel_slope       : 0L, $
+	        unrel_flat        : 0L , $	
+		unrel_reset       : 0L , $
+		ref_pixel         : 0LL, $
+	        sDonotuse         : ' ', $	
+		sSaturated        : ' ', $
+	        sJump             : ' ', $
+	        sDropout          : ' ', $
+		sOutlier          : ' ', $
+		sPersistence      : ' ', $
+		sAD_floor         : ' ', $
+	        sUnrelerror       : ' ', $
+	        sNonscience       : ' ', $
+	        sDead             : ' ', $
+	        sHot              : ' ', $
+	        sWarm       	  : ' ', $
+	        sRC      	  : ' ', $
+		slowqe            : ' ', $
+		snonlinear        : ' ', $
+		sbad_refpixel     : ' ', $
+		sno_flatfield     : ' ', $
+		sno_gain          : ' ', $
+		sunrel_dark       : ' ', $
+		sunrel_slope      : ' ', $
 	        sunrel_flat       : ' ' ,$	
 		sunrel_reset      : ' ' ,$
 	        sref_pixel         : ' ' }
+		
+jwst_amp = {Ampi,$
+        uwindowsize             : 0,$
+        xwindowsize             : 0,$
+        ywindowsize             : 0,$
+        recomputeID             : lonarr(5),$
+        mlabelID                : lonarr(5),$
+        slabelID                : lonarr(5),$
+        rlabelID                : lonarr(5,2),$
+        graphID                 : lonarr(5),$
+        pixmapID                : lonarr(5),$
+        draw_window_id          : lonarr(5),$
+        default_scale           : intarr(5),$
+        graph_range             : fltarr(5,2),$
+        zoom_labelID            : 0L,$
+        type                    : 0,$
+        xplotsize               : 0,$
+        yplotsize               : 0,$
+        frame_label             : 0L,$
+        integration_label       : 0L,$
+        optionMenu              : 0L,$
+        xpos                    : 0,$
+        ypos                    : 0,$
+        zoom                    : 0.0,$
+        scalechannel            : 0,$
+        pixeldisplay            : 0,$
+        ixstart_zoom            : 0,$
+        iystart_zoom            : 0,$   
+        xstart_zoom             : 0,$
+        xend_zoom               : 0,$
+        ystart_zoom             : 0,$
+        yend_zoom               : 0,$
+        xoffset                 : fltarr(2),$
+        yoffset                 : fltarr(2),$
+        xposfull                : 0,$
+        yposfull                : 0,$
+        pplot_image        : ptr_new()  }
+

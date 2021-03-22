@@ -40,7 +40,7 @@
 ;       A detailed web page for the MIRI DHAS is located at the
 ;       password protected site:
 ;
-;       http://ircamera.as.arizona.edu/MIRI/team_only/dhas/dhas.html
+;       poppy.as.arizona.edu/dhas/Flight
 ;       email morrison@as.arizona.edu for the username and password 
 ; SUPPORT:
 ;       Support is provided to authorized users by the author.
@@ -54,7 +54,6 @@
 ;
 
 @jwst_code.pro ; listing of all code pieces
-
 
 pro miri_ql,help=help
 
@@ -84,7 +83,7 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-version = "(v 9.8.6 March 10, 2021)"
+version = "(v 9.8.7 March 22, 2021)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 
@@ -124,7 +123,7 @@ fontname6 = fnames[0]
 
 wdelete,1
 
-xsize_label = 8
+xsize_label = 10
 plotsizeA = 200
 plotsize1 = 256
 plotsize1b = 258
@@ -303,7 +302,6 @@ jwst_slope = {jwst_slopei}
 ; create and initialize "cal " structure
 jwst_cal = {jwst_cali}
 
-
 ; create and initialize "data" structure
 jwst_data = {jwst_datai}
 
@@ -326,7 +324,6 @@ jwst_output.slope_win2      = '_reduced'
 jwst_output.slope_frame_pixel      = '_frame_pixel'
 jwst_output.slope_slope_pixel     = '_reduced_pixel'
 
-
 jwst_dqflag = {jwst_dqi} ; data quality flag
 jwst_dqflag .Donotuse = 1
 jwst_dqflag .Sdonotuse = 'Do Not Use'
@@ -336,6 +333,12 @@ jwst_dqflag.Jump = 4
 jwst_dqflag.SJump = 'Jump Det'
 jwst_dqflag.Dropout = 8
 jwst_dqflag.SDropout = 'Drop Out'
+jwst_dqflag.Outlier = 16
+jwst_dqflag.SOutlier = 'Outlier'
+jwst_dqflag.Persistence = 32
+jwst_dqflag.sPersistence = 'Persistence'
+jwst_dqflag.AD_floor = 64
+jwst_dqflag.sAD_floor = 'AD Floor'
 jwst_dqflag.UnrelError = 256
 jwst_dqflag.SUnrelError = 'Unrelialbe Error'
 jwst_dqflag.Nonscience = 512
@@ -367,9 +370,7 @@ jwst_dqflag.Sunrel_reset = 'Unreliable reset'
 jwst_dqflag.ref_pixel= long64(2.0^31)
 jwst_dqflag.Sref_pixel='Reference Pixel'
 
-
 jwst_image = {jwst_imagei}
-
 jwst_image_pixel = {jwst_image_pixeli}
 
 ; create and initialize inspect structure - slope  image 
@@ -392,7 +393,7 @@ jwst_compare_load = {jwst_generic_windowi}
 jwst_compare_load.uwindowsize = 0
 
 ;; create and initialize "compare" structure - holds comparision
-;;                                             widget for frames
+;                                             widget for frames
 jwst_compare = {jwst_comparei}
 jwst_compare.uwindowsize = 0 
 jwst_cinspect = replicate(jwst_inspect,3) ; inspect comparison raw science frames
@@ -409,6 +410,17 @@ jwst_rcompare.uwindowsize = 0
 jwst_rcompare_image = replicate(jwst_cimage,3)
 jwst_crinspect = replicate(jwst_inspect,3) ; inspect comparison reduced data
 
+; 5 amplifier display for frames
+jwst_AmpFrame = {Ampi}
+
+; 5 amplifier display for Rate Int
+jwst_AmpRate = {Ampi}
+
+jwst_AmpFrame_image = replicate(jwst_cimage,5)
+jwst_AmpRate_image = replicate(jwst_cimage,5)
+
+jwst_amp_pixel = {jwst_image_pixeli}
+;jwst_amp_pixel.hex = 0
 ; defaults to start with 
 
 
@@ -442,12 +454,7 @@ jinfo = {jwst_version        : version,$
          jwst_plotsize1b          : plotsize1b,$
          jwst_plotsize3           : plotsize3,$
          jwst_plotsize4           : plotsize4,$
-;         jwst_plotsize_fullX      : plotsize_fullX,$
-;         jwst_plotsize_fullY      : plotsize_fullY,$
          viewhdrysize        : view_header_lines,$
-;         edit_uwindowsize    : edit_uwindowsize,$
-;         edit_xwindowsize    : edit_xwindowsize,$
-;         edit_ywindowsize    : edit_ywindowsize,$
          binfactor           : binfactor,$
          xsize_label         : xsize_label,$
          retn                : retn,$
@@ -460,24 +467,29 @@ jinfo = {jwst_version        : version,$
          jwst_dqflag         : jwst_dqflag,$
          jwst_output         : jwst_output,$
          jwst_viewhead       : ptr_new(jwst_viewhead),$
-         jwst_image          : jwst_image,$
-         jwst_slope          : jwst_slope,$
-         jwst_cal          : jwst_cal,$
-         jwst_inspect        : jwst_inspect,$
-         jwst_inspect_slope  : jwst_inspect_slope,$
-         jwst_inspect_slope2 : jwst_inspect_slope2,$
-         jwst_inspect_cal1   : jwst_inspect_cal1,$
-         jwst_inspect_cal2   : jwst_inspect_cal2,$
-         jwst_image_pixel    : jwst_image_pixel,$
-         jwst_rcompare       : jwst_rcompare,$
+         jwst_image          : jwst_image,$             ; structure for display window frame,rate,cal
+         jwst_slope          : jwst_slope,$             ; structure for rate, rateint
+         jwst_cal            : jwst_cal,$               ; structure for cal, rate
+         jwst_inspect        : jwst_inspect,$           ; structure for inspect frame
+         jwst_inspect_slope  : jwst_inspect_slope,$     ; structure for rate win 1
+         jwst_inspect_slope2 : jwst_inspect_slope2,$    ; structure for rate win 2
+         jwst_inspect_cal1   : jwst_inspect_cal1,$      ; structure for cal win 1
+         jwst_inspect_cal2   : jwst_inspect_cal2,$      ; structure for cal win 2
+         jwst_image_pixel    : jwst_image_pixel,$       ; 
+         jwst_rcompare       : jwst_rcompare,$          ; 
          jwst_rcompare_image : jwst_rcompare_image,$
          jwst_compare        : jwst_compare,$
          jwst_compare_image  : jwst_compare_image,$
          jwst_compare_load   : jwst_compare_load,$
          jwst_cinspect       : jwst_cinspect,$
          jwst_crinspect      : jwst_crinspect,$
+         jwst_AmpFrame_image : jwst_AmpFrame_image,$
+         jwst_AmpRate_image  : jwst_AmpRate_image,$
+         jwst_AmpFrame       : jwst_AmpFrame,$
+         jwst_AmpRate        : jwst_AmpRate,$
+         jwst_amp_pixel      : jwst_amp_pixel,$
          loadfile            : loadfile,$
-         jwst_RawQuickLook   : 0L,$
+         jwst_RawQuickLook   : 0L,$             ; display window for frame,rate,cal
  ;       SubarrayGeo         : 0L,$
          jwst_SlopeQuickLook      : 0L,$
          jwst_CalQuickLook      : 0L,$
@@ -495,11 +507,14 @@ jinfo = {jwst_version        : version,$
          jwst_InspectCal2         : 0L,$
          jwst_CInspectImage       : lonarr(3),$
          jwst_CRInspectImage      : lonarr(3),$
+         jwst_AmpFrameDisplay     : 0L,$
+         jwst_AmpRateDisplay      : 0L,$
+         jwst_AmpStatDisplay      : 0L,$
+         jwst_APixelInfo          : 0L,$
          LoadFileInfo             : 0L}
 
 
 Widget_Control,JWST_QuickLook,Set_UValue=jinfo
-
 
 XManager,'miri_ql',JWST_QuickLook,/No_Block,cleanup='jwst_ql_cleanup',$
 	event_handler="jwst_ql_event"

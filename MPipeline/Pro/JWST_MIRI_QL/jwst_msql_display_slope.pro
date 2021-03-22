@@ -273,7 +273,7 @@ voptions = ['Final Rate: ', 'Final Error', 'Final DQ','Int Rate','Int Error','In
 if(info.jwst_control.file_slope_int_exist eq 0) then voptions = ['Final Rate: ', 'Final Error', 'Final DQ']
 
 
-xsize_label = 9
+xsize_label = 12
 ;************************************
 ;graph 1,1- slope image
 ;************************************
@@ -286,16 +286,17 @@ info.jwst_slope.graph_label[0] = widget_droplist(base1,value=voptions,$
                                             uvalue='voption1',font=info.font5)
 slope_bin = widget_label(base1,value = bintitle,font=info.font4)
 
-slmean = info.jwst_data.rate1_stat[0,0]
-slmin = info.jwst_data.rate1_stat[3,0]
-slmax = info.jwst_data.rate1_stat[4,0]
+plane_win1 = info.jwst_slope.plane[0]
+slmean = info.jwst_data.rate1_stat[0,plane_win1]
+slmin = info.jwst_data.rate1_stat[3,plane_win1]
+slmax = info.jwst_data.rate1_stat[4,plane_win1]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.rate1_stat[5,0]
-range_max = info.jwst_data.rate1_stat[6,0]
+range_min = info.jwst_data.rate1_stat[5,plane_win1]
+range_max = info.jwst_data.rate1_stat[6,plane_win1]
 info.jwst_slope.graph_range[0,0] = range_min
 info.jwst_slope.graph_range[0,1] = range_max
 
@@ -315,10 +316,10 @@ if(info.jwst_control.file_slope_int_exist eq 1) then begin
 endif
 
 info.jwst_slope.slabelID[0] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
-                                          /align_left,font=info.font4)
+                                          /align_left,font=info.font4,/dynamic_resize)
 info.jwst_slope.mlabelID[0] = widget_label(stat_base2,$
                          value=(' Min: ' + smin + ' Max: ' + smax),$
-                                      /align_left,font=info.font4)
+                                      /align_left,font=info.font4,/dynamic_resize)
 
 ; min and max scale of  image
 info.jwst_slope.srange_base[0] = widget_base(info.jwst_slope.graphID11,row=1)
@@ -351,7 +352,7 @@ info.jwst_slope.x_pos =(info.jwst_data.slope_xsize/info.jwst_slope.binfactor)/2.
 info.jwst_slope.y_pos = (info.jwst_data.slope_ysize/info.jwst_slope.binfactor)/2.0
 
 ;_______________________________________________________________________
-;graph 1,2- uncertainty slope image (default) 
+;graph 1,2- If integration slope exist - 1st in is default if not uncertainty slope image (default) 
 
 base1 = widget_base(info.jwst_slope.graphID12,row=1)
 
@@ -362,19 +363,19 @@ value = info.jwst_slope.plane[1]
 if(info.jwst_control.file_slope_int_exist eq 1) then value = value + 3
 widget_control,info.jwst_slope.graph_label[1],set_droplist_select=value
 
-slmean = info.jwst_data.rate2_stat[0,1]
-slmin = info.jwst_data.rate2_stat[3,1]
-slmax = info.jwst_data.rate2_stat[4,1]
+plane_win2 = info.jwst_slope.plane[1]
+slmean = info.jwst_data.rate2_stat[0,plane_win2]
+slmin = info.jwst_data.rate2_stat[3,plane_win2]
+slmax = info.jwst_data.rate2_stat[4,plane_win2]
 
 smean =  strcompress(string(slmean),/remove_all)
 smin = strcompress(string(slmin),/remove_all) 
 smax = strcompress(string(slmax),/remove_all) 
 
-range_min = info.jwst_data.rate2_stat[5,1]
-range_max = info.jwst_data.rate2_stat[6,1]
+range_min = info.jwst_data.rate2_stat[5,plane_win2]
+range_max = info.jwst_data.rate2_stat[6,plane_win2]
 info.jwst_slope.graph_range[1,0] = range_min
 info.jwst_slope.graph_range[1,1] = range_max
-
 
 stat_base1 = widget_base(info.jwst_slope.graphID12,row=1)
 stat_base2 = widget_base(info.jwst_slope.graphID12,row=1)
@@ -395,10 +396,10 @@ if(info.jwst_control.file_slope_int_exist eq 1) then begin
 endif
 
 info.jwst_slope.slabelID[1] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
-                                          /align_left,font=info.font4)
+                                          /align_left,font=info.font4,/dynamic_resize)
 info.jwst_slope.mlabelID[1] = widget_label(stat_base2,$
                          value=(' Min: ' + smin + ' Max: ' + smax),$
-                                      /align_left,font=info.font4)
+                                      /align_left,font=info.font4,/dynamic_resize)
 
 ; min and max scale of  image
 info.jwst_slope.srange_base[1] = widget_base(info.jwst_slope.graphID12,row=1)
@@ -526,7 +527,7 @@ stat_base1 = widget_base(info.jwst_slope.graphID21,row=1)
 stat_base2 = widget_base(info.jwst_slope.graphID21,row=1)
 
 info.jwst_slope.slabelID[2] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
-                                          /align_left,font=info.font4)
+                                          /align_left,font=info.font4,/dynamic_resize)
 info.jwst_slope.mlabelID[2] = widget_label(stat_base2,$ 
                          value=(' Min: '  + smin + ' Max: ' + smax),$
                                       /align_left,font=info.font4)
@@ -653,7 +654,8 @@ jwst_msql_update_slope,0,info
 jwst_msql_update_slope,1,info
 
 ;plot zoom image 
-info.jwst_slope.plane[2] = 0 ; default to image in window 1
+info.jwst_slope.plane[2] = info.jwst_slope.plane[0]   ; default to image in window 1
+info.jwst_slope.data_type[2] = info.jwst_slope.data_type[0] ; default to window 1
 info.jwst_slope.zoom_window = 1
 info.jwst_slope.x_zoom = info.jwst_slope.x_pos* info.binfactor
 info.jwst_slope.y_zoom = info.jwst_slope.y_pos* info.binfactor

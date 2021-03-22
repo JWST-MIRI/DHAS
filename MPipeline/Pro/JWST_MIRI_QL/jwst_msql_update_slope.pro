@@ -7,25 +7,20 @@ loadct,info.col_table,/silent
 ; data plane 1  error
 ; data plane 2  dq
 data_plane = info.jwst_slope.plane[win]
+data_type = info.jwst_slope.data_type[win]
 
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
-
-
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-if (win eq 0) then begin 
+if(data_type eq 1) then begin 
    stat = info.jwst_data.rate1_stat[*,data_plane]
    frame_image[*,*] = (*info.jwst_data.prate1)[*,*,data_plane]
 endif
-
-if(win eq 1) then begin 
+if(data_type eq 2) then begin 
    stat = info.jwst_data.rate2_stat[*,data_plane]
    frame_image[*,*] = (*info.jwst_data.prate2)[*,*,data_plane]
 endif
-
-info.jwst_slope.graph_range[win,0] = stat[5]
-info.jwst_slope.graph_range[win,1] = stat[6]
 
 mean = stat[0]
 min = stat[3]

@@ -1,0 +1,8 @@
+in directory with code
+1.  invoke idl
+2. .FULL_RESET_SESSION
+3. .compile miri_ql.pro
+4. resolve_all
+5. save,/ROUTINES,filename='miri_ql.sav'
+6. copy miri_ql.sav ../../ProScript
+

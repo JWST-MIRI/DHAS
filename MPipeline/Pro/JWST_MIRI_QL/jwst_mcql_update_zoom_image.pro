@@ -25,8 +25,13 @@ loadct,info.col_table,/silent
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
+zoom_win = info.jwst_cal.zoom_window -1
+
+info.jwst_cal.plane[2] = info.jwst_cal.plane[zoom_win]
+info.jwst_cal.data_type[2] = info.jwst_cal.data_type[zoom_win]
 planenum = info.jwst_cal.plane[2] 
 zoom = info.jwst_cal.scale_zoom
+
 
 xdata_end = info.jwst_data.slope_xsize
 ydata_end = info.jwst_data.slope_ysize
@@ -34,11 +39,12 @@ frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
 
 if(info.jwst_cal.default_scale_graph[2] eq 1) then begin    
-   info.jwst_cal.graph_range[2,0] = info.jwst_cal.graph_range[info.jwst_cal.zoom_window-1,0]
-   info.jwst_cal.graph_range[2,1] = info.jwst_cal.graph_range[info.jwst_cal.zoom_window-1,1]
+   info.jwst_cal.graph_range[2,0] = info.jwst_cal.graph_range[zoom_win,0]
+   info.jwst_cal.graph_range[2,1] = info.jwst_cal.graph_range[zoom_win,1]
 endif
 
-if(info.jwst_cal.data_type(info.jwst_cal.zoom_window-1) eq 0) then begin
+
+if(info.jwst_cal.data_type[2] eq 3) then begin
    frame_image[*,*] = (*info.jwst_data.pcal1)[*,*,planenum] 
    if(planenum eq 0) then szoom = "Zoom Centered on Cal Image     " 
    if(planenum eq 1) then szoom = "Zoom Centered on Cal Error    " 

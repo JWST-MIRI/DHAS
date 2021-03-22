@@ -25,6 +25,10 @@ loadct,info.col_table,/silent
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
+zoom_win = info.jwst_slope.zoom_window -1
+
+info.jwst_slope.plane[2] = info.jwst_slope.plane[zoom_win]
+info.jwst_slope.data_type[2] = info.jwst_slope.data_type[zoom_win]
 planenum = info.jwst_slope.plane[2] 
 zoom = info.jwst_slope.scale_zoom
 
@@ -32,13 +36,12 @@ xdata_end = info.jwst_data.slope_xsize
 ydata_end = info.jwst_data.slope_ysize
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-
 if(info.jwst_slope.default_scale_graph[2] eq 1) then begin    
-   info.jwst_slope.graph_range[2,0] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,0]
-   info.jwst_slope.graph_range[2,1] = info.jwst_slope.graph_range[info.jwst_slope.zoom_window-1,1]
+   info.jwst_slope.graph_range[2,0] = info.jwst_slope.graph_range[zoom_win,0]
+   info.jwst_slope.graph_range[2,1] = info.jwst_slope.graph_range[zoom_win,1]
 endif
 
-if(info.jwst_slope.data_type(info.jwst_slope.zoom_window-1) eq 1) then begin
+if(info.jwst_slope.data_type[2] eq 1) then begin
    frame_image[*,*] = (*info.jwst_data.prate1)[*,*,planenum] 
    if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
    if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 

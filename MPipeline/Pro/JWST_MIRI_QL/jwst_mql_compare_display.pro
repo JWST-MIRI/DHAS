@@ -79,7 +79,7 @@ pro jwst_mql_compare_read_image,info,i,status
 
 filename = info.jwst_compare_image[i].filename
 this_integration = info.jwst_compare_image[i].jintegration
-this_frame = info.jwst_compare_image[i].iframe
+this_frame = info.jwst_compare_image[i].igroup
 
 jwst_read_single_frame,filename,this_integration,this_frame,$
   subarray,imagedata,image_xsize,image_ysize,stats_image,$
@@ -171,6 +171,7 @@ if(info.jwst_compare.default_scale_graph[imageno] eq 1) then begin
     info.jwst_compare.graph_range[imageno,1] = info.jwst_compare_image[imageno].range_max
 endif
 
+
 frame_image = fltarr(ximage_size,yimage_size)
 frame_image[*,*] = (*info.jwst_compare_image[imageno].pdata)
 indxs = where(finite(frame_image),n_pixels)
@@ -215,6 +216,7 @@ smax = strtrim( string(rawmax))
 scale_min = info.jwst_compare.graph_range[imageno,0]
 scale_max = info.jwst_compare.graph_range[imageno,1]
 
+
 widget_control,info.jwst_compare.slabelID[imageno,0],set_value=(info.jwst_compare.sname[0] + smean)
 widget_control,info.jwst_compare.slabelID[imageno,1],set_value=(info.jwst_compare.sname[1] + sst)
 widget_control,info.jwst_compare.slabelID[imageno,2],set_value=(info.jwst_compare.sname[2] + smedian) 
@@ -231,6 +233,7 @@ box_coords2 = [info.jwst_compare.x_pos+1,(info.jwst_compare.x_pos+1)-1, $
                info.jwst_compare.y_pos+1,(info.jwst_compare.y_pos+1)-1]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
+Widget_Control,info.jwst_QuickLook,Set_UValue=info        
 end
 
 ;_______________________________________________________________________
@@ -280,12 +283,16 @@ case 1 of
         endif
 
         info.jwst_compare_image[1].filename  = filename
-        info.jwst_compare_image[1].jintegration = info.jwst_compare_image[0].jintegration
-        info.jwst_compare_image[1].iframe = info.jwst_compare_image[0].iframe
+        ;info.jwst_compare_image[1].jintegration = info.jwst_compare_image[0].jintegration
+        ;info.jwst_compare_image[1].igroup = info.jwst_compare_image[0].igroup
+
+        info.jwst_compare_image[1].jintegration = 0
+        info.jwst_compare_image[1].igroup = 0
 
     
-        read_data_type,info.jwst_compare_image[1].filename,type
+        jwst_read_data_type,info.jwst_compare_image[1].filename,type
         info.jwst_compare_image[1].type = type
+
 
         jwst_mql_compare_read_image,info,1,status
         jwst_mql_compare_test,info,status
@@ -311,14 +318,14 @@ case 1 of
         widget_control,info.jwst_compare.total_flabel[1], set_value = tlabel
         
         sint = strtrim( string (fix(info.jwst_compare_image[1].jintegration+1)),2)
-        sframe = strtrim( string(fix(info.jwst_compare_image[1].iframe+1)),2)
+        sframe = strtrim( string(fix(info.jwst_compare_image[1].igroup+1)),2)
         sinfo = ' Integration #    ' + sint +  ' Frame #    ' + sframe
 
          widget_control,info.jwst_compare.info_label[1],set_value = sinfo
 ;_______________________________________________________________________
 
         widget_control,info.jwst_compare.integration_label[1],set_value = info.jwst_compare_image[1].jintegration+1
-        widget_control,info.jwst_compare.frame_label[1],set_value = info.jwst_compare_image[1].iframe+1
+        widget_control,info.jwst_compare.frame_label[1],set_value = info.jwst_compare_image[1].igroup+1
         jwst_difference_images,info,0,1,2
          for i = 1, 2 do begin 
              jwst_mql_compare_update_images,info,i
@@ -441,6 +448,7 @@ end
         endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
         jwst_mql_compare_update_images,info,graphno-1
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
 ; change range of image graphs
@@ -452,14 +460,14 @@ end
 
         if(strmid(event_name,4,1) EQ 'b') then begin
             info.jwst_compare.graph_range[graph_num-1,0] = event.value
-            widget_control,info.jwst_compare.rlabelID[graph_num-1,1],get_value = temp
-            info.jwst_compare.graph_range[graph_num-1,1] =temp
+            widget_control,info.jwst_compare.rlabelID[graph_num-1,0],get_value = temp
+            info.jwst_compare.graph_range[graph_num-1,0] =temp
         endif
 
         if(strmid(event_name,4,1) EQ 't') then begin
             info.jwst_compare.graph_range[graph_num-1,1] = event.value
-            widget_control,info.jwst_compare.rlabelID[graph_num-1,0],get_value = temp
-            info.jwst_compare.graph_range[graph_num-1,0] =temp
+            widget_control,info.jwst_compare.rlabelID[graph_num-1,1],get_value = temp
+            info.jwst_compare.graph_range[graph_num-1,1] =temp
         endif
 
         info.jwst_compare.default_scale_graph[graph_num-1] = 0
@@ -467,12 +475,14 @@ end
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
         jwst_mql_compare_update_images,info,graph_num-1
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+
     end
 ;_______________________________________________________________________
    (strmid(event_name,0,7) EQ 'inspect') : begin
        imageno = fix(strmid(event_name,7,1))-1
         info.jwst_cinspect[imageno].integrationNO = info.jwst_compare_image[imageno].jintegration
-        info.jwst_cinspect[imageno].frameNO = info.jwst_compare_image[imageno].iframe
+        info.jwst_cinspect[imageno].frameNO = info.jwst_compare_image[imageno].igroup
         frame_image = fltarr(info.jwst_compare_image[imageno].xsize,info.jwst_compare_image[imageno].ysize)
         frame_image[*,*] = (*info.jwst_compare_image[imageno].pdata)
 
@@ -498,11 +508,8 @@ end
         info.jwst_cinspect[imageno].limit_low_num = 0
         info.jwst_cinspect[imageno].limit_high_num = 0
 
-
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-
-
-       jwst_micql_display_images,info,imageno
+       jwst_compare_inspect_images,info,imageno
 
    end
 ;_______________________________________________________________________
@@ -581,7 +588,7 @@ end
 
 
          sint = strtrim( string (fix(info.jwst_compare_image[imageno-1].jintegration+1)),2)
-         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].iframe+1)),2)
+         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].igroup+1)),2)
          sinfo = ' Integration # ' + sint +  ' Frame # ' + sframe
 
          widget_control,info.jwst_compare.info_label[imageno-1],set_value = sinfo
@@ -610,7 +617,7 @@ end
 	endif
 ; check if the <> buttons were used
         if (strmid(event_name,5,5) EQ '_move')then begin
-            this_frame = info.jwst_compare_image[imageno-1].iframe
+            this_frame = info.jwst_compare_image[imageno-1].igroup
             if(strmid(event_name,11,2) eq 'dn') then begin
               this_frame = this_frame -1
             endif
@@ -622,7 +629,6 @@ end
 
         lastnum =  info.jwst_compare_image[imageno-1].ngroups
 
-;        print,'last num',lastnum,this_frame
         if(this_frame lt 0) then begin
             this_frame = lastnum - 1
         endif 
@@ -631,11 +637,11 @@ end
             this_frame = 0
         endif
 
-         info.jwst_compare_image[imageno-1].iframe = this_frame   
+         info.jwst_compare_image[imageno-1].igroup = this_frame   
          widget_control,info.jwst_compare.frame_label[imageno-1],set_value = this_frame+1
              
          sint = strtrim( string (fix(info.jwst_compare_image[imageno-1].jintegration+1)),2)
-         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].iframe+1)),2)
+         sframe = strtrim( string(fix(info.jwst_compare_image[imageno-1].igroup+1)),2)
          sinfo = ' Integration # ' + sint +  ' Frame # ' + sframe
 
          widget_control,info.jwst_compare.info_label[imageno-1],set_value = sinfo
@@ -676,7 +682,6 @@ this_integration = info.jwst_image.integrationNO
 this_frame = info.jwst_image.frameNO
 if(info.jwst_compare.uwindowsize eq 0) then begin 
 
-
     info.jwst_cinspect[*].uwindowsize = 0
     jwst_read_data_type,info.jwst_compare_image[0].filename,type
     info.jwst_compare_image[0].type = type
@@ -704,6 +709,7 @@ if(info.jwst_compare.uwindowsize eq 0) then begin
     info.jwst_compare.binfactor = binfactor
 
 endif
+
 
 ;*********
 ;Setup main panel
@@ -822,7 +828,7 @@ graph_label = widget_label(info.jwst_compare.graphID11,$
                                          value=sraw_A,/align_left,$
                                         font=info.font5)
 sint = strtrim( string (fix(info.jwst_compare_image[0].jintegration+1)),2)
-sframe = strtrim( string(fix(info.jwst_compare_image[0].iframe+1)),2)
+sframe = strtrim( string(fix(info.jwst_compare_image[0].igroup+1)),2)
 sinfo = ' Integration #    ' + sint +  ' Frame #     ' + sframe
 
 sbase = widget_base(info.jwst_compare.graphID11,row=1)
@@ -891,7 +897,7 @@ tlabel = "Total # " + strcompress(string(nints),/remove_all)
 info.jwst_compare.total_ilabel[0] = widget_label( move_base1,value = tlabel,/align_left)
 
 move_base2 = widget_base(info.jwst_compare.graphID11,row=1,/align_left)
-frame1 = fix(info.jwst_compare_image[0].iframe)
+frame1 = fix(info.jwst_compare_image[0].igroup)
 info.jwst_compare.frame_label[0] = cw_field(move_base2,$
                                     title="Frame # ",font=info.font5, $
                                     uvalue="fram1i",/integer,/return_events, $
@@ -916,7 +922,7 @@ endif else begin
 endelse
 
 sint = strtrim( string (fix(info.jwst_compare_image[1].jintegration+1)),2)
-sframe = strtrim( string(fix(info.jwst_compare_image[1].iframe+1)),2)
+sframe = strtrim( string(fix(info.jwst_compare_image[1].igroup+1)),2)
 sinfo = ' Integration #      ' + sint +  ' Frame #     ' + sframe
 info.jwst_compare.filename_title[1] = widget_label(info.jwst_compare.graphID12,$
                                          value=onlyfile,/align_left,$
@@ -982,7 +988,7 @@ info.jwst_compare.total_ilabel[1] = widget_label( move_base1,value = tlabel,/ali
 
 
 move_base2 = widget_base(info.jwst_compare.graphID12,row=1,/align_left)
-frame1 =fix(info.jwst_compare_image[1].iframe)
+frame1 =fix(info.jwst_compare_image[1].igroup)
 info.jwst_compare.frame_label[1] = cw_field(move_base2,$
                                     title="Frame # ",font=info.font5, $
                                     uvalue="fram2i",/integer,/return_events, $

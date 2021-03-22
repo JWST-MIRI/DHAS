@@ -43,12 +43,9 @@ endif
 
         jwst_misql2_update_images,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-
     end
-
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
-
        jwst_dqflags,info
     end
 ;_______________________________________________________________________
@@ -64,7 +61,6 @@ endif
             info.jwst_inspect_slope2.graph_range[1] = temp
         endif
 
-
         if(strmid(event_name,4,1) EQ 't') then begin
             info.jwst_inspect_slope2.graph_range[1] = event.value
             widget_control,info.jwst_inspect_slope2.rlabelID[0],get_value = temp
@@ -78,7 +74,6 @@ endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
-    
 ;_______________________________________________________________________
 ; Change limits
 
@@ -91,7 +86,6 @@ endif
             info.jwst_inspect_slope2.limit_high = temp
         endif
 
-
         if(strmid(event_name,6,1) EQ 'h') then begin
             info.jwst_inspect_slope2.limit_high = event.value
             widget_control,info.jwst_inspect_slope2.limit_lowID,get_value = temp
@@ -103,7 +97,6 @@ endif
         jwst_misql2_update_images,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
 ;_______________________________________________________________________e
 ; zoom images
 ;_______________________________________________________________________
@@ -115,7 +108,6 @@ endif
          ; redefine the xpos and y pos value in new zoom window
          jwst_misql2_update_images,info
 
-         
          ; xposful, uposful - x,y location in full image
          ; x_pos, y_pos = x and y location on the image screen
 
@@ -141,13 +133,11 @@ endif
         xstart = xvalue
         ystart = yvalue
 
-
 ; ++++++++++++++++++++++++++++++
         if(strmid(event_name,4,1) eq 'x') then  begin
             xvalue = event.value ; event value - user input starts at 1 
 
             if(xvalue lt 0) then xvalue = 0
-
             if(xvalue gt xsize) then xvalue = xsize
 
             xvalue = xvalue -1
@@ -173,7 +163,6 @@ endif
             if(xvalue gt xsize) then xvalue = xsize
 
             xvalue = float(xvalue)-1.0
-
         endif
 ; check if the <> buttons were used
 
@@ -187,24 +176,21 @@ endif
             if(yvalue le 0) then yvalue  = 0
             if(xvalue ge  info.jwst_data.slope_xsize) then xvalue = info.jwst_data.slope_xsize-1
             if(yvalue ge  info.jwst_data.slope_ysize) then yvalue = info.jwst_data.slope_ysize-1
-
         endif
 
 ; ++++++++++++++++++++++++++++++
-
         xmove = xvalue - xstart
         ymove = yvalue - ystart
         
-
         info.jwst_inspect_slope2.xposful = info.jwst_inspect_slope2.xposful + xmove
         info.jwst_inspect_slope2.yposful = info.jwst_inspect_slope2.yposful + ymove
 
-         xpos_new = info.jwst_inspect_slope2.xposful -info.jwst_inspect_slope2.xstart_zoom 
-         ypos_new = info.jwst_inspect_slope2.yposful -info.jwst_inspect_slope2.ystart_zoom
+        xpos_new = info.jwst_inspect_slope2.xposful -info.jwst_inspect_slope2.xstart_zoom 
+        ypos_new = info.jwst_inspect_slope2.yposful -info.jwst_inspect_slope2.ystart_zoom
 
 ; update screen coor x_pos,y_pos
-         info.jwst_inspect_slope2.x_pos = (xpos_new+0.5)*info.jwst_inspect_slope2.zoom_x
-         info.jwst_inspect_slope2.y_pos = (ypos_new+0.5)*info.jwst_inspect_slope2.zoom
+        info.jwst_inspect_slope2.x_pos = (xpos_new+0.5)*info.jwst_inspect_slope2.zoom_x
+        info.jwst_inspect_slope2.y_pos = (ypos_new+0.5)*info.jwst_inspect_slope2.zoom
 
         widget_control,info.jwst_inspect_slope2.pix_label[0],set_value=info.jwst_inspect_slope2.xposful+1
         widget_control,info.jwst_inspect_slope2.pix_label[1],set_value=info.jwst_inspect_slope2.yposful+1
@@ -220,7 +206,6 @@ endif
             xvalue = event.x    ; starts at 0
             yvalue = event.y    ; starts at 0
 
-
 ;; test for out of bounds area
             x = (xvalue)/info.jwst_inspect_slope2.zoom
             y = (yvalue)/info.jwst_inspect_slope2.zoom
@@ -228,11 +213,9 @@ endif
             if(y gt info.jwst_data.slope_ysize) then y = info.jwst_data.slope_ysize-1
             xvalue = x * info.jwst_inspect_slope2.zoom
             yvalue = y * info.jwst_inspect_slope2.zoom
-;;
             
             info.jwst_inspect_slope2.x_pos = xvalue ;value in image screen 
             info.jwst_inspect_slope2.y_pos = yvalue ;
-
 
             xposful = (xvalue/info.jwst_inspect_slope2.zoom_x)+ info.jwst_inspect_slope2.xstart_zoom
             yposful = (yvalue/info.jwst_inspect_slope2.zoom)+ info.jwst_inspect_slope2.ystart_zoom
@@ -256,10 +239,8 @@ endif
 
             jwst_misql2_update_pixel_location,info
         endif
-
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
 ;_______________________________________________________________________
 
 else: print,event_name
@@ -280,15 +261,12 @@ ititle =  "Integration #: " + strtrim(string(info.jwst_inspect_slope2.integratio
          
 widget_control,info.jwst_inspect_slope2.iLabelID,set_value= ititle
 
-
 i = info.jwst_inspect_slope2.integrationNO
-
 
 zoom = info.jwst_inspect_slope2.zoom
 
 x = info.jwst_inspect_slope2.xposful ; xposful = x location in full image
 y = info.jwst_inspect_slope2.yposful ; yposful = y location in full image
-
 
 if(zoom eq 1) then begin
     x = info.jwst_data.slope_xsize/2
@@ -323,7 +301,6 @@ if(zoom eq 32) then begin
   xsize = xsize_org/32
   ysize = ysize_org/32
 endif
-
 
 ; ixstart and iystart are the starting points for the zoom image
 ; xstart and ystart are the starting points for the orginal image
@@ -415,7 +392,6 @@ z_stdev  = stdev
 z_median  = image_median
 z_min  = image_min
 z_max  = image_max
-
 ;_______________________________________________________________________
 ; get stats on full image - no reference pixels
 
@@ -426,7 +402,12 @@ endif else begin
 endelse
 
 jwst_get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
-               irange_min,irange_max,image_median,stdev_mean
+                    irange_min,irange_max,image_median,stdev_mean
+
+if(info.jwst_inspect_slope2.plane eq 2) then begin ; DQ plane
+   irange_min = 0
+   irange_max = 32
+endif
 frame_image = 0                 ; free memory
 frame_image_noref = 0
 ;_______________________________________________________________________

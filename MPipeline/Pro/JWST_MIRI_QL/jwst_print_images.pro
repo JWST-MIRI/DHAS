@@ -206,28 +206,28 @@ if(type eq 3) then begin
 endif
 
 	  
-otype = 0
+otype = 2
 path = info.jwst_control.dirps
 slash = '/'
 if(path eq "") then slash = ''
 filename = info.jwst_control.dirps + slash + info.jwst_control.filebase + $
-           outname + '.ps'
+           outname + '.jpg'
 
 
 ; widget window parameters
-  xwidget_size = 900
-  ywidget_size = 110
+xwidget_size = 900
+ywidget_size = 110
 
-  xsize_scroll = 700
-  ysize_scroll = 110
+xsize_scroll = 700
+ysize_scroll = 110
 
 
-  if(info.jwst_control.x_scroll_window lt xsize_scroll) then $
-     xsize_scroll = info.jwst_control.x_scroll_window
-  if(info.jwst_control.y_scroll_window lt ysize_scroll) then $
-     ysize_scroll = info.jwst_control.y_scroll_window
-  if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
-  if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
+if(info.jwst_control.x_scroll_window lt xsize_scroll) then $
+   xsize_scroll = info.jwst_control.x_scroll_window
+if(info.jwst_control.y_scroll_window lt ysize_scroll) then $
+   ysize_scroll = info.jwst_control.y_scroll_window
+if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
+if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 pntrbase   = Widget_Base  (Title = mtitle, /Column, $
                            Group_Leader=info.jwst_RawQuicklook, $
                            xsize = xwidget_size,$

@@ -10,21 +10,21 @@ Case !version.os of
     'sunos': type = 0
     else:
 endcase
-if(type eq -1) then begin 
-    xloadct,group=info.jwst_QuickLook
-    Widget_Control,event.top,Set_UValue=info
-endif
-print,type
+;if(type eq -1) then begin 
+;    xloadct,group=info.jwst_QuickLook
+;    Widget_Control,event.top,Set_UValue=info
+;endif
+;print,type
 ;_______________________________________________________________________
-if(type eq 1 or type eq 0) then begin
+if(type eq -1  or type eq 0) then begin
     Widget_Control,event.top,Get_UValue=info
     if XRegistered('XCOLORS:Load Color Tables') then begin
         print, 'XColors already loaded'
     endif else begin
         xcolors,/Block,colorinfo=colorInfoData
-        help,colorInfoData,/Structure
+        ;help,colorInfoData,/Structure
         print," Loading Color Table", colorInfoData.name
-        print,' Color Table Index',colorInfoData.index
+        ;print,' Color Table Index',colorInfoData.index
         info.col_table = colorInfoData.index
         Widget_Control,event.top,Set_UValue=info
 
@@ -38,6 +38,12 @@ if(type eq 1 or type eq 0) then begin
             jwst_msql_update_slope,0,info
             jwst_msql_update_slope,1,info
             jwst_msql_update_zoom_image,info
+         endif
+
+        if(XRegistered ('jwst_mcql')) then begin
+            jwst_mcql_update_images,0,info
+            jwst_mcql_update_images,1,info
+            jwst_mcql_update_zoom_image,info
         endif
 
         if(XRegistered ('jwst_miql')) then begin

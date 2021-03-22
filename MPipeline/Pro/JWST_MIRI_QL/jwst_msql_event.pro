@@ -88,8 +88,14 @@ case 1 of
 
        type = fix(strmid(event_name,8,1))
 	if(type eq 1) then begin 
-            info.jwst_inspect_slope.integrationNO = info.jwst_slope.integrationNO[0]
-            frame_image = (*info.jwst_data.prate1)
+           info.jwst_inspect_slope.integrationNO = info.jwst_slope.integrationNO[0]
+           if( info.jwst_slope.data_type[0]) eq 1 then begin 
+              frame_image = (*info.jwst_data.prate1)
+           endif
+
+           if( info.jwst_slope.data_type[0]) eq 2 then begin 
+              frame_image = (*info.jwst_data.prate2)
+           endif
             if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
             info.jwst_inspect_slope.pdata = ptr_new(frame_image)
             frame_image = 0 
@@ -107,19 +113,29 @@ case 1 of
 
             info.jwst_inspect_slope.limit_low = -5000.0
             info.jwst_inspect_slope.limit_high = 70000.0
+            
             if(info.jwst_inspect_slope.plane eq 2) then  info.jwst_inspect_slope.limit_high = ulong64(2.0^30)
             info.jwst_inspect_slope.limit_low_num = 0
             info.jwst_inspect_slope.limit_high_num = 0
+            
             info.jwst_inspect_slope.graph_range[0] = info.jwst_slope.graph_range[0,0]
             info.jwst_inspect_slope.graph_range[1] = info.jwst_slope.graph_range[0,1]
+
             info.jwst_inspect_slope.default_scale_graph = info.jwst_slope.default_scale_graph[0]
             jwst_misql_display_images,info
             Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
         endif
 	if(type eq 2) then  begin
-            info.jwst_inspect_slope2.integrationNO = info.jwst_slope.integrationNO[1]
-            frame_image = (*info.jwst_data.prate2)
+           info.jwst_inspect_slope2.integrationNO = info.jwst_slope.integrationNO[1]
+           if( info.jwst_slope.data_type[1]) eq 1 then begin 
+              frame_image = (*info.jwst_data.prate1)
+           endif
+
+           if( info.jwst_slope.data_type[1]) eq 2 then begin 
+              frame_image = (*info.jwst_data.prate2)
+           endif
+            ;frame_image = (*info.jwst_data.prate2)
             if ptr_valid (info.jwst_inspect_slope2.pdata) then ptr_free,info.jwst_inspect_slope2.pdata
             info.jwst_inspect_slope2.pdata = ptr_new(frame_image)
             all_data = 0
@@ -139,9 +155,9 @@ case 1 of
             if(info.jwst_inspect_slope2.plane eq 2) then  info.jwst_inspect_slope2.limit_high = ulong64(2.0^30)
             info.jwst_inspect_slope2.limit_low_num = 0
             info.jwst_inspect_slope2.limit_high_num = 0
-            info.jwst_inspect_slope2.graph_range[0] = info.jwst_slope.graph_range[2,0]
-            info.jwst_inspect_slope2.graph_range[1] = info.jwst_slope.graph_range[2,1]
-            info.jwst_inspect_slope2.default_scale_graph = info.jwst_slope.default_scale_graph[2]
+            info.jwst_inspect_slope2.graph_range[0] = info.jwst_slope.graph_range[1,0]
+            info.jwst_inspect_slope2.graph_range[1] = info.jwst_slope.graph_range[1,1]
+            info.jwst_inspect_slope2.default_scale_graph = info.jwst_slope.default_scale_graph[1]
 
             Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
             jwst_misql2_display_images,info
@@ -302,21 +318,22 @@ case 1 of
 ;_______________________________________________________________________
     (strmid(event_name,0,2) EQ 'cr') : begin
         graph_num = fix(strmid(event_name,2,1))
-        
         if(strmid(event_name,4,1) EQ 'b') then begin ;bottom
             info.jwst_slope.graph_range[graph_num-1,0] = event.value
-            widget_control,info.jwst_slope.rlabelID[graph_num-1,1],get_value = temp
-            info.jwst_slope.graph_range[graph_num-1,1] = temp
+            widget_control,info.jwst_slope.rlabelID[graph_num-1,0],get_value = temp
+            info.jwst_slope.graph_range[graph_num-1,0] = temp
         endif
         if(strmid(event_name,4,1) EQ 't') then begin ;top
             info.jwst_slope.graph_range[graph_num-1,1] = event.value
-            widget_control,info.jwst_slope.rlabelID[graph_num-1,0],get_value = temp
-            info.jwst_slope.graph_range[graph_num-1,0] = temp
+            widget_control,info.jwst_slope.rlabelID[graph_num-1,1],get_value = temp
+            info.jwst_slope.graph_range[graph_num-1,1] = temp
         endif
                         
         info.jwst_slope.default_scale_graph[graph_num-1] = 0
         widget_control,info.jwst_slope.image_recomputeID[graph_num-1],set_value='Default Scale'
 
+
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 	if(graph_num eq 1) then $
           jwst_msql_update_slope,0,info
 	if(graph_num eq 2) then $
@@ -517,7 +534,6 @@ case 1 of
     (strmid(event_name,0,7) EQ 'voption') : begin
        plane = event.index
        if(plane ge 3) then plane = plane -3
-
         graphnum = fix(strmid(event_name,7,1))
         if(graphnum eq 1) then begin 
            value = event.index
@@ -535,6 +551,17 @@ case 1 of
               jwst_msql_moveframe,info,0
            endif else begin     ; just update the image 
               info.jwst_slope.default_scale_graph[0] = 1
+              ; set up the min and max of image
+              if(info.jwst_slope.data_type[0] eq 1) then begin 
+                 stat = info.jwst_data.rate1_stat[*,plane]
+              endif
+              if(info.jwst_slope.data_type[0] eq 2) then begin 
+                 stat = info.jwst_data.rate2_stat[*,plane]
+              endif
+
+              ; set up the image range to use 
+              info.jwst_slope.graph_range[0,0] = stat[5]
+              info.jwst_slope.graph_range[0,1] = stat[6]
               jwst_msql_update_slope,0,info
            endelse
            
@@ -561,10 +588,22 @@ case 1 of
               jwst_msql_moveframe,info,1
            endif else begin     ; just update the image 
               info.jwst_slope.default_scale_graph[1] = 1
+              if(info.jwst_slope.data_type[1] eq 1) then begin 
+                 stat = info.jwst_data.rate2_stat[*,plane]
+              endif
+              if(info.jwst_slope.data_type[1] eq 2) then begin 
+                 stat = info.jwst_data.rate2_stat[*,plane]
+              endif
+
+              ; set up the image range to use 
+              info.jwst_slope.graph_range[0,0] = stat[5]
+              info.jwst_slope.graph_range[0,1] = stat[6]
+              
               jwst_msql_update_slope,1,info
            endelse
            if(info.jwst_slope.zoom_window eq 2) then begin
               info.jwst_slope.plane[2] = plane
+              
               jwst_msql_update_zoom_image,info
            endif
         endif
