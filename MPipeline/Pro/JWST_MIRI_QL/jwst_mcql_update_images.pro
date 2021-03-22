@@ -6,26 +6,28 @@ loadct,info.col_table,/silent
 ; data plane 0  rate or cal
 ; data plane 1  error
 ; data plane 2  dq
+; data_type = 3 for  cal
+; data_type = 1 for slope
 data_plane = info.jwst_cal.plane[win]
+data_type = info.jwst_cal.data_type[win]
 
+print,'data plane and data_type',win,data_plane, data_type
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
-
-
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
-if (win eq 0) then begin 
+if(data_type eq 3) then begin 
    stat = info.jwst_data.cal1_stat[*,data_plane]
    frame_image[*,*] = (*info.jwst_data.pcal1)[*,*,data_plane]
 endif
-
-if(win eq 1) then begin 
+if(data_type eq 1) then begin 
    stat = info.jwst_data.cal2_stat[*,data_plane]
    frame_image[*,*] = (*info.jwst_data.pcal2)[*,*,data_plane]
+   print,' this stat',stat
 endif
 
-info.jwst_cal.graph_range[win,0] = stat[5]
-info.jwst_cal.graph_range[win,1] = stat[6]
+hcopy = 0
+if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 mean = stat[0]
 min = stat[3]
@@ -60,6 +62,7 @@ smax = strcompress(string(max),/remove_all)
 widget_control,info.jwst_cal.slabelID[win],set_value=('Mean: ' +smean) 
 widget_control,info.jwst_cal.mlabelID[win],set_value=(' Min: ' +smin + ' Max: ' +smax) 
 
+print,'smean ',smean, ' ', smin, ' ', smax
 widget_control,info.jwst_cal.rlabelID[win,0],set_value=info.jwst_cal.graph_range[win,0]
 widget_control,info.jwst_cal.rlabelID[win,1],set_value=info.jwst_cal.graph_range[win,1]
 ; replot the pixel location

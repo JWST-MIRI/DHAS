@@ -17,7 +17,7 @@ case 1 of
 ;_______________________________________________________________________
     (strmid(event_name,0,10) EQ 'JWST_LoadI') : begin
 
-        if(XRegistered ('jwst_msql')) then sl_filename = info.jwst_control.filebase
+        ;if(XRegistered ('jwst_msql')) then sl_filename = info.jwst_control.filebase
 
         info.jwst_image.uwindowsize = 0
         jwst_setup_names,info,0,status,error_message
@@ -27,13 +27,13 @@ case 1 of
             return
         endif
 
-        if(XRegistered ('jwst_msql')) then begin
-            if(sl_filename ne info.jwst_control.filebase) then begin
-                jwst_ql_reset,info
-                widget_control,info.jwst_SlopeQuickLook,/destroy
-                print,'Closing Rate Look window'
-            endif
-        endif        
+        ;if(XRegistered ('jwst_msql')) then begin
+        ;    if(sl_filename ne info.jwst_control.filebase) then begin
+        ;        jwst_ql_reset,info
+        ;        widget_control,info.jwst_SlopeQuickLook,/destroy
+        ;        print,'Closing Rate Look window'
+        ;    endif
+        ;endif        
 
         if(XRegistered ('jwst_misql')) then begin
            widget_control,info.jwst_InspectSlope,/destroy
@@ -78,13 +78,13 @@ case 1 of
             return
          endif
 
-        if(XRegistered ('jwst_mql')) then begin
-            if(sl_filename ne info.jwst_control.filebase) then begin
-                jwst_ql_reset,info
-                widget_control,info.jwst_RawQuickLook,/destroy
-                print,'Closing JWST QuickLook window'
-            endif
-        endif    
+        ;if(XRegistered ('jwst_mql')) then begin
+        ;    if(sl_filename ne info.jwst_control.filebase) then begin
+        ;        jwst_ql_reset,info
+        ;        widget_control,info.jwst_RawQuickLook,/destroy
+        ;        print,'Closing JWST QuickLook window'
+        ;    endif
+        ;endif    
 
         if(XRegistered ('jwst_misql')) then begin
            widget_control,info.jwst_InspectSlope,/destroy
@@ -144,17 +144,17 @@ case 1 of
             return
          endif
 
-        if(XRegistered ('jwst_mql')) then begin
-            if(sl_filename ne info.jwst_control.filebase) then begin
-                jwst_ql_reset,info
-                widget_control,info.jwst_RawQuickLook,/destroy
-                print,'Closing JWST QuickLook window'
-            endif
-        endif    
+        ;if(XRegistered ('jwst_mql')) then begin
+        ;    if(sl_filename ne info.jwst_control.filebase) then begin
+        ;        jwst_ql_reset,info
+        ;        widget_control,info.jwst_RawQuickLook,/destroy
+        ;        print,'Closing JWST QuickLook window'
+        ;    endif
+        ;endif    
 
-        if(XRegistered ('jwst_misql')) then begin
-           widget_control,info.jwst_InspectSlope,/destroy
-        endif
+        ;if(XRegistered ('jwst_misql')) then begin
+        ;   widget_control,info.jwst_InspectSlope,/destroy
+        ;endif
         jwst_setup_cal,info,2
 
         if (info.jwst_control.file_cal_exist eq 0) then begin
@@ -180,15 +180,14 @@ case 1 of
               if ptr_valid (info.jwst_data.pcal2) then ptr_free,info.jwst_data.pcal2
               info.jwst_data.pcal2 = ptr_new(data)
               info.jwst_data.rcal2_stat = stats
-              info.jwst_cal.plane[0] = 2 ; error
-              info.jwst_cal.data_type[0] = 3
+              info.jwst_cal.plane[1] = 2 ; error
+              info.jwst_cal.data_type[1] = 3
            endif
 
            data = 0
            stats = 0 
 
         endelse
-
 
         jwst_mcql_display_images,info
        return

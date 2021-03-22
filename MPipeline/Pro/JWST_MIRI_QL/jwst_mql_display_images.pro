@@ -51,7 +51,6 @@ j = info.jwst_image.frameNO
 x = info.jwst_image.x_pos*info.jwst_image.binfactor
 y = info.jwst_image.y_pos*info.jwst_image.binfactor
 
-
 if(info.jwst_data.read_all eq 0) then begin
     i = 0
     if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
@@ -186,8 +185,13 @@ hcMenu = widget_button(hmenu,value="Display Calibrated Header",uvalue='cheader')
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Statistics on Images",uvalue = 'Stat')
 
-;slopeMenu = widget_button(menuBar,value="Reduced Data",font = info.font2)
-;slopebutton = widget_button(slopemenu,value="Display Reduced Data",uvalue = 'LoadS')
+CHMenu = widget_button(menuBar,value="Amplifier",font = info.font2)
+CHbuttonD = widget_button(CHmenu,value = "Display Science Image by Amplifier",$
+                             uvalue='DisplayAmp')
+CHbuttonS = widget_button(CHmenu,value = "Display Reduced Image by Amplifier",$
+                             uvalue='DisplayRAmp')
+CHbuttonT = widget_button(CHmenu,value = "Plot Amplifier values in readout order",$
+                             uvalue='DisplayTAmp')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
 cbutton = widget_button(cMenu,value = "Compare Science Frame to another Science Frame",uvalue = 'compare')

@@ -1,6 +1,6 @@
 ;_______________________________________________________________________
 ;***********************************************************************
-pro jwst_micql_quit,event
+pro jwst_compare_inspect_quit,event
 ;_______________________________________________________________________
 widget_control,event.top, Get_UValue = ginfo	
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
@@ -10,9 +10,7 @@ wdelete,info.jwst_cinspect[ginfo.imageno].pixmapID
 end
 ;_______________________________________________________________________
 ;***********************************************************************
-;_______________________________________________________________________
-;***********************************************************************
-pro jwst_micql_event,event
+pro jwst_compare_inspect_event,event
 ;_______________________________________________________________________
 Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = ginfo	
@@ -27,7 +25,7 @@ if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
     info.jwst_cinspect[imageno].uwindowsize = 1
     widget_control,event.top,set_uvalue = ginfo
     widget_control,ginfo.info.jwst_Quicklook,set_uvalue = info
-    jwst_micql_display_images,info,imageno
+    jwst_compare_inspect_images,info,imageno
 
     return
 endif
@@ -46,7 +44,7 @@ endif
             info.jwst_cinspect[imageno].default_scale_graph = 1
         endif
 
-        jwst_micql_update_images,info,imageno
+        jwst_compare_inspect_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
     end
@@ -73,7 +71,7 @@ endif
         info.jwst_cinspect[imageno].default_scale_graph = 0
         widget_control,info.jwst_cinspect[imageno].image_recomputeID,set_value=' Default Scale'
 
-        jwst_micql_update_images,info,imageno
+        jwst_compare_inspect_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
@@ -97,7 +95,7 @@ endif
         info.jwst_cinspect[imageno].limit_low_default = 0
         info.jwst_cinspect[imageno].limit_high_default = 0
 
-        jwst_micql_update_images,info,imageno
+        jwst_compare_inspect_update_images,info,imageno
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
@@ -110,8 +108,7 @@ endif
        info.jwst_cinspect[imageno].zoom = 2^zoom
 
          ; redefine the xpos and y pos value in new zoom window
-         jwst_micql_update_images,info,imageno
-
+         jwst_compare_inspect_update_images,info,imageno
          
          ; xposful, uposful - x,y location in full image
          ; x_pos, y_pos = x and y location on the image screen
@@ -120,7 +117,7 @@ endif
          ypos_new = info.jwst_cinspect[imageno].yposful -info.jwst_cinspect[imageno].ystart_zoom
          info.jwst_cinspect[imageno].x_pos = (xpos_new+0.5)*info.jwst_cinspect[imageno].zoom_x
          info.jwst_cinspect[imageno].y_pos = (ypos_new+0.5)*info.jwst_cinspect[imageno].zoom
-         jwst_micql_update_pixel_location,info,imageno
+         jwst_compare_inspect_update_pixel_location,info,imageno
 
          for i = 0,5 do begin
              widget_control,info.jwst_cinspect[imageno].zbutton[i],set_button = 0
@@ -137,7 +134,6 @@ endif
         yvalue = info.jwst_cinspect[imageno].yposful
         xstart = xvalue
         ystart = yvalue
-
 
 ; ++++++++++++++++++++++++++++++
         if(strmid(event_name,4,1) eq 'x') then  begin
@@ -191,7 +187,6 @@ endif
 
         xmove = xvalue - xstart
         ymove = yvalue - ystart
-        
 
         info.jwst_cinspect[imageno].xposful = info.jwst_cinspect[imageno].xposful + xmove
         info.jwst_cinspect[imageno].yposful = info.jwst_cinspect[imageno].yposful + ymove
@@ -206,7 +201,7 @@ endif
         widget_control,info.jwst_cinspect[imageno].pix_label[0],set_value=info.jwst_cinspect[imageno].xposful+1
         widget_control,info.jwst_cinspect[imageno].pix_label[1],set_value=info.jwst_cinspect[imageno].yposful+1
 
-        jwst_micql_update_pixel_location,info,imageno
+        jwst_compare_inspect_update_pixel_location,info,imageno
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
@@ -222,7 +217,6 @@ endif
 ;; test for out of bounds area
             x = (xvalue)/info.jwst_cinspect[imageno].zoom
             y = (yvalue)/info.jwst_cinspect[imageno].zoom
-
 
             if(x gt info.jwst_compare_image[imageno].xsize) then x = info.jwst_compare_image[imageno].xsize -1
             if(y gt info.jwst_compare_image[imageno].ysize) then y = info.jwst_compare_image[imageno].ysize -1
@@ -240,7 +234,7 @@ endif
             info.jwst_cinspect[imageno].yposful = yposful
 
             if(xposful gt info.jwst_compare_image[imageno].xsize or $
-	yposful gt info.jwst_compare_image[imageno].ysize) then begin
+               yposful gt info.jwst_compare_image[imageno].ysize) then begin
 
                 ok = dialog_message(" Area out of range",/Information)
                 return
@@ -255,9 +249,7 @@ endif
             widget_control,info.jwst_cinspect[imageno].pix_label[0],set_value = info.jwst_cinspect[imageno].xposful+1
             widget_control,info.jwst_cinspect[imageno].pix_label[1],set_value = info.jwst_cinspect[imageno].yposful+1
 
-            jwst_micql_update_pixel_location,info,imageno
-
-
+            jwst_compare_inspect_update_pixel_location,info,imageno
         endif
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
@@ -270,13 +262,11 @@ end
 
 ;_______________________________________________________________________
 ;***********************************************************************
-pro jwst_micql_update_images,info,imageno,ps = ps,eps = eps
+pro jwst_compare_inspect_update_images,info,imageno,ps = ps,eps = eps
 ;_______________________________________________________________________
 hcopy = 0
 loadct,info.col_table,/silent
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
-
-
 
 ititle =  "Integration #: " + strtrim(string(info.jwst_cinspect[imageno].integrationNO+1),2) 
 ftitle = "Frame #: " + strtrim(string(info.jwst_cinspect[imageno].FrameNo+1),2)   
@@ -298,7 +288,6 @@ y = info.jwst_cinspect[imageno].yposful ; yposful = y location in full image
 if(zoom eq 1) then begin
     x = info.jwst_compare_image[imageno].xsize/2
     y = info.jwst_compare_image[imageno].ysize/2
-
 endif
 xsize_org =  info.jwst_cinspect[imageno].xplotsize
 ysize_org =  info.jwst_cinspect[imageno].yplotsize
@@ -328,7 +317,6 @@ if(zoom eq 32) then begin
   xsize = xsize_org/32
   ysize = ysize_org/32
 endif
-
 
 ; ixstart and iystart are the starting points for the zoom image
 ; xstart and ystart are the starting points for the orginal image
@@ -400,8 +388,6 @@ if(info.jwst_compare_image[imageno].subarray  eq 0 and xend ge 1028) then begin
     factor = xend - 1028 + 1
     x_zoom_end = x_zoom_end - factor
 endif
-
-
 
 ;print,'x_zoom_start,x_zoom_end',x_zoom_start,x_zoom_end
 
@@ -577,9 +563,7 @@ widget_control,info.jwst_cinspect[imageno].slabelID[4],set_value=info.jwst_cinsp
 widget_control,info.jwst_cinspect[imageno].rlabelID[0],set_value=info.jwst_cinspect[imageno].graph_range[0]
 widget_control,info.jwst_cinspect[imageno].rlabelID[1],set_value=info.jwst_cinspect[imageno].graph_range[1]
 
-
 ; zoom image stats
-
 
 if(info.jwst_cinspect[imageno].zoom gt info.jwst_cinspect[imageno].set_zoom) then begin 
 
@@ -626,23 +610,14 @@ ypos2 = info.jwst_cinspect[imageno].y_pos+halfpixely
 box_coords1 = [xpos1,xpos2,ypos1,ypos2]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 
-
-
-
-
 sub_image = 0
 test_image = 0
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
 
-
-
-
-
-
 ;_______________________________________________________________________
 ;***********************************************************************
-pro jwst_micql_update_pixel_location,info,imageno
+pro jwst_compare_inspect_update_pixel_location,info,imageno
 ;***********************************************************************
 
 xvalue = info.jwst_cinspect[imageno].xposful ; location in image 
@@ -699,11 +674,9 @@ endif
 widget_control,info.jwst_Quicklook,set_uvalue = info
 end
 
-
-
 ;_______________________________________________________________________
 ;***********************************************************************
-pro jwst_micql_display_images,info,imageno
+pro jwst_compare_inspect_images,info,imageno
 ;_______________________________________________________________________
 
 
@@ -768,7 +741,7 @@ if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 
 if(imageno eq 0) then begin 
     stit = " Inspect Image 1"
-    if(XRegistered ('jwst_micql1')) then begin
+    if(XRegistered ('jwst_compare_inspect1')) then begin
         widget_control,info.jwst_CInspectImage[imageno],/destroy
     endif
     sfile = info.jwst_compare_image[0].filename
@@ -777,7 +750,7 @@ endif
 
 if(imageno eq 1) then begin 
     stit = " Inspect Image 2"
-    if(XRegistered ('jwst_micql2')) then begin
+    if(XRegistered ('jwst_compare_inspect2')) then begin
         widget_control,info.jwst_CInspectImage[imageno],/destroy
     endif
     sfile = info.jwst_compare_image[1].filename
@@ -790,7 +763,7 @@ if(imageno eq 2) then begin
     if (info.jwst_compare.compare_type eq 2) then stit = " Ratio Image (A/B)" 
     if (info.jwst_compare.compare_type eq 3) then stit = " Ratio Image (B/A)" 
     if (info.jwst_compare.compare_type eq 4) then stit = " Addition Image" 
-    if(XRegistered ('jwst_micql3')) then begin
+    if(XRegistered ('jwst_compare_inspect3')) then begin
         widget_control,info.jwst_CInspectImage[imageno],/destroy
     endif
     sfile = stit
@@ -809,7 +782,7 @@ InspectImage = widget_base(title="MIRI Quick Look- "+ stit + info.jwst_version,$
 QuitMenu = widget_button(menuBar,value="Quit",font = info.font2)
 
 ; add quit button
-quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_micql_quit')
+quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_compare_inspect_quit')
 
 ; zoom button
 ZoomMenu = widget_button(menuBar,value="Zoom",font = info.font2)
@@ -977,7 +950,6 @@ info.jwst_cinspect[imageno].zslabelID[3] = widget_label(graphID2,value="",/dynam
 info.jwst_cinspect[imageno].zslabelID[4] = widget_label(graphID2,value="",/dynamic_resize,/align_left)
 ; get the window ids of the draw windows
 
-
 longline = '                              '
 longtag = widget_label(InspectImage,value = longline)
 
@@ -986,9 +958,9 @@ Widget_control,InspectImage,/Realize
 loadct,info.col_table,/silent
 
 info.jwst_cInspectImage[imageno] = InspectImage
-if(imageno eq 0)then  XManager,'jwst_micql1',info.jwst_cInspectImage[imageno],/No_Block,event_handler='jwst_micql_event'
-if(imageno eq 1) then XManager,'jwst_micql2',info.jwst_cInspectImage[imageno],/No_Block,event_handler='jwst_micql_event'
-if(imageno eq 2) then XManager,'jwst_micql3',info.jwst_cInspectImage[imageno],/No_Block,event_handler='jwst_micql_event'
+if(imageno eq 0)then  XManager,'jwst_compare_inspect1',info.jwst_cInspectImage[imageno],/No_Block,event_handler='jwst_compare_inspect_event'
+if(imageno eq 1) then XManager,'jwst_compare_inspect2',info.jwst_cInspectImage[imageno],/No_Block,event_handler='jwst_compare_inspect_event'
+if(imageno eq 2) then XManager,'jwst_compare_inspect3',info.jwst_cInspectImage[imageno],/No_Block,event_handler='jwst_compare_inspect_event'
 
 widget_control,info.jwst_cinspect[imageno].graphID,get_value=tdraw_id
 info.jwst_cinspect[imageno].draw_window_id = tdraw_id
@@ -1000,10 +972,9 @@ Widget_Control,info.jwst_QuickLook,Set_UValue=info
 iinfo = {imageno          : imageno,$
          info        : info}
 
-jwst_micql_update_images,info,imageno
+jwst_compare_inspect_update_images,info,imageno
 
-jwst_micql_update_pixel_location,info,imageno
-
+jwst_compare_inspect_update_pixel_location,info,imageno
 
 Widget_Control,info.jwst_CInspectImage[imageno],Set_UValue=iinfo
 

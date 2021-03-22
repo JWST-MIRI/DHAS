@@ -203,9 +203,7 @@ for k = 0,num_int-1 do begin
     xvalues = indgen(info.jwst_data.ngroups)+1
     if(info.jwst_image.overplot_pixel_int eq 0) then xvalues = xvalues + info.jwst_data.ngroups*(k)
     oplot,xvalues,yvalues,psym = 1,symsize = 0.8,color = info.white
-
     if(hcopy eq 1) then     oplot,xvalues,yvalues,psym = 1,symsize = 0.8,color = info.black
-
 
     if(info.jwst_image.overplot_fit) then begin
         xnew_plot = xnew + info.jwst_data.ngroups*k

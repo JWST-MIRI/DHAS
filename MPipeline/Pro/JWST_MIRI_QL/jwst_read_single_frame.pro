@@ -83,7 +83,6 @@ jwst_get_image_stat,image_noref_data,image_mean,stdev_pixel,image_min,image_max,
 image_noref_data = 0
 
 stats_image = fltarr(8)
-
 stats_image[0] = image_mean
 stats_image[1] = image_median
 stats_image[2] = stdev_pixel

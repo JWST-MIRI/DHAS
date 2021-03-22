@@ -103,7 +103,10 @@ for i = 0,2 do begin
     stats_image[5,i] = irange_min
     stats_image[6,i] = irange_max
     stats_image[7,i] = stdev_mean
-
+    if(i eq 2) then begin       ; DQ image change how it is displayed
+       stats_image[5,i] = 0
+       stats_image[6,i] = 32
+    endif
     data_noref = 0
     
     if(finite(irange_min) ne 1) then stats_image[5,i] = 0
@@ -203,11 +206,16 @@ for i = 0,2 do begin
     stats_image[6,i] = irange_max
     stats_image[7,i] = stdev_mean
 
+    if(i eq 2) then begin       ; DQ image change how it is displayed
+       stats_image[5,i] = 0
+       stats_image[6,i] = 32
+    endif
     data_noref = 0
     
     if(finite(irange_min) ne 1) then stats_image[5,i] = 0
     if(finite(irange_max) ne 1) then stats_image[6,i] = 0
  endfor
+
 data = 0
 data_noref = 0
 

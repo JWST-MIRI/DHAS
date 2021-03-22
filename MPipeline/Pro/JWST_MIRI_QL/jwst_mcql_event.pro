@@ -31,54 +31,12 @@ case 1 of
        endelse
      end
 
-
 ; calibrated header 
     (strmid(event_name,0,7) EQ 'cheader') : begin
        jwst_display_header,info,0
     end
 ;_______________________________________________________________________
-;    (strmid(event_name,0,7) EQ 'compare') : begin
-;        info.jwst_rcompare.uwindowsize = 0
-;        info.jwst_crinspect[*].uwindowsize = 1
-;        print,'planes',info.jwst_cal.plane[0], info.jwst_cal.plane[1]
-;        test1 = info.jwst_cal.plane[0]
-;        test2 = info.jwst_cal.plane[1]
-;        if(test1 ne test2) then begin 
-;           print,'Planes are not compatiable'
-;;           ok = dialog_message(" Planes are not compatiable, load the same type of data in Window 1 and Window 2",/Information)
-;           return
-;        endif
 
-;        if (info.jwst_cal.integrationNO[0] eq -1) then begin 
-;           info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope
-;           info.jwst_rcompare_image[0].type = 1
-;        endif else begin
-;           info.jwst_rcompare_image[0].filename  = info.jwst_control.filename_slope_int
-;           info.jwst_rcompare_image[0].type = 2
-;        endelse 
-
-;        if (info.jwst_cal.integrationNO[1] eq -1) then begin 
-;           info.jwst_rcompare_image[1].filename  = info.jwst_control.filename_slope
-;           info.jwst_rcompare_image[1].type = 1
-;        endif else begin
-;           info.jwst_rcompare_image[1].filename  = info.jwst_control.filename_slope_int
-;           info.jwst_rcompare_image[1].type = 2
-;        endelse 
-              
-;        info.jwst_rcompare_image[0].jintegration = info.jwst_cal.integrationNO[0]
-;        info.jwst_rcompare_image[1].jintegration = info.jwst_cal.integrationNO[1]
-
-;        info.jwst_rcompare_image[0].plane = info.jwst_cal.plane[0]
-;        info.jwst_rcompare_image[1].plane = info.jwst_cal.plane[1]
-;        info.jwst_rcompare.uwindowsize = 0
-;        info.jwst_crinspect[*].uwindowsize = 1
-
-;	jwst_mcql_compare_display,info
-;        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
-;    end
-
-
-;_______________________________________________________________________
 ; print
     (strmid(event_name,0,5) EQ 'print') : begin
         if(strmid(event_name,6,1) eq '1') then type = 0
@@ -93,7 +51,13 @@ case 1 of
     (strmid(event_name,0,7) EQ 'inspect') : begin
         type = fix(strmid(event_name,8,1))
 	if(type eq 1) then begin 
-            frame_image = (*info.jwst_data.pcal1)
+           if( info.jwst_cal.data_type[0]) eq 3 then begin 
+              frame_image = (*info.jwst_data.pcal1)
+           endif
+
+           if( info.jwst_cal.data_type[0]) eq 1 then begin 
+              frame_image = (*info.jwst_data.pcal2)
+           endif
             if ptr_valid (info.jwst_inspect_cal1.pdata) then ptr_free,info.jwst_inspect_cal1.pdata
             info.jwst_inspect_cal1.pdata = ptr_new(frame_image)
             frame_image = 0 
@@ -110,6 +74,7 @@ case 1 of
 
             info.jwst_inspect_cal1.limit_low = -5000.0
             info.jwst_inspect_cal1.limit_high = 70000.0
+            if(info.jwst_inspect_cal1.plane eq 2) then  info.jwst_inspect_cal1.limit_high = ulong64(2.0^30)
             info.jwst_inspect_cal1.limit_low_num = 0
             info.jwst_inspect_cal1.limit_high_num = 0
             info.jwst_inspect_cal1.data_type = info.jwst_cal.data_type[0]
@@ -121,7 +86,12 @@ case 1 of
 
         endif
 	if(type eq 2) then  begin
-            frame_image = (*info.jwst_data.pcal2)
+           if( info.jwst_cal.data_type[1]) eq 3 then begin 
+              frame_image = (*info.jwst_data.pcal1)
+           endif
+           if( info.jwst_cal.data_type[1]) eq 1 then begin 
+              frame_image = (*info.jwst_data.pcal2)
+           endif
             if ptr_valid (info.jwst_inspect_cal2.pdata) then ptr_free,info.jwst_inspect_cal2.pdata
             info.jwst_inspect_cal2.pdata = ptr_new(frame_image)
             all_data = 0
@@ -137,6 +107,7 @@ case 1 of
 
             info.jwst_inspect_cal2.limit_low = -5000.0
             info.jwst_inspect_cal2.limit_high = 70000.0
+            if(info.jwst_inspect_cal2.plane eq 2) then  info.jwst_inspect_cal2.limit_high = ulong64(2.0^30)
             info.jwst_inspect_cal2.limit_low_num = 0
             info.jwst_inspect_cal2.limit_high_num = 0
             info.jwst_inspect_cal2.graph_range[0] = info.jwst_cal.graph_range[2,0]
@@ -154,9 +125,8 @@ case 1 of
 ; clicked on images - update pixel information
 
    (strmid(event_name,0,6) EQ 'spixel') : begin
-
        if(event.type eq 1) then begin
-           graphnum = fix(strmid(event_name,6,1))
+          graphnum = fix(strmid(event_name,6,1))
            ; set the zoom plane number
            info.jwst_cal.plane[2] = info.jwst_cal.plane[graphnum-1]
 
@@ -168,9 +138,9 @@ case 1 of
                info.jwst_cal.x_zoom = xvalue * info.jwst_cal.binfactor
                info.jwst_cal.y_zoom = yvalue * info.jwst_cal.binfactor
                jwst_mcql_update_zoom_image,info
-
+               
                info.jwst_cal.x_pos = xvalue 
-               info.jwst_cal.y_pos = yvalue 
+               info.jwst_cal.y_pos = yvalue
            endif
 
 ; clicked on the zoom image - so update the pixel in the zoom image 
@@ -200,7 +170,7 @@ case 1 of
             endif
 
 ; update the pixel locations in graphs 1, 2
-           for i = 0,1 do begin 
+           for i = 0,1 do begin
                info.jwst_cal.current_graph = i
                jwst_mcql_update_pixel_location,info
            endfor
@@ -208,13 +178,12 @@ case 1 of
            ; set current graph to the one clicked on
            if(graphnum eq 1) then info.jwst_cal.current_graph = 0
            if(graphnum eq 2) then info.jwst_cal.current_graph = 1
-           
 
+           jwst_mcql_update_pixel_stat,info
 	   x = info.jwst_cal.x_pos * info.jwst_cal.binfactor	
 	   y = info.jwst_cal.y_pos * info.jwst_cal.binfactor	
 	   widget_control,info.jwst_cal.pix_label[0],set_value = x+1
 	   widget_control,info.jwst_cal.pix_label[1],set_value = y+1
-
            
 ; Draw a box around the pixel - showing the zoom window size 
            if(info.jwst_cal.zoom_window ne 3) then  begin ;
@@ -438,6 +407,7 @@ case 1 of
 ; Change the image displayed 
 ;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'voption') : begin
+
        plane = event.index
        if(plane ge 3) then plane = plane -3
        graphnum = fix(strmid(event_name,7,1))
@@ -449,7 +419,17 @@ case 1 of
              info.jwst_cal.data_type[0] = 1
           endelse
           info.jwst_cal.plane[0] = plane
-           info.jwst_cal.default_scale_graph[0] = 1
+          info.jwst_cal.default_scale_graph[0] = 1
+
+          if(info.jwst_cal.data_type[0] eq 3) then begin 
+             stat = info.jwst_data.cal1_stat[*,plane]
+          endif
+          if(info.jwst_cal.data_type[0] eq 1) then begin 
+             stat = info.jwst_data.cal2_stat[*,plane]
+          endif
+
+          info.jwst_cal.graph_range[0,0] = stat[5]
+          info.jwst_cal.graph_range[0,1] = stat[6]
           jwst_mcql_update_images,0,info
        
           if(info.jwst_cal.zoom_window eq 1) then  begin
@@ -468,6 +448,15 @@ case 1 of
            info.jwst_cal.plane[1] = plane
 
            info.jwst_cal.default_scale_graph[1] = 1
+           if(info.jwst_cal.data_type[1] eq 3) then begin 
+              stat = info.jwst_data.cal1_stat[*,plane]
+          endif
+           if(info.jwst_cal.data_type[1] eq 1) then begin 
+              stat = info.jwst_data.cal2_stat[*,plane]
+           endif
+
+           info.jwst_cal.graph_range[1,0] = stat[5]
+           info.jwst_cal.graph_range[1,1] = stat[6]
            jwst_mcql_update_images,1,info
            if(info.jwst_cal.zoom_window eq 2) then begin
               info.jwst_cal.plane[2] = plane

@@ -11,7 +11,6 @@ if(info.jwst_data.read_all eq 0) then begin
 endif
 this_num_frames = info.jwst_data.ngroups
 
-
 image_cube = fltarr(this_integration,info.jwst_data.num_frames,info.jwst_data.image_xsize,info.jwst_data.image_ysize)
 image_stat = fltarr(this_integration,info.jwst_data.num_frames,6)
 ;help,image_cube
@@ -22,7 +21,6 @@ nvalid = long(1024) * long(1024)
 if(info.jwst_data.subarray eq 1) then nvalid= long(info.jwst_data.image_xsize) * long(info.jwst_data.image_ysize)
 
 ; read all set to true - so read in all the images
-
 ;  _______________________________________________________________________
 if(info.jwst_data.read_all eq 1) then begin ; read all the data in
 

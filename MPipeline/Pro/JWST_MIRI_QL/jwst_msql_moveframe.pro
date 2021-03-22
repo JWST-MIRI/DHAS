@@ -37,19 +37,25 @@ endif else begin
                           status,$
                           error_message
 endelse
-
+              
 if(win eq 0) then begin
+   info.jwst_slope.default_scale_graph[0] = 1
    if ptr_valid (info.jwst_data.prate1) then ptr_free,info.jwst_data.prate1
    info.jwst_data.prate1 = ptr_new(slopedata)
    info.jwst_data.rate1_stat = stats
+   info.jwst_slope.graph_range[0,0] = stats[5]
+   info.jwst_slope.graph_range[0,1] = stats[6]
    jwst_msql_update_slope,0,info
    widget_control,info.jwst_slope.integration_label[0],set_value= fix(jintegration+1)
 endif
 
 if(win eq 1) then begin
+   info.jwst_slope.default_scale_graph[1] = 1
    if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
    info.jwst_data.prate2 = ptr_new(slopedata)
    info.jwst_data.rate2_stat = stats
+   info.jwst_slope.graph_range[1,0] = stats[5]
+   info.jwst_slope.graph_range[1,1] = stats[6]
    jwst_msql_update_slope,1,info
    widget_control,info.jwst_slope.integration_label[1],set_value= fix(jintegration+1)
 endif

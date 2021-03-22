@@ -298,7 +298,7 @@ endif
         endif
 
         info.jwst_rcompare_image[1].filename  = filename
-        info.jwst_rcompare_image[1].jintegration = info.jwst_rcompare_image[0].jintegration
+        ;info.jwst_rcompare_image[1].jintegration = info.jwst_rcompare_image[0].jintegration
         info.jwst_rcompare_image[1].plane = info.jwst_rcompare_image[0].plane
     
         jwst_read_data_type,info.jwst_rcompare_image[1].filename,type
@@ -307,14 +307,30 @@ endif
             return
         endif
 
+        if(type eq 1) then  begin
+           info.jwst_rcompare_image[1].jintegration = -1
+        endif
+        
+        if(type eq 2) then  begin
+           info.jwst_rcompare_image[1].jintegration = 0
+        endif
+
+        widget_control,info.jwst_rcompare.integration_label[1],set_value = info.jwst_rcompare_image[1].jintegration+1
+        nints = info.jwst_rcompare_image[1].nints
+        tlabel = "Total # " + strcompress(string(nints),/remove_all)
+        widget_control,info.jwst_rcompare.total_ilabel[1], set_value = tlabel
+
+        if(info.jwst_rcompare_image[1].type eq 1) then begin ; must have integrations to select
+           widget_control,info.jwst_rcompare.total_ilabel[1],sensitive = 0
+        endif
+        if(info.jwst_rcompare_image[1].type eq 2) then begin ; must have integrations to select
+           widget_control,info.jwst_rcompare.total_ilabel[1],sensitive = 1
+        endif
         info.jwst_rcompare_image[1].type = type
         jwst_msql_compare_read_image,info,1,status
         jwst_msql_compare_test,info,status
         if(status ne 0) then return
 
-        nints = info.jwst_rcompare_image[1].nints
-        tlabel = "Total # " + strcompress(string(nints),/remove_all)
-        widget_control,info.jwst_rcompare.total_ilabel[1], set_value = tlabel
 
         sfile = info.jwst_rcompare_image[1].filename
         sfind = strpos(sfile,'/',/reverse_search)
@@ -330,7 +346,7 @@ endif
         sinfo = ' Integration # ' + sint
         widget_control,info.jwst_rcompare.info_label[1], set_value = sinfo
 ;_______________________________________________________________________
-        widget_control,info.jwst_rcompare.integration_label[1],set_value = info.jwst_rcompare_image[1].jintegration+1
+       ; widget_control,info.jwst_rcompare.integration_label[1],set_value = info.jwst_rcompare_image[1].jintegration+1
 
         jwst_difference_reduced_images,info,0,1,2
          for i = 1, 2 do begin 
@@ -505,7 +521,7 @@ end
 
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
-        jwst_micrql_display_images,info,imageno
+        jwst_compare_inspect_reduced_images,info,imageno
 
    end
 ;_______________________________________________________________________
@@ -575,6 +591,13 @@ end
        if(this_integration gt lastnum-1 ) then begin
             this_integration = lastnum-1
         endif
+
+                                
+       if(info.jwst_rcompare_image[imageno-1].type eq 1) then begin
+          print,'Only has combined value'
+          ok = dialog_message('No individual integrations, only combined',/information)
+          return
+       endif
 
          info.jwst_rcompare_image[imageno-1].jintegration = this_integration       
          widget_control,info.jwst_rcompare.integration_label[imageno-1],set_value = this_integration+1
@@ -837,7 +860,7 @@ info.jwst_rcompare.slabelID[0,2] = widget_label(info.jwst_rcompare.graphID11,val
 info.jwst_rcompare.slabelID[0,3] = widget_label(info.jwst_rcompare.graphID11,value=info.jwst_rcompare.sname[3] +blank10,/align_left)
 info.jwst_rcompare.slabelID[0,4] = widget_label(info.jwst_rcompare.graphID11,value=info.jwst_rcompare.sname[4] +blank10,/align_left)
 
-if(info.jwst_rcompare_image[0].type eq 2) then begin ; must have integrations to select
+;if(info.jwst_rcompare_image[0].type eq 2) then begin ; must have integrations to select
    moveframe_label = widget_label(info.jwst_rcompare.graphID11,value='Change Image 1 Displayed',$
                                   font=info.font5,/sunken_frame,/align_left)
    move_base1 = widget_base(info.jwst_rcompare.graphID11,row=1,/align_left)
@@ -854,9 +877,11 @@ if(info.jwst_rcompare_image[0].type eq 2) then begin ; must have integrations to
    nints= info.jwst_rcompare_image[0].nints
    tlabel = "Total # " + strcompress(string(nints),/remove_all)
    info.jwst_rcompare.total_ilabel[0] = widget_label( move_base1,value = tlabel,/align_left)
-
-endif
-
+   ilabel = widget_label(info.jwst_rcompare.graphID12,value = ' Enter 0 for Combinded Rate Image',/align_left)
+;endif
+   if(info.jwst_rcompare_image[0].type eq 1) then begin ; must have integrations to select
+      widget_control,info.jwst_rcompare.total_ilabel[0],sensitive = 0
+   endif
 ;_______________________________________________________________________
 ;graph 1,2
 ;*****
@@ -916,7 +941,7 @@ info.jwst_rcompare.slabelID[1,2] = widget_label(info.jwst_rcompare.graphID12,val
 info.jwst_rcompare.slabelID[1,3] = widget_label(info.jwst_rcompare.graphID12,value=info.jwst_rcompare.sname[3] +blank10,/align_left)
 info.jwst_rcompare.slabelID[1,4] = widget_label(info.jwst_rcompare.graphID12,value=info.jwst_rcompare.sname[4] +blank10,/align_left)
 
-if(info.jwst_rcompare_image[1].type eq 2) then begin ; the data is rate_int type and we can change the integration #
+;if(info.jwst_rcompare_image[1].type eq 2) then begin ; the data is rate_int type and we can change the integration #
    moveframe_label = widget_label(info.jwst_rcompare.graphID12,value='Change Image 2 Displayed',$
                                   font=info.font5,/sunken_frame,/align_left)
    move_base1 = widget_base(info.jwst_rcompare.graphID12,row=1,/align_left)
@@ -935,9 +960,12 @@ if(info.jwst_rcompare_image[1].type eq 2) then begin ; the data is rate_int type
    info.jwst_rcompare.total_ilabel[1] = widget_label( move_base1,value = tlabel,/align_left)
 
    ilabel = widget_label(info.jwst_rcompare.graphID12,value = ' Enter 0 for Combinded Rate Image',/align_left)
-endif
+;endif
 load_label = widget_button(info.jwst_rcompare.graphID12,value='Load a Different Comparison Image',$
-                                uvalue='loadnew')
+                           uvalue='loadnew')
+   if(info.jwst_rcompare_image[1].type eq 1) then begin ; must have integrations to select
+      widget_control,info.jwst_rcompare.total_ilabel[1],sensitive = 0
+   endif
 ;_______________________________________________________________________
 ;graph 1,3 - the difference plot
 

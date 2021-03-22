@@ -22,6 +22,7 @@
 @jwst_get_this_frame_stat.pro
 @jwst_read_single_slope.pro
 @jwst_read_single_frame.pro
+@jwst_read_single_frame_and_ref.pro
 @jwst_read_all_slopes.pro
 @jwst_get_image_stat.pro
 
@@ -59,9 +60,13 @@
 @jwst_mcql_display_stat.pro
 @jwst_micalql_display_images.pro ; first window from jwst_mcql_display_images
 @jwst_micalql2_display_images.pro ; second window from jwst_mcql_display_images
-;@setup_Channel.pro 
-;@mql_display_Channel.pro       
-;@mql_update_Channel.pro      
+; amplifier display
+@extract_amplifier.pro
+@setup_amplifier.pro 
+@jwst_display_amplifier.pro       
+@jwst_update_Amplifier.pro
+@jwst_display_amplifier_stat.pro
+@jwst_pixel_amplifier_display.pro
 ;@setup_SlopeChannel.pro 
 ;@mql_display_SlopeChannel.pro       
 ;@mql_update_SlopeChannel.pro
@@ -99,10 +104,10 @@
 @jwst_load_compare.pro  
 ; comparing image to science image
 @jwst_mql_compare_display.pro
-@jwst_micql_display_images ; inspect comparison images'
+@jwst_compare_inspect_images ; inspect comparison images'
 ; comparing two reduced images
 @jwst_msql_compare_display.pro
-@jwst_micrql_display_images ; inspect comparison images'
+@jwst_compare_inspect_reduced_images ; inspect comparison images'
 
 ; Subarray geometry plot
 ;@mql_plot_subarray_geo.pro

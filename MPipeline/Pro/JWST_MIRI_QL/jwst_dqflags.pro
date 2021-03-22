@@ -1,9 +1,12 @@
 pro jwst_dqflags,info
-  
+
 
   data_id ='ID flag '+ strcompress(string(info.jwst_dqflag.donotuse),/remove_all) +' = '+ info.jwst_dqflag.Sdonotuse + string(10b) + $
            'ID flag '+ strcompress(string(info.jwst_dqflag.Saturated),/remove_all) +  ' = ' + info.jwst_dqflag.SSaturated + string(10b) + $
            'ID flag '+ strcompress(string(info.jwst_dqflag.Jump),/remove_all) +  ' = ' + info.jwst_dqflag.Sjump + string(10b) + $
+           'ID flag '+ strcompress(string(info.jwst_dqflag.Outlier),/remove_all) +  ' = ' + info.jwst_dqflag.SOutlier + string(10b) + $
+           'ID flag '+ strcompress(string(info.jwst_dqflag.Persistence),/remove_all) +  ' = ' + info.jwst_dqflag.SPersistence + string(10b) + $
+           'ID flag '+ strcompress(string(info.jwst_dqflag.AD_floor),/remove_all) +  ' = ' + info.jwst_dqflag.SAD_floor + string(10b) + $
            'ID flag '+ strcompress(string(info.jwst_dqflag.UnrelError),/remove_all) +  ' = ' + info.jwst_dqflag.Sunrelerror + string(10b) + $
            'ID flag '+ strcompress(string(info.jwst_dqflag.nonscience),/remove_all) +  ' = ' + info.jwst_dqflag.SNonscience + string(10b) + $
            'ID flag '+ strcompress(string(info.jwst_dqflag.dead),/remove_all) +  ' = ' + info.jwst_dqflag.Sdead + string(10b) + $

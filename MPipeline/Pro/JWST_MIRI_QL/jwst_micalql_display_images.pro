@@ -178,16 +178,16 @@ endif
 
         xmove = xvalue - xstart
         ymove = yvalue - ystart
-
+        
         info.jwst_inspect_cal1.xposful = info.jwst_inspect_cal1.xposful + xmove
         info.jwst_inspect_cal1.yposful = info.jwst_inspect_cal1.yposful + ymove
 
-         xpos_new = info.jwst_inspect_cal1.xposful -info.jwst_inspect_cal1.xstart_zoom 
-         ypos_new = info.jwst_inspect_cal1.yposful -info.jwst_inspect_cal1.ystart_zoom
+        xpos_new = info.jwst_inspect_cal1.xposful -info.jwst_inspect_cal1.xstart_zoom 
+        ypos_new = info.jwst_inspect_cal1.yposful -info.jwst_inspect_cal1.ystart_zoom
 
 ; update screen coor x_pos,y_pos
-         info.jwst_inspect_cal1.x_pos = (xpos_new+0.5)*info.jwst_inspect_cal1.zoom_x
-         info.jwst_inspect_cal1.y_pos = (ypos_new+0.5)*info.jwst_inspect_cal1.zoom
+        info.jwst_inspect_cal1.x_pos = (xpos_new+0.5)*info.jwst_inspect_cal1.zoom_x
+        info.jwst_inspect_cal1.y_pos = (ypos_new+0.5)*info.jwst_inspect_cal1.zoom
 
         widget_control,info.jwst_inspect_cal1.pix_label[0],set_value=info.jwst_inspect_cal1.xposful+1
         widget_control,info.jwst_inspect_cal1.pix_label[1],set_value=info.jwst_inspect_cal1.yposful+1
@@ -352,7 +352,7 @@ info.jwst_inspect_cal1.ystart_zoom = ystart
 info.jwst_inspect_cal1.yend_zoom = yend
 info.jwst_inspect_cal1.xend_zoom = xend
 
-frame_image = (*info.jwst_inspect_cal1.pdata)[*,*,info.jwst_inspect_cal1.plane_plot]
+frame_image = (*info.jwst_inspect_cal1.pdata)[*,*,info.jwst_inspect_cal1.plane]
 
 sub_image = fltarr(xsize,ysize)   
 sub_image[ixstart:ixend,iystart:iyend] =frame_image[xstart:xend,ystart:yend]
@@ -698,6 +698,7 @@ if(info.jwst_inspect_cal1.uwindowsize eq 0) then begin ; user changed the widget
 
     info.jwst_inspect_cal1.limit_low = -5000.0
     info.jwst_inspect_cal1.limit_high = 5000.0
+    if(info.jwst_inspect_cal1.plane eq 2) then  info.jwst_inspect_cal1.limit_high = ulong64(2.0^30)
     info.jwst_inspect_cal1.limit_low_num = 0
     info.jwst_inspect_cal1.limit_high_num = 0
 endif

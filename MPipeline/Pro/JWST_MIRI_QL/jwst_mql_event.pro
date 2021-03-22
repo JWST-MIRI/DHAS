@@ -21,30 +21,6 @@ endif
 ;    print,'event_name',event_name
     case 1 of
 ;_______________________________________________________________________
-; analyze the slope image
-    (strmid(event_name,0,5) EQ 'LoadS') : begin
-        if(info.jwst_control.file_slope_exist eq 0) then begin 
-            ok = dialog_message(" A Rate Image Does not exist",/Information)
-            return
-        endif else begin
-
-           if(XRegistered ('jwst_msql')) then begin
-              widget_control,info.jwst_SlopeQuickLook,/destroy
-              print,'Closing Rate Look window'
-           endif        
-
-           slopedata = *info.jwst_data.preduced
-           if ptr_valid (info.jwst_data.pratefinal) then ptr_free,info.jwst_data.pratefinal
-            info.jwst_data.pratefinal = ptr_new(slopedata)
-            slopedata  = 0
-            info.jwst_data.ratefinal_stat = info.jwst_data.reduced_stat
-            jwst_setup_slope_int,info,info.jwst_slope.integrationNO,1
-            jwst_find_slope_binfactor,info
-
-            jwst_msql_display_slope,info
-        endelse
-    end
-;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'voption') : begin
         info.jwst_image.plane = event.index
         info.jwst_image.default_scale_graph[2] = 1
@@ -116,8 +92,8 @@ endif
         info.jwst_compare_image[0].jintegration = info.jwst_image.integrationNO
         info.jwst_compare_image[1].jintegration = info.jwst_image.integrationNO
 
-        info.jwst_compare_image[0].iframe = info.jwst_image.frameNO
-        info.jwst_compare_image[1].iframe = info.jwst_image.frameNO
+        info.jwst_compare_image[0].igroup = info.jwst_image.frameNO
+        info.jwst_compare_image[1].igroup = info.jwst_image.frameNO
 	jwst_mql_compare_display,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 	endelse
@@ -139,8 +115,8 @@ endif
         info.jwst_compare_image[0].jintegration = info.jwst_image.integrationNO 
         info.jwst_compare_image[1].jintegration = info.jwst_image.integrationNO
 
-        info.jwst_compare_image[0].iframe= info.jwst_image.frameNO 
-        info.jwst_compare_image[1].iframe = this_frame
+        info.jwst_compare_image[0].igroup= info.jwst_image.frameNO 
+        info.jwst_compare_image[1].igroup = this_frame
 
        	jwst_mql_compare_display,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
@@ -150,7 +126,49 @@ endif
     (strmid(event_name,0,4) EQ 'Stat') : begin
 	jwst_mql_display_stat,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+     end
+;_______________________________________________________________________
+;Display science image split into 5 channel amplifier
+    (strmid(event_name,0,10) EQ 'DisplayAmp') : begin
+
+        info.jwst_AmpFrame.uwindowsize = 0
+        setup_amplifier,info,info.jwst_image.integrationNO, info.jwst_image.frameNO
+        jwst_display_amplifier,info
     end
+
+;_______________________________________________________________________
+
+; Display slope image split into 5 channel amplifier
+    (strmid(event_name,0,11) EQ 'DisplayRAmp') : begin
+
+        ;if(not info.jwst_data.slope_exist) then begin
+        ;    ok = dialog_message(" No slope image exists",/Information)
+        ;    return
+        ;endif else begin
+           ok = dialog_message(" Feauture in next release",/Information)
+           return
+
+           ;status = 0
+           ;setup_SlopeChannel,info,info.image.integrationNO,status,error_message
+           ;if(status ne 0) then begin 
+           ;   ok = dialog_message(error_message,/Information)
+           ;   return
+           ; endif
+           ; info.Slopechannel.uwindowsize = 0
+           ; mql_display_SlopeChannel,info
+        ;endelse
+    end
+
+
+    ; Display slope image split into 5 channel amplifier
+    (strmid(event_name,0,11) EQ 'DisplayTAmp') : begin
+
+       ok = dialog_message(" Feauture in next release",/Information)
+       return
+
+    end
+
+
 ;_______________________________________________________________________
 ; print
 
@@ -1052,8 +1070,9 @@ endif
 	jwst_misql_display_images,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
+    
 ;_______________________________________________________________________
+    
 
 else: print," Event name not found:", event_name
 endcase
