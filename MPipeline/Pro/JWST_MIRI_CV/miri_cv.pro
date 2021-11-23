@@ -19,7 +19,7 @@
 ; INPUTS:
 ;      1. All the default information is held in a preferences file:
 ;         JWST_MIRI_CV_v#.#.preferences. The location of this file is specified
-;         by the environmental varible: MIRI_DIR
+;         by the environmental varible: MIRI_DHAS
 ;
 ; OUTPUTS:
 ;      There are options to print certain graphs to a postscript or
@@ -79,8 +79,13 @@ cv_control.dirCube = "."
 cv_control.added_dir = 0
 cv_control.filename_cube = ' ' 
 
-miri_dir = getenv('MIRI_DIR')
-len = strlen(miri_dir) 
+miri_dir = getenv('MIRI_DHAS')
+len = strlen(miri_dir)
+if(len eq 0) then begin
+   result = dialog_message(" You need to set the environmental variable MIRI_DHAS",/error)
+   stop
+endif
+   
 test = strmid(miri_dir,len-1,len-1)
 if(test ne '/') then miri_dir = miri_dir + '/'
 cv_control.miri_dir = miri_dir
@@ -207,7 +212,7 @@ endif
 
 ;_______________________________________________________________________
 
-version = "(v 9.8.7 March 22, 2021)"
+version = "(v 9.8.9 Nov 22, 2021)"
 cv_control.pref_filename=miri_dir+'Preferences/'+'JWST_MIRI_CV_v9.8.preferences'
 print,'  Preferences file ',cv_control.pref_filename
 

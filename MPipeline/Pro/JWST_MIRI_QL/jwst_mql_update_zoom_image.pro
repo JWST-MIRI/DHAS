@@ -112,7 +112,7 @@ endif
 
 if(graphnum eq 3) then begin 
    if(info.jwst_image.plane eq 0) then begin 
-      szoom = "Zoom Centered on Final Rate Image" 
+      szoom = "Zoom Centered on Rate Image" 
       xdata_end = info.jwst_data.slope_xsize
       ydata_end = info.jwst_data.slope_ysize
       frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)

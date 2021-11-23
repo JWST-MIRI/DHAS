@@ -4,13 +4,13 @@
 ;
 ; PURPOSE:
 ;      Tool to visualize the MIRI raw ramp images
-;      and the processing of these ramps into slopes
+;      and the processed data from the JWST pipeline.
 ;
 ; EXPLANATION:
 ;      GUI (IDL Widget) which allows the user to interactively 
-;      examine the MIRI raw ramp images and to view what the
-;      MIRI DHAS (mips_sloper) did to convert  charge ramps into
-;      slopes.  Various diagnoistics are also displayed to enable
+;      examine the MIRI raw ramp images and to view the rate, rateints
+;      and cal files from the JWST pipleine. 
+;      Various diagnoistics are also displayed to enable
 ;      users to diagnoise problems in the processing.
 ;
 ; CALLING SEQUENCE:
@@ -19,7 +19,7 @@
 ; INPUTS:
 ;      1. All the default information is held in a preferences file:
 ;         JWST_MIRI_QL_v#.#.preferences. The location of this file is specified
-;         by the environmental varible: MIRI_DIR
+;         by the environmental varible: MIRI_DHAS
 ;      2. The MIRI DHAS JWST quicklook program can be used to view
 ;      science data. The user selects the file raw level 1 data to
 ;      open. The program checks if any intermediate output from the 
@@ -45,7 +45,7 @@
 ; SUPPORT:
 ;       Support is provided to authorized users by the author.
 ;       Suggested changes should be communicated to her 
-;       (morrison @as.arizona.edu).
+;       (janem@arizona.edu).
 ;
 ; REVISON HISTORY:
 ;       v1  - written by Jane Morrison 
@@ -83,9 +83,14 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-version = "(v 9.8.7 March 22, 2021)"
+version = "(v 9.8.9 Nov 22, 2021)"
 
-miri_dir = getenv('MIRI_DIR')
+miri_dir = getenv('MIRI_DHAS')
+len = strlen(miri_dir)
+if(len eq 0) then begin
+   result = dialog_message(" You need to set the environmental variable MIRI_DHAS",/error)
+   stop
+endif
 len = strlen(miri_dir) 
 test = strmid(miri_dir,len-1,len-1)
 if(test ne '/') then miri_dir = miri_dir + '/'
@@ -323,6 +328,9 @@ jwst_output.slope_zoomimage      = '_reduced_zoom_image'
 jwst_output.slope_win2      = '_reduced'
 jwst_output.slope_frame_pixel      = '_frame_pixel'
 jwst_output.slope_slope_pixel     = '_reduced_pixel'
+jwst_output.historaw = '_histo'
+jwst_output.histozoom = '_histo_zoom'
+jwst_output.histoslope = '_histo_slope'
 
 jwst_dqflag = {jwst_dqi} ; data quality flag
 jwst_dqflag .Donotuse = 1
@@ -387,6 +395,11 @@ jwst_inspect_cal1 = {jwst_inspecti}
 ; create and initialize inspect structure - cal display window 2
 jwst_inspect_cal2 = {jwst_inspecti}
 
+;Histogram images
+jwst_histoR= {jwst_histoi}
+jwst_histoZ= {jwst_histoi}
+jwst_histoS= {jwst_histoi}
+jwst_histoC= {jwst_histoi}
 
 ; widget to load 2 files
 jwst_compare_load = {jwst_generic_windowi}
@@ -488,6 +501,10 @@ jinfo = {jwst_version        : version,$
          jwst_AmpFrame       : jwst_AmpFrame,$
          jwst_AmpRate        : jwst_AmpRate,$
          jwst_amp_pixel      : jwst_amp_pixel,$
+         jwst_histoR         : jwst_histoR,$
+         jwst_histoZ         : jwst_histoZ,$
+         jwst_histoS         : jwst_histoS,$
+         jwst_histoC         : jwst_histoC,$
          loadfile            : loadfile,$
          jwst_RawQuickLook   : 0L,$             ; display window for frame,rate,cal
  ;       SubarrayGeo         : 0L,$
@@ -511,6 +528,10 @@ jinfo = {jwst_version        : version,$
          jwst_AmpRateDisplay      : 0L,$
          jwst_AmpStatDisplay      : 0L,$
          jwst_APixelInfo          : 0L,$
+         jwst_HistoRDisplay       : 0L,$
+         jwst_HistoZDisplay       : 0L,$
+         jwst_HistoSDisplay       : 0L,$
+         jwst_HistoCDisplay       : 0L,$
          LoadFileInfo             : 0L}
 
 

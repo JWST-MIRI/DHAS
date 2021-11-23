@@ -43,9 +43,9 @@ endif
 
 if(info.jwst_slope.data_type[2] eq 1) then begin
    frame_image[*,*] = (*info.jwst_data.prate1)[*,*,planenum] 
-   if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
-   if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 
-   if(planenum eq 2) then szoom = "Zoom Centered on Final DQ       " 
+   if(planenum eq 0) then szoom = "Zoom Centered on Rate     " 
+   if(planenum eq 1) then szoom = "Zoom Centered on Rate Error    " 
+   if(planenum eq 2) then szoom = "Zoom Centered on Rate DQ       " 
 endif else begin
    frame_image [*,*] = (*info.jwst_data.prate2)[*,*,planenum]
    if(planenum eq 0) then szoom = "Zoom Centered on Int Rate     " 

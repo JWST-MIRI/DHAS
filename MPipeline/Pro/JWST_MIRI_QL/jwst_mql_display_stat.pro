@@ -74,7 +74,7 @@ ystart = info.jwst_image.y_zoom_start
 yend = info.jwst_image.y_zoom_end
 
 if(info.jwst_image.plane eq 0) then begin 
-   stitle[2] = " Statistics on Final Rate Image "
+   stitle[2] = " Statistics on Rate Image "
    mean[2] = info.jwst_data.reduced_stat[0,0]
    st_pixel[2] = info.jwst_data.reduced_stat[2,0]
    var[2] = st_pixel[2]*st_pixel[2,0]

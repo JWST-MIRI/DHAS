@@ -84,10 +84,11 @@ ss = strtrim(string(signal2,format="("+info.jwst_slope.pix_statFormat2[0]+")"),2
 su = strtrim(string(unc2,format="("+info.jwst_slope.pix_statFormat2[1]+")"),2)
 sf = strtrim(string(dq2,format="("+info.jwst_slope.pix_statFormat2[2]+")"),2)
 
-widget_control,info.jwst_slope.pix_statID2[0],set_value= info.jwst_slope.pix_statLabel2[0] + ' = ' + ss
-widget_control,info.jwst_slope.pix_statID2[1],set_value= info.jwst_slope.pix_statLabel2[1] + ' = ' + su
-widget_control,info.jwst_slope.pix_statID2[2],set_value= info.jwst_slope.pix_statLabel2[2] + ' = ' + sf
-
+;if(info.jwst_control.file_slope_int_exist eq 1 ) then begin 
+   widget_control,info.jwst_slope.pix_statID2[0],set_value= info.jwst_slope.pix_statLabel2[0] + ' = ' + ss
+   widget_control,info.jwst_slope.pix_statID2[1],set_value= info.jwst_slope.pix_statLabel2[1] + ' = ' + su
+   widget_control,info.jwst_slope.pix_statID2[2],set_value= info.jwst_slope.pix_statLabel2[2] + ' = ' + sf
+;endif
 end
 ;_______________________________________________________________________
 pro jwst_msql_update_slopepixel,info,ps = ps,eps = eps
@@ -269,8 +270,8 @@ if(info.jwst_slope.binfactor lt 1.0) then bimage = "Blown up by " + $
 
 info.jwst_slope.bindisplay=[bimage,"Scroll Full Image"] 
 ;_______________________________________________________________________
-voptions = ['Final Rate: ', 'Final Error', 'Final DQ','Int Rate','Int Error','Int DQ']
-if(info.jwst_control.file_slope_int_exist eq 0) then voptions = ['Final Rate: ', 'Final Error', 'Final DQ']
+voptions = ['Rate: ', 'Rate Error', 'Rate DQ','Int Rate','Int Error','Int DQ']
+if(info.jwst_control.file_slope_int_exist eq 0) then voptions = ['Rate: ', 'Rate Error', 'Rate DQ']
 
 
 xsize_label = 12
@@ -464,12 +465,14 @@ endfor
 info_base = widget_base(infoID01,row=1,/align_left)
 info_label = widget_label(info_base,value = ' ')
 
-info.jwst_slope.pix_statLabel2 = ["Image 2 Rate (DN/s)", "Image 2 Error (DN/S)","DQ Flag"]
-info.jwst_slope.pix_statFormat2 =  ["F16.4", "F16.8", "I16"] 
-for i = 0,2 do begin  
-    info.jwst_slope.pix_statID2[i] = widget_label(infoID00,value = info.jwst_slope.pix_statLabel2[i]+$
+;if(info.jwst_control.file_slope_int_exist eq 1 ) then begin
+   info.jwst_slope.pix_statLabel2 = ["Image 2 Rate (DN/s)", "Image 2 Error (DN/S)","DQ Flag"]
+   info.jwst_slope.pix_statFormat2 =  ["F16.4", "F16.8", "I16"] 
+   for i = 0,2 do begin  
+      info.jwst_slope.pix_statID2[i] = widget_label(infoID00,value = info.jwst_slope.pix_statLabel2[i]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
-endfor
+   endfor
+;endif
 
 info_base = widget_base(infoID00,row=1,/align_left)
 
@@ -564,7 +567,7 @@ slope_range = fltarr(2,2)        ; plot range for pixel over exposure ,
 
 
 stitle = "Rate Values for Selected Pixel for Exposure"
-stitle1 = " Final Rate is given at Int = 0" 
+stitle1 = " Rate is given at Int = 0" 
 
 tlabelID = widget_label(info.jwst_slope.graphID22,value = stitle,/align_center,$
                                      font=info.font5,/sunken_frame)

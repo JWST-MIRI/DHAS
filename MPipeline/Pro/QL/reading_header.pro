@@ -23,6 +23,12 @@ fits_read,fcb,cube_raw,header_raw,/header_only
 
 fits_close,fcb
 
+check = fxpar(header_raw,'CAL_VER',count = count)
+if(count eq 0) then begin
+   result = dialog_message(" You need need to use 'miri_ql' not 'ql' for this data",/error)
+   stop
+endif
+
 check = fxpar(header_raw,'MS_VER',count = count)
 if(count ne 0) then begin
     print,' You Opened a Slope File instead of the Science Frame Image File'
@@ -49,7 +55,6 @@ info.data.colstop = (naxis1/4) + info.data.colstart + 1
 bzero = fxpar(header_raw,'BZERO',count = count)
 if(count lt 1) then bzero = 1
 info.data.bzero = bzero
-
 
 detector =  fxpar(header_raw,'DETECTOR',count = count)
 info.data.detector= strcompress(detector,/remove_all)
@@ -93,12 +98,12 @@ if(info.data.framediv ne 1 and count ne 0) then begin
 endif
 
 info.data.coadd = 0
-if(info.data.nramps eq 1 and info.data.nints gt 1) then begin
-    info.data.coadd = 1
-    status = 1
-    error_message = " The DHAS does not support NGROUP =1 data "+ info.control.filename_raw
-    return 
-endif
+;if(info.data.nramps eq 1 and info.data.nints gt 1) then begin
+;    info.data.coadd = 1
+;    status = 1
+;    error_message = " The DHAS does not support NGROUP =1 data "+ info.control.filename_raw
+;    return 
+;endif
 
 
 nsample = fxpar(header_raw,'NSAMPLE',count = count)
@@ -118,8 +123,6 @@ info.data.nramps = nramps
 
 info.data.nslopes = info.data.nints
 
-
-
 print,' Reading Science Frame Image data ',info.control.filename_raw
 print,' Number of Integrations:',info.data.nints 
 print,' Number of frames/int  :',info.data.nramps
@@ -128,7 +131,7 @@ print,' Number of frames/int  :',info.data.nramps
 
 ncube = info.data.nints * info.data.nramps
 info.data.num_frames = info.data.nramps
-;print,'info.data.num_frames', info.data.num_frames
+print,'info.data.num_frames', info.data.num_frames
 if(ncube gt info.control.read_limit) then begin
     info.data.read_all = 0
     if(info.control.read_limit gt info.data.nramps) then info.control.read_limit= info.data.nramps
@@ -144,6 +147,7 @@ info.data.image_xsize = naxis1
 info.data.image_ysize = naxis2 - naxis2/5
 info.data.ref_exist = 1
 
+print,'value of image_xsize',info.data.image_xsize
 
 if (naxis2  eq 1024 ) then begin
     print,' No reference image exists'
@@ -201,6 +205,12 @@ fits_read,fcb,cube,header_slope,/header_only
 
 fits_close,fcb
 cube=0
+
+check = fxpar(header_slope,'CAL_VER',count = count)
+if(count eq 0) then begin
+   result = dialog_message(" You need need to use 'miri_ql' not 'ql' for this data",/error)
+   stop
+endif
 
 naxis1 = fxpar(header_slope,'NAXIS1',count = count)
 naxis2 = fxpar(header_slope,'NAXIS2',count = count)

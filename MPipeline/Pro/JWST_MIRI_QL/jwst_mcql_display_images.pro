@@ -189,7 +189,7 @@ if(info.jwst_cal.binfactor lt 1.0) then bimage = "Blown up by " + $
 
 info.jwst_cal.bindisplay=[bimage,"Scroll Full Image"] 
 ;_______________________________________________________________________
-voptions = ['Cal Image','Cal Error','Cal DQ','Final Rate: ', 'Final Error', 'Final DQ']
+voptions = ['Cal Image','Cal Error','Cal DQ','Rate: ', 'Rate Error', 'Rate DQ']
 if(info.jwst_control.file_slope_exist eq 0) then voptions = ['Cal Image','Cal Error','Cal DQ']
 
 

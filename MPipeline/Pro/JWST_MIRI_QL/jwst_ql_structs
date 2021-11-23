@@ -601,6 +601,9 @@ jwst_output={jwst_outputi, $
 	slope_frame_pixel : '   ',$ 
 	slope_slope_pixel : '   ',$ 
 	referenceimage    : '   ',$
+	historaw          : '   ',$
+	histoslope        : '   ',$
+	histozoom         : '   ',$	
 	test_report       : '   ',$
 	fwn               : '   '}	
 
@@ -653,7 +656,8 @@ jwst_dq = {jwst_dqi,$
 	        sunrel_flat       : ' ' ,$	
 		sunrel_reset      : ' ' ,$
 	        sref_pixel         : ' ' }
-		
+
+;***********************************************************************
 jwst_amp = {Ampi,$
         uwindowsize             : 0,$
         xwindowsize             : 0,$
@@ -691,3 +695,60 @@ jwst_amp = {Ampi,$
         yposfull                : 0,$
         pplot_image        : ptr_new()  }
 
+;***********************************************************************
+jwst_histo= { jwst_histoi,$
+		uwindowsize         : 0,$
+	        xwindowsize         : 0,$
+	        ywindowsize         : 0,$
+		filename            : ' ' ,$
+		type                : 0,$ ; 0 = raw, 1 = slope
+	        colstart	            : 1,$
+        	rowstart            : 1,$
+        	subarray            : 0,$
+		nints               : 0,$ ; number of integrations in exposure 
+		nramps              : 0,$ ; number of ramps/ integration
+	        plane           : 0,$
+	    	xsize           : 0.0,$
+	    	ysize           : 0.0,$
+	        ref_exist       : 0,$
+	        ref_xsize       : 0.0,$
+	        ref_ysize       : 0.0,$
+	    	iramp           : 0.0,$
+	    	jintegration    : 0.0,$
+		ptimedata       : ptr_new(),$
+	    	ptimedata2      : ptr_new(),$
+	    	ptime           : ptr_new(),$
+	    	ptimeflag       : ptr_new(),$
+	    	pdata           : ptr_new(),$
+                prefdata        : ptr_new(),$
+	    	pbadpixel       : ptr_new(),$
+	    	psubdata        : ptr_new(),$
+;	        psubbadpixel    : ptr_new(),$
+	    	psubdata_noref  : ptr_new(),$
+		mean            : 0.0,$
+	    	median          : 0.0,$
+	    	stdev           : 0.0,$
+	        stdev_mean      : 0.0,$
+	    	min             : 0.0,$
+	    	max             : 0.0,$
+	    	range_min       : 0.0,$
+	    	range_max       : 0.0,$
+	    	skew            : 0.0,$
+	    	ngood           : 0L,$
+	    	nbad            : 0L,$
+                pixelunits      : 0,$
+	    	ximage_range    : intarr(2),$
+	    	yimage_range    : intarr(2),$
+		sd_mean         : 0.0,$
+	    	sd_median       : 0.0,$
+	    	sd_stdev        : 0.0,$
+	    	sd_min          : 0.0,$
+	    	sd_max          : 0.0,$
+	    	sd_range_min    : 0.0,$
+	    	sd_range_max    : 0.0,$
+	    	sd_stdev_mean   : 0.0,$
+	    	sd_skew         : 0.0,$
+	    	sd_ngood        : 0L,$
+	    	sd_nbad         : 0L,$
+	    	sd_ximage_range : intarr(2),$
+	    	sd_yimage_range : intarr(2)}

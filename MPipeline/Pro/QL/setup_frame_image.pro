@@ -30,7 +30,6 @@ bad_file  = ''
 do_bad = 0
 
 
-
 bad_file = info.control.bad_file[info.data.detector_code]
 print,'Bad Pixelfile',bad_file
 bad_file = strcompress(info.control.dircal + '/' + bad_file,/remove_all)
@@ -53,7 +52,6 @@ if(info.image.apply_bad eq 1)  then  begin
         info.image.apply_bad=0
         print,'Turning off Apply bad Pixel Mask'
     endif
-
 endif
 
 

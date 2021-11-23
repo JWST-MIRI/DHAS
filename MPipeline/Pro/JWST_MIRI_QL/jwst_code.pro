@@ -45,6 +45,12 @@
 @jwst_difference_images.pro
 ;@jwst_ql_clean.pro
 
+; histogram images
+@jwst_mql_display_histo.pro
+@jwst_findhistogram.pro
+
+
+; Slope images
 @jwst_msql_display_slope.pro
 @jwst_msql_display_stat.pro
 @jwst_msql_event.pro
@@ -78,7 +84,6 @@
 ; misc
 @xcolors.pro
 @color6.pro
-;@findhistogram.pro
 @showprogress__define.pro
 
 ; reading data
@@ -113,6 +118,7 @@
 ;@mql_plot_subarray_geo.pro
 ; Print plots
 @jwst_print_images.pro
+@jwst_print_histo.pro
 ;@jwst_print_slopes_images.pro
 
 

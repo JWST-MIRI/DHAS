@@ -166,8 +166,6 @@ endif
             widget_control,info.inspectrefimage,/destroy
         endif        
 
-
-
         info.image.uwindowsize = 0
         setup_names,info,status,error_message
         if(status eq 2) then return
@@ -176,7 +174,6 @@ endif
             return
         endif
 
-
         if(XRegistered ('mpl')) then begin
             if(pl_filename ne info.control.filename_raw) then begin
                 ql_reset,info
@@ -184,7 +181,6 @@ endif
                 print,'Closing Pixel Look window'
             endif
         endif        
-
 
         if(XRegistered ('msql')) then begin
             if(sl_filename ne info.control.filename_raw) then begin
@@ -197,8 +193,11 @@ endif
         info.image.integrationNO = info.control.int_num
         info.image.rampNO = info.control.frame_start
         info.control.int_num = info.control.int_num_save
+        print,'gong to call reading header'
+
         reading_header,info,status,error_message	
         status = 0
+        print,info.data.image_xsize
         if(status eq 1) then return
 
         find_image_binfactor,info

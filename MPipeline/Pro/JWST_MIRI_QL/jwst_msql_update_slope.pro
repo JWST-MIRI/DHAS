@@ -13,6 +13,7 @@ hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
 
+
 if(data_type eq 1) then begin 
    stat = info.jwst_data.rate1_stat[*,data_plane]
    frame_image[*,*] = (*info.jwst_data.prate1)[*,*,data_plane]
