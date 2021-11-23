@@ -19,6 +19,7 @@ fits_read,fcb,cube_raw,header_first,exten_no=1,/header_only
 fits_read,fcb,cube_raw,header_ref,exten_no=2,/header_only
 fits_close,fcb
 
+
 check = fxpar(header_raw,'S_RAMP',count = count)
 if(count ne 0) then begin
     print,' You Opened a Rate File instead of the Raw Science Frame Image File'

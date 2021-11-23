@@ -24,7 +24,7 @@ if(count eq 0) then nframes = fxpar(header,'NGROUP',count = count)
 nints = fxpar(header,'NINTS',count = count)
 if(count eq 0) then nints = fxpar(header,'NINT',count = count)
 
-if(nframes eq 1 and nints gt 1) then type = 1
+;if(nframes eq 1 and nints gt 1) then type = 1
 
 
 cube = 0

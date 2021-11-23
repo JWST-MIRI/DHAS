@@ -331,6 +331,7 @@ smax = strcompress(string(rawmax),/remove_all)
 stat_base1 = widget_base(info.jwst_image.graphID11,row=1)
 stat_base2 = widget_base(info.jwst_image.graphID11,row=1)
 
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_i',font=info.font4)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_i',font=info.font4)
 
 info.jwst_image.slabelID[0] = widget_label(stat_base2,value=(' Mean: ' + smean),$ 
@@ -384,7 +385,7 @@ info.jwst_image.graph_range[1,1] = range_max
 stat_base1 = widget_base(info.jwst_image.graphID12,row=1)
 stat_base2 = widget_base(info.jwst_image.graphID12,row=1)
 
-
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_z',font=info.font4)
 info.jwst_image.slabelID[1] = widget_label(stat_base2,value=(' Mean: ' + smean),$ 
                                           /align_left,font=info.font3)
 info.jwst_image.mlabelID[1] = widget_label(stat_base2,$
@@ -514,7 +515,7 @@ pix_num_base = widget_base(info.jwst_image.infoID00,col=2,/align_left)
 info.jwst_image.pix_statLabel = ["Frame Value"]
 info.jwst_image.pix_statFormat =  ["F10.2"]
 
-info.jwst_image.pix_statLabel1 = ["Final Rate (DN/s)", $
+info.jwst_image.pix_statLabel1 = ["Rate (DN/s)", $
                                  "Error ",$
                                  "DQ Flag"]
 
@@ -565,14 +566,14 @@ info_label = widget_button(info_base,value = 'DQ flag values',uvalue = 'datainfo
 ;*****
 ;graph 2,1
 ;*****
-rate_option = 'Final Rate Image'
+rate_option = 'Rate Image'
 rate_int_option = 'Integration Rate Image'
 cal_option = 'Calibrated Image'
 info.jwst_image.data_type[0] = 1
 info.jwst_image.data_type[1] = 2
 info.jwst_image.data_type[2] = 3
-if(info.jwst_control.file_slope_exist eq 0) then  rate_option= " No Final Rate Image Exist" 
-if(info.jwst_control.file_slope_int_exist eq 0) then rate_int_option= " No Final Rate Image Exist" 
+if(info.jwst_control.file_slope_exist eq 0) then  rate_option= " No Rate Image Exist" 
+if(info.jwst_control.file_slope_int_exist eq 0) then rate_int_option= " No Rate Image Exist" 
 if(info.jwst_control.file_cal_exist eq 0) then cal_option= " No Calibrated Image Exist" 
 
 voptions = [rate_option, rate_int_option, cal_option]
@@ -617,6 +618,7 @@ endif
 stat_base1 = widget_base(info.jwst_image.graphID21,row=1)
 stat_base2 = widget_base(info.jwst_image.graphID21,row=1)
 
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_s',font=info.font4)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_s',font=info.font4)
 info.jwst_image.slabelID[2] = widget_label(stat_base2,$
                                       value=ssmean,font=info.font3,/align_left)

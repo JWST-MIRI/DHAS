@@ -51,9 +51,9 @@ if(info.jwst_cal.data_type[2] eq 3) then begin
    if(planenum eq 2) then szoom = "Zoom Centered on CAl DQ       " 
 endif else begin
    frame_image [*,*] = (*info.jwst_data.pcal2)[*,*,planenum]
-   if(planenum eq 0) then szoom = "Zoom Centered on Final Rate     " 
-   if(planenum eq 1) then szoom = "Zoom Centered on Final Error    " 
-   if(planenum eq 2) then szoom = "Zoom Centered on Final DQ       " 
+   if(planenum eq 0) then szoom = "Zoom Centered on Rate     " 
+   if(planenum eq 1) then szoom = "Zoom Centered on Rate Error    " 
+   if(planenum eq 2) then szoom = "Zoom Centered on Rate DQ       " 
 
 endelse
 

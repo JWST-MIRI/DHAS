@@ -1072,7 +1072,29 @@ endif
     end
     
 ;_______________________________________________________________________
-    
+; histogram image raw
+    (strmid(event_name,0,7) EQ 'histo_i') : begin
+       type =0 
+       jwst_mql_setup_histo,type,info
+       jwst_mql_display_histo,type,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+    end
+
+    ; histogram zoom image
+    (strmid(event_name,0,7) EQ 'histo_z') : begin
+       type =1
+       jwst_mql_setup_histo,type,info
+       jwst_mql_display_histo,type,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+     end
+
+    ; histogram rate image
+    (strmid(event_name,0,7) EQ 'histo_s') : begin
+       type =2
+       jwst_mql_setup_histo,type,info
+       jwst_mql_display_histo,type,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+    end
 
 else: print," Event name not found:", event_name
 endcase

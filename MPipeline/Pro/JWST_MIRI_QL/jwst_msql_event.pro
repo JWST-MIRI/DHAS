@@ -2,6 +2,7 @@ pro jwst_msql_event,event
 Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = ginfo	
 widget_control,ginfo.info.jwst_QuickLook,Get_Uvalue = info
+
 jintegration = intarr(2)
 jintegration[0] = info.jwst_slope.integrationNO[0]
 jintegration[1] = info.jwst_slope.integrationNO[1]

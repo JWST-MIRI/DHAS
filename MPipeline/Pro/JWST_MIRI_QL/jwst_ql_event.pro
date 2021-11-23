@@ -17,7 +17,7 @@ case 1 of
 ;_______________________________________________________________________
     (strmid(event_name,0,10) EQ 'JWST_LoadI') : begin
 
-        ;if(XRegistered ('jwst_msql')) then sl_filename = info.jwst_control.filebase
+        if(XRegistered ('jwst_msql')) then sl_filename = info.jwst_control.filebase
 
         info.jwst_image.uwindowsize = 0
         jwst_setup_names,info,0,status,error_message
@@ -27,13 +27,13 @@ case 1 of
             return
         endif
 
-        ;if(XRegistered ('jwst_msql')) then begin
-        ;    if(sl_filename ne info.jwst_control.filebase) then begin
-        ;        jwst_ql_reset,info
-        ;        widget_control,info.jwst_SlopeQuickLook,/destroy
-        ;        print,'Closing Rate Look window'
-        ;    endif
-        ;endif        
+        if(XRegistered ('jwst_msql')) then begin
+            if(sl_filename ne info.jwst_control.filebase) then begin
+                jwst_ql_reset,info
+                widget_control,info.jwst_SlopeQuickLook,/destroy
+                print,'Closing Rate Look window'
+            endif
+        endif        
 
         if(XRegistered ('jwst_misql')) then begin
            widget_control,info.jwst_InspectSlope,/destroy
@@ -78,13 +78,13 @@ case 1 of
             return
          endif
 
-        ;if(XRegistered ('jwst_mql')) then begin
-        ;    if(sl_filename ne info.jwst_control.filebase) then begin
-        ;        jwst_ql_reset,info
-        ;        widget_control,info.jwst_RawQuickLook,/destroy
-        ;        print,'Closing JWST QuickLook window'
-        ;    endif
-        ;endif    
+        if(XRegistered ('jwst_mql')) then begin
+            if(sl_filename ne info.jwst_control.filebase) then begin
+                jwst_ql_reset,info
+                widget_control,info.jwst_RawQuickLook,/destroy
+                print,'Closing JWST QuickLook window'
+            endif
+        endif    
 
         if(XRegistered ('jwst_misql')) then begin
            widget_control,info.jwst_InspectSlope,/destroy
@@ -102,31 +102,31 @@ case 1 of
         ; open rate int data 
         jwst_setup_slope_int,info,info.jwst_slope.integrationNO[1],1 ; fills in prate2 is *rate_ints.fits exist - if not return
 
-        if (info.jwst_control.file_slope_exist eq 1 and info.jwst_control.file_slope_int_exist eq 1) then begin; default
+        if (info.jwst_control.file_slope_exist eq 1) then begin ; rate image  
            info.jwst_slope.data_type[0] = 1 ; rate
-           info.jwst_slope.plane[0] = 0 
+           info.jwst_slope.plane[0] = 0
+        endif
+
+        if(info.jwst_control.file_slope_int_exist eq 1) then begin ; rate int image 
            info.jwst_slope.data_type[1] = 2 ; rate int 
-           info.jwst_slope.plane[1] = 0 
+           info.jwst_slope.plane[1] = 0
+        endif
 
-        endif else begin 
-           if(info.jwst_control.file_slope_int_exist eq 0) then begin ; set rate2 to final error
+        if(info.jwst_control.file_slope_int_exist eq 0) then begin ; set rate2 to final error
            ; jwst_setup_slope_int could not fill in prate2 image
-           ; set prate2 to final error
+           ; set prate2 to rate error
 
-              stats = info.jwst_data.rate1_stat
-              slopedata = (*info.jwst_data.prate1)
-              if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
-              info.jwst_data.prate2 = ptr_new(slopedata)
-              info.jwst_data.rate2_stat = stats
-              info.jwst_slope.integrationNO[1] = -1
-              info.jwst_slope.plane[1] = 2 ; error 
-              info.jwst_slope.data_type[1] = 1 ; rate
-
-           endif
-
+           info.jwst_slope.plane[1] = 2        ; dq 
+           info.jwst_slope.data_type[1] = 1    ; rate
+           stats = info.jwst_data.rate1_stat
+           slopedata = (*info.jwst_data.prate1)
+           if ptr_valid (info.jwst_data.prate2) then ptr_free,info.jwst_data.prate2
+           info.jwst_data.prate2 = ptr_new(slopedata)
+           info.jwst_data.rate2_stat = stats
+           info.jwst_slope.integrationNO[1] = -1
            slopedata = 0
            stats = 0 
-        endelse
+        endif
 
         jwst_find_slope_binfactor,info
         jwst_msql_display_slope,info
@@ -144,17 +144,18 @@ case 1 of
             return
          endif
 
-        ;if(XRegistered ('jwst_mql')) then begin
-        ;    if(sl_filename ne info.jwst_control.filebase) then begin
-        ;        jwst_ql_reset,info
-        ;        widget_control,info.jwst_RawQuickLook,/destroy
-        ;        print,'Closing JWST QuickLook window'
-        ;    endif
-        ;endif    
+        if(XRegistered ('jwst_mql')) then begin
+           widget_control,info.jwst_RawQuickLook,/destroy
+           print,'Closing JWST QuickLook window'
+        endif
+        if(XRegistered ('jwst_msql')) then begin
+           widget_control,info.jwst_SlopeQuickLook,/destroy
+           print,'Closing JWST Slope QuickLook window'
+        endif
 
-        ;if(XRegistered ('jwst_misql')) then begin
-        ;   widget_control,info.jwst_InspectSlope,/destroy
-        ;endif
+        if(XRegistered ('jwst_misql')) then begin
+           widget_control,info.jwst_InspectSlope,/destroy
+        endif
         jwst_setup_cal,info,2
 
         if (info.jwst_control.file_cal_exist eq 0) then begin

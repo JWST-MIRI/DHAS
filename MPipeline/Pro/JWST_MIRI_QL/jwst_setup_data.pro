@@ -162,7 +162,7 @@ info.jwst_data.slope_ysize = slope_ysize
 
 jwst_reading_slope_header,info,status,error_message ; reads the rate.fits file 
 
-print,'jwst_setup_data reading slope final',type
+;print,'jwst_setup_data reading slope final',type
 
 if (type eq 0) then begin ; set up data for jwst_mql_display
    if ptr_valid (info.jwst_data.preduced) then ptr_free,info.jwst_data.preduced
@@ -184,7 +184,6 @@ if (type eq 2) then begin ; set up data for jwst_mcql_display
    if ptr_valid (info.jwst_data.pcal2) then ptr_free,info.jwst_data.pcal2
    info.jwst_data.pcal2 = ptr_new(slopedata)
    info.jwst_data.cal2_stat = stats
-   print,'stats',stats
    jwst_header_setup_slope,2,info
 endif 
 
