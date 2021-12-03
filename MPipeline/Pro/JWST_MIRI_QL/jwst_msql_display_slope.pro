@@ -84,11 +84,11 @@ ss = strtrim(string(signal2,format="("+info.jwst_slope.pix_statFormat2[0]+")"),2
 su = strtrim(string(unc2,format="("+info.jwst_slope.pix_statFormat2[1]+")"),2)
 sf = strtrim(string(dq2,format="("+info.jwst_slope.pix_statFormat2[2]+")"),2)
 
-;if(info.jwst_control.file_slope_int_exist eq 1 ) then begin 
-   widget_control,info.jwst_slope.pix_statID2[0],set_value= info.jwst_slope.pix_statLabel2[0] + ' = ' + ss
-   widget_control,info.jwst_slope.pix_statID2[1],set_value= info.jwst_slope.pix_statLabel2[1] + ' = ' + su
-   widget_control,info.jwst_slope.pix_statID2[2],set_value= info.jwst_slope.pix_statLabel2[2] + ' = ' + sf
-;endif
+
+widget_control,info.jwst_slope.pix_statID2[0],set_value= info.jwst_slope.pix_statLabel2[0] + ' = ' + ss
+widget_control,info.jwst_slope.pix_statID2[1],set_value= info.jwst_slope.pix_statLabel2[1] + ' = ' + su
+widget_control,info.jwst_slope.pix_statID2[2],set_value= info.jwst_slope.pix_statLabel2[2] + ' = ' + sf
+
 end
 ;_______________________________________________________________________
 pro jwst_msql_update_slopepixel,info,ps = ps,eps = eps
@@ -224,14 +224,12 @@ cbutton = widget_button(cMenu,value = "Compare Image in Window 1 to an Image in 
 ;PbuttonS = widget_button(Pmenu,value = "Print Plot 1",uvalue='print_1')
 ;PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image (Plot 2)",uvalue='print_Z')
 ;PbuttonU = widget_button(Pmenu,value = "Print Plot 2",uvalue='print_2')
-;PbuttonE = widget_button(Pmenu,value = "Print Slope value for pixel for exposure",uvalue='print_E')
 
 filelabelID = widget_label(info.jwst_SlopeQuickLook, $
                            value=info.jwst_control.filename_slope,/align_left, $
                            font=info.font2,/dynamic_resize)
 ;_______________________________________________________________________
 ; determine the main window display based on scale and image size
-
 
 xsize = info.jwst_data.slope_xsize/info.jwst_slope.binfactor
 ysize = info.jwst_data.slope_ysize/info.jwst_slope.binfactor
@@ -273,7 +271,6 @@ info.jwst_slope.bindisplay=[bimage,"Scroll Full Image"]
 voptions = ['Rate: ', 'Rate Error', 'Rate DQ','Int Rate','Int Error','Int DQ']
 if(info.jwst_control.file_slope_int_exist eq 0) then voptions = ['Rate: ', 'Rate Error', 'Rate DQ']
 
-
 xsize_label = 12
 ;************************************
 ;graph 1,1- slope image
@@ -303,7 +300,9 @@ info.jwst_slope.graph_range[0,1] = range_max
 
 stat_base1 = widget_base(info.jwst_slope.graphID11,row=1)
 stat_base2 = widget_base(info.jwst_slope.graphID11,row=1)
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_1',font=info.font4)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_1',font=info.font4)
+
 if(info.jwst_control.file_slope_int_exist eq 1) then begin 
    info.jwst_slope.integration_label[0] = cw_field(stat_base1,$
                                                    title=" Integration # ",font=info.font5, $
@@ -381,6 +380,7 @@ info.jwst_slope.graph_range[1,1] = range_max
 stat_base1 = widget_base(info.jwst_slope.graphID12,row=1)
 stat_base2 = widget_base(info.jwst_slope.graphID12,row=1)
 
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_2',font=info.font4)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_2',font=info.font4)
 if(info.jwst_control.file_slope_int_exist eq 1) then begin 
    info.jwst_slope.integration_label[1] = cw_field(stat_base1,$
@@ -465,17 +465,14 @@ endfor
 info_base = widget_base(infoID01,row=1,/align_left)
 info_label = widget_label(info_base,value = ' ')
 
-;if(info.jwst_control.file_slope_int_exist eq 1 ) then begin
    info.jwst_slope.pix_statLabel2 = ["Image 2 Rate (DN/s)", "Image 2 Error (DN/S)","DQ Flag"]
    info.jwst_slope.pix_statFormat2 =  ["F16.4", "F16.8", "I16"] 
    for i = 0,2 do begin  
       info.jwst_slope.pix_statID2[i] = widget_label(infoID00,value = info.jwst_slope.pix_statLabel2[i]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
    endfor
-;endif
 
 info_base = widget_base(infoID00,row=1,/align_left)
-
 info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
 ;*****
 ;graph 2,1; window 2 initally set to Slope image zoom
@@ -529,6 +526,7 @@ info.jwst_slope.graph_range[2,1] = range_max
 stat_base1 = widget_base(info.jwst_slope.graphID21,row=1)
 stat_base2 = widget_base(info.jwst_slope.graphID21,row=1)
 
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_z',font=info.font4)
 info.jwst_slope.slabelID[2] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
                                           /align_left,font=info.font4,/dynamic_resize)
 info.jwst_slope.mlabelID[2] = widget_label(stat_base2,$ 

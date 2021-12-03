@@ -330,7 +330,13 @@ jwst_output.slope_frame_pixel      = '_frame_pixel'
 jwst_output.slope_slope_pixel     = '_reduced_pixel'
 jwst_output.historaw = '_histo'
 jwst_output.histozoom = '_histo_zoom'
-jwst_output.histoslope = '_histo_slope'
+jwst_output.histoslope = '_histo_rate'
+jwst_output.histoS1 = '_histo_rate_image1'
+jwst_output.histoSZ = '_histo_rate_zoom'
+jwst_output.histoS2 = '_histo_rate_image2'
+jwst_output.histoC1 = '_histo_cal_image1'
+jwst_output.histoCZ = '_histo_cal_zoom'
+jwst_output.histoC2 = '_histo_cal_image2'
 
 jwst_dqflag = {jwst_dqi} ; data quality flag
 jwst_dqflag .Donotuse = 1
@@ -400,6 +406,12 @@ jwst_histoR= {jwst_histoi}
 jwst_histoZ= {jwst_histoi}
 jwst_histoS= {jwst_histoi}
 jwst_histoC= {jwst_histoi}
+jwst_histoS1= {jwst_histoi}
+jwst_histoS2= {jwst_histoi}
+jwst_histoSZ= {jwst_histoi}
+jwst_histoC1= {jwst_histoi}
+jwst_histoC2= {jwst_histoi}
+jwst_histoCZ= {jwst_histoi}
 
 ; widget to load 2 files
 jwst_compare_load = {jwst_generic_windowi}
@@ -505,6 +517,12 @@ jinfo = {jwst_version        : version,$
          jwst_histoZ         : jwst_histoZ,$
          jwst_histoS         : jwst_histoS,$
          jwst_histoC         : jwst_histoC,$
+         jwst_histoS1        : jwst_histoS1,$
+         jwst_histoS2        : jwst_histoS2,$
+         jwst_histoSZ        : jwst_histoSZ,$
+         jwst_histoC1        : jwst_histoC1,$
+         jwst_histoC2        : jwst_histoC2,$
+         jwst_histoCZ        : jwst_histoCZ,$
          loadfile            : loadfile,$
          jwst_RawQuickLook   : 0L,$             ; display window for frame,rate,cal
  ;       SubarrayGeo         : 0L,$
@@ -532,6 +550,12 @@ jinfo = {jwst_version        : version,$
          jwst_HistoZDisplay       : 0L,$
          jwst_HistoSDisplay       : 0L,$
          jwst_HistoCDisplay       : 0L,$
+         jwst_HistoS1Display       : 0L,$
+         jwst_HistoS2Display       : 0L,$
+         jwst_HistoSZDisplay       : 0L,$
+         jwst_HistoC1Display       : 0L,$
+         jwst_HistoC2Display       : 0L,$
+         jwst_HistoCZDisplay       : 0L,$
          LoadFileInfo             : 0L}
 
 

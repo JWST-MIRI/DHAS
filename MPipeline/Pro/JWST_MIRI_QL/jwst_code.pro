@@ -49,7 +49,6 @@
 @jwst_mql_display_histo.pro
 @jwst_findhistogram.pro
 
-
 ; Slope images
 @jwst_msql_display_slope.pro
 @jwst_msql_display_stat.pro
@@ -58,6 +57,7 @@
 @jwst_msql_update_zoom_image.pro
 @jwst_msql_cleanup_widgets.pro
 @jwst_msql_moveframe.pro
+@jwst_msql_display_histo.pro
 
 @jwst_mcql_display_images.pro
 @jwst_mcql_update_images.pro
@@ -66,6 +66,8 @@
 @jwst_mcql_display_stat.pro
 @jwst_micalql_display_images.pro ; first window from jwst_mcql_display_images
 @jwst_micalql2_display_images.pro ; second window from jwst_mcql_display_images
+@jwst_mcql_display_histo.pro
+
 ; amplifier display
 @extract_amplifier.pro
 @setup_amplifier.pro 
@@ -73,6 +75,7 @@
 @jwst_update_Amplifier.pro
 @jwst_display_amplifier_stat.pro
 @jwst_pixel_amplifier_display.pro
+
 ;@setup_SlopeChannel.pro 
 ;@mql_display_SlopeChannel.pro       
 ;@mql_update_SlopeChannel.pro

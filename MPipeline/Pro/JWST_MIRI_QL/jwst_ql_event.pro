@@ -125,7 +125,7 @@ case 1 of
            info.jwst_data.rate2_stat = stats
            info.jwst_slope.integrationNO[1] = -1
            slopedata = 0
-           stats = 0 
+           stats = 0
         endif
 
         jwst_find_slope_binfactor,info
@@ -181,7 +181,7 @@ case 1 of
               if ptr_valid (info.jwst_data.pcal2) then ptr_free,info.jwst_data.pcal2
               info.jwst_data.pcal2 = ptr_new(data)
               info.jwst_data.rcal2_stat = stats
-              info.jwst_cal.plane[1] = 2 ; error
+              info.jwst_cal.plane[1] = 1 ; error
               info.jwst_cal.data_type[1] = 3
            endif
 

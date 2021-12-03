@@ -1,156 +1,156 @@
-;_______________________________________________________________________
-pro jwst_mql_histo_quit,event
+ ;_______________________________________________________________________
+pro jwst_msql_histo_quit,event
 
 widget_control,event.top, Get_UValue = hinfo	
 widget_control,hinfo.info.jwst_QuickLook,Get_Uvalue = info
 
-if(hinfo.win eq 1 and XRegistered ('jwst_mqlhr')) then begin
-    widget_control,info.jwst_HistoRDisplay,/destroy
+if(hinfo.win eq 1 and XRegistered ('jwst_msqlh1')) then begin
+    widget_control,info.jwst_HistoS1Display,/destroy
 endif
 
-if(hinfo.win eq 2 and XRegistered ('jwst_mqlhz')) then begin
-    widget_control,info.jwst_HistoZDisplay,/destroy
-endif
+if(hinfo.win eq 2 and XRegistered ('jwst_msqlh2')) then begin
+    widget_control,info.jwst_HistoS2Display,/destroy
+ endif
 
-if(hinfo.win eq 3 and XRegistered ('jwst_mqlhs')) then begin
-    widget_control,info.jwst_HistoSDisplay,/destroy
+if(hinfo.win eq 3 and XRegistered ('jwst_msqlhz')) then begin
+    widget_control,info.jwst_HistoSZDisplay,/destroy
 endif
 end
 
 ;_______________________________________________________________________
-pro jwst_mql_setup_histo, win, info
+pro jwst_msql_setup_histo, win, info
 ;_______________________________________________________________________
 
-i = info.jwst_image.integrationNO
-ii = info.jwst_image.integrationNO
-j = info.jwst_image.frameNO
+  print,'win in set up',win
+; data plane 0  rate
+; data plane 1  error
+; data plane 2  dq
+  
+data_plane = info.jwst_slope.plane[win-1]
+data_type = info.jwst_slope.data_type[win-1]
 
-if(info.jwst_data.read_all eq 0) then begin
-   i = 0
-   if(info.jwst_data.num_frames ne info.jwst_data.ngroups) then begin 
-      j = info.jwst_image.frameNO- info.jwst_control.frame_start
-   endif
-endif
+if(win eq 1) then begin ; Image 1 
+    info.jwst_histoS1.xsize = info.jwst_data.slope_xsize 
+    info.jwst_histoS1.ysize = info.jwst_data.slope_ysize
 
-if(win eq 1) then begin ; Raw type data
-    info.jwst_histoR.xsize = info.jwst_data.image_xsize 
-    info.jwst_histoR.ysize = info.jwst_data.image_ysize
+    info.jwst_histoS1.ximage_range[0]  = 1
+    info.jwst_histoS1.ximage_range[1]  = info.jwst_data.slope_xsize
+    info.jwst_histoS1.yimage_range[0]  = 1
+    info.jwst_histoS1.yimage_range[1]  = info.jwst_data.slope_ysize
 
-    info.jwst_histoR.ximage_range[0]  = 1
-    info.jwst_histoR.ximage_range[1]  = info.jwst_data.image_xsize
-    info.jwst_histoR.yimage_range[0]  = 1
-    info.jwst_histoR.yimage_range[1]  = info.jwst_data.image_ysize
+    info.jwst_histoS1.jintegration = info.jwst_image.integrationNO
 
-    info.jwst_histoR.iramp = info.jwst_image.frameNO
-    info.jwst_histoR.jintegration = info.jwst_image.integrationNO
-
-    frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
-    frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
-    numbad = 0
-
+    frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
+    frame_image[*,*] = (*info.jwst_data.prate1)[*,*,data_plane]
     if(info.jwst_data.subarray eq 0) then begin
-        frame_image_noref = frame_image[4:info.jwst_data.image_xsize-5,*]
-        frame_image = 0
-        frame_image = frame_image_noref
-        info.jwst_histoR.ximage_range[0]  = 5
-        info.jwst_histoR.ximage_range[1]  = 1028
-        frame_image_noref = 0
+       frame_image_noref = frame_image[4:info.jwst_data.slope_xsize-5,*]
+       frame_image = 0
+       frame_image = frame_image_noref
+       info.jwst_histoS1.ximage_range[0]  = 5
+       info.jwst_histoS1.ximage_range[1]  = 1028
+       frame_image_noref = 0
     endif
+    
+    if ptr_valid (info.jwst_histoS1.pdata) then ptr_free,info.jwst_histoS1.pdata
+    info.jwst_histoS1.pdata = ptr_new(frame_image)
  endif
 
-if(win eq 2) then begin ; zoom image
-    xsize = info.jwst_image.zoom_xplot_size
-    ysize = info.jwst_image.zoom_yplot_size
+if(win eq 3) then begin ; zoom image
+    xsize = info.jwst_slope.zoom_xplot_size
+    ysize = info.jwst_slope.zoom_yplot_size
 
-    info.jwst_histoZ.xsize = xsize
-    info.jwst_histoZ.ysize = ysize
-
-    info.jwst_histoZ.iramp = info.jwst_image.frameNO
-    info.jwst_histoZ.jintegration = info.jwst_image.integrationNO
-
-    xsize = info.jwst_image.x_zoom_end_noref - info.jwst_image.x_zoom_start_noref + 1
-    ysize = info.jwst_image.y_zoom_end - info.jwst_image.y_zoom_start +1
+    info.jwst_histoSZ.xsize = xsize
+    info.jwst_histoSZ.ysize = ysize
+    xsize = info.jwst_slope.x_zoom_end - info.jwst_slope.x_zoom_start + 1
+    ysize = info.jwst_slope.y_zoom_end - info.jwst_slope.y_zoom_start +1
 
     frame_image = fltarr(xsize,ysize)
 
-    x1 = info.jwst_image.x_zoom_start_noref
-    x2 = info.jwst_image.x_zoom_end_noref
+    x1 = info.jwst_slope.x_zoom_start
+    x2 = info.jwst_slope.x_zoom_end
     
-    y1 = info.jwst_image.y_zoom_start
-    y2 = info.jwst_image.y_zoom_end
+    y1 = info.jwst_slope.y_zoom_start
+    y2 = info.jwst_slope.y_zoom_end
 
-    if(info.jwst_image.data_type[1] eq 0) then frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,x1:x2,y1:y2]
-    if(info.jwst_image.data_type[1] eq 1) then frame_image[*,*] = (*info.jwst_data.preduced)[x1:x2,y1:y2,0]
-    if(info.jwst_image.data_type[1] eq 2) then frame_image[*,*] = (*info.jwst_data.preducedint)[x1:x2,y1:y2,0]
-    if(info.jwst_image.data_type[1] eq 3) then frame_image[*,*] = (*info.jwst_data.preduced_cal)[x1:x2,y1:y2,0]
+    zoom_win = info.jwst_slope.zoom_window -1
+    frame_image[*,*] = (*info.jwst_slope.pzoomdata)
 
-    info.jwst_histoZ.ximage_range[0]  = x1+1
-    info.jwst_histoZ.ximage_range[1]  = x2+1
-    info.jwst_histoZ.yimage_range[0]  = info.jwst_image.y_zoom_start+1
-    info.jwst_histoZ.yimage_range[1]  = info.jwst_image.y_zoom_end+1
+    if(zoom_win eq 0) then begin
+       if(data_plane eq 0) then szoom = "Zoom Centered on Rate     " 
+       if(data_plane eq 1) then szoom = "Zoom Centered on Rate Error    " 
+       if(data_plane eq 2) then szoom = "Zoom Centered on Rate DQ       "
+       info.jwst_histoSZ.jintegration = -1
+    endif else begin
+       if(data_plane eq 0) then szoom = "Zoom Centered on Int Rate     " 
+       if(data_plane eq 1) then szoom = "Zoom Centered on Int Error    " 
+       if(data_plane eq 2) then szoom = "Zoom Centered on Int DQ       "
+       info.jwst_histoSZ.jintegration = info.jwst_slope.integrationNO[1]
+    endelse
+
+    info.jwst_histoSZ.ximage_range[0]  = x1+1
+    info.jwst_histoSZ.ximage_range[1]  = x2+1
+    info.jwst_histoSZ.yimage_range[0]  = info.jwst_slope.y_zoom_start+1
+    info.jwst_histoSZ.yimage_range[1]  = info.jwst_slope.y_zoom_end+1
+
+    if ptr_valid (info.jwst_histoSZ.pdata) then ptr_free,info.jwst_histoSZ.pdata
+    info.jwst_histoSZ.pdata = ptr_new(frame_image)
 endif
 
-if(win eq 3) then begin ; Slope, Slope Int or Cal
-    info.jwst_histoS.xsize = info.jwst_data.slope_xsize 
-    info.jwst_histoS.ysize = info.jwst_data.slope_ysize
+if(win eq 2) then begin ; Image 2
+    info.jwst_histoS2.xsize = info.jwst_data.slope_xsize 
+    info.jwst_histoS2.ysize = info.jwst_data.slope_ysize
 
-    info.jwst_histoS.ximage_range[0]  = 1
-    info.jwst_histoS.ximage_range[1]  = info.jwst_data.slope_xsize
-    info.jwst_histoS.yimage_range[0]  = 1
-    info.jwst_histoS.yimage_range[1]  = info.jwst_data.slope_ysize
+    info.jwst_histoS2.ximage_range[0]  = 1
+    info.jwst_histoS2.ximage_range[1]  = info.jwst_data.slope_xsize
+    info.jwst_histoS2.yimage_range[0]  = 1
+    info.jwst_histoS2.yimage_range[1]  = info.jwst_data.slope_ysize
 
-    ;info.jwst_histoS.iramp = info.jwst_image.frameNO
-    info.jwst_histoS.jintegration = info.jwst_image.integrationNO
+    info.jwst_histoS2.jintegration = info.jwst_slope.integrationNO[1]
 
     frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
-    if(info.jwst_image.data_type[2] eq 1) then frame_image[*,*] = (*info.jwst_data.preduced)[*,*,0]
-    if(info.jwst_image.data_type[2] eq 2) then frame_image[*,*] = (*info.jwst_data.preducedint)[*,*,0]
-    if(info.jwst_image.data_type[2] eq 3) then frame_image[*,*] = (*info.jwst_data.preduced_cal)[*,*,0]
-
+    frame_image[*,*] = (*info.jwst_data.prate2)[*,*,data_plane]
     if(info.jwst_data.subarray eq 0) then begin
         frame_image_noref = frame_image[4:info.jwst_data.slope_xsize-5,*]
         frame_image = 0
         frame_image = frame_image_noref
-        info.jwst_histoS.ximage_range[0]  = 5
-        info.jwst_histoS.ximage_range[1]  = 1028
+        info.jwst_histoS2.ximage_range[0]  = 5
+        info.jwst_histoS2.ximage_range[1]  = 1028
         frame_image_noref = 0
-    endif
+     endif
+
+    if ptr_valid (info.jwst_histoS2.pdata) then ptr_free,info.jwst_histoS2.pdata
+    info.jwst_histoS2.pdata = ptr_new(frame_image)
 endif
 
-if(win eq 1) then begin ; Science data
-    if ptr_valid (info.jwst_histoR.pdata) then ptr_free,info.jwst_histoR.pdata
-    info.jwst_histoR.pdata = ptr_new(frame_image)
-endif
-if(win eq 2) then begin ; Zoom  data
-    if ptr_valid (info.jwst_histoZ.pdata) then ptr_free,info.jwst_histoZ.pdata
-    info.jwst_histoZ.pdata = ptr_new(frame_image)
-endif
-if(win eq 3) then begin ; Slope  data
-    if ptr_valid (info.jwst_histoS.pdata) then ptr_free,info.jwst_histoS.pdata
-    info.jwst_histoS.pdata = ptr_new(frame_image)
-endif
 frame_image = 0
 end
 
 ;_______________________________________________________________________
-pro jwst_mql_update_histo,hinfo,ps=ps,eps=eps,ascii=ascii,unit=iunit
+pro jwst_msql_update_histo,hinfo,ps=ps,eps=eps,ascii=ascii,unit=iunit
 ;_______________________________________________________________________
 hcopy = 0
 if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 win = hinfo.win
-
+; data plane 0  rate
+; data plane 1  error
+; data plane 2  dq
+data_plane = hinfo.info.jwst_slope.plane[win-1]
+data_type = hinfo.info.jwst_slope.data_type[win-1]
+xt = 'Rate'
+if(data_plane eq 1) then xt = 'Error'
+if(data_plane eq 2) then xt = 'DQ'
 numbins = hinfo.histo_binnum
 
 if(hcopy eq 0 ) then wset,hinfo.draw_window_id
 if(win eq 1) then begin
-    frame_image = (*hinfo.info.jwst_histoR.pdata)
-endif
+    frame_image = (*hinfo.info.jwst_histoS1.pdata)
+ endif
 if(win eq 2) then begin
-    frame_image = (*hinfo.info.jwst_histoZ.pdata)
+    frame_image = (*hinfo.info.jwst_histoS2.pdata)
 endif
 if(win eq 3) then begin
-    frame_image = (*hinfo.info.jwst_histoS.pdata)
+    frame_image = (*hinfo.info.jwst_histoSZ.pdata)
 endif
 
 indxs = where(finite(frame_image),n_pixels)
@@ -183,24 +183,14 @@ endelse
 
 jwst_findhistogram_xlimits,frame_image,xnew,h,numbins,bins,xplot_min,xplot_max,xhistomin,xhistomax,status
 
-stitle = ' '
-sstitle = ' ' 
-if(hcopy eq 1) then begin 
-    stitle = hinfo.subt
-    if(win eq 1) then sstitle = hinfo.info.jwst_control.filename_raw
-    if(win eq 2) then sstitle = hinfo.info.jwst_control.filename_raw
-    if(win eq 2 and hinfo.info.jwst_image.zoom_window eq 3) then begin
-       if(info.jwst_image.plane eq 0) then sstitle = hinfo.info.jwst_control.filename_slope
-       if(info.jwst_image.plane eq 1) then sstitle = hinfo.info.jwst_control.filename_slope_int
-       if(info.jwst_image.plane eq 2) then sstitle = hinfo.info.jwst_control.filename_cal
-    endif
-    if(win eq 3 ) then begin
-       if(info.jwst_image.plane eq 0) then sstitle = hinfo.info.jwst_control.filename_slope
-       if(info.jwst_image.plane eq 1) then sstitle = hinfo.info.jwst_control.filename_slope_int
-       if(info.jwst_image.plane eq 2) then sstitle = hinfo.info.jwst_control.filename_cal
-    endif
-endif
 
+sstitle = ' ' 
+if(hcopy eq 1) then begin
+   sstitle = hinfo.info.jwst_control.filename_slope
+   if(info.jwst_control.file_slope_int_exist eq 1 and win eq 3) then $
+      sstitle = hinfo.info.jwst_control.filename_slope_int
+endif
+   
 min_value = min(h)
 max_value = max(h)
 
@@ -219,32 +209,16 @@ x2 = hinfo.histo_range[0,1]
 y1 = hinfo.histo_range[1,0]
 y2 = hinfo.histo_range[1,1]
 
-xt = ' DN Value'
-plot_slope = 0
-if(win eq 3) then plot_slope= 1
-if(win eq 2 and hinfo.info.jwst_image.zoom_window eq 3) then plot_slope = 1
-
-if(plot_slope eq 1) then begin 
-    xt = ' Slope Values'
-   plot,xnew,h,psym=10,xtitle= xt,ytitle='Number of Pixels',$
-      yrange = [y1,y2],xrange=[x1,x2],$
-      xstyle = 1,$
-      ystyle=1,title = stitle,subtitle = sstitle,/nodata,ytickformat = '(f8.0)',xtickformat= '(f9.3)'
-endif else begin
-   plot,xnew,h,psym=10,xtitle= xt,ytitle='Number of Pixels',$
-      yrange = [y1,y2],xrange=[x1,x2],$
-      xstyle = 1,$
-      ystyle=1,title = stitle,subtitle = sstitle,/nodata,ytickformat = '(f8.0)',xtickformat= '(f7.0)'
-endelse
-	
+plot,xnew,h,psym=10,xtitle= xt,ytitle='Number of Pixels',$
+     yrange = [y1,y2],xrange=[x1,x2],$
+     xstyle = 1,$
+     ystyle=1,title = stitle,subtitle = sstitle,/nodata,ytickformat = '(f8.0)',xtickformat= '(f9.3)'
 oplot,xnew,h,psym=10
 if(status ne 0) then begin
     print,'All the values were the same for the histogram plot'
     ypt = (y2 + y1)/2.0
     xyouts,xplot_min,ypt,'  All Values = ' + string(xplot_min)
 endif
-
-
 
 widget_control,hinfo.median_labelID,set_value=('Median: ' +smedian) 
 widget_control,hinfo.mean_labelID,set_value=('Mean: ' +smean) 
@@ -329,11 +303,8 @@ h = 0
 end
 
 ;***********************************************************************
-;_______________________________________________________________________
-;***********************************************************************
-
 ; the event manager for the ql.pro (main base widget)
-pro jwst_mql_histo_event,event
+pro jwst_msql_histo_event,event
 
 Widget_Control,event.id,Get_uValue=event_name
 widget_control,event.top, Get_UValue = hinfo
@@ -341,26 +312,26 @@ Widget_Control, hinfo.info.jwst_QuickLook, Get_UValue=info
 win = hinfo.win
 
 if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin
-    if(win eq q) then begin
-        info.jwst_histoR.xwindowsize = event.x
-        info.jwst_histoR.ywindowsize = event.y
-        info.jwst_histoR.uwindowsize  = 1
+    if(win eq 1) then begin
+        info.jwst_histoS1.xwindowsize = event.x
+        info.jwst_histoS1.ywindowsize = event.y
+        info.jwst_histoS1.uwindowsize  = 1
     endif
 
-    if(win eq 2) then begin
+    if(win eq 3) then begin
         info.jwst_histoZ.xwindowsize = event.x
         info.jwst_histoZ.ywindowsize = event.y
         info.jwst_histoZ.uwindowsize  = 1
     endif
 
-    if(win eq 3) then begin
-        info.jwst_histoS.xwindowsize = event.x
-        info.jwst_histoS.ywindowsize = event.y
-        info.jwst_histoS.uwindowsize  = 1
+    if(win eq 2) then begin
+        info.jwst_histoS2.xwindowsize = event.x
+        info.jwst_histoS2.ywindowsize = event.y
+        info.jwst_histoS2.uwindowsize  = 1
     endif
     widget_control,event.top,set_uvalue = hinfo
     widget_control,hinfo.info.Quicklook,set_uvalue = info
-    jwst_mql_display_histo,win,info
+    jwst_msql_display_histo,win,info
     return
 endif
 
@@ -375,7 +346,7 @@ case 1 of
 
     (strmid(event_name,0,3) EQ 'Bin') : begin
         hinfo.histo_binnum = event.value
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -385,7 +356,7 @@ case 1 of
         widget_control,hinfo.mdID1,set_button = 1
         widget_control,hinfo.mnID1,set_button = 0
        
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -395,7 +366,7 @@ case 1 of
         widget_control,hinfo.mdID1,set_button = 0
         widget_control,hinfo.mnID1,set_button = 1
        
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -405,7 +376,7 @@ case 1 of
         widget_control,hinfo.limit_option1,set_button = 1
         widget_control,hinfo.limit_option2,set_button = 0
         
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -415,7 +386,7 @@ case 1 of
         widget_control,hinfo.limit_option2,set_button = 1
         widget_control,hinfo.limit_option1,set_button = 0
        
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -427,7 +398,7 @@ case 1 of
         widget_control,hinfo.limit_option1,set_button = 1
         widget_control,hinfo.limit_option2,set_button = 0
         
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -438,7 +409,7 @@ case 1 of
         widget_control,hinfo.limit_option1,set_button = 1
         widget_control,hinfo.limit_option2,set_button = 0
        
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -449,7 +420,7 @@ case 1 of
         widget_control,hinfo.limit_option1,set_button = 0
         widget_control,hinfo.limit_option2,set_button = 1
         
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 
@@ -459,11 +430,11 @@ case 1 of
         hinfo.use_standard_dev = 0
         widget_control,hinfo.limit_option1,set_button = 0
         widget_control,hinfo.limit_option2,set_button = 1
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
     (strmid(event_name,0,6) EQ 'limits'): begin
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
      end
 ;_______________________________________________________________________
@@ -497,7 +468,7 @@ case 1 of
 
         hinfo.default_scale_histo[graphno] = 0
         widget_control,hinfo.histo_recomputeID[graphno],set_value='Default Range'
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
     
@@ -513,7 +484,7 @@ case 1 of
             hinfo.default_scale_histo[graphno-1] = 1
         endelse
 
-        jwst_mql_update_histo,hinfo
+        jwst_msql_update_histo,hinfo
         Widget_Control,event.top,Set_UValue=hinfo
     end
 else: print," Event name not found",event_name
@@ -521,148 +492,94 @@ endcase
 end
 
 ;***********************************************************************
-pro jwst_mql_display_histo,win,info
+pro jwst_msql_display_histo,win,info
 
 window,1,/pixmap
 wdelete,1
 
-iframe = 0
 jintegration = 0 
 if(win eq 1) then begin
-    histo_uwindowsize = info.jwst_histoR.uwindowsize
-    histo_xwindowsize = info.jwst_histoR.xwindowsize
-    histo_ywindowsize = info.jwst_histoR.ywindowsize
+   data_plane = info.jwst_slope.plane[0]
+   data_type = info.jwst_slope.data_type[0] 
+    histo_uwindowsize = info.jwst_histoS1.uwindowsize
+    histo_xwindowsize = info.jwst_histoS1.xwindowsize
+    histo_ywindowsize = info.jwst_histoS1.ywindowsize
 
-    stitle = "MIRI Quick Look- Histo Science Group Image" + info.jwst_version
-    svalue = " Histogram of Science Frame Values "
-    iframe = fix(info.jwst_histoR.iramp+1)
-    jintegration = fix(info.jwst_histoR.jintegration+1)
+    stitle = "MIRI Slope Quick Look- Histogram" + info.jwst_version
+    jintegration = fix(info.jwst_histoS1.jintegration+1)
 
-    sname=info.jwst_control.filename_raw
-    ftitle = "Integration #: " + strtrim(string(jintegration),2) +    "  Group #: " + $
-         strtrim(string(iframe),2)
-    if( XRegistered ('jwst_mqlhr')) then begin
-        widget_control,info.jwst_histoRDisplay,/destroy
+    ftitle = "Integration #: " + strtrim(string(jintegration),2) 
+    if( XRegistered ('jwst_msqlh1')) then begin
+        widget_control,info.jwst_histoS1Display,/destroy
     endif
 
-    ij = 'int' + string(jintegration) + '_group' + string(iframe)  
+    ij = 'int' + string(jintegration) 
     ij = strcompress(ij,/remove_all)
 
-    outname = '_'+ ij  + info.jwst_output.historaw 
+    outname = '_'+ ij  + info.jwst_output.histoS1
 
-    sxmin = strcompress(string(info.jwst_histoR.ximage_range[0]),/remove_all)
-    sxmax = strcompress(string(info.jwst_histoR.ximage_range[1]),/remove_all)
-    symin = strcompress(string(info.jwst_histoR.yimage_range[0]),/remove_all)
-    symax = strcompress(string(info.jwst_histoR.yimage_range[1]),/remove_all)
+    sxmin = strcompress(string(info.jwst_histoS1.ximage_range[0]),/remove_all)
+    sxmax = strcompress(string(info.jwst_histoS1.ximage_range[1]),/remove_all)
+    symin = strcompress(string(info.jwst_histoS1.yimage_range[0]),/remove_all)
+    symax = strcompress(string(info.jwst_histoS1.yimage_range[1]),/remove_all)
+    sregion = "Plot Region: range: " + sxmin + " - " + sxmax + " yrange: " + $
+              symin + "  - " + symax + "  [No reference pixels included.]" 
+endif
+
+if(win eq 3) then begin
+   data_plane = info.jwst_slope.plane[2]
+   data_type = info.jwst_slope.data_type[2] 
+    histo_uwindowsize = info.jwst_histoSZ.uwindowsize
+    histo_xwindowsize = info.jwst_histoSZ.xwindowsize
+    histo_ywindowsize = info.jwst_histoSZ.ywindowsize
+    stitle = "MIRI Quick Look- Histo Zoomed Science Frame" + info.jwst_version
+    jintegration = fix(info.jwst_histoSZ.jintegration+1)
+
+    ftitle = "Integration #: " + strtrim(string(jintegration),2) 
+    if( XRegistered ('jwst_msqlhz')) then begin
+        widget_control,info.jwst_histoSZDisplay,/destroy
+    endif
+
+    ij = 'int' + string(jintegration)   
+    ij = strcompress(ij,/remove_all)
+
+    outname ='_'+ ij + info.jwst_output.histoSZ  
+
+    sxmin = strcompress(string(info.jwst_histoSZ.ximage_range[0]),/remove_all)
+    sxmax = strcompress(string(info.jwst_histoSZ.ximage_range[1]),/remove_all)
+    symin = strcompress(string(info.jwst_histoSZ.yimage_range[0]),/remove_all)
+    symax = strcompress(string(info.jwst_histoSZ.yimage_range[1]),/remove_all)
     sregion = "Plot Region: range: " + sxmin + " - " + sxmax + " yrange: " + $
               symin + "  - " + symax + "  [No reference pixels included.]" 
 endif
 
 if(win eq 2) then begin
-    histo_uwindowsize = info.jwst_histoZ.uwindowsize
-    histo_xwindowsize = info.jwst_histoZ.xwindowsize
-    histo_ywindowsize = info.jwst_histoZ.ywindowsize
-
-
-    iframe = fix(info.jwst_histoZ.iramp+1)
-    jintegration = fix(info.jwst_histoZ.jintegration+1)
-    if(info.jwst_image.zoom_window eq  1) then begin
-
-
-    endif
-    ftitle = "Integration #: " + strtrim(string(jintegration),2) 
-    ; this can be slope, slope int or calibrated image
-    if(info.jwst_image.data_type[1] eq 0) then begin
-       ftitle = "Integration #: " + strtrim(string(jintegration),2) +    "  Group #: " + $
-                strtrim(string(iframe),2)
-       svalue = " Histogram of Zoomed Science Group" 
-       stitle = "MIRI Quick Look- Histo Zoomed Science Frame" + info.jwst_version
-       sname=info.jwst_control.filename_raw
-       ij = 'int' + string(jintegration) + '_group' + string(iframe)  
-    endif
-    if(info.jwst_image.data_type[1] eq 1) then begin 
-       svalue = " Histogram of Zoomed Rate Image" 
-       stitle = "MIRI Quick Look- Histo Zoomed Rate Image" + info.jwst_version
-       sname=info.jwst_control.filename_slope
-       ij = 'int' + string(jintegration) 
-    endif
-    if(info.jwst_image.data_type[1] eq 2) then begin 
-       svalue = " Histogram of Zoomed Rate Int  Image" 
-       stitle = "MIRI Quick Look- Histo Zoomed Rate Int Image" + info.jwst_version
-       sname=info.jwst_control.filename_slope_int
-       ij = 'int' + string(jintegration) 
-    endif
-    if(info.jwst_image.data_type[1] eq 3) then begin 
-       svalue = " Histogram of Zoomed Calibrated Image" 
-       stitle = "MIRI Quick Look- Histo Zoomed Calibrated Image" + info.jwst_version
-       sname=info.jwst_control.filename_cal
-       ij = 'int' + string(jintegration) 
-    endif
-
-
-    if( XRegistered ('jwst_mqlhz')) then begin
-        widget_control,info.jwst_histoZDisplay,/destroy
-    endif
-
-    ij = strcompress(ij,/remove_all)
-
-    outname ='_'+ ij + info.jwst_output.histozoom  
-    sxmin = strcompress(string(info.jwst_histoZ.ximage_range[0]),/remove_all)
-    sxmax = strcompress(string(info.jwst_histoZ.ximage_range[1]),/remove_all)
-    symin = strcompress(string(info.jwst_histoZ.yimage_range[0]),/remove_all)
-    symax = strcompress(string(info.jwst_histoZ.yimage_range[1]),/remove_all)
-    sregion = "Plot Region: range: " + sxmin + " - " + sxmax + " yrange: " + $
-              symin + "  - " + symax + "  [No reference pixels included.]" 
-endif
-
-
-if(win eq 3) then begin
+   data_plane = info.jwst_slope.plane[1]
+   data_type = info.jwst_slope.data_type[1] 
     histo_uwindowsize = info.jwst_histoS.uwindowsize
     histo_xwindowsize = info.jwst_histoS.xwindowsize
     histo_ywindowsize = info.jwst_histoS.ywindowsize
+    stitle = "MIRI Quick Look- Histo Slope Image" + info.jwst_version
 
     jintegration = fix(info.jwst_histoS.jintegration+1)
     ftitle = " Integration #: " + strtrim(string(jintegration),2)
-
-
-
-    if(info.jwst_image.data_type[2] eq 1) then begin 
-       svalue = " Histogram of Zoomed Rate Image" 
-       stitle = "MIRI Quick Look- Histo Zoomed Rate Image" + info.jwst_version
-       sname=info.jwst_control.filename_slope
-       ij = 'int' + string(jintegration) 
+    if(XRegistered ('jwst_msqlh2')) then begin
+        widget_control,info.jwst_histoS2Display,/destroy
     endif
-    if(info.jwst_image.data_type[2] eq 2) then begin 
-       svalue = " Histogram of Zoomed Rate Int  Image" 
-       stitle = "MIRI Quick Look- Histo Zoomed Rate Int Image" + info.jwst_version
-       sname=info.jwst_control.filename_slope_int
-       ij = 'int' + string(jintegration) 
-    endif
-    if(info.jwst_image.data_type[2] eq 3) then begin 
-       svalue = " Histogram of Zoomed Calibrated Image" 
-       stitle = "MIRI Quick Look- Histo Zoomed Calibrated Image" + info.jwst_version
-       sname=info.jwst_control.filename_cal
-       ij = 'int' + string(jintegration) 
-    endif
-    
+
     ij = 'int' + string(jintegration)   
     ij = strcompress(ij,/remove_all)
-    outname = '_'+ ij + info.jwst_output.histoslope 
+    outname = '_'+ ij + info.jwst_output.histoS2 
 
     sxmin = strcompress(string(info.jwst_histoS.ximage_range[0]),/remove_all)
     sxmax = strcompress(string(info.jwst_histoS.ximage_range[1]),/remove_all)
     symin = strcompress(string(info.jwst_histoS.yimage_range[0]),/remove_all)
     symax = strcompress(string(info.jwst_histoS.yimage_range[1]),/remove_all)
     sregion = "Plot Region: range: " + sxmin + " - " + sxmax + " yrange: " + $
-              symin + "  - " + symax + "  [No reference pixels included.]"
-
-    if(XRegistered ('jwst_mqlhs')) then begin
-       widget_control,info.jwst_histoSDisplay,/destroy
-    endif
-
+              symin + "  - " + symax + "  [No reference pixels included.]"  
 endif
 
-subt = svalue + ": " + ftitle
+subt = ftitle
 
 ; widget window parameters
 xwidget_size = 1000
@@ -681,14 +598,14 @@ if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-20
 if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-20
 
 HistoQuickLook = widget_base(title=stitle ,$
-                             col = 1,mbar = menuBar,group_leader=info.jwst_RawQuickLook,$
+                             col = 1,mbar = menuBar,group_leader=info.jwst_SlopeQuickLook,$
                              xsize = xwidget_size,$
                              ysize= ywidget_size,/scroll,$
                              x_scroll_size=xsize_scroll,y_scroll_size=ysize_scroll,/TLB_SIZE_EVENTS)
 
 QuitMenu = widget_button(menuBar,value="Quit",font = info.font2)
 ; add quit button
-quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_mql_histo_quit')
+quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_msql_histo_quit')
 
 PMenu = widget_button(menuBar,value="Print",font = info.font2)
 PbuttonR = widget_button(Pmenu,value = "Print Histogram Plot to an output file ",uvalue='printP')
@@ -697,9 +614,8 @@ PbuttonD = widget_button(Pmenu,value = "Print Histogram Data to ascii file ",uva
 ; build the menubar
 ;********
 
-
 titlelabel = widget_label(HistoQuickLook, $
-                           value=sname,/align_left, $
+                           value=info.jwst_control.filename_slope,/align_left, $
                            font=info.font3,/dynamic_resize)
 
 subtitle = widget_label(HistoQuickLook, $
@@ -714,6 +630,19 @@ default_scale_histo  = intarr(2) ; scaling min and max display ranges
 histo_range[*,*] = 0.0
 default_scale_histo[*] = 1
 
+svalue = '   '
+
+if(data_type eq 1) then begin 
+   if(data_plane eq 0) then svalue = 'Rate'
+   if(data_plane eq 1) then svalue = 'Rate Error'
+   if(data_plane eq 2) then svalue = 'Rate DQ'
+endif
+
+if(data_type eq 2) then begin 
+   if(data_plane eq 0) then svalue = 'Int Rate'
+   if(data_plane eq 1) then svalue = 'Int Rate Error'
+   if(data_plane eq 2) then svalue = 'Int Rate DQ'
+endif
 tlabelID = widget_label(HistoQuickLook,$
                         value =svalue ,/align_center,$
                         font=info.font5)
@@ -782,9 +711,6 @@ min_labelID = widget_label(graphID2,$
 
 max_labelID = widget_label(graphID2,$
                          value='Maximum: ' + blank10,/align_left,font=info.font3)
-
-;num_labelID = widget_label(graphID2,$
-;                         value='# Good Pixels: ' + blank10,/align_left,font=info.font3)
 
 subtitle = widget_label(graphID2, $
                            value='Set Cut Limits',/align_left, $
@@ -871,14 +797,13 @@ longtag = widget_label(HistoQuickLook,value = longline)
 Widget_control,HistoQuickLook,/Realize
 
 if(win eq 1) then $
-XManager,'jwst_mqlhr',HistoQuickLook,/No_Block,event_handler='jwst_mql_histo_event'
+   XManager,'jwst_msqlh1',HistoQuickLook,/No_Block,event_handler='jwst_msql_histo_event'
 
 if(win eq 2) then $
-XManager,'jwst_mqlhz',HistoQuickLook,/No_Block,event_handler='jwst_mql_histo_event'
+   XManager,'jwst_msqlh2',HistoQuickLook,/No_Block,event_handler='jwst_msql_histo_event'
 
 if(win eq 3) then $
-XManager,'jwst_mqlhs',HistoQuickLook,/No_Block,event_handler='jwst_mql_histo_event'
-
+   XManager,'jwst_msqlhz',HistoQuickLook,/No_Block,event_handler='jwst_msql_histo_event'
 
 widget_control,graphID,get_value=tdraw_id
 draw_window_id = tdraw_id
@@ -927,32 +852,32 @@ hinfo = {histo_binnum        : histo_binnum,$
          draw_window_id      : draw_window_id,$
          default_scale_histo : default_scale_histo,$
          outname             : outname,$
-         win                 : win,$
+         wind                : win,$
          subt                : subt,$
          otype               : 0,$
          info                : info}
 
 Widget_Control,HistoQuickLook,Set_UValue=hinfo
-jwst_mql_update_histo,hinfo
+jwst_msql_update_histo,hinfo
 
 Widget_Control,HistoQuickLook,Set_UValue=hinfo
 
 if(win eq 1) then begin
-    info.jwst_histoRDisplay = HistoQuickLook
+    info.jwst_histoS1Display = HistoQuickLook
     Widget_Control,info.jwst_QuickLook,Set_UValue=info
-    Widget_Control,info.jwst_histoRDisplay,Set_UValue=hinfo
+    Widget_Control,info.jwst_histoS1Display,Set_UValue=hinfo
 endif
 
 if(win eq 2) then begin
-    info.jwst_histoZDisplay = HistoQuickLook
+    info.jwst_histoS2Display = HistoQuickLook
     Widget_Control,info.jwst_QuickLook,Set_UValue=info
-    Widget_Control,info.jwst_histoZDisplay,Set_UValue=hinfo
+    Widget_Control,info.jwst_histoS2Display,Set_UValue=hinfo
 endif
 
 if(win eq 3) then begin
-    info.jwst_histoSDisplay = HistoQuickLook
+    info.jwst_histoSZDisplay = HistoQuickLook
     Widget_Control,info.jwst_QuickLook,Set_UValue=info
-    Widget_Control,info.jwst_histoSDisplay,Set_UValue=hinfo
+    Widget_Control,info.jwst_histoSZDisplay,Set_UValue=hinfo
 endif
 
 end

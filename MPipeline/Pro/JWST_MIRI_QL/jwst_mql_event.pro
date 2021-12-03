@@ -21,10 +21,22 @@ endif
 ;    print,'event_name',event_name
     case 1 of
 ;_______________________________________________________________________
-    (strmid(event_name,0,7) EQ 'voption') : begin
-        info.jwst_image.plane = event.index
-        info.jwst_image.default_scale_graph[2] = 1
-        jwst_mql_update_slope,info
+       (strmid(event_name,0,7) EQ 'voption') : begin ; this is only for graph 2,1
+                                ;  data_type = 1 rate
+                                ; data_type = 2 rate_int
+                                ; data_type = 3 cal
+       info.jwst_image.data_type[2] = event.index + 1
+       info.jwst_image.plane = 0 
+       info.jwst_image.default_scale_graph[2] = 1
+       error = 0 
+       if(info.jwst_image.data_type[2] eq 1 and info.jwst_control.file_slope_exist eq 0) then error = 1
+       if(info.jwst_image.data_type[2] eq 2 and info.jwst_control.file_slope_int_exist eq 0) then error = 1
+       if(info.jwst_image.data_type[2] eq 3 and info.jwst_control.file_cal_exist eq 0) then error = 1
+       if(error eq 1) then begin 
+          ok = dialog_message("  Image type does not exist",/Information)
+       endif else begin 
+          jwst_mql_update_slope,info
+       endelse 
      end
 ;_______________________________________________________________________
 ; display heder
@@ -625,7 +637,7 @@ endif
         
         if(info.jwst_image.x_zoom ge xsize) then info.jwst_image.x_zoom = xsize -1 
         if(info.jwst_image.y_zoom ge ysize) then info.jwst_image.y_zoom = ysize - 1
-         jwst_mql_update_zoom_image,info
+        jwst_mql_update_zoom_image,info
 
 ; If the Frame values for pixel window is open - destroy
         if(XRegistered ('mpixel')) then begin
@@ -676,12 +688,9 @@ endif
             info.jwst_image.default_scale_graph[graphno-1] = 1
         endif
 
-	if(graphno eq 1)then  $
-        jwst_mql_update_images,info
-	if(graphno eq 2)then  $
-        jwst_mql_update_zoom_image,info
-	if(graphno eq 3)then  $
-        jwst_mql_update_slope,info
+	if(graphno eq 1)then jwst_mql_update_images,info
+	if(graphno eq 2)then jwst_mql_update_zoom_image,info
+	if(graphno eq 3)then jwst_mql_update_slope,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 ;_______________________________________________________________________
@@ -1011,62 +1020,64 @@ endif
 ; inspect slope, slope int or calibration 
     (strmid(event_name,0,9) EQ 'inspect_s') : begin
 
-        if(info.jwst_control.file_slope_exist eq 0 and info.jwst_image.plane eq 0) then begin
-            ok = dialog_message(" No slope image exists",/Information)
-            return
-         endif
+       if(info.jwst_control.file_slope_exist eq 0 and info.jwst_image.data_type[2] eq 1) then begin
+          ok = dialog_message(" No slope image exists",/Information)
+          return
+       endif
 
-        if(info.jwst_control.file_slope_int_exist eq 0 and info.jwst_image.plane eq 1) then begin
-            ok = dialog_message(" No slope int image exists",/Information)
-            return
-         endif
+       if(info.jwst_control.file_slope_int_exist eq 0 and info.jwst_image.data_type[2] eq 2) then begin
+          ok = dialog_message(" No slope int image exists",/Information)
+          return
+       endif
 
-        if(info.jwst_control.file_cal_exist eq 0 and info.jwst_image.plane eq 2) then begin
-            ok = dialog_message(" No calibration image exists",/Information)
-            return
-        endif
+       if(info.jwst_control.file_cal_exist eq 0 and info.jwst_image.data_type[2] eq 3) then begin
+          ok = dialog_message(" No calibration image exists",/Information)
+          return
+       endif
 
-        i = info.jwst_image.integrationNO
-        info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
+       i = info.jwst_image.integrationNO
+       info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
 
-        frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
-        if(info.jwst_image.plane eq 0) then begin
-           frame_image = (*info.jwst_data.preduced)
-           info.jwst_inspect_slope.data_type = 1
-        endif
-        if(info.jwst_image.plane eq 1) then begin
-           frame_image = (*info.jwst_data.preducedint)
-           info.jwst_inspect_slope.data_type = 2
-        endif
-        if(info.jwst_image.plane eq 2) then begin
-           frame_image = (*info.jwst_data.preduced_cal)
-           info.jwst_inspect_slope.data_type = 3
-        endif
-        if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
-        info.jwst_inspect_slope.pdata = ptr_new(frame_image)
-        frame_image = 0
+       frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
+       if(info.jwst_image.data_type[2] eq 1 ) then begin
+          frame_image = (*info.jwst_data.preduced)
+          info.jwst_inspect_slope.data_type = 1
+          info.jwst_inspect_slope.plane = 0
+       endif
+       if(info.jwst_image.data_type[2] eq 2) then begin
+          frame_image = (*info.jwst_data.preducedint)
+          info.jwst_inspect_slope.data_type = 2
+          info.jwst_inspect_slope.plane = 0
+       endif
+       if(info.jwst_image.data_type[2] eq 3) then begin
+          frame_image = (*info.jwst_data.preduced_cal)
+          info.jwst_inspect_slope.data_type = 3
+          info.jwst_inspect_slope.plane = 0
+       endif
+       if ptr_valid (info.jwst_inspect_slope.pdata) then ptr_free,info.jwst_inspect_slope.pdata
+       info.jwst_inspect_slope.pdata = ptr_new(frame_image)
+       frame_image = 0
 
-        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+       Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
 
-        info.jwst_inspect_slope.zoom = 1
-        info.jwst_inspect_slope.zoom_x = 1
-        info.jwst_inspect_slope.x_pos =(info.jwst_data.slope_xsize)/2.0
-        info.jwst_inspect_slope.y_pos = (info.jwst_data.slope_ysize)/2.0
+       info.jwst_inspect_slope.zoom = 1
+       info.jwst_inspect_slope.zoom_x = 1
+       info.jwst_inspect_slope.x_pos =(info.jwst_data.slope_xsize)/2.0
+       info.jwst_inspect_slope.y_pos = (info.jwst_data.slope_ysize)/2.0
+        
+       info.jwst_inspect_slope.xposful = info.jwst_inspect_slope.x_pos
+       info.jwst_inspect_slope.yposful = info.jwst_inspect_slope.y_pos
 
-        info.jwst_inspect_slope.xposful = info.jwst_inspect_slope.x_pos
-        info.jwst_inspect_slope.yposful = info.jwst_inspect_slope.y_pos
+       info.jwst_inspect_slope.graph_range[0] = info.jwst_image.graph_range[2,0]
+       info.jwst_inspect_slope.graph_range[1] = info.jwst_image.graph_range[2,1]
+       info.jwst_inspect_slope.default_scale_graph = info.jwst_image.default_scale_graph[2]
+       
+       info.jwst_inspect_slope.limit_low = -5000.0
+       info.jwst_inspect_slope.limit_high = 70000.0
+       info.jwst_inspect_slope.limit_low_num = 0
+       info.jwst_inspect_slope.limit_high_num = 0
 
-        info.jwst_inspect_slope.graph_range[0] = info.jwst_image.graph_range[2,0]
-        info.jwst_inspect_slope.graph_range[1] = info.jwst_image.graph_range[2,1]
-        info.jwst_inspect_slope.default_scale_graph = info.jwst_image.default_scale_graph[2]
-
-        info.jwst_inspect_slope.limit_low = -5000.0
-        info.jwst_inspect_slope.limit_high = 70000.0
-        info.jwst_inspect_slope.limit_low_num = 0
-        info.jwst_inspect_slope.limit_high_num = 0
-
-        info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
-        info.jwst_inspect_slope.plane = 0
+       info.jwst_inspect_slope.integrationNO = info.jwst_image.integrationNO
 	jwst_misql_display_images,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
@@ -1074,25 +1085,42 @@ endif
 ;_______________________________________________________________________
 ; histogram image raw
     (strmid(event_name,0,7) EQ 'histo_i') : begin
-       type =0 
-       jwst_mql_setup_histo,type,info
-       jwst_mql_display_histo,type,info
+       win = 1
+       jwst_mql_setup_histo,win,info
+       jwst_mql_display_histo,win,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 
     ; histogram zoom image
     (strmid(event_name,0,7) EQ 'histo_z') : begin
-       type =1
-       jwst_mql_setup_histo,type,info
-       jwst_mql_display_histo,type,info
+      
+       win = 2
+       jwst_mql_setup_histo,win,info
+       jwst_mql_display_histo,win,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
      end
 
     ; histogram rate image
     (strmid(event_name,0,7) EQ 'histo_s') : begin
-       type =2
-       jwst_mql_setup_histo,type,info
-       jwst_mql_display_histo,type,info
+
+       if(info.jwst_control.file_slope_exist eq 0 and info.jwst_image.data_type[2] eq 1) then begin
+          ok = dialog_message(" No slope image exists",/Information)
+          return
+         endif
+       
+       if(info.jwst_control.file_slope_int_exist eq 0 and info.jwst_image.data_type[2] eq 2) then begin
+          ok = dialog_message(" No slope int image exists",/Information)
+          return
+       endif
+
+       if(info.jwst_control.file_cal_exist eq 0 and info.jwst_image.data_type[2] eq 3) then begin
+          ok = dialog_message(" No calibration image exists",/Information)
+          return
+       endif
+       win = 3
+
+       jwst_mql_setup_histo,win,info
+       jwst_mql_display_histo,win,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
 

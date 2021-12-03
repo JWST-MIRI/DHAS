@@ -98,7 +98,8 @@ if(info.jwst_data.read_all eq 0) then begin
     endif
 endif
 
-if(graphnum eq 1) then begin 
+if(graphnum eq 1) then begin
+   info.jwst_image.data_type[1]  = 0 
     szoom = "Zoom Centered on Raw image     " 
     xdata_end = info.jwst_data.image_xsize
     ydata_end = info.jwst_data.image_ysize
@@ -111,8 +112,9 @@ if(graphnum eq 1) then begin
 endif
 
 if(graphnum eq 3) then begin 
-   if(info.jwst_image.plane eq 0) then begin 
-      szoom = "Zoom Centered on Rate Image" 
+   if(info.jwst_image.data_type[2] eq 1) then begin 
+      szoom = "Zoom Centered on Rate Image"
+      info.jwst_image.data_type[1]  = 1
       xdata_end = info.jwst_data.slope_xsize
       ydata_end = info.jwst_data.slope_ysize
       frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
@@ -123,10 +125,11 @@ if(graphnum eq 3) then begin
       endif
    endif
 
-   if(info.jwst_image.plane eq 1) then begin 
+   if(info.jwst_image.data_type[2] eq 2) then begin 
       szoom = "Zoom Centered on Int Rate Image" 
       xdata_end = info.jwst_data.slope_xsize
       ydata_end = info.jwst_data.slope_ysize
+      info.jwst_image.data_type[1]  = 2 
       frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)
       frame_image[*,*] = (*info.jwst_data.preducedint)[*,*,0]
       if(info.jwst_image.default_scale_graph[1] eq 1) then begin
@@ -135,8 +138,9 @@ if(graphnum eq 3) then begin
       endif
    endif
 
-   if(info.jwst_image.plane eq 2) then begin 
-      szoom = "Zoom Centered on Cal Image" 
+   if(info.jwst_image.data_type[2] eq 3) then begin 
+      szoom = "Zoom Centered on Cal Image"
+      info.jwst_image.data_type[1]  = 3
       xdata_end = info.jwst_data.slope_xsize
       ydata_end = info.jwst_data.slope_ysize
       frame_image = fltarr(info.jwst_data.slope_xsize,info.jwst_data.slope_ysize)

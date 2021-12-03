@@ -112,7 +112,6 @@ xrange = ixend-ixstart+1
 yrange = iyend-iystart+1
 sub_image = fltarr(xrange,yrange)
 sub_image = frame_image[xstart:xend,ystart:yend]
-
 stat_data = sub_image[ixstart:ixend,iystart:iyend] 
 
 jwst_get_image_stat,stat_data,image_mean,stdev_pixel,image_min,image_max,$
@@ -229,7 +228,6 @@ info.jwst_slope.y_pos = y/info.jwst_slope.binfactor
 
 pixelsize  = 1.0 * info.jwst_slope.scale_zoom
 
-;print,'xvalue',xvalue,yvalue
 xcenter = fix(xvalue/info.jwst_slope.scale_zoom)* info.jwst_slope.scale_zoom + pixelsize/2.0
 ycenter = fix(yvalue/info.jwst_slope.scale_zoom)* info.jwst_slope.scale_zoom + pixelsize/2.0
 

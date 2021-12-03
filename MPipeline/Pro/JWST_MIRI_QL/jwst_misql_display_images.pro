@@ -60,7 +60,6 @@ endif
             info.jwst_inspect_slope.graph_range[1] = temp
         endif
 
-
         if(strmid(event_name,4,1) EQ 't') then begin
             info.jwst_inspect_slope.graph_range[1] = event.value
             widget_control,info.jwst_inspect_slope.rlabelID[0],get_value = temp
@@ -85,7 +84,6 @@ endif
             info.jwst_inspect_slope.limit_high = temp
         endif
 
-
         if(strmid(event_name,6,1) EQ 'h') then begin
             info.jwst_inspect_slope.limit_high = event.value
             widget_control,info.jwst_inspect_slope.limit_lowID,get_value = temp
@@ -108,22 +106,22 @@ endif
 
          ; redefine the xpos and y pos value in new zoom window
 
-         jwst_misql_update_images,info
-         jwst_misql_find_limits,info
+       jwst_misql_update_images,info
+       jwst_misql_find_limits,info
          
          ; xposful, uposful - x,y location in full image
          ; x_pos, y_pos = x and y location on the image screen
 
-         xpos_new = info.jwst_inspect_slope.xposful -info.jwst_inspect_slope.xstart_zoom 
-         ypos_new = info.jwst_inspect_slope.yposful -info.jwst_inspect_slope.ystart_zoom
-         info.jwst_inspect_slope.x_pos = (xpos_new+0.5)*info.jwst_inspect_slope.zoom_x
-         info.jwst_inspect_slope.y_pos = (ypos_new+0.5)*info.jwst_inspect_slope.zoom
-         jwst_misql_update_pixel_location,info
+       xpos_new = info.jwst_inspect_slope.xposful -info.jwst_inspect_slope.xstart_zoom 
+       ypos_new = info.jwst_inspect_slope.yposful -info.jwst_inspect_slope.ystart_zoom
+       info.jwst_inspect_slope.x_pos = (xpos_new+0.5)*info.jwst_inspect_slope.zoom_x
+       info.jwst_inspect_slope.y_pos = (ypos_new+0.5)*info.jwst_inspect_slope.zoom
+       jwst_misql_update_pixel_location,info
 
-         for i = 0,5 do begin
-             widget_control,info.jwst_inspect_slope.zbutton[i],set_button = 0
-         endfor
-         widget_control,info.jwst_inspect_slope.zbutton[zoom],set_button = 1
+       for i = 0,5 do begin
+          widget_control,info.jwst_inspect_slope.zbutton[i],set_button = 0
+       endfor
+       widget_control,info.jwst_inspect_slope.zbutton[zoom],set_button = 1
      end
 ;_______________________________________________________________________
 ; Select a different pixel
@@ -135,8 +133,6 @@ endif
         yvalue = info.jwst_inspect_slope.yposful
         xstart = xvalue
         ystart = yvalue
-
-
 ; ++++++++++++++++++++++++++++++
         if(strmid(event_name,4,1) eq 'x') then  begin
             xvalue = event.value ; event value - user input starts at 1 
@@ -184,9 +180,7 @@ endif
             if(yvalue ge  info.jwst_data.slope_ysize) then yvalue = info.jwst_data.slope_ysize-1
 
         endif
-
 ; ++++++++++++++++++++++++++++++
-
         xmove = xvalue - xstart
         ymove = yvalue - ystart
 
@@ -420,7 +414,6 @@ endif else begin
     endelse
 endelse 
     
-
 jwst_get_image_stat,frame_image_noref,image_mean,stdev,image_min,image_max,$
                     irange_min,irange_max,image_median,stdev_mean
 if(info.jwst_inspect_slope.plane eq 2) then begin ; DQ plane
@@ -468,7 +461,6 @@ max = image_max
 median = image_median
 st_mean = stdev_mean
 
-
 size_sub = size(sub_image)
 size_test = size(test_image)
 
@@ -476,9 +468,8 @@ xzoom = float(size_test[1])/float(size_sub[1])
 yzoom = float(size_test[2])/float(size_sub[2])
 info.jwst_inspect_slope.zoom_x = xzoom; off from zoom a bit because of 1032 image
 
-
 if(hcopy eq 1) then begin 
-    svalue = "Science Image"
+    svalue= "Science Image"
     ititle = "Integration #: " + strtrim(string(i+1),2)
     sstitle = info.jwst_control.filebase+'.fits'
     mtitle = "Mean: " + strtrim(string(mean,format="(g14.6)"),2) 
@@ -834,10 +825,38 @@ xsize_label = 12
 ; statistical information - next column
 
 blank = '                                               '
-ttitle = info.jwst_control.filename_raw 
 ititle =  "Integration #: " + strtrim(string(info.jwst_inspect_slope.integrationNO+1),2) 
-         
+
+svalue = ' '
+;data_plane = info.jwst_slope.plane[0]
+;data_type = info.jwst_slope.data_type[0]
+
+data_plane = info.jwst_inspect_slope.plane
+data_type = info.jwst_inspect_slope.data_type
+
+if(data_type eq 1) then begin
+   ttitle = info.jwst_control.filename_slope 
+   if(data_plane eq 0) then svalue = 'Rate Image'
+   if(data_plane eq 1) then svalue = 'Rate Error Image'
+   if(data_plane eq 2) then svalue = 'Rate DQ Image'
+endif
+
+if(data_type eq 2) then begin
+   ttitle = info.jwst_control.filename_slope_int
+   if(data_plane eq 0) then svalue = 'Int Rate Image'
+   if(data_plane eq 1) then svalue = 'Int Rate Error Image'
+   if(data_plane eq 2) then svalue = 'Int Rate DQ Image'
+endif
+
+if(data_type eq 3) then begin
+   ttitle = info.jwst_control.filename_cal
+   if(data_plane eq 0) then svalue = 'Calibrated Image'
+   if(data_plane eq 1) then svalue = 'Calibrated Error Image'
+   if(data_plane eq 2) then svalue = 'Calibrated  DQ Image'
+endif
 graph_label = widget_label(graphID2,value=ttitle,/align_left,font = info.font5)
+
+s_label= widget_label(graphID2,value = svalue,/align_left,font=info.font5)
 ss = "Image Size [" + strtrim(string(info.jwst_data.slope_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_data.slope_ysize),2) + ']'
 

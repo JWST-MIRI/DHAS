@@ -26,7 +26,6 @@ ysize_image = fix(info.jwst_data.slope_ysize/info.jwst_cal.binfactor)
 device,copy=[0,0,xsize_image,ysize_image, $
              0,0,info.jwst_cal.pixmapID[ij]]
 
-
 factorx = 1
 factory = 1
 if(ij eq 1) then begin 
@@ -131,21 +130,13 @@ hMenu = widget_button(menuBar,value="Display Header",font = info.font2)
 hsMenu = widget_button(hmenu,value="Display Cal Header",uvalue='cheader')
 hcMenu = widget_button(hmenu,value="Display Rate Header",uvalue='sheader')
 
-
 statMenu = widget_button(menuBar,value="Statistics",font = info.font2)
 statbutton = widget_button(statmenu,value="Get Statistics on Images",uvalue = 'Stat')
-
-;cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
-;cbutton = widget_button(cMenu,value = "Compare Image in Window 1 to an Image in Window 2 (both must be of same type: rate, error, dq)",uvalue = 'compare')
-
-;chMenu   = widget_button(menuBar,value="Channel",font= info.font2)
-;cbutton = widget_button(chMenu,value = "Display Reduced Image by Channel",uvalue = 'channel')
 
 ;PMenu = widget_button(menuBar,value="Print",font = info.font2)
 ;PbuttonS = widget_button(Pmenu,value = "Print Plot 1",uvalue='print_1')
 ;PbuttonZ = widget_button(Pmenu,value = "Print Zoom Image (Plot 2)",uvalue='print_Z')
 ;PbuttonU = widget_button(Pmenu,value = "Print Plot 2",uvalue='print_2')
-;PbuttonE = widget_button(Pmenu,value = "Print Slope value for pixel for exposure",uvalue='print_E')
 
 filelabelID = widget_label(info.jwst_CalQuickLook, $
                            value=info.jwst_control.filename_slope,/align_left, $
@@ -192,7 +183,6 @@ info.jwst_cal.bindisplay=[bimage,"Scroll Full Image"]
 voptions = ['Cal Image','Cal Error','Cal DQ','Rate: ', 'Rate Error', 'Rate DQ']
 if(info.jwst_control.file_slope_exist eq 0) then voptions = ['Cal Image','Cal Error','Cal DQ']
 
-
 xsize_label = 9
 ;************************************
 ;graph 1,1- cal default image
@@ -221,6 +211,7 @@ info.jwst_cal.graph_range[0,1] = range_max
 
 stat_base1 = widget_base(info.jwst_cal.graphID11,row=1)
 stat_base2 = widget_base(info.jwst_cal.graphID11,row=1)
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_1',font=info.font4)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_1',font=info.font4)
 info.jwst_cal.slabelID[0] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
                                           /align_left,font=info.font4,/dynamic_resize)
@@ -287,7 +278,7 @@ info.jwst_cal.graph_range[1,1] = range_max
 
 stat_base1 = widget_base(info.jwst_cal.graphID12,row=1)
 stat_base2 = widget_base(info.jwst_cal.graphID12,row=1)
-
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_2',font=info.font4)
 FullSize = widget_button(stat_base1,value='Inspect Image',uvalue='inspect_2',font=info.font4)
 
 info.jwst_cal.slabelID[1] = widget_label(stat_base2,value=('Mean: ' + smean),$ 
@@ -404,7 +395,8 @@ info.jwst_cal.zoom_label[4] = widget_button(zoom_base,value=zoomvalues[4],$
 info.jwst_cal.zoom_label[5] = widget_button(zoom_base,value=zoomvalues[5],$
                                            uvalue='zsize5',$
                                            font=info.font4)
-
+stat_base1 = widget_base(info.jwst_cal.graphID21,row=1)
+histo = widget_button(stat_base1,value='Histogram',uvalue='histo_z',font=info.font4)
 ; default values for slope image
 slmean = info.jwst_data.cal1_stat[0,plane_win1]
 slmin = info.jwst_data.cal1_stat[3,plane_win1]
@@ -492,7 +484,7 @@ jwst_mcql_update_images,0,info
 jwst_mcql_update_images,1,info
 
 ;plot zoom image 
-info.jwst_cal.plane[2] = 0 ; default to slope image
+info.jwst_cal.plane[2] = 0 
 info.jwst_cal.zoom_window = 1
 info.jwst_cal.plane[2] = info.jwst_cal.plane[0]   ; default to image in window 1
 info.jwst_cal.data_type[2] = info.jwst_cal.data_type[0] ; default to window 1

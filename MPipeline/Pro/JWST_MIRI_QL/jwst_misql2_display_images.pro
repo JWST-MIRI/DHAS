@@ -805,10 +805,28 @@ xsize_label = 12
 ; statistical information - next column
 
 blank = '                                               '
-ttitle = info.jwst_control.filename_raw 
+ttitle = ' '
 ititle =  "Integration #: " + strtrim(string(info.jwst_inspect_slope2.integrationNO+1),2) 
-         
+svalue = ' '
+data_plane = info.jwst_slope.plane[1]
+data_type = info.jwst_slope.data_type[1]
+
+if(data_type eq 1) then begin
+   ttitle = info.jwst_control.filename_slope 
+   if(data_plane eq 0) then svalue = 'Rate Image'
+   if(data_plane eq 1) then svalue = 'Rate Error Image'
+   if(data_plane eq 2) then svalue = 'Rate DQ Image'
+endif
+
+if(data_type eq 2) then begin
+   ttitle = info.jwst_control.filename_slope_int
+   if(data_plane eq 0) then svalue = 'Int Rate Image'
+   if(data_plane eq 1) then svalue = 'Int Rate Error Image'
+   if(data_plane eq 2) then svalue = 'Int Rate DQ Image'
+endif
 graph_label = widget_label(graphID2,value=ttitle,/align_left,font = info.font5)
+
+s_label= widget_label(graphID2,value = svalue,/align_left,font=info.font5)
 ss = "Image Size [" + strtrim(string(info.jwst_data.slope_xsize),2) + ' x ' +$
         strtrim(string(info.jwst_data.slope_ysize),2) + ']'
 

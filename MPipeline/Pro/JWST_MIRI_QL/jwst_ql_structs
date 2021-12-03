@@ -79,9 +79,7 @@ jwst_image={jwst_imagei, $
 	 plot_base           : lonarr(3),$ ; location of 4 plots that can change size
 	 srange_base         : lonarr(3),$ ; scale range location for 4 plots that can change size
 	 plane               : 1,$
-	 plane_final         : 0,$ 
-	 plane_int           : 0,$
-	 data_type           : intarr(3),$ ; for 3rd window 1 = rate, 2 = rate int, 3 = cal
+	 data_type           : intarr(3),$ ; for 3rd window 0 = raw  1 = rate, 2 = rate int, 3 = cal
          infoID00            : 0,$
          infoID22            : 0,$
          graphID11           : 0,$
@@ -454,7 +452,7 @@ jwst_inspect = {jwst_inspecti,$
             rlabelID            : lonarr(2) ,$; ; range label- user input 
             x_pos               : 0.0,$
             y_pos               : 0.0,$
-	    plane               : 0,$
+	    plane               : 0,$   ; 0 rate, 1 error, 2 dq
 	    data_type           : 0,$   ;0 raw data, 1: rate (dn/s) 2: rate int, 3: cal 
 	    xposful             : 0,$
 	    yposful             : 0,$
@@ -593,7 +591,7 @@ jwst_output={jwst_outputi, $
         rawimage          : '   ',$
 	inspect_rawimage  : '   ',$
 	inspect_slope     : '   ',$
-	inspect_slope2        : '   ',$
+	inspect_slope2    : '   ',$
 	inspect_ref       : '   ',$
 	slope_win1        : '   ',$  
 	slope_zoomimage   : '   ',$
@@ -603,9 +601,13 @@ jwst_output={jwst_outputi, $
 	referenceimage    : '   ',$
 	historaw          : '   ',$
 	histoslope        : '   ',$
-	histozoom         : '   ',$	
-	test_report       : '   ',$
-	fwn               : '   '}	
+	histozoom         : '   ',$
+	histoS1           : '	',$
+	histoS2           : '   ',$
+	histoSZ           : '   ',$
+	histoC1           :	 '	',$
+	histoC2           : '   ',$
+	histoCZ           : '   '}	
 
 ;***********************************************************************
 
