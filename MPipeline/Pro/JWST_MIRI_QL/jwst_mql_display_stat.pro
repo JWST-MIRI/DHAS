@@ -73,7 +73,7 @@ xend = info.jwst_image.x_zoom_end
 ystart = info.jwst_image.y_zoom_start
 yend = info.jwst_image.y_zoom_end
 
-if(info.jwst_image.plane eq 0) then begin 
+if(info.jwst_image.data_type[2] eq 1) then begin 
    stitle[2] = " Statistics on Rate Image "
    mean[2] = info.jwst_data.reduced_stat[0,0]
    st_pixel[2] = info.jwst_data.reduced_stat[2,0]
@@ -84,7 +84,7 @@ if(info.jwst_image.plane eq 0) then begin
    st_mean[2] = info.jwst_data.reduced_stat[7,0]
 endif
 
-if(info.jwst_image.plane eq 1) then begin 
+if(info.jwst_image.data_type[2] eq 2) then begin 
    stitle[2] = " Statistics on Rate Int Image "
    mean[2] = info.jwst_data.reducedint_stat[0,0]
    st_pixel[2] = info.jwst_data.reducedint_stat[2,0]
@@ -95,7 +95,7 @@ if(info.jwst_image.plane eq 1) then begin
    st_mean[2] = info.jwst_data.reducedint_stat[7,0]
 endif
 
-if(info.jwst_image.plane eq 2) then begin 
+if(info.jwst_image.data_type[2] eq 3) then begin 
    stitle[2] = " Statistics on Calibrated Image "
    mean[2] = info.jwst_data.reduced_cal_stat[0,0]
    st_pixel[2] = info.jwst_data.reduced_cal_stat[2,0]

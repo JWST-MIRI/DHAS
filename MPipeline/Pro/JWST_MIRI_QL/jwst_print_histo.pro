@@ -1,8 +1,15 @@
 @file_decompose.pro
 
+pro jwst_hist_cancel, event
+
+  Widget_Control, event.top, Get_UValue=printhistinfo
+  Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
+   Widget_Control, event.top, /Destroy
+end
+
 pro jwst_hist_print, event
 
- Widget_Control, event.top, Get_UValue=printhistinfo
+  Widget_Control, event.top, Get_UValue=printhistinfo
   Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
 
       ; Get the file name the user typed in.
@@ -13,7 +20,6 @@ pro jwst_hist_print, event
   filename = strtrim(filename[0], 2)
   file_decompose, filename, disk,path, name, extn, version
   if strlen(extn) eq 0 then filename = filename + '.ps'
-
 
   printdone = 0
   temp = file_search (filename, Count = fcount)
@@ -73,10 +79,6 @@ pro jwst_hist_print, event
               wset,printhistinfo.hinfo.draw_window_id
 	      image3d = tvrd(true=1)
 	       write_jpeg,filename,image3d,true=1
-
-;              image3d = TVRead(filename=filename,/JPEG,/nodialog)
-
-
          end
 
          3: Begin               ; write PNG
@@ -93,8 +95,6 @@ pro jwst_hist_print, event
              image3d = TVRead(filename=filename,/GIF,/nodialog)
          end
 
-
-
            else:
        endcase
    endelse
@@ -106,9 +106,9 @@ end
 
 pro jwst_print_histo,hinfo
 
-Widget_Control, hinfo.info.jwst_QuickLook, Get_UValue=info
-type = hinfo.type
-outname = hinfo.outname
+  Widget_Control, hinfo.info.jwst_QuickLook, Get_UValue=info
+  win = hinfo.win
+  outname = hinfo.outname
 
   ; Pop up a small widget so the user can type in a file name.
   ; Wait for the user to type a carriage-return.
@@ -126,13 +126,6 @@ outname = hinfo.outname
   if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
   if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
 
-  if(type eq 0) then grouplead =  info.jwst_HistoRDisplay
-  if(type eq 1) then grouplead =  info.jwst_HistoZDisplay
-  if(type eq 2) then grouplead =  info.jwst_HistoSDisplay
-
-  if(type eq 3) then grouplead = info.Histo1_SlopeQuickLook 
-  if(type eq 4) then grouplead = info.Histo2_SlopeQuickLook 
-  if(type eq 5) then grouplead = info.Histo3_SlopeQuickLook 
   otype = 0
   path = info.jwst_control.dirps
   slash = '/'
@@ -142,7 +135,8 @@ outname = hinfo.outname
              outname + '.ps'
 
   title      = 'MIRI JWST Quicklook Print Histogram'
-  pntrbase   = Widget_Base  (Title = title, /Column, Group_Leader=grouplead, $
+
+  pntrbase   = Widget_Base  (Title = title, /Column, $
                            xsize = xwidget_size,$
                            ysize = ywidget_size,/scroll,$
                            x_scroll_size= xsize_scroll,$
@@ -158,15 +152,13 @@ outname = hinfo.outname
 	      uvalue='obutton', set_value=otype, exclusive=1, $
 	      /no_release)
   label3     = Widget_Label (pntr2base, Value = '     ')
-  browseButton = Widget_Button(pntr2base, Value = ' Browse ')
   printButton = Widget_Button(pntr2base, Value = ' Print ', $
 		   Event_Pro = 'jwst_hist_print')
-  cancelButton = Widget_Button(pntr2base, Value = ' Cancel ')
+  cancelButton = Widget_Button(pntr2base, Value = ' Cancel ', Event_Pro='jwst_hist_cancel')
 
-
+  type=0
   dirps = info.jwst_control.dirps 
   printhistinfo = {selectfile    :     selectfile,   $
- 		   browseButton  :     browseButton, $
 		   cancelButton  :     cancelButton, $
 		   otypeButtons  :     otypeButtons, $
                    otype         :     otype,        $
@@ -178,7 +170,7 @@ outname = hinfo.outname
   Widget_Control, pntrbase, set_uvalue = printhistinfo
   Widget_Control, pntrbase, /Realize
 
-  XManager, "mql_printhist", pntrbase, Event_Handler = "print_event"
+  XManager, "jwst_printhist", pntrbase, Event_Handler = "print_event"
           
 end
 
@@ -234,8 +226,6 @@ pro jwst_hist_print_data, event
 
         close,lun
         free_lun,lun
-        
-
     endelse
       if printfil eq 1 then Widget_Control, info.jwst_Quicklook, Set_UValue=info
       Widget_Control, event.top, /Destroy
@@ -246,12 +236,12 @@ end
 
 pro jwst_print_histo_data,hinfo
 Widget_Control, hinfo.info.jwst_QuickLook, Get_UValue=info
-type = hinfo.type
+;type = hinfo.type
 outname = hinfo.outname
 
   ; Pop up a small widget so the user can type in a file name.
   ; Wait for the user to type a carriage-return.
-  if(XRegistered("mql_printhist_data")) then return
+  if(XRegistered("jwst_mql_printhist_data")) then return
 
 ; widget window parameters
   xwidget_size = 900
@@ -260,19 +250,10 @@ outname = hinfo.outname
   xsize_scroll = 900
   ysize_scroll = 110
 
-
   if(info.jwst_control.x_scroll_window lt xsize_scroll) then xsize_scroll = info.jwst_control.x_scroll_window
   if(info.jwst_control.y_scroll_window lt ysize_scroll) then ysize_scroll = info.jwst_control.y_scroll_window
   if(xsize_scroll ge xwidget_size) then  xsize_scroll = xwidget_size-10
   if(ysize_scroll ge ywidget_size) then  ysize_scroll = ywidget_size-10
-
-  if(type eq 0) then grouplead =  info.jwst_HistoRDisplay
-  if(type eq 1) then grouplead =  info.jwst_HistoZDisplay
-  if(type eq 2) then grouplead =  info.jwst_HistoSDisplay
-
-  if(type eq 3) then grouplead = info.Histo1_SlopeQuickLook 
-  if(type eq 4) then grouplead = info.Histo2_SlopeQuickLook 
-  if(type eq 5) then grouplead = info.Histo3_SlopeQuickLook 
 
   otype = 0
   path = info.jwst_control.dirps
@@ -283,7 +264,7 @@ outname = hinfo.outname
              outname + '.txt'
 
   title      = 'MIRI JWST Quicklook Print Histogram Data to File'
-  pntrbase   = Widget_Base  (Title = title, /Column, Group_Leader=grouplead, $
+  pntrbase   = Widget_Base  (Title = title, /Column, $
                            xsize = xwidget_size,$
                            ysize = ywidget_size,/scroll,$
                            x_scroll_size= xsize_scroll,$
@@ -294,17 +275,14 @@ outname = hinfo.outname
 		    Event_Pro = 'jwst_hist_print_data')
   pntr2base  = Widget_Base  (pntrbase, /Row)
 
-
   label3     = Widget_Label (pntr2base, Value = '     ')
-  browseButton = Widget_Button(pntr2base, Value = ' Browse ')
   printButton = Widget_Button(pntr2base, Value = ' Print ', $
 		   Event_Pro = 'jwst_hist_print_data')
-  cancelButton = Widget_Button(pntr2base, Value = ' Cancel ')
+  cancelButton = Widget_Button(pntr2base, Value = ' Cancel', Event_Pro='jwst_hist_cancel')
 
-
+  type = 0 
   dirps = info.jwst_control.dirps 
   printhistinfo = {selectfile    :     selectfile,   $
- 		   browseButton  :     browseButton, $
 		   cancelButton  :     cancelButton, $
                    dirps         :     dirps,        $
                    filename      :     filename,     $
@@ -314,6 +292,5 @@ outname = hinfo.outname
   Widget_Control, pntrbase, set_uvalue = printhistinfo
   Widget_Control, pntrbase, /Realize
 
-  XManager, "mql_printhist_data", pntrbase, Event_Handler = "print_data_event"
-          
+  XManager, "jwst_printhist_data", pntrbase, Event_Handler = "print_event"
 end

@@ -724,8 +724,6 @@ ywidget_size = 1200
 xsize_scroll = 1450
 ysize_scroll = 1100
 
-
-
 if(info.jwst_inspect.uwindowsize eq 1) then begin ; user has set window size 
     xsize_scroll = info.jwst_inspect.xwindowsize
     ysize_scroll = info.jwst_inspect.ywindowsize
@@ -785,11 +783,8 @@ yplotsize = info.jwst_data.image_ysize
 info.jwst_inspect.set_zoom = 1
 if (xplotsize lt 1032) then begin
     find_zoom,xplotsize,yplotsize,zoom
-;    print,zoom
     info.jwst_inspect.zoom = zoom
     info.jwst_inspect.set_zoom = zoom
-
-
     xplotsize = info.jwst_data.image_xsize * zoom
     yplotsize = info.jwst_data.image_ysize * zoom
 endif

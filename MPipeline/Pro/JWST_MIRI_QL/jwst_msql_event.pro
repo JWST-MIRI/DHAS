@@ -221,7 +221,7 @@ case 1 of
            yvalue = event.y     ; starts at 0
 ; did not click on zoom image- so update the zoom image
            if(graphnum ne 3) then  begin 
-               info.jwst_slope.zoom_window = graphnum
+              info.jwst_slope.zoom_window = graphnum
                info.jwst_slope.x_zoom = xvalue * info.jwst_slope.binfactor
                info.jwst_slope.y_zoom = yvalue * info.jwst_slope.binfactor
                jwst_msql_update_zoom_image,info
@@ -274,7 +274,7 @@ case 1 of
 
            
 ; Draw a box around the pixel - showing the zoom window size 
-           if(info.jwst_slope.zoom_window ne 3) then  begin ;
+           if(info.jwst_slope.zoom_window le 2) then  begin ;
                jwst_msql_draw_zoom_box,info
            endif
 
@@ -515,7 +515,7 @@ case 1 of
         jwst_msql_update_zoom_image,info
 
 ; Draw a box around the pixel - showing the zoom window size 
-           if(info.jwst_slope.zoom_window ne 3) then  begin ;
+           if(info.jwst_slope.zoom_window le 2) then  begin ;
                jwst_msql_draw_zoom_box,info
            endif
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
@@ -597,8 +597,8 @@ case 1 of
               endif
 
               ; set up the image range to use 
-              info.jwst_slope.graph_range[0,0] = stat[5]
-              info.jwst_slope.graph_range[0,1] = stat[6]
+              info.jwst_slope.graph_range[1,0] = stat[5]
+              info.jwst_slope.graph_range[1,1] = stat[6]
               
               jwst_msql_update_slope,1,info
            endelse
@@ -613,6 +613,30 @@ case 1 of
         jwst_msql_update_pixel_stat_slope,info
     end
 
+    ;_______________________________________________________________________
+; histogram image 1
+    (strmid(event_name,0,7) EQ 'histo_1') : begin
+       win=1
+       jwst_msql_setup_histo,win,info
+       jwst_msql_display_histo,win,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+    end
+
+    ; histogram image 2
+    (strmid(event_name,0,7) EQ 'histo_2') : begin
+       win =2
+       jwst_msql_setup_histo,win,info
+       jwst_msql_display_histo,win,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+     end
+
+    ; histogram zoom image
+    (strmid(event_name,0,7) EQ 'histo_z') : begin
+       win =3
+       jwst_msql_setup_histo,win,info
+       jwst_msql_display_histo,win,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+    end
 ; ----------------------------------------------------------------------
 else: print,' jwst_msql_event: Event name not found: ',event_name
 endcase

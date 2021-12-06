@@ -140,8 +140,8 @@ if(XRegistered ('jwst_mql')) then begin
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
 
-info.jwst_image.plane_final = 0
-info.jwst_image.plane_int = 1
+;info.jwst_image.plane_final = 0
+;info.jwst_image.plane_int = 1
 
 ;_______________________________________________________________________
 ; widget window parameters
@@ -190,8 +190,8 @@ CHbuttonD = widget_button(CHmenu,value = "Display Science Image by Amplifier",$
                              uvalue='DisplayAmp')
 CHbuttonS = widget_button(CHmenu,value = "Display Reduced Image by Amplifier",$
                              uvalue='DisplayRAmp')
-CHbuttonT = widget_button(CHmenu,value = "Plot Amplifier values in readout order",$
-                             uvalue='DisplayTAmp')
+;CHbuttonT = widget_button(CHmenu,value = "Plot Amplifier values in readout order",$
+;                             uvalue='DisplayTAmp')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
 cbutton = widget_button(cMenu,value = "Compare Science Frame to another Science Frame",uvalue = 'compare')
@@ -310,7 +310,7 @@ info.jwst_image.graph_label[0] = widget_label(info.jwst_image.graphID11,$
                                          value=sraw,/align_right,$
                                         font=info.font5,/sunken_frame)
 ; statistical information
-
+info.jwst_image.data_type[0] = 0 ; always uncal data
 rawmean = info.jwst_image.stat[0]
 rawmin = info.jwst_image.stat[1]
 rawmax = info.jwst_image.stat[2]
@@ -376,6 +376,7 @@ info.jwst_image.graph_label[1] = widget_label(info.jwst_image.graphID12,$
                                          value=subt,/align_center,$
                                         font=info.font5,/sunken_frame)
 
+info.jwst_image.data_type[1] = 0 ; start off as  uncal data
 ;info.jwst_image.slabelID[1] = widget_label(info.jwst_image.graphID12,value='    ' )
 range_min = info.jwst_image.range[0]
 range_max = info.jwst_image.range[1]
@@ -567,13 +568,12 @@ info_label = widget_button(info_base,value = 'DQ flag values',uvalue = 'datainfo
 ;graph 2,1
 ;*****
 rate_option = 'Rate Image'
-rate_int_option = 'Integration Rate Image'
-cal_option = 'Calibrated Image'
-info.jwst_image.data_type[0] = 1
-info.jwst_image.data_type[1] = 2
-info.jwst_image.data_type[2] = 3
+rate_int_option = 'Integration Rate Image   '
+cal_option = 'Calibrated Image     '
+
+
 if(info.jwst_control.file_slope_exist eq 0) then  rate_option= " No Rate Image Exist" 
-if(info.jwst_control.file_slope_int_exist eq 0) then rate_int_option= " No Rate Image Exist" 
+if(info.jwst_control.file_slope_int_exist eq 0) then rate_int_option= " No Rate Ints Image Exist" 
 if(info.jwst_control.file_cal_exist eq 0) then cal_option= " No Calibrated Image Exist" 
 
 voptions = [rate_option, rate_int_option, cal_option]
@@ -584,7 +584,8 @@ ss = " Rate Image  [" + strtrim(string(info.jwst_data.image_xsize),2) + ' x ' +$
 
 label21= widget_label(info.jwst_image.graphID21,value = ss,$
                                       /align_center,font=info.font5,/sunken_frame)
-info.jwst_image.plane = 0 ; final rate image
+info.jwst_image.plane = 0       ; final rate image
+info.jwst_image.data_type[2] = 1 ; start off as rate 
 base1 = widget_base(info.jwst_image.graphID21,row=1)
 info.jwst_image.graph_label[2] = widget_droplist(base1,value=voptions,$
                                             uvalue='voption',font=info.font5)
@@ -611,8 +612,8 @@ ssmean = string('Mean ' + smean )
 sminmax = string(' Min: ' + smin + '    Max: ' + smax) 
 
 if(info.jwst_control.file_slope_exist eq 0) then begin
-	ssmean = '   Mean  NA        '
-	sminmax = '   Min and Max  NA  '
+   ssmean = '   Mean  NA        '
+   sminmax = '   Min and Max  NA  '
 endif
 
 stat_base1 = widget_base(info.jwst_image.graphID21,row=1)

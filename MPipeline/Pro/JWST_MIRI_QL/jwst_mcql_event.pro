@@ -134,7 +134,8 @@ case 1 of
            yvalue = event.y     ; starts at 0
 ; did not click on zoom image- so update the zoom image
            if(graphnum ne 3) then  begin 
-               info.jwst_cal.zoom_window = graphnum
+              info.jwst_cal.zoom_window = graphnum
+              
                info.jwst_cal.x_zoom = xvalue * info.jwst_cal.binfactor
                info.jwst_cal.y_zoom = yvalue * info.jwst_cal.binfactor
                jwst_mcql_update_zoom_image,info
@@ -466,7 +467,30 @@ case 1 of
         jwst_mcql_update_pixel_stat,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
+    ;_______________________________________________________________________
+; histogram image 1
+    (strmid(event_name,0,7) EQ 'histo_1') : begin
+       win =1 
+       jwst_mcql_setup_histo,win,info
+       jwst_mcql_display_histo,win,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+    end
 
+    ; histogram image 2
+    (strmid(event_name,0,7) EQ 'histo_2') : begin
+       win =2
+       jwst_mcql_setup_histo,win,info
+       jwst_mcql_display_histo,win,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+     end
+
+    ; histogram zoom image
+    (strmid(event_name,0,7) EQ 'histo_z') : begin
+       win =3
+       jwst_mcql_setup_histo,win,info
+       jwst_mcql_display_histo,win,info
+        Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
+    end
 ; ----------------------------------------------------------------------
 else: print,' jwst_mcql_event: Event name not found: ',event_name
 endcase
