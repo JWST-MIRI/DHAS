@@ -83,7 +83,7 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-version = "(v 9.8.9 Nov 22, 2021)"
+version = "(v 9.8.10 Dec 6, 2021)"
 
 miri_dir = getenv('MIRI_DHAS')
 len = strlen(miri_dir)
@@ -445,7 +445,8 @@ jwst_AmpFrame_image = replicate(jwst_cimage,5)
 jwst_AmpRate_image = replicate(jwst_cimage,5)
 
 jwst_amp_pixel = {jwst_image_pixeli}
-;jwst_amp_pixel.hex = 0
+jwst_AmpRate_pixel = {jwst_image_pixeli}
+
 ; defaults to start with 
 
 
@@ -513,6 +514,7 @@ jinfo = {jwst_version        : version,$
          jwst_AmpFrame       : jwst_AmpFrame,$
          jwst_AmpRate        : jwst_AmpRate,$
          jwst_amp_pixel      : jwst_amp_pixel,$
+         jwst_AmpRate_pixel  : jwst_AmpRate_pixel,$
          jwst_histoR         : jwst_histoR,$
          jwst_histoZ         : jwst_histoZ,$
          jwst_histoS         : jwst_histoS,$
@@ -545,7 +547,9 @@ jinfo = {jwst_version        : version,$
          jwst_AmpFrameDisplay     : 0L,$
          jwst_AmpRateDisplay      : 0L,$
          jwst_AmpStatDisplay      : 0L,$
+         jwst_AmpRateStatDisplay  : 0L,$
          jwst_APixelInfo          : 0L,$
+         jwst_ARPixelInfo          : 0L,$
          jwst_HistoRDisplay       : 0L,$
          jwst_HistoZDisplay       : 0L,$
          jwst_HistoSDisplay       : 0L,$

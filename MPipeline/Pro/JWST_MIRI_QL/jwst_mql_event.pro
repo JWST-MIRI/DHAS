@@ -153,22 +153,19 @@ endif
 ; Display slope image split into 5 channel amplifier
     (strmid(event_name,0,11) EQ 'DisplayRAmp') : begin
 
-        ;if(not info.jwst_data.slope_exist) then begin
-        ;    ok = dialog_message(" No slope image exists",/Information)
-        ;    return
-        ;endif else begin
-           ok = dialog_message(" Feauture in next release",/Information)
-           return
-
-           ;status = 0
-           ;setup_SlopeChannel,info,info.image.integrationNO,status,error_message
-           ;if(status ne 0) then begin 
-           ;   ok = dialog_message(error_message,/Information)
-           ;   return
-           ; endif
-           ; info.Slopechannel.uwindowsize = 0
-           ; mql_display_SlopeChannel,info
-        ;endelse
+       if(info.jwst_control.file_slope_exist eq 0) then begin
+          ok = dialog_message(" No slope image exists",/Information)
+          return
+       endif else begin
+          status = 0
+          setup_AmplifierRate,info,info.jwst_image.integrationNO,status,error_message
+          if(status ne 0) then begin 
+             ok = dialog_message(error_message,/Information)
+             return
+          endif
+          info.jwst_AmpRate.uwindowsize = 0
+           jwst_display_RateAmplifier,info
+        endelse
     end
 
 

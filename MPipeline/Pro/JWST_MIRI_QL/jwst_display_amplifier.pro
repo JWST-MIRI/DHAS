@@ -1,5 +1,5 @@
 ; Display the Science data by Channel. 
-; This tools provides zooming, statistics on images, Column and Row slices
+; This tools provides zooming, statistics on images
 ;_______________________________________________________________________
 ;***********************************************************************
 pro jwst_amplifier_quit,event
@@ -12,18 +12,14 @@ widget_control,info.jwst_AmpFrameDisplay,/destroy
 ;   widget_control,info.HistoChannelRawQuickLook,/destroy
 ;endif
 
-;if( XRegistered ('mqlrchr')) then begin ; histo channel
-;   widget_control,info.RSliceChannelRawQuickLook,/destroy
-;endif
-
-;if( XRegistered ('mqlcchr')) then begin ; histo channel
-;   widget_control,info.CSliceChannelRawQuickLook,/destroy
-;endif
-
 
 ; statistics on channels
 if(XRegistered ('amp_stat')) then begin
    widget_control,info.jwst_AmpStatDisplay,/destroy
+endif
+
+if(XRegistered ('Apixel')) then begin
+    widget_control,info.jwst_APixelInfo,/destroy
 endif
 end
 ;_______________________________________________________________________
@@ -51,8 +47,6 @@ endfor
 end
 
 ;_______________________________________________________________________
-;***********************************************************************
-
 ; the event manager for the mql_display_Amplifier.pro (Display image by Amplifier)
 pro jwst_Amplifier_event,event
 
@@ -214,27 +208,12 @@ case 1 of
     (strmid(event_name,0,4) EQ 'stat') : begin
 	jwst_display_Amplifier_stat,minfo
     end
-
 ;_______________________________________________________________________
 ; Plotting options: row slice or  column slice
 ;_______________________________________________________________________
     (strmid(event_name,0,4) EQ 'plot') : begin
-       if(event.index eq 1) then begin ; Histogram
-          ok = dialog_message(" Option in next version",/Information)
+       ok = dialog_message(" Option in next version",/Information)
           ;  jwst_display_Amplifier_histo,minfo  
-        endif
- 
-       if(event.index eq 2) then begin ; column slice
-          ok = dialog_message(" Option in next version",/Information)
-          ;  jwst_display_Amplifier_colslice,minfo  
-        endif
-
-       if(event.index eq 3) then begin ; row slice
-          ok = dialog_message(" Option in next version",/Information)
-          ;jwst_display_Amplifier_rowslice,minfo
-        endif
-
-        widget_control,minfo.jwst_AmpFrame.optionMenu,set_droplist_select=0
     end
 ;_______________________________________________________________________
 ; Display the pixel values in a seperate window or do not pop up the box
@@ -252,6 +231,12 @@ case 1 of
 
         minfo.jwst_AmpFrame.xposfull = xposfull
         minfo.jwst_AmpFrame.yposfull = yposfull
+        print(XRefistered('Apixel')
+        
+        if(XRegistered ('Apixel')) then begin
+           widget_control,minfo.jwst_APixelInfo,/destroy
+           print,'destroying'
+        endif
         if(no eq 1) then jwst_pixel_Amplifier_display,xposfull,yposfull,minfo
     end
 
@@ -428,8 +413,6 @@ titlelabel = widget_label(title_base,value = info.jwst_control.filename_raw, fon
 
 ;********
 blankspaces  = '       '
-options = ['Plot Options: ', 'Histogram', 'Column Slice','Row Slice ']
-
 scaledisplay = ['Scale All to Amplifier 1', 'Scale All to Amplifier 2', $
                 'Scale All to Amplifier 3', 'Scale All to Amplifier 4', $
                 'Scale All to Amplifier 5', 'Scale to Individual Amplifier']
@@ -459,7 +442,7 @@ scale_label  = widget_droplist(move_base,value=scaledisplay,uvalue='ascale',$
 
 stat_label = widget_button(move_base,value='Get Statistics',uvalue='stat',font=info.font5)
 zoom_labelID = widget_droplist(move_base,value=zoomdisplay,uvalue='zoom',font=info.font5)
-optionMenu = widget_droplist(move_base,value=options,uvalue='plot',font=info.font5)
+;optionMenu = widget_button(move_base,value='Histogram',uvalue='plot',font=info.font5)
 
 ;_______________________________________________________________________
 graphID_master0 = widget_base(AmplifierDisplay,row=1)
@@ -728,7 +711,7 @@ info.jwst_AmpFrame.xplotsize = xplotsize
 info.jwst_AmpFrame.yplotsize = yplotsize
 info.jwst_AmpFrame.integration_label = integration_label
 info.jwst_AmpFrame.frame_label = frame_label
-info.jwst_AmpFrame.optionMenu = optionMenu
+;info.jwst_AmpFrame.optionMenu = optionMenu
 
 info.jwst_AmpFrame.xpos = 5
 info.jwst_AmpFrame.ypos = 5

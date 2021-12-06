@@ -190,8 +190,8 @@ CHbuttonD = widget_button(CHmenu,value = "Display Science Image by Amplifier",$
                              uvalue='DisplayAmp')
 CHbuttonS = widget_button(CHmenu,value = "Display Reduced Image by Amplifier",$
                              uvalue='DisplayRAmp')
-CHbuttonT = widget_button(CHmenu,value = "Plot Amplifier values in readout order",$
-                             uvalue='DisplayTAmp')
+;CHbuttonT = widget_button(CHmenu,value = "Plot Amplifier values in readout order",$
+;                             uvalue='DisplayTAmp')
 
 cMenu   = widget_button(menuBar,value="Compare",font= info.font2)
 cbutton = widget_button(cMenu,value = "Compare Science Frame to another Science Frame",uvalue = 'compare')

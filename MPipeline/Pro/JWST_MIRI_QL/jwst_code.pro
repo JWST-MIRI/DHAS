@@ -76,10 +76,13 @@
 @jwst_display_amplifier_stat.pro
 @jwst_pixel_amplifier_display.pro
 
-;@setup_SlopeChannel.pro 
-;@mql_display_SlopeChannel.pro       
-;@mql_update_SlopeChannel.pro
-;@mql_SlopeChannel_moveframe.pro
+@setup_AmplifierRate.pro 
+@jwst_display_RateAmplifier.pro       
+@jwst_update_RateAmplifier.pro
+@jwst_display_RateAmplifier_stat.pro
+@jwst_pixel_RateAmplifier_display.pro
+
+;@jwst_RateAmplifer_moveframe.pro
 ;@setup_slope_image.pro
 ;@get_channel.pro
 ;@get_stat_single_image.pro
