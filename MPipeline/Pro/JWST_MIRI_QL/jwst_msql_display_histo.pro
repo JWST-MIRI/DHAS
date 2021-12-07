@@ -21,7 +21,6 @@ end
 pro jwst_msql_setup_histo, win, info
 ;_______________________________________________________________________
 
-  print,'win in set up',win
 ; data plane 0  rate
 ; data plane 1  error
 ; data plane 2  dq
@@ -852,7 +851,7 @@ hinfo = {histo_binnum        : histo_binnum,$
          draw_window_id      : draw_window_id,$
          default_scale_histo : default_scale_histo,$
          outname             : outname,$
-         wind                : win,$
+         win                 : win,$
          subt                : subt,$
          otype               : 0,$
          info                : info}

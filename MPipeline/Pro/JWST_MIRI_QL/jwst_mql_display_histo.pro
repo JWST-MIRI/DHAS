@@ -133,16 +133,12 @@ frame_image = 0
 end
 
 ;_______________________________________________________________________
-pro jwst_mql_update_histo,hinfo,ps=ps,eps=eps,ascii=ascii,unit=iunit
+pro jwst_mql_update_histo,hinfo,ascii=ascii,unit=iunit
 ;_______________________________________________________________________
-hcopy = 0
-if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 win = hinfo.win
-
 numbins = hinfo.histo_binnum
-
-if(hcopy eq 0 ) then wset,hinfo.draw_window_id
+wset,hinfo.draw_window_id
 if(win eq 1) then begin
     frame_image = (*hinfo.info.jwst_histoR.pdata)
 endif
@@ -185,21 +181,6 @@ jwst_findhistogram_xlimits,frame_image,xnew,h,numbins,bins,xplot_min,xplot_max,x
 
 stitle = ' '
 sstitle = ' ' 
-if(hcopy eq 1) then begin 
-    stitle = hinfo.subt
-    if(win eq 1) then sstitle = hinfo.info.jwst_control.filename_raw
-    if(win eq 2) then sstitle = hinfo.info.jwst_control.filename_raw
-    if(win eq 2 and hinfo.info.jwst_image.zoom_window eq 3) then begin
-       if(info.jwst_image.plane eq 0) then sstitle = hinfo.info.jwst_control.filename_slope
-       if(info.jwst_image.plane eq 1) then sstitle = hinfo.info.jwst_control.filename_slope_int
-       if(info.jwst_image.plane eq 2) then sstitle = hinfo.info.jwst_control.filename_cal
-    endif
-    if(win eq 3 ) then begin
-       if(info.jwst_image.plane eq 0) then sstitle = hinfo.info.jwst_control.filename_slope
-       if(info.jwst_image.plane eq 1) then sstitle = hinfo.info.jwst_control.filename_slope_int
-       if(info.jwst_image.plane eq 2) then sstitle = hinfo.info.jwst_control.filename_cal
-    endif
-endif
 
 min_value = min(h)
 max_value = max(h)

@@ -7,7 +7,7 @@ pro jwst_hist_cancel, event
    Widget_Control, event.top, /Destroy
 end
 
-pro jwst_hist_print, event
+pro jwst_hist_print_file, event
 
   Widget_Control, event.top, Get_UValue=printhistinfo
   Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
@@ -19,7 +19,7 @@ pro jwst_hist_print, event
 
   filename = strtrim(filename[0], 2)
   file_decompose, filename, disk,path, name, extn, version
-  if strlen(extn) eq 0 then filename = filename + '.ps'
+  if strlen(extn) eq 0 then filename = filename + '.jpg'
 
   printdone = 0
   temp = file_search (filename, Count = fcount)
@@ -45,63 +45,70 @@ pro jwst_hist_print, event
     if printfil eq 0 then begin
         print, 'Cannot print'
         return
-    endif else begin
-        Case (printhistinfo.otype) of
-            
-	  0: Begin  ; write postscript
-              set_plot, 'ps', /copy
-	     filename = disk + path + name + '.ps'
-	     Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             device, /landscape, file=filename, /color, encapsulated=0
+     endif
 
-             if(printhistinfo.type le 2)then  jwst_mql_update_histo,printhistinfo.hinfo,/ps
-             if(printhistinfo.type ge 3) then msql_update_histo,printhistinfo.hinfo,/ps
-             device,/close
-             set_plot, 'x'
-           end
+  Case (printhistinfo.otype) of
+     0: Begin                   ; write JPEG
+       ; filename = disk + path + name + '.jpg'
+        Widget_Control, printhistinfo.selectfile, Get_Value = filename
+        wset,printhistinfo.hinfo.draw_window_id
+        image3d = tvrd(true=1)
+        write_jpeg,filename,image3d,true=1
+     end
 
-          1: Begin  ; write encapsulated postscript
-	     set_plot, 'ps', /copy
-	     filename = disk + path + name + '.eps'
-	     Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             device, /landscape, file=filename, /color, encapsulated=1
-             if(printhistinfo.type le 2)then  jwst_mql_update_histo,printhistinfo.hinfo,/eps
-             if(printhistinfo.type ge 3) then msql_update_histo,printhistinfo.hinfo,/eps
-             device,/close
-             set_plot, 'x'
-           end
+     1: Begin                   ; write PNG
+       ; filename = disk + path + name
+        Widget_Control, printhistinfo.selectfile, Get_Value = filename
+        wset,printhistinfo.hinfo.draw_window_id
+        image3d = TVRead(filename=filename,/PNG,/nodialog)
+     end
 
+     2: Begin                   ; write GIF
+       ; filename = disk + path + name
+        Widget_Control, printhistinfo.selectfile, Get_Value = filename
+        wset,printhistinfo.hinfo.draw_window_id
+        image3d = TVRead(filename=filename,/GIF,/nodialog)
+     end
 
-          2: Begin  ; write JPEG
-	     filename = disk + path + name + '.jpg'
-	     Widget_Control, printhistinfo.selectfile, Set_Value = filename
+    endcase
 
-              wset,printhistinfo.hinfo.draw_window_id
-	      image3d = tvrd(true=1)
-	       write_jpeg,filename,image3d,true=1
-         end
+    Widget_Control, event.top, /Destroy
+end
 
-         3: Begin               ; write PNG
-             filename = disk + path + name 
-             Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             wset,printhistinfo.hinfo.draw_window_id
-              image3d = TVRead(filename=filename,/PNG,/nodialog)
-         end
+pro jwst_hist_print, event
 
-          4: Begin  ; write GIF
-	     filename = disk + path + name 
-             Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             wset,printhistinfo.hinfo.draw_window_id
-             image3d = TVRead(filename=filename,/GIF,/nodialog)
-         end
+  Widget_Control, event.top, Get_UValue=printhistinfo
+  Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
 
-           else:
-       endcase
-   endelse
+      ; Get the file name the user typed in.
+  Widget_Control, printhistinfo.selectfile, Get_Value = filename
+  printhistinfo.filename = filename
 
-   if printfil eq 1 then Widget_Control, info.jwst_Quicklook, Set_UValue=info
-   Widget_Control, event.top, /Destroy
-end  
+  filename = strtrim(filename[0], 2)
+  file_decompose, filename, disk,path, name, extn, version
+
+  Widget_Control, printhistinfo.otypebuttons, Get_Value = otype
+  printhistinfo.otype = otype
+
+  Case (printhistinfo.otype) of
+     0: Begin                   ; write JPEG
+        filename = disk + path + name + '.jpg'
+        Widget_Control, printhistinfo.selectfile, Set_Value = filename
+     end
+
+     1: Begin                   ; write PNG
+        filename = disk + path + name +'.png'
+        Widget_Control, printhistinfo.selectfile, Set_Value = filename
+     end
+
+     2: Begin                   ; write GIF
+        filename = disk + path + name+ '.gif'
+        Widget_Control, printhistinfo.selectfile, Set_Value = filename
+     end
+    
+  endcase
+  
+  end  
 ;_______________________________________________________________________
 
 pro jwst_print_histo,hinfo
@@ -112,7 +119,7 @@ pro jwst_print_histo,hinfo
 
   ; Pop up a small widget so the user can type in a file name.
   ; Wait for the user to type a carriage-return.
-  if(XRegistered("mql_printhist")) then return
+  if(XRegistered("jwst_mql_printhist")) then return
 
 ; widget window parameters
   xwidget_size = 900
@@ -132,7 +139,7 @@ pro jwst_print_histo,hinfo
   if(path eq "") then slash = ''
 
   filename = info.jwst_control.dirps + slash + info.jwst_control.filebase + $
-             outname + '.ps'
+             outname + '.jpg'
 
   title      = 'MIRI JWST Quicklook Print Histogram'
 
@@ -147,13 +154,13 @@ pro jwst_print_histo,hinfo
 		    Event_Pro = 'jwst_hist_print')
   pntr2base  = Widget_Base  (pntrbase, /Row)
 
-  tnames = ['PostScript', 'Encapsulated Postscript', 'JPEG', 'PNG', 'GIF']
+  tnames = ['JPEG', 'PNG', 'GIF']
   otypeButtons = cw_bgroup(pntr2base, tnames, row=1, label_left='File type:', $
 	      uvalue='obutton', set_value=otype, exclusive=1, $
 	      /no_release)
   label3     = Widget_Label (pntr2base, Value = '     ')
   printButton = Widget_Button(pntr2base, Value = ' Print ', $
-		   Event_Pro = 'jwst_hist_print')
+		   Event_Pro = 'jwst_hist_print_file')
   cancelButton = Widget_Button(pntr2base, Value = ' Cancel ', Event_Pro='jwst_hist_cancel')
 
   type=0
@@ -170,15 +177,12 @@ pro jwst_print_histo,hinfo
   Widget_Control, pntrbase, set_uvalue = printhistinfo
   Widget_Control, pntrbase, /Realize
 
-  XManager, "jwst_printhist", pntrbase, Event_Handler = "print_event"
-          
+  XManager, "jwst_mql_printhist", pntrbase, Event_Handler = "jwst_hist_print"
 end
 
 ;***********************************************************************
-
 pro jwst_hist_print_data, event
-
-
+  
   Widget_Control, event.top, Get_UValue=printhistinfo
   Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
 
@@ -189,8 +193,7 @@ pro jwst_hist_print_data, event
 
   filename = strtrim(filename[0], 2)
   file_decompose, filename, disk,path, name, extn, version
-  if strlen(extn) eq 0 then filename = filename + '.ps'
-
+  if strlen(extn) eq 0 then filename = filename + '.txt'
 
   printdone = 0
   temp = file_search (filename, Count = fcount)
@@ -231,7 +234,6 @@ pro jwst_hist_print_data, event
       Widget_Control, event.top, /Destroy
 end
 ;_______________________________________________________________________
-
 
 
 pro jwst_print_histo_data,hinfo
@@ -292,5 +294,5 @@ outname = hinfo.outname
   Widget_Control, pntrbase, set_uvalue = printhistinfo
   Widget_Control, pntrbase, /Realize
 
-  XManager, "jwst_printhist_data", pntrbase, Event_Handler = "print_event"
+  XManager, "jwst_mql_printhist_data", pntrbase, Event_Handler = "jwst_hist_print_data"
 end

@@ -2,11 +2,13 @@ pro jwst_find_image_binfactor,info
 
 info.jwst_image.scale_zoom = 1.0
 info.jwst_image.scale_inspect = 1.0
-info.jwst_image.binfactor = info.binfactor ; set default 
-if(info.jwst_data.subarray ne 0) then begin
- image_size = info.jwst_data.image_xsize
- if(info.jwst_data.image_ysize gt image_size) then image_size = info.jwst_data.image_ysize
+info.jwst_image.binfactor = info.binfactor ; set default
 
+if(info.jwst_data.subarray ne 0) then begin
+   image_size = info.jwst_data.image_xsize
+   
+   if(info.jwst_data.image_ysize gt image_size) then image_size = info.jwst_data.image_ysize
+   
    ; default for subarray less than or =  256
     if(image_size le 256) then info.jwst_image.binfactor = 1.0 
 
@@ -20,32 +22,23 @@ if(info.jwst_data.subarray ne 0) then begin
     endif
 
 ; look at specific subarrays smaller than 256
-    if(image_size eq 16) then begin
-        info.jwst_image.binfactor = 1.0/16.0
-        info.jwst_image.scale_zoom = 16
-    endif
-    if(image_size eq 32 or image_size eq 36) then begin
-        info.jwst_image.binfactor = 1.0/8.0
-        info.jwst_image.scale_zoom = 8
-    endif
-
-    if(image_size eq 64 or image_size eq 68) then begin
+    if(image_size eq 72) then begin
         info.jwst_image.binfactor = 1.0/4.0
         info.jwst_image.scale_zoom = 4
     endif
 
-    if(image_size eq 128 or image_size eq 132) then begin
+    if(image_size eq 128 or image_size eq 136) then begin
         info.jwst_image.binfactor = 1.0/2.0
         info.jwst_image.scale_zoom = 2
     endif
 
-	print,info.jwst_image.binfactor
     if(image_size eq 864) then begin
         info.jwst_image.binfactor = 4.0
     endif
 
 endif 
 
+print,'info.jwst_image.binfactor',info.jwst_image.binfactor, info.jwst_image.scale_zoom
 
 end
 

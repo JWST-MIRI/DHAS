@@ -616,7 +616,7 @@ case 1 of
     ;_______________________________________________________________________
 ; histogram image 1
     (strmid(event_name,0,7) EQ 'histo_1') : begin
-       win=1
+       win = 1
        jwst_msql_setup_histo,win,info
        jwst_msql_display_histo,win,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info

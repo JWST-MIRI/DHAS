@@ -231,11 +231,9 @@ case 1 of
 
         minfo.jwst_AmpFrame.xposfull = xposfull
         minfo.jwst_AmpFrame.yposfull = yposfull
-        print(XRefistered('Apixel')
-        
+
         if(XRegistered ('Apixel')) then begin
            widget_control,minfo.jwst_APixelInfo,/destroy
-           print,'destroying'
         endif
         if(no eq 1) then jwst_pixel_Amplifier_display,xposfull,yposfull,minfo
     end
@@ -294,13 +292,14 @@ case 1 of
            
            jwst_update_pixel_Amplifier_location,minfo
 
-           widget_control,cinfo.info.jwst_Quicklook,set_uvalue = minfo	
+           widget_control,cinfo.info.jwst_Quicklook,set_uvalue = minfo
+
            if(minfo.jwst_AmpFrame.pixeldisplay eq 1) then  begin
                xp_value = minfo.jwst_AmpFrame.xposfull
                yp_value = minfo.jwst_AmpFrame.yposfull
-               if(XRegistered ('mCpixel') ) then begin
-                  minfo.jwst_AmpFrame_pixel.xvalue = xp_value+1	
-                  minfo.jwst_AmpFrame_pixel.yvalue = yp_value+1
+               if(XRegistered ('Apixel') ) then begin
+                  minfo.jwst_amp_pixel.xvalue = xp_value+1	
+                  minfo.jwst_amp_pixel.yvalue = yp_value+1
                    jwst_update_pixel_Amplifier_info,minfo
                endif else begin
                    jwst_pixel_Amplifier_display,xp_value,yp_value,minfo
@@ -357,6 +356,13 @@ if (yplotsize lt 1024) then begin
     plotsize = yplotsize
     if(xplotsize*4 gt yplotsize) then plotsize = xplotsize*4
     zoom = fix(1024/plotsize)
+
+    ; Zoom needs to be one of the following values
+    ; 1, 2, 4, 8, 16
+    if( zoom gt 2 and zoom lt 4) then zoom = 4
+    if( zoom gt 4 and zoom lt 8) then zoom = 8
+    if( zoom gt 8 and zoom lt 16) then zoom = 16
+    if (zoom gt 16) then zoom = 16
     info.jwst_AmpFrame.zoom = zoom
     xplotsize = (info.jwst_data.image_xsize/4) * zoom
     yplotsize = info.jwst_data.image_ysize * zoom

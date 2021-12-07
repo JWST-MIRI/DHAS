@@ -70,9 +70,9 @@
 
 ; amplifier display
 @extract_amplifier.pro
-@setup_amplifier.pro 
+@setup_Amplifier.pro 
 @jwst_display_amplifier.pro       
-@jwst_update_Amplifier.pro
+@jwst_update_amplifier.pro
 @jwst_display_amplifier_stat.pro
 @jwst_pixel_amplifier_display.pro
 
