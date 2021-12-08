@@ -43,6 +43,10 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
+       xvalue = info.jwst_inspect_cal2.xposful
+       yvalue = info.jwst_inspect_cal2.yposful
+       dq = (*info.jwst_inspect_cal2.pdata)[xvalue,yvalue,2]
+       print,xvalue,yvalue,dq
        jwst_dqflags,info
     end
 ;_______________________________________________________________________

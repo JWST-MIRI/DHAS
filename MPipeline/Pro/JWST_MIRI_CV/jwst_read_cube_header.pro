@@ -75,7 +75,7 @@ if(ctype3 eq 'WAVE') then begin
 endif
 
 if(ctype3 eq 'WAVE-TAB') then begin
-   ftab_ext,filename,1,w1,exten_no=5
+   ftab_ext,filename,2,w1,exten_no=5
    wavelength = w1
 endif
 

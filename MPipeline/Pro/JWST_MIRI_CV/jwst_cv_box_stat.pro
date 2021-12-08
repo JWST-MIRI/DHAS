@@ -69,7 +69,7 @@ if(num gt 1) then begin
     
     box_stat_image[4] = 'Mean: '+ strcompress(string(cube_mean,format="(f12.4)")) + ',  Std:' + $
 	strcompress(string(cube_std,format="(f12.4)")) + $
-	          ',  Sum: ' + strcompress(string(cube_sum,format="(f12.4)"))
+	          ',  Sum: ' + strcompress(string(cube_sum,format="(e12.4)"))
 	
     box_stat_image[5] = ',  Min:  '+ strcompress(string(image_min,format="(f12.4)")) + $
                   ',  Max ' + strcompress(string(image_max,format="(f12.4)"  ))

@@ -46,6 +46,11 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
+       xvalue = info.jwst_inspect_slope2.xposful
+       yvalue = info.jwst_inspect_slope2.yposful
+       dq = (*info.jwst_inspect_slope2.pdata)[xvalue,yvalue,2]
+       ;print,xvalue,yvalue,dq
+       jwst_dqflags,info
        jwst_dqflags,info
     end
 ;_______________________________________________________________________

@@ -30,7 +30,6 @@ case 1 of
     (strmid(event_name,0,7) EQ 'sheader') : begin
         jwst_display_header,info,0
     end
-
 ;_______________________________________________________________________
     (strmid(event_name,0,7) EQ 'compare') : begin
         info.jwst_rcompare.uwindowsize = 0
@@ -59,7 +58,6 @@ case 1 of
            info.jwst_rcompare_image[1].filename  = info.jwst_control.filename_slope_int
            info.jwst_rcompare_image[1].type = 2
         endelse 
-              
 
         info.jwst_rcompare_image[0].jintegration = info.jwst_slope.integrationNO[0]
         info.jwst_rcompare_image[1].jintegration = info.jwst_slope.integrationNO[1]
@@ -72,7 +70,6 @@ case 1 of
 	jwst_msql_compare_display,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info
     end
-
 ;_______________________________________________________________________
 ; print
     (strmid(event_name,0,5) EQ 'print') : begin
@@ -288,7 +285,17 @@ case 1 of
        endif
    end
 ;_______________________________________________________________________
-    (strmid(event_name,0,8) EQ 'datainfo') : begin
+   (strmid(event_name,0,8) EQ 'datainfo') : begin
+      type =strmid(event_name,8,1)
+       x = info.jwst_slope.x_pos * info.jwst_slope.binfactor
+       y = info.jwst_slope.y_pos * info.jwst_slope.binfactor
+       print,x,y
+       if (type  eq '1') then $
+          dq = (*info.jwst_data.prate1)[x,y,2]
+
+       if (type  eq '2')  then $
+          dq = (*info.jwst_data.prate2)[x,y,2]
+       ;print,'DQ',type,x,y,dq
        jwst_dqflags,info
     end
 ;_______________________________________________________________________
@@ -401,7 +408,6 @@ case 1 of
 
         info.jwst_slope.default_scale_slope[graphno] = 0
         widget_control,info.jwst_slope.slope_recomputeID[graphno],set_value='Default Range'
-
 
         jwst_msql_update_slopepixel,info
         Widget_Control,ginfo.info.jwst_QuickLook,Set_UValue=info

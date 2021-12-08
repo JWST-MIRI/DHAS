@@ -176,8 +176,6 @@ endif
        return
 
     end
-
-
 ;_______________________________________________________________________
 ; print
 
@@ -325,6 +323,19 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
+
+       type =strmid(event_name,8,1)
+       x = info.jwst_image.x_pos * info.jwst_image.binfactor
+       y = info.jwst_image.y_pos * info.jwst_image.binfactor
+       print,x,y
+       if (type  eq '1') then $
+          dq = (*info.jwst_data.preduced)[x,y,2]
+       if (type  eq '2')  then $
+          dq = (*info.jwst_data.preducedint)[x,y,2]
+       if (type  eq '3') then $
+          dq = (*info.jwst_data.preduced_cal)[x,y,2]
+       ;print,'DQ',type,x,y,dq
+       
        jwst_dqflags,info
 
     end

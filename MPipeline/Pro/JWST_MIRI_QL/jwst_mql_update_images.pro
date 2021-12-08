@@ -20,10 +20,8 @@ if(info.jwst_image.default_scale_graph[0] eq 1) then begin
     info.jwst_image.graph_range[0,1] = info.jwst_image.range[1]
 endif
 
-
 frame_image = fltarr(info.jwst_data.image_xsize,info.jwst_data.image_ysize)
 frame_image[*,*] = (*info.jwst_data.pimagedata)[i,j,*,*]
-
 
 if(info.jwst_data.subarray eq 0) then begin
     frame_image[0:3,*] =  !values.F_NaN
