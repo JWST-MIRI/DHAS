@@ -212,7 +212,7 @@ endif
 
 ;______________________________________________________________________
 
-version = "(v 9.8.11b Dec 7, 2021)"
+version = "(v 9.8.11b Dec 8, 2021)"
 cv_control.pref_filename=miri_dir+'Preferences/'+'JWST_MIRI_CV_v9.8.preferences'
 print,'  Preferences file ',cv_control.pref_filename
 
