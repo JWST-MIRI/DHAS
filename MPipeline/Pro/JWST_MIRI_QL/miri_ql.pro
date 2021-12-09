@@ -83,7 +83,7 @@ device,pseudo = 8
 jwst_control = {jwst_controli}
 ;_______________________________________________________________________
 
-version = "(v 9.8.11b Dec 8, 2021)"
+version = "(v 9.8.11 Dec 9, 2021)"
 
 miri_dir = getenv('MIRI_DHAS')
 len = strlen(miri_dir)
@@ -337,52 +337,73 @@ jwst_output.histoS2 = '_histo_rate_image2'
 jwst_output.histoC1 = '_histo_cal_image1'
 jwst_output.histoCZ = '_histo_cal_zoom'
 jwst_output.histoC2 = '_histo_cal_image2'
+jwst_output.histoAmp = '_histo_amplifier'
 
-jwst_dqflag = {jwst_dqi} ; data quality flag
-jwst_dqflag .Donotuse = 1
-jwst_dqflag .Sdonotuse = 'Do Not Use'
-jwst_dqflag.Saturated = 2
-jwst_dqflag.SSaturated = 'Saturated'
-jwst_dqflag.Jump = 4
-jwst_dqflag.SJump = 'Jump Det'
-jwst_dqflag.Dropout = 8
-jwst_dqflag.SDropout = 'Drop Out'
-jwst_dqflag.Outlier = 16
-jwst_dqflag.SOutlier = 'Outlier'
-jwst_dqflag.Persistence = 32
-jwst_dqflag.sPersistence = 'Persistence'
-jwst_dqflag.AD_floor = 64
-jwst_dqflag.sAD_floor = 'AD Floor'
-jwst_dqflag.UnrelError = 256
-jwst_dqflag.SUnrelError = 'Unrelialbe Error'
-jwst_dqflag.Nonscience = 512
-jwst_dqflag.SNonscience = 'Non Science'
-jwst_dqflag.Dead = 1024 
-jwst_dqflag.SDead = 'Dead'
-jwst_dqflag.Hot = 2048
-jwst_dqflag.SHot = 'Hot' 
-jwst_dqflag.Warm =4096  
-jwst_dqflag.SWarm = 'Warm'
-jwst_dqflag.lowqe = long(2.0^13)
-jwst_dqflag.slowqe = 'Low QE'    
-jwst_dqflag.RC = long(2.0^14) 
-jwst_dqflag.SRC = 'RC'  
-jwst_dqflag.nonlinear = long(2.0^16)
-jwst_dqflag.Snonlinear = 'Nonlinear'
-jwst_dqflag.bad_refpixel= long(2.0^17) 
-jwst_dqflag.sbad_refpixel= 'Bad ref pixel'
-jwst_dqflag.no_flatfield=long(2.0^18)
-jwst_dqflag.sno_flatfield='No flat field'
-jwst_dqflag.unrel_dark  = long(2.0^23)
-jwst_dqflag.Sunrel_dark = 'Unreliable dark'
-jwst_dqflag.unrel_slope  = long(2.0^24)
-jwst_dqflag.Sunrel_slope = 'Unreliable slope'
-jwst_dqflag.unrel_flat = long(2.0^25)
-jwst_dqflag.Sunrel_flat = 'Unreliable flat'
-jwst_dqflag.unrel_reset = long64(2.0^28)
-jwst_dqflag.Sunrel_reset = 'Unreliable reset'
-jwst_dqflag.ref_pixel= long64(2.0^31)
-jwst_dqflag.Sref_pixel='Reference Pixel'
+jwst_dqflag = {jwst_dqi}        ; data quality flag
+jwst_dqflag.uwindowsize = 0
+jwst_dqflag.type = lonarr(32)
+jwst_dqflag.type_name = strarr(32)
+jwst_dqflag.type[0] = 2^0
+jwst_dqflag .type_name[0] = 'Do Not Use'
+jwst_dqflag.type[1] = 2^1
+jwst_dqflag.type_name[1] = 'Saturated'
+jwst_dqflag.type[2] = 2^2
+jwst_dqflag.type_name[2] = 'Jump Det'
+jwst_dqflag.type[3] = 2^3
+jwst_dqflag.type_name[4] = 'Drop Out'
+jwst_dqflag.type[4] = 2^4
+jwst_dqflag.type_name[4] = 'Outlier'
+jwst_dqflag.type[5] = 2^5
+jwst_dqflag.type_name[5]= 'Persistence'
+jwst_dqflag.type[6] = 2^6
+jwst_dqflag.type_name[6] = 'AD Floor'
+jwst_dqflag.type[7] = -1        ; no used for MIRI
+jwst_dqflag.type[8] = 2^8
+jwst_dqflag.type_name[8] = 'Unrelialbe Error'
+jwst_dqflag.type[9] = 2^9
+jwst_dqflag.type_name[9] = 'Non Science'
+jwst_dqflag.type[10] = long(2^10)
+jwst_dqflag.type_name[10] = 'Dead'
+jwst_dqflag.type[11] =long( 2^11)
+jwst_dqflag.type_name[11] = 'Hot' 
+jwst_dqflag.type[12] = 2^12
+jwst_dqflag.type_name[12] = 'Warm'
+jwst_dqflag.type[13] = 2^13
+jwst_dqflag.type_name[13] = 'Low QE'    
+jwst_dqflag.type[14] = 2^14
+jwst_dqflag.type_name[14] = 'RC'
+jwst_dqflag.type[15] = long(2.0^15)
+jwst_dqflag.type_name[15] = 'Telegraph'
+jwst_dqflag.type[16] = long(2.0^16)
+jwst_dqflag.type_name[16] = 'Nonlinear'
+
+jwst_dqflag.type[17] = long(2.0^17)
+jwst_dqflag.type_name[17]= 'Bad ref pixel'
+jwst_dqflag.type[18]= long(2.0^18)
+jwst_dqflag.type_name[18] = 'No flat field'
+jwst_dqflag.type[19] = -1
+jwst_dqflag.type[20] = long(2.0^20)
+jwst_dqflag.type_name[20] = 'NO_LIN_CORR'
+jwst_dqflag.type[21] = long64(2.0^21)
+jwst_dqflag.type_name[21] = 'NO_SAT_CHECK'
+jwst_dqflag.type[22] = -1
+jwst_dqflag.type[23]  = long64(2.0^23)
+jwst_dqflag.type_name[23] = 'Unreliable dark'
+jwst_dqflag.type[24]  = long64(2.0^24)
+jwst_dqflag.type_name[24] = 'Unreliable slope'
+jwst_dqflag.type[25]  = long64(2.0^25)
+jwst_dqflag.type_name[25] = 'Unreliable flat'
+jwst_dqflag.type[26]  = long64(2.0^26)
+jwst_dqflag.type_name[26] = 'Open'
+jwst_dqflag.type[27]  = long64(2.0^27)
+jwst_dqflag.type_name[27] = 'ADJ Open'
+jwst_dqflag.type[28] = long64(2.0^28)
+jwst_dqflag.type_name[28] = 'Unreliable reset'
+jwst_dqflag.type[29] = -1
+jwst_dqflag.type[30] = long64(2.0^30)
+jwst_dqflag.type_name[30] = 'Other Bad Pixel'
+jwst_dqflag.type[31]= long64(2.0^31)
+jwst_dqflag.type_name[31]='Reference Pixel'
 
 jwst_image = {jwst_imagei}
 jwst_image_pixel = {jwst_image_pixeli}
@@ -413,6 +434,8 @@ jwst_histoC1= {jwst_histoi}
 jwst_histoC2= {jwst_histoi}
 jwst_histoCZ= {jwst_histoi}
 
+amplifier_histo = {jwst_generic_windowi}
+
 ; widget to load 2 files
 jwst_compare_load = {jwst_generic_windowi}
 jwst_compare_load.uwindowsize = 0
@@ -435,7 +458,7 @@ jwst_rcompare.uwindowsize = 0
 jwst_rcompare_image = replicate(jwst_cimage,3)
 jwst_crinspect = replicate(jwst_inspect,3) ; inspect comparison reduced data
 
-; 5 amplifier display for frames
+;  amplifier display for frames
 jwst_AmpFrame = {Ampi}
 
 ; 5 amplifier display for Rate Int
@@ -525,6 +548,7 @@ jinfo = {jwst_version        : version,$
          jwst_histoC1        : jwst_histoC1,$
          jwst_histoC2        : jwst_histoC2,$
          jwst_histoCZ        : jwst_histoCZ,$
+         amplifier_histo     : amplifier_histo,$
          loadfile            : loadfile,$
          jwst_RawQuickLook   : 0L,$             ; display window for frame,rate,cal
  ;       SubarrayGeo         : 0L,$
@@ -548,6 +572,7 @@ jinfo = {jwst_version        : version,$
          jwst_AmpRateDisplay      : 0L,$
          jwst_AmpStatDisplay      : 0L,$
          jwst_AmpRateStatDisplay  : 0L,$
+         jwst_AmpHistoDisplay     : 0L,$
          jwst_APixelInfo          : 0L,$
          jwst_ARPixelInfo          : 0L,$
          jwst_HistoRDisplay       : 0L,$
@@ -560,6 +585,7 @@ jinfo = {jwst_version        : version,$
          jwst_HistoC1Display       : 0L,$
          jwst_HistoC2Display       : 0L,$
          jwst_HistoCZDisplay       : 0L,$
+         jwst_DQDisplay            : 0L,$
          LoadFileInfo             : 0L}
 
 

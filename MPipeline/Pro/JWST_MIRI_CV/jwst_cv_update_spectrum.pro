@@ -14,7 +14,7 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 1000000000
     plots,xline,yline,color=3,thick = 1.5
     oplot,xline,yline,color=3,thick = 1.5
     
@@ -37,7 +37,7 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 100000000
 
     plots,xline,yline,color=3,thick = 1.5
     oplot,xline,yline,color=3,thick = 1.5
@@ -55,7 +55,7 @@ if(cinfo.jwst_image2d.z1 ne -1) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[cinfo.jwst_image2d.z1]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 100000000
 
     plots,xline,yline,color=2,thick = 1.5
     oplot,xline,yline,color=2,thick = 1.5
@@ -65,7 +65,7 @@ if(cinfo.jwst_image2d.z2 ne -1) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[cinfo.jwst_image2d.z2]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 100000000
 
     plots,xline,yline,color=4,thick = 1.5
     oplot,xline,yline,color=4,thick = 1.5
@@ -128,7 +128,7 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 100000000
 
     plots,xline,yline,color=3,thick = 1.5
     oplot,xline,yline,color=3,thick = 1.5
@@ -136,11 +136,8 @@ if(cinfo.view_spectrum.show_value_line eq 1 ) then begin
 endif
 
 Widget_Control,cinfo.CubeView,Set_UValue=cinfo
-
-
 ;_______________________________________________________________________
 ; Find the values closest to line
-
 
 if(x ge cinfo.view_spectrum.graph_range[0,0] && x le cinfo.view_spectrum.graph_range[0,1]) then begin 
     line_wavelength = line_values[0]
@@ -164,7 +161,7 @@ if(cinfo.jwst_coadd.select_ranges eq 1 and cinfo.jwst_coadd.flag eq 1 and event.
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 100000000
 
     plots,xline,yline,color=4,thick = 1.5
     oplot,xline,yline,color=4,thick = 1.5
@@ -187,7 +184,7 @@ if(cinfo.jwst_coadd.select_ranges eq 1 and cinfo.jwst_coadd.flag eq 0 and event.
     xline = fltarr(2) & yline = fltarr(2)
     xline[*] = (*cinfo.jwst_cube.pwavelength)[iwavelength]
     yline[0] = -10000
-    yline[1] = 1000000
+    yline[1] = 100000000
 
     plots,xline,yline,color=2,thick = 1.5
     oplot,xline,yline,color=2,thick = 1.5
@@ -231,7 +228,6 @@ iwavelength = cinfo.view_cube.this_iwavelength - cinfo.jwst_cube.istart_waveleng
 spectrum = (*cinfo.jwst_spectrum.pspectrum)
 wavelength = (*cinfo.jwst_cube.pwavelength)
 
-
 if(cinfo.view_spectrum.default_range[0] eq 1) then begin
     cinfo.view_spectrum.graph_range[0,0] = cinfo.jwst_spectrum.wavelength_range[0]
     cinfo.view_spectrum.graph_range[0,1] = cinfo.jwst_spectrum.wavelength_range[1]
@@ -241,7 +237,6 @@ if(cinfo.view_spectrum.default_range[1] eq 1) then begin
     cinfo.view_spectrum.graph_range[1,0] = cinfo.jwst_spectrum.flux_range[0]
     cinfo.view_spectrum.graph_range[1,1] = cinfo.jwst_spectrum.flux_range[1]
 endif
-
 
 x1 = cinfo.jwst_spectrum.xcube_range[0] & x2 = cinfo.jwst_spectrum.xcube_range[1]
 y1 = cinfo.jwst_spectrum.ycube_range[0] & y2 = cinfo.jwst_spectrum.ycube_range[1]

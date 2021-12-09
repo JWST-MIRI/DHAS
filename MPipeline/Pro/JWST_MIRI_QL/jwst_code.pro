@@ -82,7 +82,8 @@
 @jwst_display_RateAmplifier_stat.pro
 @jwst_pixel_RateAmplifier_display.pro
 
-;@jwst_RateAmplifer_moveframe.pro
+@jwst_display_amplifier_histo.pro
+
 ;@setup_slope_image.pro
 ;@get_channel.pro
 ;@get_stat_single_image.pro
@@ -125,6 +126,8 @@
 ; Print plots
 @jwst_print_images.pro
 @jwst_print_histo.pro
+@jwst_print_amplifier_histo.pro
+
 ;@jwst_print_slopes_images.pro
 
 

@@ -197,8 +197,6 @@ cv_control.max_y_screen = y_max + (y_max*.1)
 cv_control.max_x_window = x_max*0.5
 cv_control.max_y_window = y_max*0.5
 
-print,'max screen',cv_control.max_x_screen, cv_control.max_y_screen
-print,'max window',cv_control.max_x_window, cv_control.max_y_window
 xsize_scroll =x_max
 ysize_scroll =y_max
 ;_______________________________________________________________________
@@ -209,10 +207,8 @@ jwst_setup_cube,cv_control,view_cube,jwst_cube,jwst_spectrum,roi,status
 if(status eq 2) then begin
     return
 endif
-
 ;______________________________________________________________________
-
-version = "(v 9.8.11b Dec 8, 2021)"
+version = "(v 9.8.11 Dec 9, 2021)"
 cv_control.pref_filename=miri_dir+'Preferences/'+'JWST_MIRI_CV_v9.8.preferences'
 print,'  Preferences file ',cv_control.pref_filename
 
@@ -228,7 +224,6 @@ print,' Done reading preferences file'
 if(status eq 0) then begin
     cv_control.dirps = Pdirps
 endif
-
 ;_______________________________________________________________________
 xspectrum = jwst_spectrum.wavelength_range[1] - jwst_spectrum.wavelength_range[0] +1
 yspectrum = jwst_spectrum.flux_range[1] - jwst_spectrum.flux_range[0] +1
@@ -314,7 +309,6 @@ graphID_master1 = widget_base(CubeView,row=1)
 graphID_master2 = widget_base(CubeView,row=1)
 graphID_master3 = widget_base(CubeView,row=1)
 
-
 graphID0 = widget_base(graphID_master0,row= 1)
 graphID1 = widget_base(graphID_master1,row= 1)
 graphID2 = widget_base(graphID_master2,row= 1)
@@ -378,7 +372,7 @@ plotID = widget_draw(graphID2a,xsize =view_cube.plot_xsize,$
                      retain= retn,/motion_events, /button_events,$
                      event_pro='jwst_cube_pixel')
 
-    
+
 ; min and max scale of  image
 scale_base = widget_base(graphID2a,row = 1)
 default_scale = 1
@@ -419,7 +413,6 @@ swlength = strcompress(string((*jwst_cube.pwavelength)[iwavelength]),/remove_all
 
 info_box1 = box_stat[0] + box_stat[1] + box_stat[2] + box_stat[3] 
 info_box2 = box_stat[4] + box_stat[5]
-
 ;_______________________________________________________________________
 ; Extracted Spectrum
 stitle = "Extracted Spectrum "
@@ -478,8 +471,7 @@ range_x2_labelID = cw_field(range_base,title="max:",font=fontname3, $
     
 default_x_ID = widget_button(range_base,value=' Plot Range ',$
                              font=fontname3)
-    
-    
+        
 YlabelID = widget_label(range_base,value="Flux->",font=fontname5)
 range_y1_labelID = cw_field(range_base,title="min:",font=fontname3, $
                             /float,/return_events, $
@@ -529,13 +521,11 @@ pixmapID = !D.window
 view_spectrum.pixmapID = pixmapID
 
 view_image2d = {viewimage2di}
-
 view_image2d.xpos = view_cube.xpos_cube
 View_image2d.ypos = view_cube.ypos_cube
-
 jwst_image2d = {image2di}
 
-;********b
+;********
 cinfo = {version                : version,$
          titlelabel             : titlelabel,$
          cv_control             : cv_control,$

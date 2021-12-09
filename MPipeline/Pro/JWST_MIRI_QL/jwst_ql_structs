@@ -600,6 +600,7 @@ jwst_output={jwst_outputi, $
 	slope_slope_pixel : '   ',$ 
 	referenceimage    : '   ',$
 	historaw          : '   ',$
+	histoAmp          : '   ',$
 	histoslope        : '   ',$
 	histozoom         : '   ',$
 	histoS1           : '	',$
@@ -612,52 +613,17 @@ jwst_output={jwst_outputi, $
 ;***********************************************************************
 
 jwst_dq = {jwst_dqi,$
-	        Donotuse           : 0L, $	
-		Saturated         : 0L, $
-	        Jump              : 0L, $
-	        Dropout           : 0L, $
-		Outlier           : 0L, $
-		Persistence       : 0L, $
-		AD_floor          : 0L, $
-	        Unrelerror        : 0L, $
-	        Nonscience        : 0L, $
-	        Dead              : 0L, $
-	        Hot               : 0L, $
-	        Warm       	  : 0L, $
-		lowqe             : 0L, $
-	        RC      	  : 0L, $
-		nonlinear      	  : 0L, $
-		bad_refpixel      : 0L, $
-		no_flatfield      : 0L, $
-		no_gain           : 0L, $
-		unrel_dark        : 0L, $
-		unrel_slope       : 0L, $
-	        unrel_flat        : 0L , $	
-		unrel_reset       : 0L , $
-		ref_pixel         : 0LL, $
-	        sDonotuse         : ' ', $	
-		sSaturated        : ' ', $
-	        sJump             : ' ', $
-	        sDropout          : ' ', $
-		sOutlier          : ' ', $
-		sPersistence      : ' ', $
-		sAD_floor         : ' ', $
-	        sUnrelerror       : ' ', $
-	        sNonscience       : ' ', $
-	        sDead             : ' ', $
-	        sHot              : ' ', $
-	        sWarm       	  : ' ', $
-	        sRC      	  : ' ', $
-		slowqe            : ' ', $
-		snonlinear        : ' ', $
-		sbad_refpixel     : ' ', $
-		sno_flatfield     : ' ', $
-		sno_gain          : ' ', $
-		sunrel_dark       : ' ', $
-		sunrel_slope      : ' ', $
-	        sunrel_flat       : ' ' ,$	
-		sunrel_reset      : ' ' ,$
-	        sref_pixel         : ' ' }
+		 uwindowsize         : 0,$
+		 xwindowsize         : 0,$
+	 	 ywindowsize         : 0,$
+		 x_scroll_window     : 0,$
+		 y_scroll_window     : 0,$
+	 	 x                   : 0,$
+	 	 y                   : 0,$
+	 	 dq                  :0L,$
+		 type                : lon64arr(32),$
+		 type_name           : strarr(32)}
+
 
 ;***********************************************************************
 jwst_amp = {Ampi,$
@@ -754,3 +720,4 @@ jwst_histo= { jwst_histoi,$
 	    	sd_nbad         : 0L,$
 	    	sd_ximage_range : intarr(2),$
 	    	sd_yimage_range : intarr(2)}
+

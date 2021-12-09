@@ -289,12 +289,14 @@ case 1 of
       type =strmid(event_name,8,1)
        x = info.jwst_slope.x_pos * info.jwst_slope.binfactor
        y = info.jwst_slope.y_pos * info.jwst_slope.binfactor
-       print,x,y
        if (type  eq '1') then $
           dq = (*info.jwst_data.prate1)[x,y,2]
 
        if (type  eq '2')  then $
           dq = (*info.jwst_data.prate2)[x,y,2]
+       info.jwst_dqflag.x = x
+       info.jwst_dqflag.y = y
+       info.jwst_dqflag.dq = dq
        ;print,'DQ',type,x,y,dq
        jwst_dqflags,info
     end

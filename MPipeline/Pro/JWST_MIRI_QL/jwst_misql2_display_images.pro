@@ -49,9 +49,11 @@ endif
        xvalue = info.jwst_inspect_slope2.xposful
        yvalue = info.jwst_inspect_slope2.yposful
        dq = (*info.jwst_inspect_slope2.pdata)[xvalue,yvalue,2]
-       ;print,xvalue,yvalue,dq
+       info.jwst_dqflag.x = xvalue
+       info.jwst_dqflag.y = yvalue
+       info.jwst_dqflag.dq = dq
        jwst_dqflags,info
-       jwst_dqflags,info
+
     end
 ;_______________________________________________________________________
 ; change range of image graphs

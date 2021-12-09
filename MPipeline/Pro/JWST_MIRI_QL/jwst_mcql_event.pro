@@ -199,13 +199,15 @@ case 1 of
       type =strmid(event_name,8,1)
        x = info.jwst_cal.x_pos * info.jwst_cal.binfactor
        y = info.jwst_cal.y_pos * info.jwst_cal.binfactor
-       print,x,y
        if (type  eq '1') then $
           dq = (*info.jwst_data.pcal1)[x,y,2]
 
        if (type  eq '2')  then $
           dq = (*info.jwst_data.pcal2)[x,y,2]
-       print,'DQ',type,x,y,dq
+
+       info.jwst_dqflag.x = x
+       info.jwst_dqflag.y = y
+       info.jwst_dqflag.dq = dq
        jwst_dqflags,info
     end
 ;_______________________________________________________________________

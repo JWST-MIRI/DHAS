@@ -76,7 +76,6 @@ if(type_of_image eq 0) then begin
     endif
 
     if(event.press eq 1) then begin
-
         cinfo.view_cube.plot_pixel = 1
         cinfo.view_cube.xpos_cube = xpos_cube 
         cinfo.view_cube.ypos_cube = ypos_cube

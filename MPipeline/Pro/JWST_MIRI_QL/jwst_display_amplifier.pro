@@ -211,9 +211,8 @@ case 1 of
 ;_______________________________________________________________________
 ; Plotting options: row slice or  column slice
 ;_______________________________________________________________________
-    (strmid(event_name,0,4) EQ 'plot') : begin
-       ok = dialog_message(" Option in next version",/Information)
-          ;  jwst_display_Amplifier_histo,minfo  
+    (strmid(event_name,0,9) EQ 'histogram') : begin
+       jwst_display_amplifier_histo,minfo  
     end
 ;_______________________________________________________________________
 ; Display the pixel values in a seperate window or do not pop up the box
@@ -448,7 +447,7 @@ scale_label  = widget_droplist(move_base,value=scaledisplay,uvalue='ascale',$
 
 stat_label = widget_button(move_base,value='Get Statistics',uvalue='stat',font=info.font5)
 zoom_labelID = widget_droplist(move_base,value=zoomdisplay,uvalue='zoom',font=info.font5)
-;optionMenu = widget_button(move_base,value='Histogram',uvalue='plot',font=info.font5)
+optionMenu = widget_button(move_base,value='Histogram',uvalue='histogram',font=info.font5)
 
 ;_______________________________________________________________________
 graphID_master0 = widget_base(AmplifierDisplay,row=1)

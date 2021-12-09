@@ -49,7 +49,9 @@ endif
        xvalue = info.jwst_inspect_slope.xposful
        yvalue = info.jwst_inspect_slope.yposful
        dq = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,2]
-       ;print,xvalue,yvalue,dq
+       info.jwst_dqflag.x = xvalue
+       info.jwst_dqflag.y = yvalue
+       info.jwst_dqflag.dq = dq
        jwst_dqflags,info
     end
 ;_______________________________________________________________________

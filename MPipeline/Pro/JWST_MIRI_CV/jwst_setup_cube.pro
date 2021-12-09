@@ -56,6 +56,7 @@ view_cube.zoom = zoom
 view_cube.plot_xsize = xscreen_size
 view_cube.plot_ysize = yscreen_size
 
+
 view_cube.xpos_cube= jwst_cube.naxis1/2
 view_cube.ypos_cube = jwst_cube.naxis2/2
 
