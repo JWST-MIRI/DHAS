@@ -24,7 +24,7 @@ fits_read,fcb,cube_raw,header_raw,/header_only
 fits_close,fcb
 
 check = fxpar(header_raw,'CAL_VER',count = count)
-if(count eq 0) then begin
+if(count ne 0) then begin
    result = dialog_message(" You need need to use 'miri_ql' not 'ql' for this data",/error)
    stop
 endif

@@ -146,7 +146,7 @@ pixeldata = fltarr(info.data.nints,info.data.nramps,1)
 x[0] = xvalue & y[0]  = yvalue
 
 get_reset_pixeldata,info,1,x,y,pixeldata
-print,'pixeldata from mql_read_rampdata',pixeldata
+;print,'pixeldata from mql_read_rampdata',pixeldata
 if(ptr_valid(info.image.preset_pixeldata)) then ptr_free, info.image.preset_pixeldata
 info.image.preset_pixeldata = ptr_new(pixeldata)
 

@@ -435,7 +435,7 @@ endif
         endif
 
         info.jwst_image_pixel.integrationNo = info.jwst_image.integrationNO
-        if(info.jwst_control.file_slope_exist) then begin 
+        if(info.jwst_control.file_slope_exist eq 1) then begin 
             info.jwst_image_pixel.slope = (*info.jwst_data.preduced)[x,y,0]
             info.jwst_image_pixel.zeropt =  0
             info.jwst_image_pixel.error  =(*info.jwst_data.preduced)[x,y,2]

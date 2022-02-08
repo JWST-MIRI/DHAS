@@ -72,8 +72,8 @@ case 1 of
 ;_______________________________________________________________________
 ; print images
    (strmid(event_name,0,7) EQ 'print_i') : begin
-      ok = dialog_message(" Option in next version",/Information)
-      ;  print_Amplifier,minfo
+
+           ok = dialog_message(" Option in next version",/Information)
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,6) EQ 'integr') : begin

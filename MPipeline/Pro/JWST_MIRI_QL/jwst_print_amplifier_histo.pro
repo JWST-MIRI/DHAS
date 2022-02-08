@@ -8,7 +8,7 @@ pro jwst_amplifier_hist_cancel, event
    Widget_Control, event.top, /Destroy
 end
 
-pro amplifier_hist_print, event
+pro amplifier_hist_print_file, event
 
   Widget_Control, event.top, Get_UValue=printhistinfo
   Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
@@ -18,9 +18,9 @@ pro amplifier_hist_print, event
   printhistinfo.filename = filename
   Widget_Control, event.top, Set_UValue=printhistinfo
 
-  filename = strtrim(filename[0], 2)
-  file_decompose, filename, disk,path, name, extn, version
-  if strlen(extn) eq 0 then filename = filename + '.jpg'
+;  filename = strtrim(filename[0], 2)
+;  file_decompose, filename, disk,path, name, extn, version
+;  if strlen(extn) eq 0 then filename = filename + '.jpg'
 
   printdone = 0
   temp = file_search (filename, Count = fcount)
@@ -45,83 +45,86 @@ pro amplifier_hist_print, event
     if printfil eq 0 then begin
         print, 'Cannot print'
         return
-        
      endif
 
-
-  ;  Case (printhistinfo.otype) of
-  ;   0: Begin                   ; write JPEG
- ;      ; filename = disk + path + name + '.jpg'
- ;       Widget_Control, printhistinfo.selectfile, Get_Value = filename
- ;       wset,printhistinfo.hinfo.draw_window_id
- ;       image3d = tvrd(true=1)
- ;       write_jpeg,filename,image3d,true=1
- ;    end
-
- ;    1: Begin                   ; write PNG
- ;      ; filename = disk + path + name
- ;       Widget_Control, printhistinfo.selectfile, Get_Value = filename
- ;       wset,printhistinfo.hinfo.draw_window_id
- ;       image3d = TVRead(filename=filename,/PNG,/nodialog)
- ;    end
-
- ;    2: Begin                   ; write GIF
- ;      ; filename = disk + path + name
- ;       Widget_Control, printhistinfo.selectfile, Get_Value = filename
- ;       wset,printhistinfo.hinfo.draw_window_id
- ;       image3d = TVRead(filename=filename,/GIF,/nodialog)
- ;    end
-
-  ;  endcase
-
-    
+    Widget_Control, printhistinfo.otypebuttons, Get_Value = otype
+    printhistinfo.otype = otype
     Case (printhistinfo.otype) of
-       0: Begin                 ; write JPEG
-          for i = 0,4 do begin
-             len = strlen(name)
-             newname = strmid(name,0,len-1)
-             newname = newname + strcompress(string(i+1),/remove_all)
-             filename = disk + path + newname 
-             
-             Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             wset,printhistinfo.hinfo.draw_window_id[i]
-             image3d = TVRead(filename=filename,/JPEG,/nodialog)                     
-          endfor
-          image3D = 0
-          image = 0
-       end
+     0: Begin                   ; write JPEG
 
-       1: Begin                 ; write PNG
-          for i = 0,4 do begin
-             len = strlen(name)
-             newname = strmid(name,0,len-1)
-             newname = newname + strcompress(string(i+1),/remove_all)
-             filename = disk + path + newname
-             
-             Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             wset,printhistinfo.hinfo.draw_window_id[i]
-             image3d = TVRead(filename=filename,/PNG,/nodialog)
-          endfor
-          image2d = 0
-          image = 0
-         end
+        Widget_Control, printhistinfo.selectfile, Get_Value = filename
+        len = strlen(filename)
+        filename = strmid(filename,0,len-5)
+        for i = 0, 4 do begin 
+           file = filename+strcompress(string(fix(i+1)),/remove_all) + '.jpg'
+           wset,printhistinfo.hinfo.draw_window_id[i]
+           image3d = tvrd(true=1)
+           write_jpeg,file,image3d,true=1
+        endfor
+     end
 
-       2: Begin                 ; write GIF
-          for i = 0,4 do begin
-             len = strlen(name)
-             newname = strmid(name,0,len-1)
-             newname = newname + strcompress(string(i+1),/remove_all)
-             filename = disk + path + newname 
-             Widget_Control, printhistinfo.selectfile, Set_Value = filename
-             wset,printhistinfo.hinfo.draw_window_id[i]
-             image3d = TVRead(filename=filename,/GIF,/nodialog)
-          endfor
-       end
+     1: Begin                   ; write PNG
+
+        Widget_Control, printhistinfo.selectfile, Get_Value = filename
+        len = strlen(filename)
+        filename = strmid(filename,0,len-5)
+        for i = 0, 4 do begin 
+           file = filename+strcompress(string(fix(i+1)),/remove_all); + '.png'
+           wset,printhistinfo.hinfo.draw_window_id[i]
+           image3d = TVRead(filename=file,/PNG,/nodialog)
+        endfor
+     end
+
+     2: Begin                   ; write GIF
+        
+        Widget_Control, printhistinfo.selectfile, Get_Value = filename
+        len = strlen(filename)
+        filename = strmid(filename,0,len-5)
+        for i = 0, 4 do begin 
+           file = filename+strcompress(string(fix(i+1)),/remove_all) ;+ '.gif'
+           wset,printhistinfo.hinfo.draw_window_id[i]
+           image3d = TVRead(filename=file,/GIF,/nodialog)
+        endfor
+     end
+
     endcase
-    Widget_Control, event.top, /Destroy
-  end  
-;_______________________________________________________________________
+    widget_control,event.top, /Destroy
+ end
 
+pro amplifier_hist_print, event
+
+  Widget_Control, event.top, Get_UValue=printhistinfo
+  Widget_Control, printhistinfo.hinfo.info.jwst_Quicklook, Get_UValue=info
+
+      ; Get the file name the user typed in.
+  Widget_Control, printhistinfo.selectfile, Get_Value = filename
+  printhistinfo.filename = filename
+  
+  filename = strtrim(filename[0], 2)
+  file_decompose, filename, disk,path, name, extn, version
+
+  Widget_Control, printhistinfo.otypebuttons, Get_Value = otype
+  printhistinfo.otype = otype
+
+  Case (printhistinfo.otype) of
+     0: Begin                   ; write JPEG
+        filename = disk + path + name + '.jpg'
+        Widget_Control, printhistinfo.selectfile, Set_Value = filename
+     end
+
+     1: Begin                   ; write PNG
+        filename = disk + path + name +'.png'
+        Widget_Control, printhistinfo.selectfile, Set_Value = filename
+     end
+
+     2: Begin                   ; write GIF
+        filename = disk + path + name+ '.gif'
+        Widget_Control, printhistinfo.selectfile, Set_Value = filename
+     end
+    
+  endcase
+
+  end  
 
 
 pro jwst_print_amplifier_histo,hinfo
@@ -178,8 +181,8 @@ outname = hinfo.outname
   label3     = Widget_Label (pntr2base, Value = '     ')
   browseButton = Widget_Button(pntr2base, Value = ' Browse ')
   printButton = Widget_Button(pntr2base, Value = ' Print ', $
-		   Event_Pro = 'amplifier_hist_print')
-  cancelButton = Widget_Button(pntr2base, Value = ' Cancel ')
+		   Event_Pro = 'amplifier_hist_print_file')
+  cancelButton = Widget_Button(pntr2base, Value = ' Cancel ', event_pro = 'jwst_amplifier_hist_cancel')
 
 
   printhistinfo = {selectfile    :     selectfile,   $
@@ -320,7 +323,9 @@ outname = hinfo.outname
 
   printhistinfo = {selectfile    :     selectfile,   $
  		   browseButton  :     browseButton, $
-		   cancelButton  :     cancelButton, $
+                   cancelButton  :     cancelButton, $
+                   otypeButtons  :     otypeButtons, $
+                   otype         :     otype,        $
                    filename      :     filename,     $
                    dirps         :     info.control.dirps,$
                    type          :     type,         $
