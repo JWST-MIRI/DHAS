@@ -116,7 +116,7 @@ edit_ywindowsize = 0
 
 ;_______________________________________________________________________
 ; 
-version = "(v 9.8.10 Dec 6, 2021)"
+version = "(v 9.8.12 Feb 8, 2022)"
 
 miri_dir = getenv('MIRI_DIR')
 len = strlen(miri_dir) 

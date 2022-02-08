@@ -1,4 +1,3 @@
-
 ;_______________________________________________________________________
 pro jwst_coadd_quit,event
 widget_control,event.top, Get_UValue = tinfo
@@ -34,11 +33,8 @@ case 1 of
         xline[*] = (*cinfo.jwst_cube.pwavelength)[cinfo.jwst_image2d.z2]
         plots,xline,yline,color=4,thick = 1.5
         ;print,xline
-
         widget_control,cinfo.jwst_coadd.doneID, sensitive = 1
-
     end
-
 ;_______________________________________________________________________
     (strmid(event_name,0,5) EQ 'rwave') : begin
         cinfo.jwst_coadd.select_ranges = 1
@@ -96,7 +92,6 @@ end
 ;_______________________________________________________________________
 ;***********************************************************************
 pro jwst_cv_coadd_done,cinfo
-
 
 if(cinfo.jwst_image2d.z1 eq -1) then begin
     result = dialog_message(' Select starting wavelength first',/info)
@@ -165,7 +160,6 @@ endif
 cinfo.CoaddSelect = widget_base(title = 'Select Wavelengths', col =1 , mbar = menuBar,$
                        group_leader = cinfo.CubeView,$
                        xsize = 350,ysize = 200,/column, xoffset = x_offset, yoffset = 50)
-
 
 QuitMenu = widget_button(menuBar,value="Quit",font = cinfo.font2)
 quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_coadd_quit')

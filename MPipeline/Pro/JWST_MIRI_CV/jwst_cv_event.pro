@@ -10,8 +10,8 @@ eventName = TAG_NAMES(event,/STRUCTURE_NAME)
 if (widget_info(event.id,/TLB_SIZE_EVENTS) eq 1 ) then begin    
     xsize = event.x
     ysize = event.y
-    if(xsize gt cinfo.cv_control.max_x_screen) then xsize = cinfo.control.max_x_screen
-    if(ysize gt cinfo.cv_control.max_y_screen) then ysize = cinfo.control.max_y_screen
+    if(xsize gt cinfo.cv_control.max_x_screen) then xsize = cinfo.cv_control.max_x_screen
+    if(ysize gt cinfo.cv_control.max_y_screen) then ysize = cinfo.cv_control.max_y_screen
 
     widget_control,cinfo.cubeview,draw_xsize = xsize, draw_ysize=ysize
     Widget_Control,event.top,Set_UValue=cinfo
@@ -127,7 +127,6 @@ if(eventName eq 'WIDGET_BUTTON') then begin
                 cinfo.jwst_spectrum = spectrum
                 jwst_cv_update_spectrum,cinfo
             endif
-
 
             if(cinfo.imagetype ge 1) then begin
                 cinfo.view_image2d.zoom_user =  1
@@ -269,7 +268,6 @@ if(eventName eq 'WIDGET_BUTTON') then begin
 ;_______________________________________________________________________
         cinfo.ViewHeaderButton: begin 
             jwst_cv_display_header,cinfo,0
-                
         end
 ;_______________________________________________________________________
         cinfo.OptionsButton2: begin 
@@ -284,7 +282,7 @@ if(eventName eq 'WIDGET_BUTTON') then begin
             endif
         end
 ;-----------------------------------------------------------------------
-        cinfo.roi_button1: begin
+        cinfo.roi_button1: begin ; Select Region of Interest = yes
             widget_control,cinfo.roi_button2,Set_Button = 0
             jwst_cv_cleanup_centroid,cinfo
             if(XRegistered ('surface')) then widget_control,cinfo.SurfacePlot,/destroy
@@ -308,7 +306,6 @@ if(eventName eq 'WIDGET_BUTTON') then begin
         end    
 ;_______________________________________________________________________
 ; lock wavelength button 
-
         cinfo.lock_button1: begin
             cinfo.lock_wavelength = 1
             widget_control,cinfo.lock_button1,Set_Button = 1
@@ -359,7 +356,7 @@ if(eventName eq 'WIDGET_BUTTON') then begin
     end
 
 ;_______________________________________________________________________
-else: print,'Event name not found"
+else: print,'Event name not found'
     endcase
 
 endif

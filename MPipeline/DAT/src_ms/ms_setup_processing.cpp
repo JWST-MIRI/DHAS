@@ -186,7 +186,23 @@ void ms_setup_processing(miri_control &control,
 	    cout << " Frame Reset is not 0 or 1, reference files do not exist for this frame reset value of" <<
 	      data_info.frame_resets << endl;
 	  }
+	}
+
+	// JPL RUN 11
+      } else if (control.jpl_run == "11") {
+	if(control.jpl_detector_flag ==0) {
+	  cout << " This is JPL Run 11 , you must also set which detector the data is from, use option -jdet 101,106 " << endl;
+	  cout << "  -jdet 101 is for FPM-101 data " << endl;
+	  cout << "  -jdet 106 is for SCA-106 data " << endl;
+
+	  exit(EXIT_FAILURE);
+	} else {
+	  preference.CDP_file = "MIRI_CDP_JPL_RUN" + control.jpl_run + "_D"+control.jpl_detector + ".list";
+	  cout << " Using " << preference.CDP_file;
+	  found = 1;
+	 
 	}  
+
 	// ______________________________________________________________________
       // JPL RUN 8 or 9
       } else if(control.jpl_run == "8" || control.jpl_run == "9") {

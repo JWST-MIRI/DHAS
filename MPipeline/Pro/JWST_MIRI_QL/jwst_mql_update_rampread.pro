@@ -1,10 +1,8 @@
-pro jwst_mql_update_rampread,info,ps = ps, eps = eps
+pro jwst_mql_update_rampread,info
 save_color = info.col_table
 color6
 !p.multi = 0
 
-hcopy = 0
-if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 stitle = ' '
 sstitle = ' ' 
 
@@ -22,7 +20,7 @@ if(info.jwst_image.autopixelupdate eq 0) then begin
     ys = ' '
     widget_control,info.jwst_image.ramp_x_label, set_value=xs
     widget_control,info.jwst_image.ramp_y_label, set_value=ys    
-    if(hcopy eq 0 ) then wset,info.jwst_image.draw_window_id[3]
+    wset,info.jwst_image.draw_window_id[3]
     xvalues = fltarr(10) & pixeldata = fltarr(10)
     x1 = info.jwst_image.ramp_range[0,0]
     x2 = info.jwst_image.ramp_range[0,1]
@@ -110,7 +108,7 @@ endif
 widget_control,info.jwst_image.ramp_x_label, set_value=xs
 widget_control,info.jwst_image.ramp_y_label, set_value=ys
 
-if(hcopy eq 0 ) then wset,info.jwst_image.draw_window_id[3]
+wset,info.jwst_image.draw_window_id[3]
 
 n_reads = n_elements(pixeldata)
 xvalues = indgen(n_reads) + 1
@@ -172,16 +170,6 @@ if(info.jwst_image.default_scale_ramp[1] eq 1) then begin
     endelse
 endif
 
-if(hcopy eq 1) then begin
-    i = info.jwst_image.integrationNO
-    j = info.jwst_image.frameNO
-    
-    ftitle = " Frame #: " + strtrim(string(i+1),2) 
-    ititle = " Integration #: " + strtrim(string(j+1),2)
-    sstitle = info.jwst_control.filebase + '.fits: ' + ftitle + ititle
-    pvalue = strtrim(xvalue+1,2) + ' ' + strtrim(yvalue+1,2)
-    stitle = "Frames values for selected pixel :"  +  pvalue
-endif
 
 x1 = info.jwst_image.ramp_range[0,0]
 x2 = info.jwst_image.ramp_range[0,1]
@@ -203,7 +191,6 @@ for k = 0,num_int-1 do begin
     xvalues = indgen(info.jwst_data.ngroups)+1
     if(info.jwst_image.overplot_pixel_int eq 0) then xvalues = xvalues + info.jwst_data.ngroups*(k)
     oplot,xvalues,yvalues,psym = 1,symsize = 0.8,color = info.white
-    if(hcopy eq 1) then     oplot,xvalues,yvalues,psym = 1,symsize = 0.8,color = info.black
 
     if(info.jwst_image.overplot_fit) then begin
         xnew_plot = xnew + info.jwst_data.ngroups*k

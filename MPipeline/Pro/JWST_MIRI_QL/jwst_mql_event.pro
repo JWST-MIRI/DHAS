@@ -176,8 +176,6 @@ endif
        return
 
     end
-
-
 ;_______________________________________________________________________
 ; print
 
@@ -325,6 +323,21 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
+
+       type =strmid(event_name,8,1)
+       x = info.jwst_image.x_pos * info.jwst_image.binfactor
+       y = info.jwst_image.y_pos * info.jwst_image.binfactor
+
+       if (type  eq '1') then $
+          dq = (*info.jwst_data.preduced)[x,y,2]
+       if (type  eq '2')  then $
+          dq = (*info.jwst_data.preducedint)[x,y,2]
+       if (type  eq '3') then $
+          dq = (*info.jwst_data.preduced_cal)[x,y,2]
+       info.jwst_dqflag.x = x
+       info.jwst_dqflag.y = y
+       info.jwst_dqflag.dq = dq
+       ;print,'DQ',type,info.jwst_dqflag.x,info.jwst_dqflag.y,info.jwst_dqflag.dq
        jwst_dqflags,info
 
     end
@@ -422,7 +435,7 @@ endif
         endif
 
         info.jwst_image_pixel.integrationNo = info.jwst_image.integrationNO
-        if(info.jwst_control.file_slope_exist) then begin 
+        if(info.jwst_control.file_slope_exist eq 1) then begin 
             info.jwst_image_pixel.slope = (*info.jwst_data.preduced)[x,y,0]
             info.jwst_image_pixel.zeropt =  0
             info.jwst_image_pixel.error  =(*info.jwst_data.preduced)[x,y,2]

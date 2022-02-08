@@ -14,7 +14,6 @@ if( XRegistered ('jwst_mql')) then begin ; channel image display
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
 end
-
 ; _______________________________________________________________________
 pro jwst_mql_update_pixel_location,info
 ; Update the pixel location is the user selected a different pixel
@@ -112,8 +111,6 @@ if(info.jwst_control.file_cal_exist eq 1) then begin
    widget_control,info.jwst_image.pix_statID3[1],set_value= info.jwst_image.pix_statLabel3[1] +' = '+serror
    widget_control,info.jwst_image.pix_statID3[2],set_value= info.jwst_image.pix_statLabel3[2] +' = '+ sdq
 endif
-
-
 end
 
 ; _______________________________________________________________________
@@ -139,9 +136,6 @@ wdelete,1
 if(XRegistered ('jwst_mql')) then begin
     widget_control,info.jwst_RawQuickLook,/destroy
 endif
-
-;info.jwst_image.plane_final = 0
-;info.jwst_image.plane_int = 1
 
 ;_______________________________________________________________________
 ; widget window parameters
@@ -528,12 +522,13 @@ pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)
 for i = 0,2 do begin  
     info.jwst_image.pix_statID1[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel1[i]+$
                                             ' =   ' ,/align_left,/dynamic_resize)
-endfor
+ endfor
+   info_label = widget_button(pix_num_base,value = 'DQ info',uvalue = 'datainfo1')
 
 if(info.jwst_control.file_slope_int_exist eq 1) then begin 
    pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
 
-   info.jwst_image.pix_statLabel2 = ["Int Rate   (DN/s)", $
+   info.jwst_image.pix_statLabel2 = ["Int Rate (DN/s)", $
                                     "Error ",$
                                     "DQ Flag"]
 
@@ -543,12 +538,14 @@ if(info.jwst_control.file_slope_int_exist eq 1) then begin
       info.jwst_image.pix_statID2[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel2[i]+$
                                                    ' =   ' ,/align_left,/dynamic_resize)
    endfor
+
+   info_label = widget_button(pix_num_base,value = 'DQ info',uvalue = 'datainfo2')
 endif
 
 if(info.jwst_control.file_cal_exist eq 1) then begin 
    pix_num_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)    
 
-   info.jwst_image.pix_statLabel3 = ["Cal      (MJy/sr)", $
+   info.jwst_image.pix_statLabel3 = ["Cal (MJy/sr)", $
                                     "Error ",$
                                     "DQ Flag"]
 
@@ -558,10 +555,9 @@ if(info.jwst_control.file_cal_exist eq 1) then begin
       info.jwst_image.pix_statID3[i] = widget_label(pix_num_base,value = info.jwst_image.pix_statLabel3[i]+$
                                                    ' =   ' ,/align_left,/dynamic_resize)
    endfor
+   info_label = widget_button(pix_num_base,value = 'DQ info',uvalue = 'datainfo3')
 endif
 
-info_base = widget_base(info.jwst_image.infoID00,row=1,/align_left)
-info_label = widget_button(info_base,value = 'DQ flag values',uvalue = 'datainfo')
 
 ;_______________________________________________________________________
 ;*****

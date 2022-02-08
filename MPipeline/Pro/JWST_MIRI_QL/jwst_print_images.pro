@@ -15,7 +15,6 @@ pro jwst_image_print, event
   file_decompose, filename, disk,path, name, extn, version
   if strlen(extn) eq 0 then filename = filename + '.ps'
 
-
   printdone = 0
   temp = file_search (filename, Count = fcount)
   if fcount gt 0 then begin
@@ -42,35 +41,8 @@ pro jwst_image_print, event
     endif else begin
         
         Case (printimageinfo.otype) of
-            
-	  0: Begin  ; write postscript
-              set_plot, 'ps', /copy
-	     filename = disk + path + name + '.ps'
-	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
-             device, file=filename, /landscape,/color, encapsulated=0
-             
-             if(type eq 0) then jwst_mql_update_images,info,/ps
-             if(type eq 1) then jwst_mql_update_zoom_image,info,/ps
-             if(type eq 2) then jwst_mql_update_slope,info,/ps
-             if(type eq 3) then jwst_mql_update_rampread,info,/ps
-             device,/close
-             set_plot, 'x'
-           end
 
-          1: Begin  ; write encapsulated postscript
-	     set_plot, 'ps', /copy
-	     filename = disk + path + name + '.eps'
-	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
-             device,  file=filename, /color,/landscape, encapsulated=1
-             if(type eq 0 ) then jwst_mql_update_images,info,/ps
-             if(type eq 1) then jwst_mql_update_zoom_image,info,/ps
-             if(type eq 2) then jwst_mql_update_slope,info,/ps
-             if(type eq 3) then jwst_mql_update_rampread,info,/ps
-             device,/close
-             set_plot, 'x'
-         end
-
-          2: Begin  ; write JPEG
+          0: Begin  ; write JPEG
 	     filename = disk + path + name 
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
 
@@ -84,19 +56,19 @@ pro jwst_image_print, event
 
          end
 
-         3: Begin               ; write PNG
+         1: Begin               ; write PNG
              filename = disk + path + name 
              Widget_Control, printimageinfo.selectfile, Set_Value = filename
 
-             if(type eq 0 ) then  wset,jwst_info.image.draw_window_id[0]
-             if(type eq 1) then  wset,jwst_info.image.draw_window_id[1]
-             if(type eq 2) then  wset,jwst_info.image.draw_window_id[2]
-             if(type eq 3) then  wset,jwst_info.image.draw_window_id[3]
+             if(type eq 0 ) then  wset,info.jwst_image.draw_window_id[0]
+             if(type eq 1) then  wset,info.jwst_image.draw_window_id[1]
+             if(type eq 2) then  wset,info.jwst_image.draw_window_id[2]
+             if(type eq 3) then  wset,info.jwst_image.draw_window_id[3]
              image3d = TVRead(filename=filename,/PNG,/nodialog)
              image3d = 0
          end
 
-          4: Begin  ; write GIF
+          2: Begin  ; write GIF
 	     filename = disk + path + name
 	     Widget_Control, printimageinfo.selectfile, Set_Value = filename
 
@@ -106,7 +78,6 @@ pro jwst_image_print, event
              if(type eq 3) then  wset,info.jwst_image.draw_window_id[3]
              image3d = TVRead(filename=filename,/GIF,/nodialog)
              image3d = 0
-
          end
 
            else:
@@ -134,11 +105,9 @@ pro jwst_print_image_event, event
           lenback = len - 3
           if(test2 eq '.' ) then lenback = len - 2
           
-          if(otype eq 0) then filenew = strmid(fileold,0,lenback) + 'ps'
-          if(otype eq 1) then filenew = strmid(fileold,0,lenback) + 'eps'
-          if(otype eq 2) then filenew = strmid(fileold,0,lenback) + 'jpg'
-          if(otype eq 3) then filenew = strmid(fileold,0,lenback) + 'png'
-          if(otype eq 4) then filenew = strmid(fileold,0,lenback) + 'gif'
+          if(otype eq 0) then filenew = strmid(fileold,0,lenback) + 'jpg'
+          if(otype eq 1) then filenew = strmid(fileold,0,lenback) + 'png'
+          if(otype eq 2) then filenew = strmid(fileold,0,lenback) + 'gif'
 
           printimageinfo.filename = filenew
           Widget_Control, printimageinfo.selectfile, set_value=filenew
@@ -174,14 +143,13 @@ pro jwst_print_images,info,type
 
   ; Pop up a small widget so the user can type in a file name.
   ; Wait for the user to type a carriage-return.
-if(XRegistered("mql_printimage")) then return
+if(XRegistered("jwst_mql_printimage")) then return
 
 iframe = info.jwst_image.frameNO+1
 jintegration = info.jwst_image.integrationNO+1
 
 ij = 'int' + string(jintegration) + '_frame' + string(iframe)  
 ij = strcompress(ij,/remove_all)
-
 
 xvalue = fix(info.jwst_image.x_pos*info.jwst_image.binfactor)+1
 yvalue = fix(info.jwst_image.y_pos*info.jwst_image.binfactor)+1
@@ -204,15 +172,13 @@ if(type eq 3) then begin
     outname = info.jwst_output.frame_pixel + '_' + ij + '_' + xy
     mtitle = 'JWST MIRI Quicklook Print Frame Values for Selected Pixel'
 endif
-
 	  
-otype = 2
+otype = 0
 path = info.jwst_control.dirps
 slash = '/'
 if(path eq "") then slash = ''
 filename = info.jwst_control.dirps + slash + info.jwst_control.filebase + $
            outname + '.jpg'
-
 
 ; widget window parameters
 xwidget_size = 900
@@ -220,7 +186,6 @@ ywidget_size = 110
 
 xsize_scroll = 700
 ysize_scroll = 110
-
 
 if(info.jwst_control.x_scroll_window lt xsize_scroll) then $
    xsize_scroll = info.jwst_control.x_scroll_window
@@ -240,7 +205,7 @@ selectfile = Widget_Text  (pntr1base, Value = filename, XSize = 120, /Edit, $
                            Event_Pro = 'jwst_image_print')
 pntr2base  = Widget_Base  (pntrbase, /Row)
 
-tnames = ['PostScript', 'Encapsulated Postscript', 'JPEG', 'PNG', 'GIF']
+tnames = ['JPEG', 'PNG', 'GIF']
 otypeButtons = cw_bgroup(pntr2base, tnames, row=1, label_left='File type:', $
                          uvalue='obutton', set_value=otype, exclusive=1, $
                          /no_release)

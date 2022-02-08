@@ -342,26 +342,31 @@ info.jwst_cal.pix_label[1] = cw_field(pix_num_base,title="y",font=info.font4, $
 ; default values
 info.jwst_cal.pix_statLabel1 = ["Image 1 Cal (MJy/sr)",  "Image 1 Error",  "DQ flag"] 
 info.jwst_cal.pix_statFormat1 =  ["F16.4", "F16.8", "I16"] 
-for i = 0,2 do begin  
+for i = 0,1 do begin  
     info.jwst_cal.pix_statID1[i] = widget_label(infoID00,value = info.jwst_cal.pix_statLabel1[i]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
 endfor
-
-info_base = widget_base(infoID01,row=1,/align_left)
-info_label = widget_label(info_base,value = ' ')
+info_base = widget_base(infoID00,row=1,/align_left)
+info.jwst_cal.pix_statID1[2] = widget_label(info_base,value = info.jwst_cal.pix_statLabel1[2]+$
+                                            ' =  NA' ,/align_left,/dynamic_resize)
+info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo1')
+;info_base = widget_base(infoID01,row=1,/align_left)
+;info_label = widget_label(info_base,value = ' ')
 
 info.jwst_cal.pix_statLabel2 = ["Image 2 Rate (DN/s)", "Image 2 Error ","DQ Flag"]
 if (info.jwst_cal.plane[1] eq 0) then info.jwst_cal.pix_statLabel2 = ["Image 2 Cal (MJy/sr)",  "Image 2 Error",  "DQ flag"] 
 
 info.jwst_cal.pix_statFormat2 =  ["F16.4", "F16.8", "I16"] 
-for i = 0,2 do begin  
+for i = 0,1 do begin  
     info.jwst_cal.pix_statID2[i] = widget_label(infoID00,value = info.jwst_cal.pix_statLabel2[i]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
-endfor
+ endfor
 
 info_base = widget_base(infoID00,row=1,/align_left)
+info.jwst_cal.pix_statID2[2] = widget_label(info_base,value = info.jwst_cal.pix_statLabel2[2]+$
+                                        ' =  NA' ,/align_left,/dynamic_resize)
 
-info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
+info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo2')
 ;*****
 ;graph 2,1; window 2 initally set to cal image zoom
 ;*****

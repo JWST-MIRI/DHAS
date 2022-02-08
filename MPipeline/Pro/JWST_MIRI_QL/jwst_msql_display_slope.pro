@@ -177,10 +177,10 @@ endif
 ;*********
 ;_______________________________________________________________________
 ; widget window parameters
-xwidget_size = 950
-ywidget_size = 910
-xsize_scroll = 1250
-ysize_scroll = 1250
+xwidget_size = 1250
+ywidget_size = 1000
+xsize_scroll = 1050
+ysize_scroll = 900
 
 if(info.jwst_slope.uwindowsize eq 1) then begin ; user has set window size 
     xsize_scroll = info.jwst_slope.xwindowsize
@@ -457,23 +457,29 @@ info.jwst_slope.pix_label[1] = cw_field(pix_num_base,title="y",font=info.font4, 
 
 info.jwst_slope.pix_statLabel1 = ["Image 1 Rate (DN/s)",  "Image 1 Error",  "DQ flag"] 
 info.jwst_slope.pix_statFormat1 =  ["F16.4", "F16.8", "I16"] 
-for i = 0,2 do begin  
+for i = 0,1 do begin  
     info.jwst_slope.pix_statID1[i] = widget_label(infoID00,value = info.jwst_slope.pix_statLabel1[i]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
 endfor
-
-info_base = widget_base(infoID01,row=1,/align_left)
-info_label = widget_label(info_base,value = ' ')
-
-   info.jwst_slope.pix_statLabel2 = ["Image 2 Rate (DN/s)", "Image 2 Error (DN/S)","DQ Flag"]
-   info.jwst_slope.pix_statFormat2 =  ["F16.4", "F16.8", "I16"] 
-   for i = 0,2 do begin  
-      info.jwst_slope.pix_statID2[i] = widget_label(infoID00,value = info.jwst_slope.pix_statLabel2[i]+$
+dq_base = widget_base(infoID00,row=1,/align_left)
+info.jwst_slope.pix_statID1[2] = widget_label(dq_base,value = info.jwst_slope.pix_statLabel1[2]+$
                                         ' =  NA' ,/align_left,/dynamic_resize)
-   endfor
+info_label = widget_button(dq_base,value = 'DQ Info',uvalue = 'datainfo1')
 
-info_base = widget_base(infoID00,row=1,/align_left)
-info_label = widget_button(info_base,value = 'DQ Info',uvalue = 'datainfo')
+;info_base = widget_base(infoID00,row=1,/align_left)
+;info_label = widget_label(info_base,value = ' ')
+
+info.jwst_slope.pix_statLabel2 = ["Image 2 Rate (DN/s)", "Image 2 Error (DN/S)","DQ Flag"]
+info.jwst_slope.pix_statFormat2 =  ["F16.4", "F16.8", "I16"] 
+for i = 0,1 do begin  
+   info.jwst_slope.pix_statID2[i] = widget_label(infoID00,value = info.jwst_slope.pix_statLabel2[i]+$
+                                                 ' =  NA' ,/align_left,/dynamic_resize)
+endfor
+dq_base = widget_base(infoID00,row=1,/align_left)
+info.jwst_slope.pix_statID2[2] = widget_label(dq_base,value = info.jwst_slope.pix_statLabel2[2]+$
+                                              ' =  NA' ,/align_left,/dynamic_resize)
+info_label = widget_button(dq_base,value = 'DQ Info',uvalue = 'datainfo2')
+
 ;*****
 ;graph 2,1; window 2 initally set to Slope image zoom
 ;*****
@@ -484,7 +490,6 @@ base1 = widget_base(info.jwst_slope.graphID21,row=1)
 info.jwst_slope.graph_label[2] = widget_label(base1,$
                                               value=subt,/align_center,$
                                               font=info.font5,/sunken_frame)
-
 
 zoom_base = widget_base(info.jwst_slope.graphID21,row=1)
 info.jwst_slope.zoom_label[0] = widget_button(zoom_base,value=zoomvalues[0],$

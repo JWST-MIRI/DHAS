@@ -71,12 +71,9 @@ box_coords1 = [xpos1,xpos2,ypos1,ypos2]
 plots,box_coords1[[0,0,1,1,0]],box_coords1[[2,3,3,2,2]],psym=0,/device
 end
 ;_______________________________________________________________________
-pro jwst_mql_update_zoom_image,info,ps = ps,eps = eps
+pro jwst_mql_update_zoom_image,info
 ;_______________________________________________________________________
-hcopy = 0
 loadct,info.col_table,/silent
-if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
-
 graphnum = info.jwst_image.graph_mpixel 
 
 info.jwst_image.zoom_window = graphnum ; orginal window zooming in on
@@ -253,8 +250,7 @@ info.jwst_image.zoom_range[1] = irange_max
 
 widget_control,info.jwst_image.graphID[1],draw_xsize = xrange*zoom,draw_ysize=yrange*zoom 
 
-if(hcopy eq 0) then wset,info.jwst_image.pixmapID[1]
-
+wset,info.jwst_image.pixmapID[1]
 disp_image = congrid(sub_image, xsize*zoom,ysize*zoom)
 disp_image = bytscl(disp_image,min=info.jwst_image.graph_range[1,0], $
                     max=info.jwst_image.graph_range[1,1],$
@@ -263,37 +259,11 @@ disp_image = bytscl(disp_image,min=info.jwst_image.graph_range[1,0], $
 frame_image = 0 ; free memory
 sub_image = 0
 tv,disp_image,0,0,/device
-if(hcopy eq 0) then begin 
-    wset,info.jwst_image.draw_window_id[1]
-    device,copy=[0,0,$
-                 xsize*zoom,$
-                 ysize*zoom, $
-                 0,0,info.jwst_image.pixmapID[1]]
-endif else begin
-    stitle = szoom
-    ftitle = "Frame #: " + strtrim(string(j+1),2) 
-    ititle = "Integration #: " + strtrim(string(i+1),2)
-    sstitle = info.jwst_control.filebase+'.fits'
-    smean = strtrim(string(image_mean),2)
-    smin = strtrim(string(image_min),2)
-    smax = strtrim(string(image_max),2)
-    mtitle = "Mean: " + smean 
-    mintitle = "Min value: " + smin
-    maxtitle = "Max value: " + smax
-    xrg = "X pixel range: " + strtrim(string(xstart+1),2) + ' to ' + strtrim(string(xend+1),2)
-    yrg = "Y pixel range: " + strtrim(string(ystart+1),2) + ' to ' + strtrim(string(yend+1),2)
-
-    xyouts,0.75*!D.X_Vsize,0.95*!D.Y_VSize,sstitle,/device
-    xyouts,0.75*!D.X_Vsize,0.90*!D.Y_VSize,stitle,/device
-    xyouts,0.75*!D.X_Vsize,0.85*!D.Y_VSize,ftitle,/device
-    xyouts,0.75*!D.X_Vsize,0.80*!D.Y_VSize,ititle,/device
-
-    xyouts,0.75*!D.X_Vsize,0.75*!D.Y_VSize,mintitle,/device
-    xyouts,0.75*!D.X_Vsize,0.70*!D.Y_VSize,maxtitle,/device
-    xyouts,0.75*!D.X_Vsize,0.65*!D.Y_VSize,xrg,/device
-    xyouts,0.75*!D.X_Vsize,0.60*!D.Y_VSize,yrg,/device
-
-endelse
+wset,info.jwst_image.draw_window_id[1]
+device,copy=[0,0,$
+             xsize*zoom,$
+             ysize*zoom, $
+             0,0,info.jwst_image.pixmapID[1]]
 ; update stats    
 smean =  strcompress(string(image_mean),/remove_all)
 smin = strcompress(string(image_min),/remove_all) 

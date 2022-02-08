@@ -27,7 +27,6 @@ cinfo.view_image2d.ypos = (y2 - y1)/2 + y1
 cinfo.view_cube.xpos_cube = cinfo.view_image2d.xpos
 cinfo.view_cube.ypos_cube = cinfo.view_image2d.ypos
 
-
 if(cinfo.do_centroid eq 1) then jwst_cv_cleanup_centroid,cinfo
 if(XRegistered ('surface')) then widget_control,cinfo.SurfacePlot,/destroy
 if(cinfo.imagetype eq 0) then begin

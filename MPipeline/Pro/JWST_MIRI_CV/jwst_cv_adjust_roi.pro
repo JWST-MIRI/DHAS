@@ -58,12 +58,10 @@ case 1 of
             widget_control,cinfo.adjust_roi.x2ID,set_value = cinfo.adjust_roi.x2
         endif
 
-
         x1 = cinfo.adjust_roi.x1 - 1
         x2 = cinfo.adjust_roi.x2 - 1
         y1 = cinfo.adjust_roi.y1 - 1
         y2 = cinfo.adjust_roi.y2 - 1
-
 
         (*cinfo.roi).roix1 = x1
         (*cinfo.roi).roix2 = x2
@@ -73,16 +71,23 @@ case 1 of
             cinfo.view_cube.xpos_cube = (x2 - x1)/2 + x1 
             cinfo.view_cube.ypos_cube = (y2 - y1)/2 + y1
             jwst_cv_update_cube,cinfo
+            
         endif
 
         if(cinfo.imagetype ge 1) then begin 
             cinfo.view_image2d.xpos = (x2 - x1)/2 + x1 
             cinfo.view_image2d.ypos = (y2 - y1)/2 + y1
             jwst_cv_update_image2d,cinfo
-        endif
+         endif
+        
+        spectrum = cinfo.jwst_spectrum
+        cube = cinfo.jwst_cube
+
+        jwst_extract_spectrum_from_cube,x1,x2,y1,y2,cube,spectrum,status
+        cinfo.jwst_spectrum = spectrum
+        jwst_cv_update_spectrum,cinfo
 
     end
-
 
     (strmid(event_name,0,2) EQ 'x1') : begin
         cinfo.adjust_roi.x1 = event.value
@@ -106,14 +111,8 @@ case 1 of
         if(y2 gt y2_full) then y2 = y2_full
         cinfo.adjust_roi.y2 = y2
     end
-
-
-
     else: print,'Event Name not found ',event_name
 endcase
-
-
-
 
 widget_control,winfo.cinfo.cubeview,Set_Uvalue = cinfo
 
@@ -146,15 +145,10 @@ quitbutton = widget_button(quitmenu,value="Quit",event_pro='jwst_adjust_quit')
 graphID_master = widget_base(cinfo.AdjustROI,row=1)
 graphID1 = widget_base(graphID_master,col= 1)
 ;_______________________________________________________________________
-
-
-;_______________________________________________________________________
 ; select wavelengths by clicking - selecttype = 1
 
 titlelabel = widget_label(graphID1,value = ' X and Y Cube Pixel Limits of Region of Interest',/align_left,$
                          font=cinfo.font2)
-
-
 
 if(cinfo.imagetype eq 0) then begin
     cinfo.adjust_roi.x1 = cinfo.view_cube.xstart

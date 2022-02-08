@@ -195,31 +195,19 @@ case 1 of
        endif
    end
 ;_______________________________________________________________________
-   
-   (strmid(event_name,0,8) EQ 'getframe') : begin
-	x = info.jwst_cal.x_pos * info.jwst_cal.binfactor
-	y = info.jwst_cal.y_pos * info.jwst_cal.binfactor
+   (strmid(event_name,0,8) EQ 'datainfo') : begin
+      type =strmid(event_name,8,1)
+       x = info.jwst_cal.x_pos * info.jwst_cal.binfactor
+       y = info.jwst_cal.y_pos * info.jwst_cal.binfactor
+       if (type  eq '1') then $
+          dq = (*info.jwst_data.pcal1)[x,y,2]
 
-        ; check and see if read in all frame values for pixel
-        ; if not then read in
+       if (type  eq '2')  then $
+          dq = (*info.jwst_data.pcal2)[x,y,2]
 
-        pixeldata = (*info.jwst_cal.pixeldata)
-
-        size_data = size(pixeldata)
-        if(size_data[0] eq 0) then return
-
-        info.jwst_image_pixel.nints = info.jwst_data.nints
-        info.jwst_image_pixel.slope = (*info.jwst_data.pslopedata)[x,y,0]
-
-        info.jwst_image_pixel.uncertainty =  (*info.jwst_data.pslopedata)[x,y,1]
-        info.jwst_image_pixel.quality_flag =  (*info.jwst_data.pslopedata)[x,y,2]
-
-        info.jwst_image_pixel.filename = info.jwst_control.filename_slope
-
-	display_frame_values,x,y,info,0
-    end
-;_______________________________________________________________________
-    (strmid(event_name,0,8) EQ 'datainfo') : begin
+       info.jwst_dqflag.x = x
+       info.jwst_dqflag.y = y
+       info.jwst_dqflag.dq = dq
        jwst_dqflags,info
     end
 ;_______________________________________________________________________

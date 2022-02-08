@@ -7,7 +7,6 @@ findwave  = findwave*findwave
 index = where(findwave eq min(findwave))
 index_wave = index[0]
 
-
 imiddle = index[0]
 istart = imiddle -1
 iend = imiddle + 1
@@ -29,7 +28,6 @@ flux = spectrum[istart:iend]
 err = error[istart:iend]
 n = n_elements(wave)
 
-
 yflux = 0
 weight = 0
 errvalue = 0
@@ -49,7 +47,6 @@ errvalue = sqrt(errvalue)
 line_values[0] = x
 line_values[1] = yflux
 line_values[2] = errvalue
-
 
 wave = 0 & flux = 0  & err = 0
 

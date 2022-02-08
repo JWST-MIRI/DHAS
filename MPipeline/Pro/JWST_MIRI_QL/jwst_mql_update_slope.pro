@@ -1,12 +1,9 @@
 ; Plots the slope image for the Science Image display
 ; Plots a 1032 X 1024 image (includes reference output pixels)
 
-
-pro jwst_mql_update_slope,info,ps=ps,eps=eps
+pro jwst_mql_update_slope,info
 
 loadct,info.col_table,/silent
-hcopy = 0
-if ( (keyword_set(ps)) or ( keyword_set(eps)) ) then hcopy = 1
 
 ;plane = 0 final rate image
 ;plane = 1 rate int image
@@ -80,7 +77,7 @@ ysize_image = fix(info.jwst_data.image_ysize/info.jwst_image.binfactor)
 widget_control,info.jwst_image.graphID[2],draw_xsize = xsize_image,draw_ysize=ysize_image 
 
 ; Display the image
-if(hcopy eq 0) then wset,info.jwst_image.pixmapID[2]
+wset,info.jwst_image.pixmapID[2]
 disp_image = congrid(frame_image, $
                      xsize_image,ysize_image)
 
@@ -89,12 +86,11 @@ disp_image = bytscl(disp_image,min=info.jwst_image.graph_range[2,0], $
                     top=info.col_max-info.col_bits -1 ,/nan)
 tv,disp_image,0,0,/device
 frame_image = 0
-if(hcopy eq 0) then begin 
-    wset,info.jwst_image.draw_window_id[2]
-    device,copy=[0,0,xsize_image,$
-                 ysize_image, $
-                 0,0,info.jwst_image.pixmapID[2]]
-endif
+
+wset,info.jwst_image.draw_window_id[2]
+device,copy=[0,0,xsize_image,$
+             ysize_image, $
+             0,0,info.jwst_image.pixmapID[2]]
 
 ; update stats    
 
@@ -113,24 +109,6 @@ widget_control,info.jwst_image.mlabelID[2],set_value=sminmax
 widget_control,info.jwst_image.rlabelID[2,0],set_value=range1
 widget_control,info.jwst_image.rlabelID[2,1],set_value=range2
 
-if(hcopy eq 1) then begin 
-    ssmean = string('Mean ' + smean)
-    ssmin = strtrim(string(smin,format="(E10.2)"),2) 
-    ssmax = strtrim(string(smax,format="(E10.2)"),2)
-    svalue = "Slope Image"
-    ititle = "Integration #: " + strtrim(string(i+1),2)
-    sstitle = info.jwst_control.filebase+'.fits'
-    mintitle = "Min value: " + ssmin
-    maxtitle = "Max value: " + ssmax
-    
-
-    xyouts,0.75*!D.X_Vsize,0.95*!D.Y_VSize,sstitle,/device
-    xyouts,0.75*!D.X_Vsize,0.90*!D.Y_VSize,svalue,/device
-    xyouts,0.75*!D.X_Vsize,0.85*!D.Y_VSize,ititle,/device
-    xyouts,0.75*!D.X_Vsize,0.80*!D.Y_VSize,ssmean,/device
-    xyouts,0.75*!D.X_Vsize,0.75*!D.Y_VSize,mintitle,/device
-    xyouts,0.75*!D.X_Vsize,0.70*!D.Y_VSize,maxtitle,/device
-endif
 ; replot the pixel location
 
 ; info.jwst_image.x_pos,y_pos based on Raw image plot 1 

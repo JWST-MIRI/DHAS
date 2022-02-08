@@ -15,9 +15,7 @@ if(info.jwst_AmpFrame.zoom eq 16) then widget_control,info.jwst_AmpFrame.zoom_la
 x = info.jwst_AmpFrame.xposfull
 y = info.jwst_AmpFrame.yposfull
 
-
 if(zoom eq 1) then begin
-
     x = info.jwst_data.image_xsize/8
     y = info.jwst_data.image_ysize/2
 endif
@@ -25,7 +23,6 @@ endif
 
 xsize_org =  info.jwst_AmpFrame.xplotsize
 ysize_org =  info.jwst_AmpFrame.yplotsize
-
 
 if(zoom eq 1) then begin 
   xsize = xsize_org

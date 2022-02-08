@@ -46,6 +46,12 @@ endif
     end
 ;_______________________________________________________________________
     (strmid(event_name,0,8) EQ 'datainfo') : begin
+       xvalue = info.jwst_inspect_slope.xposful
+       yvalue = info.jwst_inspect_slope.yposful
+       dq = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,2]
+       info.jwst_dqflag.x = xvalue
+       info.jwst_dqflag.y = yvalue
+       info.jwst_dqflag.dq = dq
        jwst_dqflags,info
     end
 ;_______________________________________________________________________
@@ -633,7 +639,6 @@ slopevalue = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,0]
 error = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,1]
 dq = (*info.jwst_inspect_slope.pdata)[xvalue,yvalue,2]
 
-
 ss =  strtrim(string(slopevalue,format="("+info.jwst_inspect_slope.pix_statFormat[0]+")"),2)
 se =  strtrim(string(error,format="("+info.jwst_inspect_slope.pix_statFormat[1]+")"),2)
 sdq =  strtrim(string(dq,format="("+info.jwst_inspect_slope.pix_statFormat[2]+")"),2)
@@ -943,7 +948,6 @@ info_label = widget_button(info_base,value = 'Info',uvalue = 'datainfo')
 b_label = widget_label(graphID2,value=blank)
 s_label = widget_label(graphID2,value="Statisical Information" ,/align_left,/sunken_frame,font=info.font5)
 s_label = widget_label(graphID2,value="Reference Pixels  NOT Included" ,/align_left)
-
 
 info.jwst_inspect_slope.sname = ['Mean:              ',$
                       'Standard Deviation ',$
